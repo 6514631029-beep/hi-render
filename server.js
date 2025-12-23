@@ -5,24 +5,31 @@ const multer = require('multer');
 const mysql = require('mysql2');
 
 const session = require('express-session');
+const fs = require('fs');
 const path = require('path');
+
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 
 const app = express();
 const port = process.env.PORT || 3000;
+// ✅ สร้างโฟลเดอร์ uploads อัตโนมัติ (กัน Render ไม่มีโฟลเดอร์)
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // โฟลเดอร์ที่ใช้เก็บไฟล์ในเครื่อง
+    cb(null, uploadDir); // ✅ ใช้ตัวนี้แทน 'uploads/'
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + '-' + file.originalname); // ✅ ใช้ file.originalname แทน file ทั้งตัว
+    cb(null, uniqueSuffix + '-' + file.originalname);
   }
-
 });
+
 
 const upload = multer({ storage });
 
@@ -46,17 +53,15 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  connectTimeout: 20000,
-  ssl: { rejectUnauthorized: false } // สำหรับ Railway public
+  connectTimeout: 10000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+  ssl: { rejectUnauthorized: false }
 });
 
-// test
 db.query('SELECT 1', (err) => {
-  if (err) {
-    console.error('❌ MySQL error:', err);
-  } else {
-    console.log('✅ MySQL connected!');
-  }
+  if (err) console.error('❌ MySQL error:', err);
+  else console.log('✅ MySQL connected!');
 });
 
 
@@ -824,6 +829,10 @@ app.get('/completed', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'completed.html'));
 });
 
+// ✅ กันคนพิมพ์ /submit ใน URL (GET) ให้เด้งกลับหน้าฟอร์ม
+app.get('/submit', (req, res) => {
+  res.redirect('/'); // หรือ '/index.html' ถ้าคุณใช้ชื่อนั้น
+});
 
 app.use((req, res) => {
   res.status(404).send('ไม่พบหน้าเว็บที่คุณเรียก');
