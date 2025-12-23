@@ -793,7 +793,7 @@ app.get('/track.html', (req, res) => {
 // ✅ endpoint ใหม่สำหรับดึงข้อมูล "กำลังดำเนินการ"
 // ดึงจากตาราง inprogress (แนะนำ)
 
-app.get('/data-inprogress', (req, res) => {
+app.get('/data-in-progress', (req, res) => {
   const department = req.query.department;
 
   let sql = 'SELECT * FROM inprogress';
