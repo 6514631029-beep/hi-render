@@ -3,6 +3,7 @@
 <head>
   <link rel="manifest" href="/manifest-health.json">
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>📋 รายการคำร้อง - สาธารณสุข</title>
   <style>
     body { font-family: 'Kanit', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
@@ -11,165 +12,219 @@
     th, td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
     th { background: #15563b; color: white; }
     img, video { max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    video.rotated-180 { transform: rotate(180deg); }
-    .media-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-}
+    .media-container { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0; }
     a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
+    .input { padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background:#fff; font-size: 16px; }
+    .btn { padding:10px 14px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-weight:600; cursor:pointer; }
+    .btn.link-yellow { border-color:#eab308; background:#fff8e1; color:#92400e; }
+    .counter-bar { text-align:center; margin: -4px 0 16px; }
   </style>
 </head>
 <body>
   <h2>📋 รายการคำร้อง - สาธารณสุข</h2>
-  <div style="text-align:center; margin-bottom: 20px;">
-  <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อ..." oninput="filterByName()" style="
-    padding: 10px;
-    width: 300px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  " />
-</div>
+
+  <!-- ช่องค้นหา -->
+  <div style="text-align:center; margin-bottom: 12px;">
+    <input type="text" id="searchInput" class="input" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." />
+    <button id="refreshBtn" class="btn" onclick="refreshData()" style="margin-left:8px;">🔄 รีเฟรช</button>
+    
+  </div>
+
+  <!-- ปุ่มสถานะ -->
+  <div class="counter-bar">
+    <button id="btn-unset" onclick="location.href='unset-health.html'" class="btn link-yellow">
+      📝 ยังไม่ได้เลือกสถานะ (0)
+    </button>
+    <button id="btn-pending" onclick="location.href='pending-health.html'" class="btn">
+      ⏳ รอดำเนินการ (0)
+    </button>
+    <button id="btn-inprogress" onclick="location.href='inprogress-health.html'" class="btn">
+      ⚙️ กำลังดำเนินการ (0)
+    </button>
+    <button id="btn-completed" onclick="location.href='completed-health.html'" class="btn">
+      ✅ เสร็จสิ้น (0)
+    </button>
+  </div>
+
   <table>
     <thead>
-      <tr><th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th></tr>
+      <tr>
+        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th>
+        <th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th>
+      </tr>
     </thead>
     <tbody id="data-body"></tbody>
   </table>
+
   <script>
-    let allHealthData = []; // ✅ ใช้สำหรับเก็บข้อมูลที่โหลดมาทั้งหมด
+    const DEPT = 'สาธารณสุข';
+    let allHealthData = [];
+    let debounceTimer = null;
+
+    const searchEl = document.getElementById('searchInput');
+    searchEl.value = localStorage.getItem('health_search') || '';
+    searchEl.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        localStorage.setItem('health_search', searchEl.value || '');
+        applyFilters();
+      }, 250);
+    });
+    searchEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { searchEl.value = ''; localStorage.removeItem('health_search'); applyFilters(); }
+      if (e.key === 'Enter') { applyFilters(); }
+    });
+
+    loadData();
+    updateCounters();
+    setInterval(updateCounters, 60000);
+
     async function loadData() {
       const res = await fetch('/data-health-all?_=' + Date.now());
       const data = await res.json();
-      allHealthData = data; // ✅ บันทึกข้อมูลไว้สำหรับการค้นหา
-      renderTable(data);
-
+      data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      allHealthData = data;
+      applyFilters();
     }
+
+    function applyFilters() {
+      const kw = (searchEl.value || '').trim().toLowerCase();
+      const filtered = allHealthData.filter(row =>
+        !kw ||
+        (row.name  && String(row.name).toLowerCase().includes(kw)) ||
+        (row.phone && String(row.phone).toLowerCase().includes(kw))
+      );
+      renderTable(filtered);
+    }
+
     function renderTable(data) {
       const tbody = document.getElementById('data-body');
       tbody.innerHTML = '';
+
       data.forEach(row => {
         let files = [];
-        try { files = row.photo ? JSON.parse(row.photo) : []; } catch (e) { console.error('JSON parse error', e); }
+        try {
+          if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+          else if (Array.isArray(row.photo)) files = row.photo;
+        } catch { files = []; }
+
         let fileLinks = "-";
         if (files.length > 0) {
           const first = files[0];
-          const firstUrl = typeof first === 'string' ? first : first.url;
-          const firstType = first.type || "";
+          const firstUrl = typeof first === 'string'
+            ? (first.startsWith('uploads/') ? `/${first}` : first)
+            : ((first.url || '').startsWith('uploads/') ? `/${first.url}` : (first.url || ''));
+          const firstType = (typeof first === 'string') ? '' : (first.type || '');
 
-          const firstElement = firstType === 'video'
-          ? `<video controls style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-              <source src="${firstUrl}" type="video/mp4">
-            </video>`
-          : `<img src="${firstUrl}" style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);" />`;
+          const firstEl = firstType === 'video'
+            ? `<video controls style="width:150px;border-radius:10px;"><source src="${firstUrl}" type="video/mp4"></video>`
+            : `<img src="${firstUrl}" style="width:150px;border-radius:10px;" />`;
 
-        const buttonHtml = files.length > 1
-          ? `<button style="
-                margin-top: 10px;
-                padding: 6px 12px;
-                border: 1px solid #999;
-                border-radius: 6px;
-                background: white;
-                font-weight: bold;
-                cursor: pointer;
-            " onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
-          : "";
+          const btnAll = files.length > 1
+            ? `<button class="btn" style="margin-top:10px" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
+            : "";
+          fileLinks = `<div class="media-container">${firstEl}${btnAll}</div>`;
+        }
 
-        fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
-      }
-        const mapLink = row.latitude && row.longitude ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>` : '-';
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
+
         const statusSelect = `
-          <select onchange="setStatus(${row.id}, this.value)">
-            <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+          <select onchange="setStatus(${row.id}, this.value)" style="padding:6px 8px; border-radius:8px; border:1px solid #cbd5e1;">
+            <option value="" disabled ${(row.status == null || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
             <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
             <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
             <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
           </select>
         `;
 
-          tbody.innerHTML += `
+        tbody.innerHTML += `
           <tr>
             <td>${row.name || '-'}</td>
             <td>${row.phone || '-'}</td>
             <td>${row.message || '-'}</td>
-            <td>${fileLinks || '-'}</td>
+            <td>${fileLinks}</td>
             <td>${row.department || '-'}</td>
             <td>${statusSelect}</td>
             <td>${mapLink}</td>
+            <td>${formatDate(row.created_at)}</td>
           </tr>
         `;
       });
     }
-    loadData();
-  </script>
-  <script>
-  function filterByName() {
-    const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-    const filtered = allHealthData.filter(row =>
-      (row.name && row.name.toLowerCase().includes(keyword)) ||
-      (row.phone && row.phone.toLowerCase().includes(keyword))
-    );
-    renderTable(filtered);
-  }
-  function showImages(images) {
-    const html = images.map(img => {
-      const url = typeof img === 'string' ? img : img.url;
-      const type = img.type || "";
 
-      if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
-            return `
-              <video controls style="
-                width: auto;
-                max-width: 700px;
-                max-height: 500px;
-                margin-bottom: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-              ">
-                <source src="${url}" type="video/mp4">
-              </video>`;
-          }
+    async function updateCounters() {
+      try {
+        const [pRes, iRes, cRes] = await Promise.all([
+          fetch('/data-pending?_=' + Date.now()),
+          fetch('/data-in-progress?_=' + Date.now()),
+          fetch('/data-completed?_=' + Date.now())
+        ]);
+        const [pAll, iAll, cAll] = await Promise.all([pRes.json(), iRes.json(), cRes.json()]);
+        const byDept = (r) => ((r.department || '').trim() === DEPT);
 
-          return `
-            <img src="${url}" style="
-              width: auto;
-              max-width: 700px;
-              max-height: 500px;
-              margin-bottom: 20px;
-              border-radius: 8px;
-              object-fit: contain;
-              box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            " />`;
-        }).join('');
+        const unset      = (Array.isArray(allHealthData) ? allHealthData : []).filter(r => byDept(r) && (!r.status || String(r.status).trim()==='')).length;
+        const pending    = (Array.isArray(pAll) ? pAll : []).filter(byDept).length;
+        const inProgress = (Array.isArray(iAll) ? iAll : []).filter(byDept).length;
+        const completed  = (Array.isArray(cAll) ? cAll : []).filter(byDept).length;
 
-        const win = window.open('', '_blank', 'width=800,height=600');
-        win.document.write(`
-          <body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">
-            ${html}
-          </body>
-        `);
-      }
-</script>
-</script>
-<script>
-  function setStatus(id, status) {
-    fetch(`/set-status/${id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ status })
-    }).then(res => {
-      if (res.ok) {
+        document.getElementById('btn-unset').textContent = `📝 ยังไม่ได้เลือกสถานะ (${unset})`;
+        document.getElementById('btn-pending').textContent = `⏳ รอดำเนินการ (${pending})`;
+        document.getElementById('btn-inprogress').textContent = `⚙️ กำลังดำเนินการ (${inProgress})`;
+        document.getElementById('btn-completed').textContent = `✅ เสร็จสิ้น (${completed})`;
+      } catch (err) { console.error('Error updating counters:', err); }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'ไม่ทราบเวลา';
+      const date = new Date(dateString);
+      if (isNaN(date)) return 'ไม่สามารถแปลงเวลาได้';
+      const options = { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false };
+      return date.toLocaleString('th-TH', options);
+    }
+
+    function showImages(images) {
+      const html = images.map(img => {
+        const url = typeof img === 'string'
+          ? (img.startsWith('uploads/') ? `/${img}` : img)
+          : ((img.url || '').startsWith('uploads/') ? `/${img.url}` : (img.url || ''));
+        const type = (typeof img === 'string') ? '' : (img.type || '');
+        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
+          return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;"><source src="${url}" type="video/mp4"></video>`;
+        }
+        return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;" />`;
+      }).join('');
+      const win = window.open('', '_blank', 'width=800,height=600');
+      win.document.write(`<body style="font-family:kanit;padding:30px;text-align:center;background:#f9f9f9">${html}</body>`);
+    }
+
+    async function setStatus(id, status) {
+      try {
+        const res = await fetch(`/set-status/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (!res.ok) throw new Error('update failed');
         alert("อัปเดตสถานะเรียบร้อย");
-      } else {
+        loadData(); updateCounters();
+      } catch (e) {
         alert("เกิดข้อผิดพลาดในการอัปเดต");
       }
-    });
-  }
+    }
+  </script>
+  <script>
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.innerHTML = '⏳ กำลังรีเฟรช...';
+  btn.disabled = true;
+  await loadData();
+  setTimeout(() => {
+    btn.innerHTML = '🔄 รีเฟรช';
+    btn.disabled = false;
+  }, 500);
+}
 </script>
 
 </body>

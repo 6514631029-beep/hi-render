@@ -1,0 +1,212 @@
+<!-- public/inprogress.html -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <link rel="manifest" href="/manifest-electric.json">
+  <meta name="theme-color" content="#155263">
+  <meta charset="UTF-8" />
+  <title>📋 รายการคำร้อง - กำลังดำเนินการ</title>
+  <style>
+    body { font-family: 'Kanit', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
+    th { background: #15563b; color: white; }
+    img, video { max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .media-container { display:flex; flex-direction:column; align-items:center; gap:10px; padding:10px 0; }
+    a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
+  </style>
+</head>
+<body>
+    <a href="admin-electric.html" style="
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    ">⬅ ย้อนกลับ</a>
+
+    <h2>📋 รายการคำร้อง - กำลังดำเนินการ</h2>
+
+  <div style="text-align:center; margin-bottom: 20px;">
+    <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อ/เบอร์..." oninput="filterByName()" style="
+      padding: 10px;
+      width: 300px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    " />
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ชื่อ</th>
+        <th>เบอร์</th>
+        <th>ข้อความ</th>
+        <th>ไฟล์</th>
+        <th>แผนที่</th>
+        <th>แผนก</th>
+        <th>วันที่-เวลา</th>
+      </tr>
+    </thead>
+    <tbody id="data-body"></tbody>
+  </table>
+
+  <script>
+    let inProgressData = [];
+
+    async function loadData() {
+      const res = await fetch('/data-in-progress?_=' + Date.now());
+      const data = await res.json();
+      inProgressData = data;
+      renderTable(inProgressData);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      data.forEach(row => {
+        // --- parse photo ---
+        let files = [];
+        try {
+          if (row.photo && typeof row.photo === 'string') {
+            files = JSON.parse(row.photo);
+          } else if (Array.isArray(row.photo)) {
+            files = row.photo;
+          } else {
+            files = [];
+          }
+        } catch (e) {
+          console.error('JSON parse error', e);
+          files = [];
+        }
+
+        // ไฟล์แรก + ปุ่มดูทั้งหมด
+        let fileLinks = "-";
+        if (files.length > 0) {
+          const first = files[0];
+          const firstUrl = typeof first === 'string'
+            ? (first.startsWith('uploads/') ? `/${first}` : first)
+            : (first.url.startsWith('uploads/') ? `/${first.url}` : first.url);
+
+          const firstType = (typeof first === 'string') ? '' : (first.type || '');
+          const isVideo = firstType === 'video' || (typeof firstUrl === 'string' && firstUrl.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/));
+
+          const firstElement = isVideo
+            ? `<video controls style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                 <source src="${firstUrl}" type="video/mp4">
+               </video>`
+            : `<img src="${firstUrl}" style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);" />`;
+
+          const buttonHtml = files.length > 1
+            ? `<button style="
+                  margin-top: 10px;
+                  padding: 6px 12px;
+                  border: 1px solid #999;
+                  border-radius: 6px;
+                  background: white;
+                  font-weight: bold;
+                  cursor: pointer;
+                " onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
+            : "";
+
+          fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
+        }
+
+        // ลิงก์แผนที่ (ใหม่)
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.name || '-'}</td>
+            <td>${row.phone || '-'}</td>
+            <td>${row.message || '-'}</td>
+            <td>${fileLinks}</td>
+            <td>${mapLink}</td>
+            <td>${row.department || '-'}</td>
+            <td>${formatDate(row.created_at)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'ไม่ทราบเวลา';
+      const date = new Date(dateString);
+      if (isNaN(date)) return 'ไม่สามารถแปลงเวลาได้';
+      const options = {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+      };
+      return date.toLocaleString('th-TH', options);
+    }
+
+    function filterByName() {
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = inProgressData.filter(row =>
+        (row.name && row.name.toLowerCase().includes(keyword)) ||
+        (row.phone && row.phone.toLowerCase().includes(keyword))
+      );
+      renderTable(filtered);
+    }
+
+    function showImages(images) {
+      const html = images.map(img => {
+        const url = typeof img === 'string'
+          ? (img.startsWith('uploads/') ? `/${img}` : img)
+          : (img.url.startsWith('uploads/') ? `/${img.url}` : img.url);
+
+        const type = (img.type || '').toLowerCase();
+
+        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
+          return `
+            <video controls style="
+              width: auto;
+              max-width: 700px;
+              max-height: 500px;
+              margin-bottom: 20px;
+              border-radius: 8px;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            ">
+              <source src="${url}" type="video/mp4">
+            </video>`;
+        }
+
+        return `
+          <img src="${url}" style="
+            width: auto;
+            max-width: 700px;
+            max-height: 500px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            object-fit: contain;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          " />`;
+      }).join('');
+
+      const win = window.open('', '_blank', 'width=800,height=600');
+      win.document.write(`
+        <body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">
+          ${html}
+        </body>
+      `);
+    }
+
+    loadData();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch(err => console.error('❌ SW registration failed', err));
+    }
+  </script>
+</body>
+</html>

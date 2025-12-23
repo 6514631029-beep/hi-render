@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "echo 'No build needed'"
+    "build": "echo \"No build needed\""
   },
   "dependencies": {
     "cloudinary": "^1.41.3",
@@ -19,13 +19,5 @@
     "mysql2": "^3.3.1",
     "nodemailer": "^7.0.5",
     "uuid": "^11.1.0"
-  },
-  "description": "",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Mungkorn1551/Hi.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

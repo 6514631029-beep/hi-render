@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เลือกหน้าถัดไป</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #a1c4fd, #fbc2eb); /* สีฟ้าชมพู */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8); /* เงาเข้มขึ้น */
+    }
+
+    .btn {
+      padding: 14px 24px;
+      margin: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 220px;
+      transition: background-color 0.3s, transform 0.2s;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); /* ความนูนของปุ่ม */
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-submit {
+      background-color: #66bb6a; /* เขียว */
+      color: white;
+    }
+
+    .btn-track {
+      background-color: #42a5f5; /* ฟ้า */
+      color: white;
+    }
+
+    .btn-logout {
+      margin-top: 20px;
+      background-color: #c62828; /* แดงเข้ม */
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- โลโก้ตรงกลางข้างบน -->
+  <img src="your-logo.png" alt="โลโก้" class="logo">
+
+  <h2>เลือกรายการที่คุณต้องการทำ</h2>
+
+  <button class="btn btn-submit" onclick="window.location.href='/index.html'"> ส่งคำร้อง</button>
+  <button class="btn btn-track" onclick="window.location.href='/track.html'"> ติดตามคำร้อง</button>
+  <button class="btn btn-logout" onclick="logout()"> ออกจากระบบ</button>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('userPhone');
+      window.location.href = "/login.html";
+    }
+  </script>
+</body>
+</html>

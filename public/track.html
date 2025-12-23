@@ -1,0 +1,245 @@
+<!-- public/track.html -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔍 ติดตามคำร้อง</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: #e3f2fd;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+      /* เพิ่มใน <style> */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #ff9800;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      z-index: 1000; /* ให้ลอยเหนือ element อื่น */
+    }
+    .back-btn:hover {
+      background-color: #f57c00;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #1976d2;
+    }
+
+    form {
+      background: #ffffff;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input[type="tel"] {
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1.5px solid #90caf9;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      width: 260px;
+      background-color: #f0faff;
+    }
+
+    button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    #results {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 600px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #results p {
+      margin: 8px 0;
+    }
+
+    hr {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    @media (max-width: 480px) {
+      input[type="tel"], button {
+        width: 100%;
+      }
+
+      form {
+        width: 90%;
+      }
+    }
+  .media-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+  .media-grid img, .media-grid video { width:140px; height:100px; object-fit:cover; border-radius:8px; }
+  .chip { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#e8f5e9; color:#1b5e20; }
+  </style>
+</head>
+<body>
+
+  <a href="/choose.html" class="back-btn">⬅️ กลับไปเมนูหลัก</a>
+
+  <h2>🔍 ติดตามคำร้องด้วยเบอร์โทร</h2>
+  <form id="trackForm">
+    <input type="tel" id="phone" required placeholder="เบอร์โทร เช่น 0891234567" />
+    <button type="submit">ค้นหา</button>
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+  function formatDate(dateString) {
+    if (!dateString) return 'ไม่ทราบเวลา';
+    const fixed = String(dateString).trim().replace(' ', 'T');
+    const d = new Date(fixed);
+    if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+    return d.toLocaleString('th-TH', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    });
+  }
+
+  async function fetchRequests(phone) {
+  const res = await fetch('/track-requests', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone })
+  });
+
+  const data = await res.json();
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '';
+
+  if (!Array.isArray(data) || data.length === 0) {
+    resultsDiv.textContent = '❌ ไม่พบข้อมูลคำร้อง';
+    return;
+  }
+
+  data.forEach(row => {
+    const photos = parsePhoto(row.photo);
+    const completedFiles = photos.filter(it => {
+      if (!it || typeof it !== 'object') return false;
+      return it.from === 'completed' || it.tag === 'completed';
+    });
+
+    let html = `
+      <hr/>
+      <p><strong>📄 รหัสคำร้อง:</strong> ${row.id}</p>
+      <p><strong>📝 ข้อความ:</strong> ${row.message}</p>
+      <p><strong>🕓 วันที่ส่ง:</strong> ${formatDate(row.created_at)}</p>
+      <p><strong>📌 สถานะ:</strong> ${row.status || 'รอดำเนินการ'}</p>
+    `;
+
+    if (row.status === 'เสร็จสิ้น' && row.completed_at) {
+      html += `<p><span class="chip">✅ เสร็จสิ้นเมื่อ: ${formatDate(row.completed_at)}</span></p>`;
+    }
+
+    if (row.status === 'ไม่อนุมัติ' && row.reject_reason) {
+      html += `<p><strong>❗ เหตุผล:</strong> ${row.reject_reason}</p>`;
+    }
+
+    // 🔽 แสดงรูป/วิดีโอที่แนบตอน "เสร็จสิ้น"
+    if (completedFiles.length > 0) {
+      const thumbs = completedFiles.slice(0, 4).map(it => {
+        const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
+        const isVideo = (it.type === 'video') || /\.(mp4|mov|avi)(\?|$)/i.test(url);
+        return isVideo
+          ? `<video muted class="thumb"><source src="${url}" type="video/mp4"></video>`
+          : `<img class="thumb" src="${url}" alt="">`;
+      }).join('');
+
+      html += `
+        <div style="margin-top:8px;">
+          <strong>📷 ไฟล์ (เสร็จสิ้น):</strong>
+          <div class="media-grid">${thumbs}</div>
+          <button style="margin-top:8px" onclick='showImages(${JSON.stringify(completedFiles)})'>ดูทั้งหมด</button>
+        </div>
+      `;
+    }
+
+    resultsDiv.innerHTML += html;
+  });
+}
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedPhone = localStorage.getItem("phone");
+
+    if (savedPhone) {
+      // ถ้ามีเบอร์อยู่แล้ว → ซ่อนฟอร์ม กดค้นหาให้อัตโนมัติ
+      document.getElementById("trackForm").style.display = "none";
+      fetchRequests(savedPhone);
+    } else {
+      // ถ้าไม่มีเบอร์ → ให้ผู้ใช้กรอกตามปกติ
+      document.getElementById('trackForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const phone = document.getElementById('phone').value;
+        localStorage.setItem("phone", phone); // บันทึกไว้รอบหน้า
+        fetchRequests(phone);
+      });
+    }
+  });
+</script>
+<script>
+  function normUrl(u) {
+    if (!u) return '';
+    return u.startsWith('uploads/') ? '/' + u : u; // รองรับค่าเก่าที่เป็น path
+  }
+
+  function showImages(images) {
+    const html = images.map(it => {
+      const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
+      const isVideo = (typeof it === 'object' ? it.type : '') === 'video' || /\.(mp4|mov|avi)(\?|$)/i.test(url);
+      return isVideo
+        ? `<video controls style="max-width:720px; max-height:540px; margin:10px 0; border-radius:8px;"><source src="${url}" type="video/mp4"></video>`
+        : `<img src="${url}" style="max-width:720px; max-height:540px; margin:10px 0; border-radius:8px; object-fit:contain;">`;
+    }).join('');
+    const w = window.open('', '_blank', 'width=800,height=650');
+    w.document.write(`<body style="font-family:Kanit; padding:24px; background:#fafafa; text-align:center">${html}</body>`);
+  }
+
+  function parsePhoto(val) {
+    if (!val) return [];
+    try { return Array.isArray(val) ? val : JSON.parse(val); }
+    catch { return []; }
+  }
+</script>
+
+</body>
+</html>

@@ -1,186 +1,245 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ส่งคำร้อง - อบต.ท่าช้าง จ.จันทบุรี</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ส่งคำร้อง - อบต.ท่าช้าง จ.จันทบุรี</title>
+  <script>
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      window.location.href = "/login.html";
+    }
+  </script>
+  <!-- ฟอนต์ -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+  </style>
 
-    <!-- ฟอนต์ -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
-    </style>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    <style>
-        body {
-            font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #a7d8de 0%, #1c6559 100%);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #1c3d2d;
-        }
+    body {
+      font-family: 'Kanit', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: #3d2a2a;
+      background: linear-gradient(135deg, #a3d8f4 0%, #f8a4d8 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
 
-        .container {
-            background-color: #f9f9f6;
-            padding: 2.5rem 3rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(28, 101, 89, 0.3);
-            max-width: 480px;
-            width: 90%;
-            position: relative;
-        }
+    /* ✅ ลายน้ำพื้นหลัง */
+    .background-logo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.1;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        h1 {
-            text-align: center;
-            color: #15563b;
-            margin-bottom: 2rem;
-        }
+    .background-logo img {
+      width: 90vmin;
+      height: auto;
+    }
 
-        label {
-            display: block;
-            margin-top: 1.2rem;
-            font-weight: 600;
-            color: #2a4d38;
-        }
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+      max-width: 600px;
+      width: 90%;
+      margin: 3rem auto;
+      position: relative;
+      z-index: 1;
+    }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            margin-top: 0.3rem;
-            border: 1.8px solid #4a7c59;
-            border-radius: 8px;
-            font-size: 1rem;
-            background-color: #fbfcf9;
-        }
+    h1 {
+      text-align: center;
+      color: #c2185b;
+      margin-bottom: 2rem;
+    }
 
-        button {
-            margin-top: 1.2rem;
-            width: 100%;
-            padding: 1rem;
-            background-color: #1c6a46;
-            color: #f9f9f4;
-            font-size: 1.15rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
+    label {
+      display: block;
+      margin-top: 1.2rem;
+      font-weight: 600;
+      color: #6a1b9a;
+    }
 
-        #map {
-            height: 250px;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            margin-bottom: 0.8rem;
-        }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      margin-top: 0.3rem;
+      border: 1.8px solid #ce93d8;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #fdf5fb;
+    }
 
-        .use-location-btn {
-            margin-bottom: 1rem;
-            background-color: #145031;
-        }
+    button {
+      margin-top: 1.2rem;
+      width: 100%;
+      padding: 1rem;
+      background-color: #2196f3;
+      color: white;
+      font-size: 1.15rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 1.5rem 1.2rem;
-            }
+    #map {
+      height: 250px;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
 
-            h1 {
-                font-size: 1.4rem;
-            }
+    .use-location-btn {
+      margin-bottom: 1rem;
+      background-color: #64b5f6;
+    }
 
-            button {
-                font-size: 1rem;
-            }
-        }
-    </style>
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem 1.2rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
-
-        <form action="/submit" method="post" enctype="multipart/form-data">
-
-            <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
-            <div id="map"></div>
-
-            <button type="button" class="use-location-btn" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
-
-            <input type="hidden" name="latitude" id="latitude" required>
-            <input type="hidden" name="longitude" id="longitude" required>
-
-            <label>ชื่อ:</label>
-            <input type="text" name="name" required>
-
-            <label>เบอร์โทรศัพท์:</label>
-            <input type="tel" name="phone" required>
-
-            <label>ที่อยู่:</label>
-            <textarea name="address" rows="2" required></textarea>
-
-           
-            <label>ข้อความ:</label>
-            <textarea name="message" rows="5" required></textarea>
-
-            <label>แนบรูปภาพหรือวิดีโอ (หลายไฟล์ได้):</label>
-            <input type="file" name="mediaFiles" accept="image/*,video/*" multiple>
 
 
+  <script>
+    function logout() {
+      localStorage.removeItem('userPhone');
+      window.location.href = "/login.html";
+    }
+  </script>
 
-            <!-- ✅ ปุ่ม submit อยู่ล่างสุด -->
-            <button type="submit">📩 ส่งคำร้อง</button>
 
-        </form>
+  <div class="container">
+    <!-- ✅ โลโก้ด้านบนสุดของแบบฟอร์ม -->
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <img src="your-logo.png" alt="โลโก้ อบต.ท่าช้าง" style="width: 100px;" />
     </div>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
-        const map = L.map('map').setView([12.616, 102.104], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        let marker = null;
-
-        function setMarker(latlng) {
-            if (marker) {
-                marker.setLatLng(latlng);
-            } else {
-                marker = L.marker(latlng).addTo(map);
-            }
-            document.getElementById('latitude').value = latlng.lat.toFixed(6);
-            document.getElementById('longitude').value = latlng.lng.toFixed(6);
+      document.addEventListener("DOMContentLoaded", () => {
+        const phone = localStorage.getItem('userPhone');
+        if (phone) {
+          document.querySelector('input[name="phone"]').value = phone;
         }
-
-        function useMyLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const userLatLng = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        map.setView(userLatLng, 15);
-                        setMarker(userLatLng);
-                    },
-                    (error) => {
-                        alert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message);
-                    }
-                );
-            } else {
-                alert("เบราว์เซอร์ไม่รองรับ Geolocation");
-            }
-        }
-
-        map.on('click', function(e) {
-            setMarker(e.latlng);
-        });
+      });
+    
     </script>
+    
+    <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
+
+    <form action="/submit" method="post" enctype="multipart/form-data">
+      <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
+      <div id="map"></div>
+
+      <button type="button" class="use-location-btn" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
+
+      <input type="hidden" name="latitude" id="latitude" required>
+      <input type="hidden" name="longitude" id="longitude" required>
+
+      <label>ชื่อ:</label>
+      <input type="text" name="name" required>
+
+      <label>เบอร์โทรศัพท์:</label>
+      <input type="tel" name="phone" required>
+
+      <label>กรุณาใส่เลขที่บ้าน เเละ หมู่:</label>
+      <textarea name="address" rows="2" required></textarea>
+
+      <label>ข้อความ:</label>
+      <textarea name="message" rows="5" required></textarea>
+
+      <label>แนบรูปภาพหรือวิดีโอ (หลายไฟล์ได้):</label>
+      <input type="file" name="mediaFiles" accept="image/*,video/*" multiple>
+
+      <button type="submit">📩 ส่งคำร้อง</button>
+      <button type="button" onclick="logout()" style="margin-top: 20px; background: #e53935;">🚪 ออกจากระบบ</button>
+      <a href="/track.html" style="
+      display: block;
+      margin-top: 20px;
+      padding: 1rem;
+      background-color: #10b981;
+      color: white;
+      font-size: 1.15rem;
+      border-radius: 10px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+    ">📋 ติดตามคำร้อง</a>
+
+    </form>
+  </div>
+  
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([12.616, 102.104], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let marker = null;
+
+    function setMarker(latlng) {
+      if (marker) {
+        marker.setLatLng(latlng);
+      } else {
+        marker = L.marker(latlng).addTo(map);
+      }
+      document.getElementById('latitude').value = latlng.lat.toFixed(6);
+      document.getElementById('longitude').value = latlng.lng.toFixed(6);
+    }
+
+    function useMyLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLatLng = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            map.setView(userLatLng, 15);
+            setMarker(userLatLng);
+          },
+          (error) => {
+            alert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message);
+          }
+        );
+      } else {
+        alert("เบราว์เซอร์ไม่รองรับ Geolocation");
+      }
+    }
+
+    map.on('click', function(e) {
+      setMarker(e.latlng);
+    });
+  
+  </script>
 </body>
 </html>

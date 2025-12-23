@@ -136,10 +136,104 @@
       gap: 10px;
       padding: 10px 0;
     }
-  
+    tbody tr:nth-child(even) {
+     background-color: #f9fafb;
+    }
+
+    tbody tr:hover {
+      background-color: #e0f2fe;
+    }
+
+    th, td {
+      padding: 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    td {
+      color: #334155;
+      font-size: 15px;
+    }
+
+    th {
+      background-color: #15563b;
+      color: white;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
   </style>
 </head>
 <body>
+ <!-- กล่อง modal สำหรับป้อนเหตุผล -->
+<div id="reject-modal" style="
+  display: none; 
+  position: fixed; 
+  top: 0; left: 0; right: 0; bottom: 0; 
+  background-color: rgba(0,0,0,0.4); 
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+">
+  <div style="
+    background:white; 
+    padding:24px; 
+    border-radius:16px; 
+    width:90%; 
+    max-width:460px; 
+    font-family:'Kanit'; 
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    text-align: center;
+  ">
+    <h3 style="margin-bottom:16px; font-size:20px; text-align:center;">
+      📣 กรุณาระบุเหตุผลไม่อนุมัติ
+    </h3>
+    
+    <textarea id="reject-reason" rows="4" style="
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding:12px; 
+      border-radius:10px; 
+      border:1.5px solid #ccc; 
+      font-size:16px; 
+      resize: vertical;
+      transition: border 0.2s;
+      font-family: 'Kanit', sans-serif;
+    "></textarea>
+    
+    <div style="margin-top:20px; text-align:center; display:flex; gap:10px; justify-content:center;">
+      <button onclick="submitReject()" style="
+        padding:10px 20px; 
+        background:#ef4444; 
+        color:white; 
+        border:none; 
+        border-radius:10px; 
+        font-weight:bold;
+        font-size:15px;
+        cursor:pointer;
+        transition: background 0.2s;
+      " onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">ส่ง</button>
+      
+      <button onclick="closeRejectModal()" style="
+        padding:10px 20px; 
+        background:#f3f4f6; 
+        color:#111827; 
+        border:none; 
+        border-radius:10px; 
+        font-weight:bold;
+        font-size:15px;
+        cursor:pointer;
+        transition: background 0.2s;
+      " onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+
+
 
   <nav class="navbar">
     <div class="navbar-container">
@@ -147,6 +241,7 @@
       <div class="nav-links">
         <a href="/admin" class="nav-link active">คำร้องใหม่</a>
         <a href="/approved-all" class="nav-link">✅ อนุมัติแล้ว</a>
+        <a href="/rejected" class="nav-link">❌ ไม่อนุมัติแล้ว</a>
       </div>
     </div>
   </nav>
@@ -162,6 +257,7 @@
           <th>แผนก</th>
          
           <th>แผนที่</th>
+          <th>วันที่และเวลา</th>
           <th>จัดการ</th>
         </tr>
       </thead>
@@ -183,10 +279,22 @@
       const mapLink = row.latitude && row.longitude
         ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
         : "-";
+      const createdAt = row.created_at ? new Date(row.created_at) : null;
+      const createdAtFormatted = createdAt
+        ? createdAt.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
+        : "-";
 
       let files = [];
       try {
-        files = row.photo ? JSON.parse(row.photo) : [];
+        if (row.photo && typeof row.photo === 'string') {
+          files = JSON.parse(row.photo);
+        } else if (Array.isArray(row.photo)) {
+          files = row.photo;
+        } else {
+          files = [];
+        }
+
+
       } catch (e) {
         console.error('⚠️ JSON parse error:', e);
         files = [];
@@ -195,7 +303,9 @@
       let fileLinks = "-";
       if (files.length > 0) {
         const first = files[0];
-        const firstUrl = typeof first === 'string' ? first : first.url;
+        const rawUrl = typeof first === 'string' ? first : first.url;
+        const firstUrl = encodeURI(rawUrl); // <== แก้ตรงนี้
+
         const firstType = first.type || "";
 
         const firstElement = firstType === 'video'
@@ -204,23 +314,26 @@
             </video>`
           : `<img src="${firstUrl}" style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);" />`;
 
-        const buttonHtml = files.length > 1
-          ? `<button style="
-                margin-top: 10px;
-                padding: 6px 12px;
-                border: 1px solid #999;
-                border-radius: 6px;
-                background: white;
-                font-weight: bold;
-                cursor: pointer;
-            " onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
-          : "";
+        const buttonHtml = `
+          <button style="
+            margin-top: 10px;
+            padding: 6px 12px;
+            border: 1px solid #999;
+            border-radius: 6px;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+          " onclick='showImages(${JSON.stringify(files)})'>
+            ดูทั้งหมด
+          </button>`;
+
+        
 
         fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
       }
 
 
-
+      
 
 
       const isDeptSelected = row.department && row.department !== "-";
@@ -232,11 +345,13 @@
         <td>${row.message || "-"}</td>
         <td>${fileLinks || "-"}</td>
         <td>${row.department || "-"}</td>
-       
+        
         <td>${mapLink}</td>
+        <td>${createdAtFormatted}</td>
         <td>
           <button class="btn approve" onclick="approve(${row.id})" ${!isDeptSelected ? 'disabled' : ''}>✅ อนุมัติ</button><br>
-          <button class="btn reject" onclick="reject(${row.id})">❌ ไม่อนุมัติ</button><br>
+          <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
+
 
           <select onchange="setDept(${row.id}, this.value)">
             <option value="">เลือกแผนก</option>
@@ -289,10 +404,13 @@
   loadData();
 
 </script>
+
 <script>
 function showImages(images) {
   const html = images.map(img => {
-    const url = typeof img === 'string' ? img : img.url;
+    const rawUrl = typeof img === 'string' ? img : img.url;
+    const url = encodeURI(rawUrl);
+
     const type = img.type || "";
 
     if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
@@ -328,6 +446,43 @@ function showImages(images) {
           </body>
         `);
       }
+</script>
+<script>
+  let currentRejectId = null;
+
+  function openRejectReasonModal(id) {
+    currentRejectId = id;
+    document.getElementById('reject-reason').value = '';
+    document.getElementById('reject-modal').style.display = 'flex';
+  }
+
+  function closeRejectModal() {
+    document.getElementById('reject-modal').style.display = 'none';
+  }
+
+  async function submitReject() {
+    const reason = document.getElementById('reject-reason').value.trim();
+
+    if (!reason) {
+      alert("กรุณากรอกเหตุผลก่อนส่ง");
+      return;
+    }
+
+    const res = await fetch(`/reject/${currentRejectId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    });
+
+    if (res.redirected) {
+      window.location.href = res.url; // ให้เบราว์เซอร์ redirect ตาม
+    } else {
+      const text = await res.text();
+      alert(text); // ถ้ามีข้อความธรรมดา
+    }
+    closeRejectModal();
+    loadData();
+  }
 </script>
 
 

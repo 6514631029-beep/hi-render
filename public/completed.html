@@ -1,0 +1,140 @@
+<!-- public/pending.html -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <link rel="manifest" href="/manifest-electric.json">
+  <meta name="theme-color" content="#155263">
+  <meta charset="UTF-8" />
+  <title>📋 รายการคำร้อง - เสร็จสิ้น</title>
+  <style>
+    body { font-family: 'Kanit', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
+    th { background: #15563b; color: white; }
+    img, video { max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .media-container { display:flex; flex-direction:column; align-items:center; gap:10px; padding:10px 0; }
+    a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <a href="admin-electric.html" style="
+    display: inline-block; margin-bottom: 20px; padding: 10px 15px;
+    background-color: #2563eb; color: white; border-radius: 8px;
+    text-decoration: none; font-weight: bold;
+  ">⬅ ย้อนกลับ</a>
+
+  <h2>📋 รายการคำร้อง - เสร็จสิ้น</h2>
+
+  <div style="text-align:center; margin-bottom: 20px;">
+    <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อ/เบอร์..." oninput="filterByName()" style="
+      padding: 10px; width: 300px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;
+    " />
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ชื่อ</th>
+        <th>เบอร์</th>
+        <th>ข้อความ</th>
+        <th>ไฟล์</th>
+        <th>แผนที่</th>
+        <th>แผนก</th>
+        <th>วันที่-เวลา</th>
+      </tr>
+    </thead>
+    <tbody id="data-body"></tbody>
+  </table>
+
+  <script>
+    let completedData = [];
+
+    async function loadData() {
+      const res = await fetch('/data-completed?_=' + Date.now());
+      const data = await res.json();
+      completedData = data;
+      renderTable(completedData);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      data.forEach(row => {
+        let files = [];
+        try {
+          if (row.photo && typeof row.photo === 'string') {
+            files = JSON.parse(row.photo);
+          } else if (Array.isArray(row.photo)) {
+            files = row.photo;
+          }
+        } catch {}
+
+        let fileLinks = "-";
+        if (files.length > 0) {
+          const first = files[0];
+          const firstUrl = typeof first === 'string'
+            ? (first.startsWith('uploads/') ? `/${first}` : first)
+            : (first.url.startsWith('uploads/') ? `/${first.url}` : first.url);
+
+          const isVideo = (typeof first !== 'string' && first.type === 'video') || firstUrl.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/);
+          const firstElement = isVideo
+            ? `<video controls style="width: 150px; border-radius: 10px;"><source src="${firstUrl}" type="video/mp4"></video>`
+            : `<img src="${firstUrl}" style="width: 150px; border-radius: 10px;" />`;
+
+          const buttonHtml = files.length > 1
+            ? `<button onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
+            : "";
+
+          fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
+        }
+
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.name || '-'}</td>
+            <td>${row.phone || '-'}</td>
+            <td>${row.message || '-'}</td>
+            <td>${fileLinks}</td>
+            <td>${mapLink}</td>
+            <td>${row.department || '-'}</td>
+            <td>${formatDate(row.created_at)}</td>
+          </tr>`;
+      });
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+    }
+
+    function filterByName() {
+      const keyword = document.getElementById('searchInput').value.toLowerCase();
+      renderTable(completedData.filter(row =>
+        (row.name && row.name.toLowerCase().includes(keyword)) ||
+        (row.phone && row.phone.toLowerCase().includes(keyword))
+      ));
+    }
+
+
+    function showImages(images) {
+      const html = images.map(img => {
+        const url = typeof img === 'string' ? (img.startsWith('uploads/') ? `/${img}` : img) : img.url;
+        const isVideo = (img.type === 'video') || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/);
+        return isVideo
+          ? `<video controls style="max-width:700px; margin:10px;"><source src="${url}" type="video/mp4"></video>`
+          : `<img src="${url}" style="max-width:700px; margin:10px;" />`;
+      }).join('');
+      const win = window.open('', '_blank', 'width=800,height=600');
+      win.document.write(`<body style="font-family:kanit; text-align:center;">${html}</body>`);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>❌ รายการคำร้องที่ไม่อนุมัติ</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: #fef2f2;
+      padding: 40px;
+    }
+    h2 {
+      text-align: center;
+      color: #b91c1c;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      background: #2563eb;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+    .search-boxes {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-boxes input {
+      padding: 10px;
+      width: 220px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin: 0 10px;
+    }
+    .button-group {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .dept-btn {
+      margin: 6px;
+      padding: 10px 18px;
+      border-radius: 20px;
+      border: none;
+      background: #fca5a5;
+      color: #7f1d1d;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .dept-btn:hover, .dept-btn.active {
+      background-color: #dc2626;
+      color: white;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #991b1b;
+      color: white;
+    }
+    img {
+      max-width: 120px;
+      max-height: 100px;
+      border-radius: 6px;
+    }
+    video {
+      max-width: 300px;
+      max-height: 200px;
+      border-radius: 6px;
+    }
+    .media-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+    }
+    .media-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .map-link {
+      color: #2563eb;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <a class="back-btn" href="/admin">🔙 กลับหน้าหลัก</a>
+  <h2>❌ รายการคำร้องที่ไม่อนุมัติ</h2>
+
+  <div class="search-boxes">
+    <input type="text" id="searchName" placeholder="🔎 ค้นหาชื่อ..." oninput="filterData()" />
+    <input type="text" id="searchPhone" placeholder="📱 ค้นหาเบอร์โทร..." oninput="filterData()" />
+  </div>
+
+  <div class="button-group">
+    <button class="dept-btn" onclick="loadAllRejected(this)">📋 ดูทั้งหมด</button>
+    
+  </div>
+
+  <div id="table-container"></div>
+
+  <script>
+    let allRejectedData = [];
+    let currentDept = null;
+
+    async function loadAllRejected(btn) {
+      setActiveButton(btn);
+      currentDept = null;
+      const res = await fetch('/data-rejected?_=' + Date.now());
+      const data = await res.json();
+      allRejectedData = data;
+      renderTable(data);
+    }
+
+    async function loadByDept(dept, btn) {
+      setActiveButton(btn);
+      currentDept = dept;
+      const res = await fetch('/data-rejected?_=' + Date.now());
+      const data = await res.json();
+      allRejectedData = data;
+      renderTable(data.filter(row => row.department === dept));
+    }
+
+    function setActiveButton(btn) {
+      document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function filterData() {
+      const nameKeyword = document.getElementById('searchName').value.trim().toLowerCase();
+      const phoneKeyword = document.getElementById('searchPhone').value.trim().toLowerCase();
+
+      let filtered = allRejectedData;
+      if (currentDept) {
+        filtered = filtered.filter(row => row.department === currentDept);
+      }
+
+      filtered = filtered.filter(row =>
+        (!nameKeyword || (row.name && row.name.toLowerCase().includes(nameKeyword))) &&
+        (!phoneKeyword || (row.phone && row.phone.toLowerCase().includes(phoneKeyword)))
+      );
+
+      renderTable(filtered);
+    }
+
+    function renderTable(data) {
+      const container = document.getElementById('table-container');
+      container.innerHTML = '';
+
+      const table = document.createElement('table');
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>ชื่อ</th>
+            <th>เบอร์</th>
+            <th>ข้อความ</th>
+            <th>ไฟล์</th>
+            <th>สถานะ</th>
+            <th>แผนที่</th>
+            <th>เหตุผลที่ไม่อนุมัติ</th>
+            <th>วันที่-เวลา</th> 
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(row => {
+            let files = [];
+            try {
+              if (typeof row.photo === 'string') {
+                files = JSON.parse(row.photo);
+              } else if (Array.isArray(row.photo)) {
+                files = row.photo;
+              }
+            } catch (e) {
+              files = [];
+            }
+
+            let mediaHtml = "-";
+            if (files.length > 0) {
+              const first = files[0];
+              const firstUrl = typeof first === 'string'
+                ? (first.startsWith('uploads/') ? `/${first}` : first)
+                : (first.url.startsWith('uploads/') ? `/${first.url}` : first.url);
+              const firstType = first.type || "";
+
+              const firstElement = firstType === 'video'
+                ? `<video controls style="width: 150px;"><source src="${firstUrl}" type="video/mp4"></video>`
+                : `<img src="${firstUrl}" style="width: 150px;" />`;
+
+              const buttonHtml = files.length > 1
+                ? `<button onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>` : "";
+
+              mediaHtml = `<div class="media-wrapper">${firstElement}${buttonHtml}</div>`;
+            }
+
+            const mapLink = row.latitude && row.longitude
+              ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍</a>` : "-";
+
+            return `
+              <tr>
+                <td>${row.name}</td>
+                <td>${row.phone}</td>
+                <td>${row.message}</td>
+                <td>${mediaHtml}</td>
+                <td>${row.status || '-'}</td>
+                <td>${mapLink}</td>
+                <td>${row.reject_reason || '-'}</td>
+                <td>${formatDate(row.created_at)}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      `;
+      container.appendChild(table);
+    }
+    function formatDate(dateString) {
+  if (!dateString) return 'ไม่ทราบเวลา';
+  const date = new Date(dateString);
+  if (isNaN(date)) return 'ไม่สามารถแปลงเวลาได้';
+  const options = {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  };
+  return date.toLocaleString('th-TH', options);
+}
+    function showImages(images) {
+      const html = images.map(img => {
+        const url = typeof img === 'string'
+          ? (img.startsWith('uploads/') ? `/${img}` : img)
+          : (img.url.startsWith('uploads/') ? `/${img.url}` : img.url);
+        const type = img.type || "";
+        return type === 'video'
+          ? `<video controls style="max-width:700px;"><source src="${url}" type="video/mp4"></video>`
+          : `<img src="${url}" style="max-width:700px;" />`;
+      }).join('');
+
+      const win = window.open('', '_blank');
+      win.document.write(`<body style="font-family:kanit; padding:30px; text-align:center;">${html}</body>`);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstBtn = document.querySelector('.dept-btn');
+      if (firstBtn) loadAllRejected(firstBtn);
+    });
+  </script>
+</body>
+</html>

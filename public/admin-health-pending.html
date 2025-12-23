@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <link rel="manifest" href="/manifest-health.json">
+  <meta charset="UTF-8" />
+  <title>📋 รายการคำร้อง - สาธารณสุข (รอดำเนินการ)</title>
+  <style>
+    body { font-family: 'Kanit', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
+    h2 { text-align: center; margin: 10px 0 16px; }
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
+    th { background: #15563b; color: white; }
+    img, video { max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .media-container { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0; }
+    a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
+    /* แถบปุ่มมุมขวาบน */
+    .topbar { display:flex; justify-content:flex-end; gap:8px; margin-bottom:10px; }
+    .btn { padding:8px 14px; border:none; border-radius:8px; cursor:pointer; color:#fff; font-weight:600; }
+    .btn-pending { background:#f59e0b; }
+    .btn-inprogress { background:#3b82f6; }
+    .btn-completed { background:#16a34a; }
+    .btn.current { box-shadow:0 0 0 3px rgba(0,0,0,0.08) inset; filter:saturate(1.2); }
+    /* ช่องค้นหา */
+    .search-wrap { text-align:center; margin: 10px 0 20px; }
+    .search-input { padding:10px; width:300px; border-radius:8px; border:1px solid #ccc; font-size:16px; }
+  </style>
+</head>
+<body>
+  <!-- ปุ่มมุมขวาบน -->
+  <div class="topbar">
+    <button class="btn btn-pending current"   onclick="gotoStatus('pending')">⏳ รอดำเนินการ</button>
+    <button class="btn btn-inprogress" onclick="gotoStatus('inprogress')">⚡ กำลังดำเนินการ</button>
+    <button class="btn btn-completed"  onclick="gotoStatus('completed')">✅ เสร็จสิ้น</button>
+  </div>
+
+  <h2>📋 รายการคำร้อง - สาธารณสุข (รอดำเนินการ)</h2>
+
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อ/เบอร์..." oninput="filterByName()" class="search-input" />
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th></tr>
+    </thead>
+    <tbody id="data-body"></tbody>
+  </table>
+
+  <script>
+    // ===== ค่าเฉพาะของหน้านี้ =====
+    const DEPARTMENT_NAME = "สาธารณสุข";          // แผนกนี้
+    const TARGET_STATUS   = "รอดำเนินการ";        // สถานะที่จะแสดงในหน้านี้
+
+    // ===== ปุ่มเปลี่ยนหน้า =====
+    function gotoStatus(slug){
+      window.location.href = `/admin-health-${slug}.html`;
+    }
+
+    // ===== โหลดข้อมูลทั้งหมดของแผนก แล้วกรองเฉพาะสถานะหน้าปัจจุบัน =====
+    let allHealthData = [];
+    async function loadData() {
+      // ใช้ API เดิมของคุณ
+      const res  = await fetch('/data-health-all?_=' + Date.now());
+      const data = await res.json();
+
+      // กรองเฉพาะแผนกและสถานะที่ต้องการ
+      allHealthData = (data || []).filter(row =>
+        (row.department === DEPARTMENT_NAME) &&
+        (row.status === TARGET_STATUS)
+      );
+      renderTable(allHealthData);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        let files = [];
+        try {
+          if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+          else if (Array.isArray(row.photo)) files = row.photo;
+        } catch(e) { files = []; }
+
+        let fileLinks = "-";
+        if (files.length > 0) {
+          const first = files[0];
+          const firstUrl = typeof first === 'string'
+            ? (first.startsWith('uploads/') ? `/${first}` : first)
+            : (first.url.startsWith('uploads/') ? `/${first.url}` : first.url);
+          const firstType = first.type || "";
+          const firstElement = firstType === 'video'
+            ? `<video controls style="width:150px"><source src="${firstUrl}" type="video/mp4"></video>`
+            : `<img src="${firstUrl}" style="width:150px; border-radius:10px;" />`;
+          const moreBtn = files.length > 1
+            ? `<button style="margin-top:8px; padding:6px 10px; border:1px solid #999; border-radius:6px; background:#fff; cursor:pointer"
+                onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>` : "";
+          fileLinks = `<div class="media-container">${firstElement}${moreBtn}</div>`;
+        }
+
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>` : '-';
+
+        // (แสดงสถานะเป็นข้อความ — หน้านี้แสดงเฉพาะ "รอดำเนินการ")
+        const statusText = row.status || '-';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.name || '-'}</td>
+            <td>${row.phone || '-'}</td>
+            <td>${row.message || '-'}</td>
+            <td>${fileLinks}</td>
+            <td>${row.department || '-'}</td>
+            <td>${statusText}</td>
+            <td>${mapLink}</td>
+            <td>${formatDate(row.created_at)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function formatDate(v){
+      if(!v) return '-';
+      const d = new Date(v);
+      if (isNaN(d)) return '-';
+      return d.toLocaleString('th-TH',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    }
+
+    function filterByName(){
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = allHealthData.filter(r =>
+        (r.name && r.name.toLowerCase().includes(kw)) ||
+        (r.phone && String(r.phone).toLowerCase().includes(kw))
+      );
+      renderTable(filtered);
+    }
+
+    function showImages(images){
+      const html = images.map(img=>{
+        const url = typeof img === 'string' ? (img.startsWith('uploads/') ? `/${img}` : img) : (img.url.startsWith('uploads/') ? `/${img.url}` : img.url);
+        const type = img.type || "";
+        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
+          return `<video controls style="max-width:700px; max-height:500px; margin-bottom:16px; border-radius:8px;">
+                    <source src="${url}" type="video/mp4">
+                  </video>`;
+        }
+        return `<img src="${url}" style="max-width:700px; max-height:500px; margin-bottom:16px; border-radius:8px; object-fit:contain;" />`;
+      }).join('');
+      const win = window.open('', '_blank', 'width=800,height=600');
+      win.document.write(`<body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">${html}</body>`);
+    }
+
+    // เริ่มต้นโหลด
+    loadData();
+  </script>
+</body>
+</html>

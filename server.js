@@ -3,8 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const mysql = require('mysql2');
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
 const session = require('express-session');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -13,48 +12,54 @@ const nodemailer = require('nodemailer');
 const app = express();
 const port = process.env.PORT || 3000;
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // โฟลเดอร์ที่ใช้เก็บไฟล์ในเครื่อง
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '-' + file.originalname); // ✅ ใช้ file.originalname แทน file ทั้งตัว
+  }
+
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    const resourceType = file.mimetype.startsWith('image') ? 'image' : 'video';
-    return {
-      folder: 'obtc-uploads',
-      resource_type: resourceType,
-      public_id: uuidv4()
-    };
-  }
-});
 const upload = multer({ storage });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'hi-form-secret',
   resave: false,
   saveUninitialized: false
 }));
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  connectTimeout: 20000,
+  ssl: { rejectUnauthorized: false } // สำหรับ Railway public
 });
-db.connect((err) => {
+
+// test
+db.query('SELECT 1', (err) => {
   if (err) {
-    console.error('❌ ไม่สามารถเชื่อมต่อ MySQL:', err);
+    console.error('❌ MySQL error:', err);
   } else {
-    console.log('✅ เชื่อมต่อ MySQL สำเร็จ');
+    console.log('✅ MySQL connected!');
   }
 });
+
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -196,7 +201,10 @@ app.post('/submit', upload.array('mediaFiles'), async (req, res) => {
     console.log('🖼️ req.files:', req.files);
 
     const files = req.files || [];
-    const { name, phone, address, message, latitude, longitude } = req.body;
+    const { name, phone, address, message } = req.body;
+    const latitude = req.body.latitude ? parseFloat(req.body.latitude) : null;
+    const longitude = req.body.longitude ? parseFloat(req.body.longitude) : null;
+
     const category = '';
 
     if (!name || !phone || !address || !message) {
@@ -211,12 +219,14 @@ app.post('/submit', upload.array('mediaFiles'), async (req, res) => {
         type = 'video';
       }
       return {
-        url: f.path,
+        url: `/uploads/${f.filename}`, // จากเดิมเคยใช้ f.path
         type
       };
     });
-
     const photoUrl = JSON.stringify(photoUrls);
+    
+
+   
 
     const sql = `
       INSERT INTO requests 
@@ -362,11 +372,18 @@ app.post('/approve/:id', (req, res) => {
 
 app.post('/reject/:id', (req, res) => {
   const id = req.params.id;
-  db.query('UPDATE requests SET approved = 0, processed = true WHERE id = ?', [id], (err) => {
-    if (err) return res.status(500).send('❌ ปฏิเสธไม่สำเร็จ');
-    res.send('✅ ปฏิเสธคำร้องแล้ว');
+  const { reason } = req.body;
+
+  const sql = 'UPDATE requests SET status = ?, reject_reason = ?, approved = 0, processed = true WHERE id = ?';
+  db.query(sql, ['ไม่อนุมัติ', reason, id], (err, result) => {
+    if (err) return res.status(500).send('เกิดข้อผิดพลาด');
+    
+    res.send('ไม่อนุมัติคำร้องเรียบร้อยแล้ว'); // ✅ ใช้ข้อความตอบกลับแทน redirect
   });
 });
+
+
+
 
 app.post('/set-department/:id', (req, res) => {
   const { department } = req.body;
@@ -400,27 +417,235 @@ app.post('/disapprove/:id', (req, res) => {
     res.sendStatus(200);
   });
 });
+// ---- helpers สำหรับ copy ระหว่างตารางสถานะ ----
+function normalizePhoto(val) {
+  if (val == null) return null;
+  return (typeof val === 'string') ? val : JSON.stringify(val);
+}
+
+function upsertToBucket(tableName, r, cb) {
+  const sql = `
+    INSERT INTO ${tableName}
+      (original_id, name, phone, address, category, message,
+       latitude, longitude, photo, department, status,
+       approved, processed, created_at, reject_reason)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      name=VALUES(name),
+      phone=VALUES(phone),
+      address=VALUES(address),
+      category=VALUES(category),
+      message=VALUES(message),
+      latitude=VALUES(latitude),
+      longitude=VALUES(longitude),
+      photo=VALUES(photo),
+      department=VALUES(department),
+      status=VALUES(status),
+      approved=VALUES(approved),
+      processed=VALUES(processed),
+      created_at=VALUES(created_at),
+      reject_reason=VALUES(reject_reason),
+      copied_at=CURRENT_TIMESTAMP
+  `;
+  const vals = [
+    r.id, r.name, r.phone, r.address, r.category, r.message,
+    r.latitude, r.longitude, normalizePhoto(r.photo),
+    r.department, r.status, r.approved, r.processed, r.created_at, r.reject_reason
+  ];
+  db.query(sql, vals, cb);
+}
+
+function removeFromOtherBuckets(originalId, keepTable, cb) {
+  const tables = ['pending', 'inprogress', 'completed'].filter(t => t !== keepTable);
+  const tasks = tables.map(t => new Promise(resolve => {
+    db.query(`DELETE FROM ${t} WHERE original_id = ?`, [originalId], () => resolve());
+  }));
+  Promise.all(tasks).then(() => cb && cb());
+}
+// -----------------------------------------------
+
 // ✅ เพิ่มฟังก์ชันเปลี่ยนสถานะ
+// ✅ เปลี่ยนสถานะ + ถ้าเป็น "กำลังดำเนินการ" ให้คัดลอกไป inprogress
+// เปลี่ยนสถานะ + คัดลอกเข้า bucket ที่ตรงสถานะ + ลบออกจาก bucket อื่น
 app.post('/set-status/:id', (req, res) => {
   const id = req.params.id;
   const { status } = req.body;
 
-  if (!status) {
-    return res.status(400).json({ error: '❌ ต้องระบุสถานะ' });
+  if (!status) return res.status(400).json({ success: false, message: '❌ ต้องระบุสถานะ' });
+
+  // 1) อัปเดตสถานะในตารางหลัก
+  db.query('UPDATE requests SET status = ? WHERE id = ?', [status, id], (updErr, updRes) => {
+    if (updErr) {
+      console.error('❌ เปลี่ยนสถานะไม่สำเร็จ:', updErr);
+      return res.status(500).json({ success: false, message: '❌ เกิดข้อผิดพลาดในฐานข้อมูล' });
+    }
+    if (updRes.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
+    }
+
+    // 2) ดึงข้อมูลแถวนั้นมา
+    db.query('SELECT * FROM requests WHERE id = ?', [id], (selErr, rows) => {
+      if (selErr) {
+        console.error('❌ ดึงข้อมูลไม่สำเร็จ:', selErr);
+        return res.status(500).json({ success: false, message: '❌ ดึงข้อมูลไม่สำเร็จ' });
+      }
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ success: false, message: '❌ ไม่พบข้อมูลต้นทาง' });
+      }
+
+      const r = rows[0];
+
+      // 3) เลือก bucket เป้าหมายตามสถานะ
+      let bucket = null;
+      if (status === 'รอดำเนินการ') bucket = 'pending';
+      else if (status === 'กำลังดำเนินการ') bucket = 'inprogress';
+      else if (status === 'เสร็จสิ้น') bucket = 'completed';
+
+      if (!bucket) {
+        console.log(`✅ อัปเดตสถานะ id=${id} -> ${status} (ไม่คัดลอก)`);
+        return res.json({ success: true, message: '✅ เปลี่ยนสถานะสำเร็จ' });
+      }
+
+      // 4) upsert เข้า bucket
+      upsertToBucket(bucket, r, (insErr) => {
+        if (insErr) {
+          console.error(`❌ upsert เข้า ${bucket} ไม่สำเร็จ:`, insErr);
+          return res.status(500).json({ success: false, message: `❌ บันทึกเข้า ${bucket} ไม่สำเร็จ` });
+        }
+
+        // 5) ลบออกจาก bucket อื่น ๆ กันค้างสองที่
+        removeFromOtherBuckets(r.id, bucket, () => {
+          console.log(`✅ ย้าย id=${id} -> ${bucket} แล้ว`);
+          res.json({ success: true, message: `✅ ย้ายเข้า ${bucket} แล้ว`, movedTo: bucket });
+        });
+      });
+    });
+  });
+});
+// ✅ แนบไฟล์ + เปลี่ยนสถานะเป็น "เสร็จสิ้น"
+app.post('/complete-with-media/:id', upload.array('extraFiles'), (req, res) => {
+  const id = req.params.id;
+  const files = req.files || [];
+
+  // 1) ดึงแถวเดิม
+  db.query('SELECT * FROM requests WHERE id = ?', [id], (selErr, rows) => {
+    if (selErr) return res.status(500).json({ success:false, message:'❌ ดึงข้อมูลไม่สำเร็จ' });
+    if (!rows || rows.length === 0) return res.status(404).json({ success:false, message:'❌ ไม่พบคำร้องนี้' });
+
+    // 2) รวมรูปเดิม + ไฟล์ใหม่ (ติด tag completed)
+    const r = rows[0];
+    let list = [];
+    try { list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]'); } catch { list = []; }
+
+    const newItems = files.map(f => ({
+      url: `/uploads/${f.filename}`,
+      type: f.mimetype?.startsWith('video') ? 'video' : (f.mimetype?.startsWith('image') ? 'image' : 'other'),
+      from: 'completed',
+      tag:  'completed'
+    }));
+
+    const merged = [...list, ...newItems];
+
+    // 3) อัปเดตตารางหลัก
+    const sqlUpd = `
+      UPDATE requests
+      SET status='เสร็จสิ้น', photo=?, completed_at=NOW()
+      WHERE id=?`;
+    db.query(sqlUpd, [JSON.stringify(merged), id], (updErr, updRes) => {
+      if (updErr) return res.status(500).json({ success:false, message:'❌ อัปเดตคำร้องไม่สำเร็จ' });
+      if (updRes.affectedRows === 0) return res.status(404).json({ success:false, message:'❌ ไม่พบคำร้องนี้' });
+
+      // 4) ดึงซ้ำแล้ว upsert ไป bucket completed และลบจาก bucket อื่น
+      db.query('SELECT * FROM requests WHERE id = ?', [id], (sel2Err, rows2) => {
+        if (sel2Err || !rows2 || rows2.length === 0) return res.json({ success:true, message:'✅ อัปเดตแล้ว' });
+        const r2 = rows2[0];
+        upsertToBucket('completed', r2, (insErr) => {
+          if (insErr) return res.json({ success:true, message:'✅ อัปเดตแล้ว (ซิงก์ completed ล้มเหลวบ้าง)' });
+          removeFromOtherBuckets(r2.id, 'completed', () =>
+            res.json({ success:true, message:'✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' })
+          );
+        });
+      });
+    });
+  });
+});
+
+// ✅ ลบเฉพาะไฟล์ที่แนบตอน "เสร็จสิ้น"
+// ✅ ลบ “เฉพาะไฟล์ที่แนบตอนเสร็จสิ้น” + ซิงก์ตาราง completed
+app.post('/delete-completed-file/:id', (req, res) => {
+  const id = req.params.id;
+  let { fileUrl } = req.body || {};
+
+  if (!fileUrl) {
+    return res.status(400).json({ success: false, message: '❌ ต้องระบุ URL ของไฟล์ที่จะลบ' });
   }
 
-  db.query('UPDATE requests SET status = ? WHERE id = ?', [status, id], (err, result) => {
-    if (err) {
-      console.error('❌ เปลี่ยนสถานะไม่สำเร็จ:', err);
-      return res.status(500).json({ error: '❌ เกิดข้อผิดพลาดในฐานข้อมูล' });
+  // ช่วยให้เทียบ URL ได้แม่นยำ (ตัดโดเมน, ตัด / นำหน้า)
+  const norm = (u) => (u || '')
+    .replace(/^https?:\/\/[^/]+/i, '')  // ตัดโดเมนออก
+    .replace(/^\/+/, '');               // ตัด "/" หน้า URL ออก
+
+  const target = norm(fileUrl);
+
+  // 1) ดึงรายการภาพ/คลิปจาก requests
+  db.query('SELECT * FROM requests WHERE id = ?', [id], (selErr, rows) => {
+    if (selErr) {
+      console.error('❌ ดึงข้อมูลไม่สำเร็จ:', selErr);
+      return res.status(500).json({ success: false, message: '❌ ดึงข้อมูลไม่สำเร็จ' });
+    }
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: '❌ ไม่พบคำร้องนี้' });
+    const r = rows[0];
+
+    // แปลง photo -> array ให้ได้เสมอ
+    let list = [];
+    try {
+      list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]');
+    } catch {
+      list = [];
     }
 
-    console.log(`✅ อัปเดตสถานะคำร้อง id=${id} -> ${status}`);
-    res.json({ message: '✅ เปลี่ยนสถานะสำเร็จ' });
+    // 2) เก็บ “เฉพาะไฟล์ที่ไม่ใช่ตัวที่จะลบ” หรือ “เป็นตัวที่จะลบแต่ไม่ใช่ completed”
+    const filtered = list.filter(item => {
+      // รองรับทั้ง string และ object
+      const url = typeof item === 'string' ? item : (item?.url || '');
+      const urlNorm = norm(url);
+      const isCompleted = (typeof item === 'object') && (item.from === 'completed' || item.tag === 'completed');
+
+      // เก็บไว้ถ้า:
+      // - URL ไม่ตรงกับเป้าหมาย
+      // - หรือ URL ตรง แต่ไฟล์นั้นไม่ใช่ completed (กันเผลอลบไฟล์หลัก)
+      return urlNorm !== target || !isCompleted;
+    });
+
+    // 3) อัปเดตกลับเข้า requests
+    db.query('UPDATE requests SET photo = ? WHERE id = ?', [JSON.stringify(filtered), id], (updErr) => {
+      if (updErr) {
+        console.error('❌ อัปเดต photo ไม่สำเร็จ:', updErr);
+        return res.status(500).json({ success: false, message: '❌ ลบไฟล์ไม่สำเร็จ' });
+      }
+
+      // 4) ดึงแถวล่าสุดหลังอัปเดต เพื่อ upsert เข้า bucket "completed"
+      db.query('SELECT * FROM requests WHERE id = ?', [id], (sel2Err, rows2) => {
+        if (sel2Err || !rows2 || rows2.length === 0) {
+          // กรณีดึงไม่สำเร็จ ก็ถือว่าลบใน requests แล้ว
+          return res.json({ success: true, message: '✅ ลบไฟล์ (completed) เรียบร้อย' });
+        }
+
+        const r2 = rows2[0];
+        upsertToBucket('completed', r2, (insErr) => {
+          if (insErr) {
+            console.error('⚠️ upsert เข้า completed ไม่สำเร็จ (แต่ลบใน requests แล้ว):', insErr);
+            // ยังตอบ success ได้ เพราะจุดประสงค์หลักคือ “ลบไฟล์ completed ในแถวหลัก”
+            return res.json({ success: true, message: '✅ ลบไฟล์ (completed) แล้ว (ซิงก์ completed ล้มเหลวบ้าง)' });
+          }
+          // ไม่ต้องลบ bucket อื่น เพราะสถานะยังเป็น "เสร็จสิ้น"
+          return res.json({ success: true, message: '✅ ลบไฟล์ (completed) แล้ว และซิงก์รายการเสร็จสิ้น' });
+        });
+      });
+    });
   });
 });
 
@@ -459,6 +684,21 @@ app.get('/data-approved-all', (req, res) => {
     res.json(results);
   });
 });
+app.get('/data-rejected', (req, res) => {
+  const sql = 'SELECT * FROM requests WHERE processed = true AND approved = 0 ORDER BY id DESC';
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    res.json(results);
+  });
+});
+app.get('/rejected', (req, res) => {
+  if (req.session.loggedIn) {
+    res.sendFile(path.join(__dirname, 'public', 'rejected.html'));
+  } else {
+    res.redirect('/admin-login');
+  }
+});
+
 app.get('/approved-all', (req, res) => {
   if (req.session.loggedIn) {
     res.sendFile(path.join(__dirname, 'public', 'approved-all.html'));
@@ -479,6 +719,111 @@ app.get('/data-sp-all', (req, res) => {
   );
 });
 
+// GET /track (เอารายการล่าสุดของเบอร์นั้น)
+app.get('/track', (req, res) => {
+  const phone = req.query.phone;
+  const sql = `
+    SELECT
+      id, message, status, reject_reason, photo,
+      DATE_FORMAT(created_at,  '%Y-%m-%d %H:%i:%s') AS created_at,
+      DATE_FORMAT(completed_at,'%Y-%m-%d %H:%i:%s') AS completed_at
+    FROM requests
+    WHERE phone = ?
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+  db.query(sql, [phone], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (results.length === 0) return res.status(404).json({ error: 'ไม่พบข้อมูล' });
+    res.json(results[0]);
+  });
+});
+
+// POST /track-requests (รายการทั้งหมดของเบอร์นั้น)
+app.post('/track-requests', (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ error: 'กรุณาระบุเบอร์โทร' });
+
+  const sql = `
+    SELECT
+      id, message, status, reject_reason, photo,
+      DATE_FORMAT(created_at,  '%Y-%m-%d %H:%i:%s') AS created_at,
+      DATE_FORMAT(completed_at,'%Y-%m-%d %H:%i:%s') AS completed_at
+    FROM requests
+    WHERE phone = ?
+    ORDER BY created_at DESC
+  `;
+  db.query(sql, [phone], (err, results) => {
+    if (err) return res.status(500).json({ error: 'เกิดข้อผิดพลาดในระบบ' });
+    res.json(results);
+  });
+});
+
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+app.post('/login', (req, res) => {
+  const { phone } = req.body;
+
+  if (!phone) {
+    return res.status(400).send('❌ กรุณาระบุเบอร์โทร');
+  }
+
+  const sql = `INSERT INTO user_logins (phone) VALUES (?)`;
+
+  db.query(sql, [phone], (err, result) => {
+    if (err) {
+      console.error('❌ บันทึกเบอร์โทรไม่สำเร็จ:', err);
+      return res.status(500).send('❌ เกิดข้อผิดพลาดในการบันทึก');
+    }
+
+    console.log('✅ บันทึกเบอร์โทรแล้ว:', phone);
+    res.json({ success: true });
+  });
+});
+app.get('/track.html', (req, res) => {
+  res.sendFile(__dirname + '/public/track.html');
+});
+// ✅ endpoint ใหม่สำหรับดึงข้อมูล "กำลังดำเนินการ"
+// ดึงจากตาราง inprogress (แนะนำ)
+app.get('/data-in-progress', (req, res) => {
+  const sql = 'SELECT * FROM inprogress ORDER BY created_at DESC';
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+// ดึงข้อมูลจาก pending
+app.get('/data-pending', (req, res) => {
+  db.query('SELECT * FROM pending ORDER BY id DESC', (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Database error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// Completed
+app.get('/data-completed', (req, res) => {
+  db.query('SELECT * FROM completed ORDER BY created_at DESC', (err, results) => {
+
+    if (err) {
+      console.error("DB ERROR:", err); // 👈 จะได้เห็น error ใน terminal
+      res.status(500).send('Database error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+
+app.get('/completed', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'completed.html'));
+});
+
 
 app.use((req, res) => {
   res.status(404).send('ไม่พบหน้าเว็บที่คุณเรียก');
@@ -492,3 +837,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
 });
+

@@ -1,0 +1,122 @@
+<!-- public/login.html -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เข้าสู่ระบบ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #bbdefb, #e1bee7);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background-color: #ffffff;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 360px;
+    }
+
+    .logo {
+      max-width: 120px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      color: #3949ab;
+      margin-bottom: 24px;
+    }
+
+    input[type="tel"] {
+      width: 100%;
+      max-width: 280px;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 2px solid #90caf9;
+      border-radius: 10px;
+      background-color: #f3faff;
+      margin: auto;
+    }
+
+    input[type="tel"]:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 16px;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    @media (max-width: 480px) {
+      .login-box {
+        padding: 30px 20px;
+      }
+
+      input, button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <!-- ✅ โลโก้ด้านบน -->
+    <img src="your-logo.png" alt="โลโก้" class="logo">
+
+    <h2>📱 เข้าสู่ระบบด้วยเบอร์โทร</h2>
+    <input type="tel" id="phone" placeholder="กรอกเบอร์โทร เช่น 0891234567" required>
+    <button onclick="login()">เข้าสู่ระบบ</button>
+  </div>
+
+  <script>
+    async function login() {
+      const phone = document.getElementById('phone').value.trim();
+
+      if (!/^\d{10}$/.test(phone)) {
+        alert('กรุณากรอกเบอร์โทรให้ถูกต้อง (ต้องมี 10 ตัวเลข)');
+        return;
+      }
+
+      try {
+        await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone })
+        });
+
+        localStorage.setItem('userPhone', phone);
+        window.location.href = '/choose.html';
+
+      } catch (err) {
+        alert('❌ ไม่สามารถเข้าสู่ระบบได้');
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -107,16 +107,27 @@
 <body>
   <a class="back-btn" href="/admin">🔙 กลับหน้าหลัก</a>
   <h2>✅ รายการคำร้องที่อนุมัติแล้ว</h2>
+
   <div style="text-align:center; margin-bottom: 20px;">
-  <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อ..." oninput="filterByName()" style="
-    padding: 10px;
-    width: 300px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  " />
-</div>
+    <input
+      type="text"
+      id="searchName"
+      placeholder="🔎 ค้นหาชื่อ..."
+      oninput="filterByName()"
+      style="padding: 10px; width: 220px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; margin-right: 10px;"
+    />
+
+    <input
+      type="text"
+      id="searchPhone"
+      placeholder="📱 ค้นหาเบอร์โทร..."
+      oninput="filterByName()"
+      style="padding: 10px; width: 220px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+    />
+  </div>
+
   <div class="button-group">
+    <button class="dept-btn" onclick="loadAllApproved(this)">📋 ดูทั้งหมด</button>
     <button class="dept-btn" onclick="loadByDept('สำนักงานปลัด', this)">🏢 สำนักงานปลัด</button>
     <button class="dept-btn" onclick="loadByDept('สาธารณสุข', this)">🏥 สาธารณสุข</button>
     <button class="dept-btn" onclick="loadByDept('กองช่าง', this)">🛠️ กองช่าง</button>
@@ -127,25 +138,37 @@
   <div id="table-container"></div>
 
   <script>
-   let allApprovedData = [];
+    let allApprovedData = [];
     let currentDept = null;
 
-  async function loadByDept(dept, btn) {
-    document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentDept = dept;
+    async function loadByDept(dept, btn) {
+      document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDept = dept;
 
-    const res = await fetch('/data-approved-all');
-    const data = await res.json();
-    allApprovedData = data;
+      const res = await fetch('/data-approved-all');
+      const data = await res.json();
+      allApprovedData = data;
 
-    const filtered = data.filter(d => d.department === dept);
-    renderTable(filtered);
-  }
+      const filtered = data.filter(d => d.department === dept);
+      renderTable(filtered);
+    }
 
-  function renderTable(data) {
-    const container = document.getElementById('table-container');
-    container.innerHTML = '';
+    async function loadAllApproved(btn) {
+      document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDept = null;
+
+      const res = await fetch('/data-approved-all');
+      const data = await res.json();
+      allApprovedData = data;
+
+      renderTable(data);
+    }
+
+    function renderTable(data) {
+      const container = document.getElementById('table-container');
+      container.innerHTML = '';
 
       const table = document.createElement('table');
       table.innerHTML = `
@@ -155,32 +178,61 @@
             <th>เบอร์</th>
             <th>ข้อความ</th>
             <th>ไฟล์</th>
+            <th>ไฟล์(เสร็จสิ้น)</th>
             <th>สถานะ</th>
             <th>แผนที่</th>
+            <th>แผนก</th>
+            <th>วันที่-เวลา</th>
           </tr>
         </thead>
         <tbody>
           ${data.map(row => {
-
+            // --- แปลงรูปจาก row.photo ---
             let files = [];
             try {
-              files = row.photo ? JSON.parse(row.photo) : [];
-            } catch {}
+              if (row.photo && typeof row.photo === 'string') {
+                files = JSON.parse(row.photo);
+              } else if (Array.isArray(row.photo)) {
+                files = row.photo;
+              } else {
+                files = [];
+              }
+            } catch (e) {
+              console.error('JSON parse error', e);
+              files = [];
+            }
 
+            // --- แยกไฟล์ที่มาจาก "เสร็จสิ้น" ---
+            const completedFiles = files.filter(it => {
+              if (!it || typeof it !== 'object') return false;
+              return it.from === 'completed' || it.tag === 'completed';
+            });
+
+            // --- ไฟล์หลัก (ที่ไม่ใช่ completed) ---
+            const mainFiles = files.filter(it => {
+              if (!it) return false;
+              if (typeof it !== 'object') return true; // string เก่า ๆ = ไฟล์หลัก
+              return !(it.from === 'completed' || it.tag === 'completed');
+            });
+
+            // ====== คอลัมน์ "ไฟล์" (ไฟล์หลัก) ======
             let mediaHtml = "-";
-            if (files.length > 0) {
-              const first = files[0];
-              const firstUrl = typeof first === 'string' ? first : first.url;
-              const firstType = first.type || "";
+            if (mainFiles.length > 0) {
+              const first = mainFiles[0];
+              const firstUrl = typeof first === 'string'
+                ? (first.startsWith('uploads/') ? `/${first}` : first)
+                : (((first.url || '').startsWith('uploads/')) ? `/${first.url}` : (first.url || ''));
+              const firstType = (typeof first === 'string') ? '' : (first.type || '');
 
-             const firstElement = firstType === 'video'
-                ? `<video controls style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-                    <source src="${firstUrl}" type="video/mp4">
-                  </video>`
-                : `<img src="${firstUrl}" style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);" />`;
+              const firstElement = (firstType === 'video' || firstUrl.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/))
+                ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                     <source src="${firstUrl}" type="video/mp4">
+                   </video>`
+                : `<img src="${firstUrl}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
 
-              const buttonHtml = files.length > 1
-                ? `<button style="
+              // ปุ่มดูทั้งหมด แสดงเสมอ แม้มีรูปเดียว
+              const buttonHtml = `
+                <button style="
                       margin-top: 10px;
                       padding: 6px 12px;
                       border: 1px solid #999;
@@ -188,17 +240,48 @@
                       background: white;
                       font-weight: bold;
                       cursor: pointer;
-                  " onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
-                : "";
-
+                  " onclick='showImages(${JSON.stringify(mainFiles)})'>ดูทั้งหมด</button>`;
 
               mediaHtml = `
-              <div class="media-wrapper">
-                ${firstElement}
-                ${buttonHtml}
-              </div>
-            `;
+                <div class="media-wrapper">
+                  ${firstElement}
+                  ${buttonHtml}
+                </div>
+              `;
+            }
 
+            // ====== คอลัมน์ "ไฟล์(เสร็จสิ้น)" ======
+            let completedHtml = "-";
+            if (completedFiles.length > 0) {
+              const cf = completedFiles[0];
+              const cfUrl = typeof cf === 'string'
+                ? (cf.startsWith('uploads/') ? `/${cf}` : cf)
+                : (((cf.url || '').startsWith('uploads/')) ? `/${cf.url}` : (cf.url || ''));
+              const cfType = (typeof cf === 'string') ? '' : (cf.type || '');
+
+              const cfElement = (cfType === 'video' || cfUrl.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/))
+                ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                     <source src="${cfUrl}" type="video/mp4">
+                   </video>`
+                : `<img src="${cfUrl}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
+
+              const cfBtn = `
+                <button style="
+                      margin-top: 10px;
+                      padding: 6px 12px;
+                      border: 1px solid #999;
+                      border-radius: 6px;
+                      background: white;
+                      font-weight: bold;
+                      cursor: pointer;
+                  " onclick='showImages(${JSON.stringify(completedFiles)})'>ดูทั้งหมด</button>`;
+
+              completedHtml = `
+                <div class="media-wrapper">
+                  ${cfElement}
+                  ${cfBtn}
+                </div>
+              `;
             }
 
             const mapLink = row.latitude && row.longitude
@@ -207,12 +290,15 @@
 
             return `
               <tr>
-                <td>${row.name}</td>
-                <td>${row.phone}</td>
-                <td>${row.message}</td>
+                <td>${row.name || '-'}</td>
+                <td>${row.phone || '-'}</td>
+                <td>${row.message || '-'}</td>
                 <td>${mediaHtml || '-'}</td>
+                <td>${completedHtml || '-'}</td>
                 <td>${row.status || '-'}</td>
                 <td>${mapLink}</td>
+                <td>${row.department || '-'}</td>
+                <td>${formatDate(row.created_at)}</td>
               </tr>
             `;
           }).join('')}
@@ -221,63 +307,90 @@
       container.appendChild(table);
     }
   </script>
+
   <script>
-  function filterByName() {
-  const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+    function formatDate(dateString) {
+      if (!dateString) return 'ไม่ทราบเวลา';
+      const date = new Date(dateString);
+      if (isNaN(date)) return 'ไม่สามารถแปลงเวลาได้';
+      const options = {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+      };
+      return date.toLocaleString('th-TH', options);
+    }
 
-  if (!currentDept) return;
+    function filterByName() {
+      const nameKeyword = document.getElementById('searchName').value.trim().toLowerCase();
+      const phoneKeyword = document.getElementById('searchPhone').value.trim().toLowerCase();
 
-  const filtered = allApprovedData.filter(row =>
-    row.department === currentDept &&
-    (
-      (row.name && row.name.toLowerCase().includes(keyword)) ||
-      (row.phone && row.phone.toLowerCase().includes(keyword))
-    )
-  );
+      let filtered = allApprovedData;
 
-  renderTable(filtered);
-}
+      // กรองตามแผนก ถ้ามีเลือก
+      if (currentDept) {
+        filtered = filtered.filter(row => row.department === currentDept);
+      }
 
-  function showImages(images) {
-    const html = images.map(img => {
-      const url = typeof img === 'string' ? img : img.url;
-      const type = img.type || "";
+      // กรองชื่อและเบอร์
+      filtered = filtered.filter(row =>
+        (!nameKeyword || (row.name && row.name.toLowerCase().includes(nameKeyword))) &&
+        (!phoneKeyword || (row.phone && row.phone.toLowerCase().includes(phoneKeyword)))
+      );
 
-      if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
-            return `
-              <video controls style="
-                width: auto;
-                max-width: 700px;
-                max-height: 500px;
-                margin-bottom: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-              ">
-                <source src="${url}" type="video/mp4">
-              </video>`;
-          }
+      renderTable(filtered);
+    }
 
+    function showImages(images) {
+      const html = images.map(img => {
+        const url = typeof img === 'string'
+          ? (img.startsWith('uploads/') ? `/${img}` : img)
+          : (((img.url || '').startsWith('uploads/')) ? `/${img.url}` : (img.url || ''));
+        const type = (typeof img === 'string') ? '' : (img.type || '');
+
+        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
           return `
-            <img src="${url}" style="
+            <video controls style="
               width: auto;
               max-width: 700px;
               max-height: 500px;
               margin-bottom: 20px;
               border-radius: 8px;
-              object-fit: contain;
               box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            " />`;
-        }).join('');
+            ">
+              <source src="${url}" type="video/mp4">
+            </video>`;
+        }
 
-        const win = window.open('', '_blank', 'width=800,height=600');
-        win.document.write(`
-          <body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">
-            ${html}
-          </body>
-        `);
-      }
+        return `
+          <img src="${url}" style="
+            width: auto;
+            max-width: 700px;
+            max-height: 500px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            object-fit: contain;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          " />`;
+      }).join('');
+
+      const win = window.open('', '_blank', 'width=800,height=600');
+      win.document.write(`
+        <body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">
+          ${html}
+        </body>
+      `);
+    }
   </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstBtn = document.querySelector('.dept-btn');
+      if (firstBtn) {
+        loadAllApproved(firstBtn); // โหลด “ดูทั้งหมด” ทันที
+      }
+    });
+  </script>
 
 </body>
 </html>
