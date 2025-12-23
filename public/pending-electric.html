@@ -65,38 +65,27 @@
     let currentPage = 1;
     const pageSize = 20;     // แถวต่อหน้า (เปลี่ยนได้)
 
-    // ลองหลาย endpoint เพื่อความเข้ากันได้กับระบบเดิม
-    const ENDPOINT_CANDIDATES = [
-      '/data-pending',       // ถ้ามี endpoint สำหรับ "รอดำเนินการ"
-      '/data-electric-all',  // รวมของแผนกไฟฟ้า
-      '/data-all'            // รวมทุกแผนก
-    ];
+    const ENDPOINT = '/data-pending?department=ไฟฟ้า';
 
-    async function fetchFirstAvailable(endpoints){
-      for(const ep of endpoints){
-        try{
-          const res = await fetch(`${ep}?_=${Date.now()}`);
-          if(res.ok){
-            const json = await res.json();
-            if(Array.isArray(json)) return json;
-          }
-        }catch(_e){}
-      }
-      return [];
-    }
+
 
     async function loadData(){
-      const data = await fetchFirstAvailable(ENDPOINT_CANDIDATES);
-      allData = Array.isArray(data) ? data : [];
+  try{
+    const res = await fetch(`${ENDPOINT}&_=${Date.now()}`);
+    const data = await res.json();
+    allData = Array.isArray(data) ? data : [];
+  }catch(e){
+    allData = [];
+  }
 
-      // กรองแผนก "ไฟฟ้า" + สถานะ "รอดำเนินการ"
-      deptData = allData.filter(r =>
-        (r.department || '') === 'ไฟฟ้า' &&
-        (r.status || '') === 'รอดำเนินการ'
-      );
+  // ถ้าดึงจาก pending แล้ว จริงๆ ไม่ต้องกรอง status ก็ได้
+  // แต่กรองซ้ำไว้ก็ปลอดภัย
+  deptData = allData.filter(r => (r.department || '') === 'ไฟฟ้า');
 
-      applyFilters();  // จะตั้ง filteredRows + renderCurrentPage()
-    }
+
+  applyFilters();
+}
+
 
     function applyFilters(){
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -155,6 +144,7 @@
       }
 
       rows.forEach(row=>{
+        const requestId = row.original_id ?? row.id;
         // แปลงไฟล์
         let files=[]; 
         try{
@@ -176,14 +166,15 @@
         const mapLink=(row.latitude && row.longitude)
           ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
           : '-';
-
-        const statusSelect=`
-          <select onchange="setStatus(${row.original_id || row.id}, this.value)">
+        
+       const statusSelect = `
+          <select onchange="setStatus(${requestId}, this.value)">
             <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
             <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
             <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
             <option value="เสร็จสิ้น" ${row.status==='เสร็จสิ้น'?'selected':''}>เสร็จสิ้น</option>
           </select>`;
+
 
         tbody.innerHTML += `
           <tr>

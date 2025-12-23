@@ -792,37 +792,67 @@ app.get('/track.html', (req, res) => {
 });
 // ✅ endpoint ใหม่สำหรับดึงข้อมูล "กำลังดำเนินการ"
 // ดึงจากตาราง inprogress (แนะนำ)
-app.get('/data-in-progress', (req, res) => {
-  const sql = 'SELECT * FROM inprogress ORDER BY created_at DESC';
-  db.query(sql, (err, results) => {
+
+app.get('/data-inprogress', (req, res) => {
+  const department = req.query.department;
+
+  let sql = 'SELECT * FROM inprogress';
+  const params = [];
+
+  if (department) {
+    sql += ' WHERE department = ?';
+    params.push(department);
+  }
+
+  sql += ' ORDER BY created_at DESC';
+
+  db.query(sql, params, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
 });
+
 // ดึงข้อมูลจาก pending
 app.get('/data-pending', (req, res) => {
-  db.query('SELECT * FROM pending ORDER BY id DESC', (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Database error');
-    } else {
-      res.json(results);
-    }
+  const department = req.query.department;
+
+  let sql = 'SELECT * FROM pending';
+  const params = [];
+
+  if (department) {
+    sql += ' WHERE department = ?';
+    params.push(department);
+  }
+
+  sql += ' ORDER BY created_at DESC';
+
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
   });
 });
+
 
 // Completed
 app.get('/data-completed', (req, res) => {
-  db.query('SELECT * FROM completed ORDER BY created_at DESC', (err, results) => {
+  const department = req.query.department;
 
-    if (err) {
-      console.error("DB ERROR:", err); // 👈 จะได้เห็น error ใน terminal
-      res.status(500).send('Database error');
-    } else {
-      res.json(results);
-    }
+  let sql = 'SELECT * FROM completed';
+  const params = [];
+
+  if (department) {
+    sql += ' WHERE department = ?';
+    params.push(department);
+  }
+
+  sql += ' ORDER BY created_at DESC';
+
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
   });
 });
+
 
 
 app.get('/completed', (req, res) => {
