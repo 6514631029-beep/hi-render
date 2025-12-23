@@ -5,38 +5,51 @@ const multer = require('multer');
 const mysql = require('mysql2');
 
 const session = require('express-session');
-const fs = require('fs');
 const path = require('path');
 
-const { v4: uuidv4 } = require('uuid');
+
+
 const nodemailer = require('nodemailer');
 
 const app = express();
 const port = process.env.PORT || 3000;
-// ✅ สร้างโฟลเดอร์ uploads อัตโนมัติ (กัน Render ไม่มีโฟลเดอร์)
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+function uploadBufferToCloudinary(buffer, mimetype) {
+  return new Promise((resolve, reject) => {
+    const resource_type = mimetype.startsWith('video')
+      ? 'video'
+      : mimetype.startsWith('image')
+      ? 'image'
+      : 'raw';
+
+    const stream = cloudinary.uploader.upload_stream(
+      { resource_type, folder: 'hi-form' },
+      (err, result) => (err ? reject(err) : resolve(result))
+    );
+
+    stream.end(buffer);
+  });
 }
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir); // ✅ ใช้ตัวนี้แทน 'uploads/'
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
+
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB (ปรับได้)
 });
 
-
-const upload = multer({ storage });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 app.use(session({
@@ -215,23 +228,22 @@ app.post('/submit', upload.array('mediaFiles'), async (req, res) => {
     if (!name || !phone || !address || !message) {
       return res.status(400).send('❌ ข้อมูลไม่ครบ');
     }
+    // ✅ อัปโหลดทุกไฟล์ขึ้น Cloudinary
+    const uploaded = await Promise.all(
+      files.map(async (f) => {
+        const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
 
-    const photoUrls = files.map(f => {
-      let type = 'other';
-      if (f.mimetype.startsWith('image')) {
-        type = 'image';
-      } else if (f.mimetype.startsWith('video')) {
-        type = 'video';
-      }
-      return {
-        url: `/uploads/${f.filename}`, // จากเดิมเคยใช้ f.path
-        type
-      };
-    });
-    const photoUrl = JSON.stringify(photoUrls);
-    
+        return {
+          url: result.secure_url,         // ✅ URL เต็ม (ดูรูปได้ตลอด)
+          public_id: result.public_id,    // ✅ ไว้ลบในอนาคต
+          type: f.mimetype.startsWith('video') ? 'video' :
+                f.mimetype.startsWith('image') ? 'image' : 'raw'
 
-   
+        };
+      })
+    );
+
+   const photoUrl = JSON.stringify(uploaded);
 
     const sql = `
       INSERT INTO requests 
@@ -472,188 +484,135 @@ function removeFromOtherBuckets(originalId, keepTable, cb) {
 // ✅ เพิ่มฟังก์ชันเปลี่ยนสถานะ
 // ✅ เปลี่ยนสถานะ + ถ้าเป็น "กำลังดำเนินการ" ให้คัดลอกไป inprogress
 // เปลี่ยนสถานะ + คัดลอกเข้า bucket ที่ตรงสถานะ + ลบออกจาก bucket อื่น
-app.post('/set-status/:id', (req, res) => {
-  const id = req.params.id;
-  const { status } = req.body;
+app.post('/complete-with-media/:id', upload.array('extraFiles'), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const files = req.files || [];
 
-  if (!status) return res.status(400).json({ success: false, message: '❌ ต้องระบุสถานะ' });
-
-  // 1) อัปเดตสถานะในตารางหลัก
-  db.query('UPDATE requests SET status = ? WHERE id = ?', [status, id], (updErr, updRes) => {
-    if (updErr) {
-      console.error('❌ เปลี่ยนสถานะไม่สำเร็จ:', updErr);
-      return res.status(500).json({ success: false, message: '❌ เกิดข้อผิดพลาดในฐานข้อมูล' });
-    }
-    if (updRes.affectedRows === 0) {
+    // 1) ดึงแถวเดิม
+    const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+    if (!rows || rows.length === 0) {
       return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
     }
-
-    // 2) ดึงข้อมูลแถวนั้นมา
-    db.query('SELECT * FROM requests WHERE id = ?', [id], (selErr, rows) => {
-      if (selErr) {
-        console.error('❌ ดึงข้อมูลไม่สำเร็จ:', selErr);
-        return res.status(500).json({ success: false, message: '❌ ดึงข้อมูลไม่สำเร็จ' });
-      }
-      if (!rows || rows.length === 0) {
-        return res.status(404).json({ success: false, message: '❌ ไม่พบข้อมูลต้นทาง' });
-      }
-
-      const r = rows[0];
-
-      // 3) เลือก bucket เป้าหมายตามสถานะ
-      let bucket = null;
-      if (status === 'รอดำเนินการ') bucket = 'pending';
-      else if (status === 'กำลังดำเนินการ') bucket = 'inprogress';
-      else if (status === 'เสร็จสิ้น') bucket = 'completed';
-
-      if (!bucket) {
-        console.log(`✅ อัปเดตสถานะ id=${id} -> ${status} (ไม่คัดลอก)`);
-        return res.json({ success: true, message: '✅ เปลี่ยนสถานะสำเร็จ' });
-      }
-
-      // 4) upsert เข้า bucket
-      upsertToBucket(bucket, r, (insErr) => {
-        if (insErr) {
-          console.error(`❌ upsert เข้า ${bucket} ไม่สำเร็จ:`, insErr);
-          return res.status(500).json({ success: false, message: `❌ บันทึกเข้า ${bucket} ไม่สำเร็จ` });
-        }
-
-        // 5) ลบออกจาก bucket อื่น ๆ กันค้างสองที่
-        removeFromOtherBuckets(r.id, bucket, () => {
-          console.log(`✅ ย้าย id=${id} -> ${bucket} แล้ว`);
-          res.json({ success: true, message: `✅ ย้ายเข้า ${bucket} แล้ว`, movedTo: bucket });
-        });
-      });
-    });
-  });
-});
-// ✅ แนบไฟล์ + เปลี่ยนสถานะเป็น "เสร็จสิ้น"
-app.post('/complete-with-media/:id', upload.array('extraFiles'), (req, res) => {
-  const id = req.params.id;
-  const files = req.files || [];
-
-  // 1) ดึงแถวเดิม
-  db.query('SELECT * FROM requests WHERE id = ?', [id], (selErr, rows) => {
-    if (selErr) return res.status(500).json({ success:false, message:'❌ ดึงข้อมูลไม่สำเร็จ' });
-    if (!rows || rows.length === 0) return res.status(404).json({ success:false, message:'❌ ไม่พบคำร้องนี้' });
-
-    // 2) รวมรูปเดิม + ไฟล์ใหม่ (ติด tag completed)
     const r = rows[0];
+
+    // 2) แปลง photo เดิม -> array
     let list = [];
     try { list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]'); } catch { list = []; }
 
-    const newItems = files.map(f => ({
-      url: `/uploads/${f.filename}`,
-      type: f.mimetype?.startsWith('video') ? 'video' : (f.mimetype?.startsWith('image') ? 'image' : 'other'),
-      from: 'completed',
-      tag:  'completed'
-    }));
+    // 3) อัปโหลดไฟล์ใหม่ขึ้น Cloudinary
+    const uploadedExtra = await Promise.all(
+      files.map(async (f) => {
+        const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
+        return {
+          url: result.secure_url,
+          public_id: result.public_id,
+          type: f.mimetype?.startsWith('video') ? 'video'
+              : f.mimetype?.startsWith('image') ? 'image'
+              : 'raw',
 
-    const merged = [...list, ...newItems];
+          from: 'completed',
+          tag: 'completed'
+        };
+      })
+    );
 
-    // 3) อัปเดตตารางหลัก
-    const sqlUpd = `
-      UPDATE requests
-      SET status='เสร็จสิ้น', photo=?, completed_at=NOW()
-      WHERE id=?`;
-    db.query(sqlUpd, [JSON.stringify(merged), id], (updErr, updRes) => {
-      if (updErr) return res.status(500).json({ success:false, message:'❌ อัปเดตคำร้องไม่สำเร็จ' });
-      if (updRes.affectedRows === 0) return res.status(404).json({ success:false, message:'❌ ไม่พบคำร้องนี้' });
+    // 4) รวมของเดิม + ของใหม่
+    const merged = [...list, ...uploadedExtra];
 
-      // 4) ดึงซ้ำแล้ว upsert ไป bucket completed และลบจาก bucket อื่น
-      db.query('SELECT * FROM requests WHERE id = ?', [id], (sel2Err, rows2) => {
-        if (sel2Err || !rows2 || rows2.length === 0) return res.json({ success:true, message:'✅ อัปเดตแล้ว' });
-        const r2 = rows2[0];
-        upsertToBucket('completed', r2, (insErr) => {
-          if (insErr) return res.json({ success:true, message:'✅ อัปเดตแล้ว (ซิงก์ completed ล้มเหลวบ้าง)' });
-          removeFromOtherBuckets(r2.id, 'completed', () =>
-            res.json({ success:true, message:'✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' })
-          );
-        });
+    // 5) อัปเดตตารางหลัก
+    await db.promise().query(
+      `UPDATE requests SET status='เสร็จสิ้น', photo=?, completed_at=NOW() WHERE id=?`,
+      [JSON.stringify(merged), id]
+    );
+
+    // 6) ดึงข้อมูลล่าสุด แล้ว upsert ไป completed + ลบจาก bucket อื่น
+    const [rows2] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+    if (rows2 && rows2.length > 0) {
+      const r2 = rows2[0];
+
+      await new Promise((resolve, reject) => {
+        upsertToBucket('completed', r2, (err) => err ? reject(err) : resolve());
       });
-    });
-  });
+
+      await new Promise((resolve) => removeFromOtherBuckets(r2.id, 'completed', resolve));
+    }
+
+    return res.json({ success: true, message: '✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' });
+
+  } catch (error) {
+    console.error('❌ complete-with-media error:', error);
+    return res.status(500).json({ success: false, message: '❌ เกิดข้อผิดพลาดใน complete-with-media' });
+  }
 });
 
 // ✅ ลบเฉพาะไฟล์ที่แนบตอน "เสร็จสิ้น"
 // ✅ ลบ “เฉพาะไฟล์ที่แนบตอนเสร็จสิ้น” + ซิงก์ตาราง completed
-app.post('/delete-completed-file/:id', (req, res) => {
-  const id = req.params.id;
-  let { fileUrl } = req.body || {};
+app.post('/delete-completed-file/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { fileUrl } = req.body || {};
+    if (!fileUrl) return res.status(400).json({ success:false, message:'❌ ต้องระบุ fileUrl' });
 
-  if (!fileUrl) {
-    return res.status(400).json({ success: false, message: '❌ ต้องระบุ URL ของไฟล์ที่จะลบ' });
-  }
-
-  // ช่วยให้เทียบ URL ได้แม่นยำ (ตัดโดเมน, ตัด / นำหน้า)
-  const norm = (u) => (u || '')
-    .replace(/^https?:\/\/[^/]+/i, '')  // ตัดโดเมนออก
-    .replace(/^\/+/, '');               // ตัด "/" หน้า URL ออก
-
-  const target = norm(fileUrl);
-
-  // 1) ดึงรายการภาพ/คลิปจาก requests
-  db.query('SELECT * FROM requests WHERE id = ?', [id], (selErr, rows) => {
-    if (selErr) {
-      console.error('❌ ดึงข้อมูลไม่สำเร็จ:', selErr);
-      return res.status(500).json({ success: false, message: '❌ ดึงข้อมูลไม่สำเร็จ' });
-    }
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
-    }
+    // 1) ดึงรายการเดิม
+    const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+    if (!rows || rows.length === 0) return res.status(404).json({ success:false, message:'❌ ไม่พบคำร้องนี้' });
 
     const r = rows[0];
-
-    // แปลง photo -> array ให้ได้เสมอ
     let list = [];
-    try {
-      list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]');
-    } catch {
-      list = [];
+    try { list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]'); } catch { list = []; }
+    const normUrl = (u) => decodeURIComponent((u || '').trim()).split('?')[0];
+
+
+    // 2) หา item ที่จะลบ (ต้องเป็น completed)
+    const targetItem = list.find(item => {
+      if (typeof item !== 'object') return false;
+      const isCompleted = item.from === 'completed' || item.tag === 'completed';
+      return isCompleted && normUrl(item.url) === normUrl(fileUrl);
+    });
+
+
+    if (!targetItem) {
+      return res.json({ success:true, message:'⚠️ ไม่พบไฟล์ completed ที่ตรงกับ URL นี้' });
     }
 
-    // 2) เก็บ “เฉพาะไฟล์ที่ไม่ใช่ตัวที่จะลบ” หรือ “เป็นตัวที่จะลบแต่ไม่ใช่ completed”
-    const filtered = list.filter(item => {
-      // รองรับทั้ง string และ object
-      const url = typeof item === 'string' ? item : (item?.url || '');
-      const urlNorm = norm(url);
-      const isCompleted = (typeof item === 'object') && (item.from === 'completed' || item.tag === 'completed');
+    // 3) ลบไฟล์บน Cloudinary (ถ้ามี public_id)
+if (targetItem.public_id) {
+  const resource_type =
+    targetItem.type === 'video' ? 'video'
+    : targetItem.type === 'image' ? 'image'
+    : 'raw';
 
-      // เก็บไว้ถ้า:
-      // - URL ไม่ตรงกับเป้าหมาย
-      // - หรือ URL ตรง แต่ไฟล์นั้นไม่ใช่ completed (กันเผลอลบไฟล์หลัก)
-      return urlNorm !== target || !isCompleted;
-    });
+  const destroyRes = await cloudinary.uploader.destroy(targetItem.public_id, { resource_type });
+  console.log('🗑️ cloudinary destroy:', destroyRes);
+}
 
-    // 3) อัปเดตกลับเข้า requests
-    db.query('UPDATE requests SET photo = ? WHERE id = ?', [JSON.stringify(filtered), id], (updErr) => {
-      if (updErr) {
-        console.error('❌ อัปเดต photo ไม่สำเร็จ:', updErr);
-        return res.status(500).json({ success: false, message: '❌ ลบไฟล์ไม่สำเร็จ' });
-      }
 
-      // 4) ดึงแถวล่าสุดหลังอัปเดต เพื่อ upsert เข้า bucket "completed"
-      db.query('SELECT * FROM requests WHERE id = ?', [id], (sel2Err, rows2) => {
-        if (sel2Err || !rows2 || rows2.length === 0) {
-          // กรณีดึงไม่สำเร็จ ก็ถือว่าลบใน requests แล้ว
-          return res.json({ success: true, message: '✅ ลบไฟล์ (completed) เรียบร้อย' });
-        }
 
-        const r2 = rows2[0];
-        upsertToBucket('completed', r2, (insErr) => {
-          if (insErr) {
-            console.error('⚠️ upsert เข้า completed ไม่สำเร็จ (แต่ลบใน requests แล้ว):', insErr);
-            // ยังตอบ success ได้ เพราะจุดประสงค์หลักคือ “ลบไฟล์ completed ในแถวหลัก”
-            return res.json({ success: true, message: '✅ ลบไฟล์ (completed) แล้ว (ซิงก์ completed ล้มเหลวบ้าง)' });
-          }
-          // ไม่ต้องลบ bucket อื่น เพราะสถานะยังเป็น "เสร็จสิ้น"
-          return res.json({ success: true, message: '✅ ลบไฟล์ (completed) แล้ว และซิงก์รายการเสร็จสิ้น' });
-        });
+    // 4) ลบออกจาก array แล้วอัปเดต DB
+    const filtered = list.filter(item => !(
+  typeof item === 'object' &&
+  (item.from === 'completed' || item.tag === 'completed') &&
+  normUrl(item.url) === normUrl(fileUrl)
+));
+
+    await db.promise().query('UPDATE requests SET photo = ? WHERE id = ?', [JSON.stringify(filtered), id]);
+
+    // 5) sync ไปตาราง completed ด้วย
+    const [rows2] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+    if (rows2 && rows2.length > 0) {
+      await new Promise((resolve, reject) => {
+        upsertToBucket('completed', rows2[0], (err) => err ? reject(err) : resolve());
       });
-    });
-  });
-});
+    }
 
+    return res.json({ success:true, message:'✅ ลบไฟล์ completed แล้ว (ทั้ง DB + Cloudinary)' });
+
+  } catch (err) {
+    console.error('delete-completed-file error:', err);
+    return res.status(500).json({ success:false, message:'❌ ลบไฟล์ไม่สำเร็จ' });
+  }
+});
 
 app.get('/data-engineer-all', (req, res) => {
   db.query('SELECT * FROM requests WHERE department = ? ORDER BY id DESC', ['กองช่าง'], (err, results) => {
