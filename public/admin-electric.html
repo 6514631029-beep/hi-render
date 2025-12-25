@@ -335,9 +335,9 @@ async function updateCounters() {
   try {
     const [allRes, pRes, iRes, cRes] = await Promise.all([
       fetch('/data-electric-all?_=' + Date.now()),
-      fetch('/data-pending?_=' + Date.now()),
-      fetch('/data-in-progress?_=' + Date.now()),
-      fetch('/data-completed?_=' + Date.now())
+      fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+      fetch('/data-in-progress?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+      fetch('/data-completed?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now())
     ]);
     const [allData, pAll, iAll, cAll] = await Promise.all([
       allRes.json(), pRes.json(), iRes.json(), cRes.json()
@@ -346,9 +346,10 @@ async function updateCounters() {
     const byDept = (r) => ((r.department || '').trim() === DEPT);
 
     const unset      = (Array.isArray(allData) ? allData : []).filter(r => byDept(r) && (!r.status || r.status.trim()==='')).length;
-    const pending    = (Array.isArray(pAll) ? pAll : []).filter(byDept).length;
-    const inProgress = (Array.isArray(iAll) ? iAll : []).filter(byDept).length;
-    const completed  = (Array.isArray(cAll) ? cAll : []).filter(byDept).length;
+    const pending    = Array.isArray(pAll) ? pAll.length : 0;
+    const inProgress = Array.isArray(iAll) ? iAll.length : 0;
+    const completed  = Array.isArray(cAll) ? cAll.length : 0;
+
 
     document.getElementById('btn-unset').textContent      = `📝 ยังไม่ได้เลือกสถานะ (${unset})`;
     document.getElementById('btn-pending').textContent    = `⏳ รอดำเนินการ (${pending})`;
