@@ -17,6 +17,52 @@
     .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
     a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
     .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .modal-backdrop{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;              /* ✅ ซ่อนไว้ก่อน */
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modal{
+  width:min(560px, 94vw);
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  padding:18px;
+}
+.modal h3{ margin:0 0 10px; }
+.modal .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.modal .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+.btn.primary{ background:#15563b; color:#fff; border-color:#15563b; }
+.hint{ color:#666; font-size:13px; margin-top:6px; }
+
+/* ✅ พรีวิวไฟล์ */
+.preview-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:12px;
+}
+.preview-item{
+  width:120px; height:90px;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid #e5e7eb;
+  background:#f8fafc;
+  display:flex; align-items:center; justify-content:center;
+}
+.preview-item img,
+.preview-item video{
+  width:100%; height:100%;
+  object-fit:cover;
+}
+.preview-empty{
+  margin-top:10px;
+  color:#999;
+  font-size:13px;
+}
   </style>
 </head>
 <body>
@@ -238,13 +284,13 @@
 
     loadData();
     function onStatusChange(id, status){
-  if(status === 'เสร็จสิ้น'){
-    // ✅ ถ้าไม่ต้องแนบไฟล์เลยก็เรียก endpoint นี้ได้ (ส่งไฟล์ว่างได้)
-    completeWithoutFiles(id);
-    return;
-  }
-  setStatus(id, status);
-}
+      if(status === 'เสร็จสิ้น'){
+        openCompleteModal(id);   // ✅ เปิด modal ให้เลือกไฟล์
+        return;
+      }
+      setStatus(id, status);
+    }
+
 
 function completeWithoutFiles(id){
   const fd = new FormData();
@@ -265,7 +311,71 @@ function completeWithoutFiles(id){
   });
 }
 
+let completeTargetId = null;
+
+function openCompleteModal(id){
+  completeTargetId = id;
+  document.getElementById('completeFiles').value = '';
+  document.getElementById('completeModal').style.display = 'flex';
+}
+
+function closeCompleteModal(){
+  completeTargetId = null;
+  document.getElementById('completeModal').style.display = 'none';
+}
+
+async function submitComplete(){
+  if(!completeTargetId){
+    alert('❌ ไม่พบรหัสคำร้อง');
+    return;
+  }
+
+  const fd = new FormData();
+  const files = document.getElementById('completeFiles').files;
+
+  // ✅ ชื่อต้องตรงกับ server: upload.array('extraFiles')
+  for (const f of files) fd.append('extraFiles', f);
+
+  try{
+    const res = await fetch(`/complete-with-media/${completeTargetId}`, {
+      method:'POST',
+      body: fd
+    });
+
+    const data = await res.json().catch(()=> ({}));
+    if(res.ok && data.success !== false){
+      alert(data.message || '✅ อัปเดตเป็น "เสร็จสิ้น" แล้ว');
+      closeCompleteModal();
+      loadData();
+    }else{
+      alert(data.message || `❌ อัปเดตเสร็จสิ้นไม่สำเร็จ (${res.status})`);
+    }
+  }catch(e){
+    console.error(e);
+    alert('❌ เกิดข้อผิดพลาดในการอัปเดตเสร็จสิ้น');
+  }
+}
 
   </script>
+<div id="completeModal" class="modal-backdrop">
+  <div class="modal">
+    <h3>✅ แนบไฟล์เพิ่มเติม (เสร็จสิ้น)</h3>
+
+    <div class="row">
+      <input id="completeFiles" type="file" multiple accept="image/*,video/*">
+    </div>
+
+    <div class="hint">
+      * ถ้าไม่แนบไฟล์ก็ได้ กด “ยืนยันเสร็จสิ้น” ได้เลย
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="closeCompleteModal()">ยกเลิก</button>
+      <button class="btn primary" onclick="submitComplete()">ยืนยันเสร็จสิ้น</button>
+    </div>
+  </div>
+</div>
+
+
 </body>
 </html>
