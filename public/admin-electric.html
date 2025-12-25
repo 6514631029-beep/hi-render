@@ -240,15 +240,18 @@
   <script>
   function formatDate(dateString) {
   if (!dateString) return 'ไม่ทราบเวลา';
-  const date = new Date(dateString);
-  if (isNaN(date)) return 'ไม่สามารถแปลงเวลาได้';
-  const options = {
+
+  const d = new Date(dateString);
+  if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+
+  return d.toLocaleString('th-TH', {
+    timeZone: 'Asia/Bangkok',
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
     hour12: false
-  };
-  return date.toLocaleString('th-TH', options);
+  });
 }
+
   function filterByName() {
   const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
