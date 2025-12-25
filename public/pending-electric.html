@@ -144,7 +144,8 @@
       }
 
       rows.forEach(row=>{
-        const requestId = row.original_id ?? row.id;
+        const requestId = row.original_id || row.id;
+
         // แปลงไฟล์
         let files=[]; 
         try{
@@ -168,7 +169,7 @@
           : '-';
         
        const statusSelect = `
-          <select onchange="setStatus(${requestId}, this.value)">
+          <select onchange="onStatusChange(${requestId}, this.value)">
             <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
             <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
             <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
@@ -223,18 +224,48 @@
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({status})
       })
-      .then(res=>{
+      .then(async res=>{
+        const data = await res.json().catch(()=> ({}));
         if(res.ok){
-          alert('อัปเดตสถานะเรียบร้อย');
-          loadData();  // โหลดใหม่ เพื่อให้รายการออกจาก "รอดำเนินการ" ถ้าเปลี่ยนสถานะ
+          alert(data.message || 'อัปเดตสถานะเรียบร้อย');
+          loadData();
         }else{
-          alert('เกิดข้อผิดพลาดในการอัปเดต');
+          alert(data.message || 'เกิดข้อผิดพลาดในการอัปเดต');
         }
       })
       .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
     }
 
     loadData();
+    function onStatusChange(id, status){
+  if(status === 'เสร็จสิ้น'){
+    // ✅ ถ้าไม่ต้องแนบไฟล์เลยก็เรียก endpoint นี้ได้ (ส่งไฟล์ว่างได้)
+    completeWithoutFiles(id);
+    return;
+  }
+  setStatus(id, status);
+}
+
+function completeWithoutFiles(id){
+  const fd = new FormData();
+  fetch(`/complete-with-media/${id}`, { method:'POST', body: fd })
+  .then(async res => {
+    const data = await res.json().catch(()=> ({}));
+    console.log('complete-with-media:', res.status, data);
+    if(res.ok && data.success !== false){
+      alert(data.message || '✅ อัปเดตเป็น "เสร็จสิ้น" แล้ว');
+      loadData();
+    }else{
+      alert(data.message || `❌ อัปเดตเสร็จสิ้นไม่สำเร็จ (${res.status})`);
+    }
+  })
+  .catch((e)=> {
+    console.error(e);
+    alert('❌ เกิดข้อผิดพลาดในการอัปเดตเสร็จสิ้น');
+  });
+}
+
+
   </script>
 </body>
 </html>
