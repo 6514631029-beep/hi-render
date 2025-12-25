@@ -130,6 +130,7 @@
     const d = new Date(fixed);
     if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
     return d.toLocaleString('th-TH', {
+      timeZone: 'Asia/Bangkok',
       year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit', second: '2-digit',
       hour12: false
@@ -155,9 +156,18 @@
   data.forEach(row => {
     const photos = parsePhoto(row.photo);
     const completedFiles = photos.filter(it => {
-      if (!it || typeof it !== 'object') return false;
-      return it.from === 'completed' || it.tag === 'completed';
-    });
+  if (!it) return false;
+
+  // ✅ ต้องเป็น object เท่านั้น ถึงจะนับเป็น completed
+  if (typeof it === 'object') {
+    return it.from === 'completed' || it.tag === 'completed';
+  }
+
+  // ✅ string ไม่ใช่ completed (ปล่อยให้เป็นไฟล์ปกติ)
+  return false;
+});
+
+
 
     let html = `
       <hr/>
@@ -175,25 +185,39 @@
       html += `<p><strong>❗ เหตุผล:</strong> ${row.reject_reason}</p>`;
     }
 
+    
     // 🔽 แสดงรูป/วิดีโอที่แนบตอน "เสร็จสิ้น"
-    if (completedFiles.length > 0) {
-      const thumbs = completedFiles.slice(0, 4).map(it => {
-        const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
-        const isVideo = (it.type === 'video') || /\.(mp4|mov|avi)(\?|$)/i.test(url);
-        return isVideo
-          ? `<video muted class="thumb"><source src="${url}" type="video/mp4"></video>`
-          : `<img class="thumb" src="${url}" alt="">`;
-      }).join('');
+if (completedFiles.length > 0) {
+  const safeFiles = completedFiles.filter(it => {
+    const raw = typeof it === 'string' ? it : (it?.url || '');
+    const u = String(raw).trim();
+    return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
+  });
 
-      html += `
-        <div style="margin-top:8px;">
-          <strong>📷 ไฟล์ (เสร็จสิ้น):</strong>
-          <div class="media-grid">${thumbs}</div>
-          <button style="margin-top:8px" onclick='showImages(${JSON.stringify(completedFiles)})'>ดูทั้งหมด</button>
-        </div>
-      `;
-    }
+  if (safeFiles.length === 0) {
+    html += `
+      <div style="margin-top:8px; color:#999; font-size:13px;">
+        📁 ไฟล์แนบ (เสร็จสิ้น) เป็นไฟล์เก่าในเครื่อง จึงไม่สามารถแสดงบนระบบออนไลน์ได้
+      </div>
+    `;
+  } else {
+    const thumbs = safeFiles.slice(0, 4).map(it => {
+      const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
+      const isVideo = (typeof it === 'object' && it.type === 'video') || /\.(mp4|mov|avi)(\?|$)/i.test(url);
+      return isVideo
+        ? `<video muted class="thumb"><source src="${url}" type="video/mp4"></video>`
+        : `<img class="thumb" src="${url}" alt="">`;
+    }).join('');
 
+    html += `
+      <div style="margin-top:8px;">
+        <strong>📷 ไฟล์ (เสร็จสิ้น):</strong>
+        <div class="media-grid">${thumbs}</div>
+        <button style="margin-top:8px" onclick='showImages(${JSON.stringify(safeFiles)})'>ดูทั้งหมด</button>
+      </div>
+    `;
+  }
+} 
     resultsDiv.innerHTML += html;
   });
 }
@@ -218,21 +242,46 @@
 </script>
 <script>
   function normUrl(u) {
-    if (!u) return '';
-    return u.startsWith('uploads/') ? '/' + u : u; // รองรับค่าเก่าที่เป็น path
-  }
+  if (!u) return '';
+
+  u = String(u).trim();
+
+  // 1) ถ้าเป็น URL เต็ม (Cloudinary/https) ใช้เลย
+  if (/^https?:\/\//i.test(u)) return u;
+
+  // 2) รองรับ /uploads/... และ uploads/...
+  if (u.startsWith('/uploads/')) return encodeURI(u);
+  if (u.startsWith('uploads/')) return encodeURI('/' + u);
+
+  // 3) ถ้าเป็นชื่อไฟล์ล้วน ๆ (เช่น 1766...on Twitter.jpeg) -> เดาว่าอยู่ใน /uploads
+  return encodeURI('/uploads/' + u);
+}
+
 
   function showImages(images) {
-    const html = images.map(it => {
-      const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
-      const isVideo = (typeof it === 'object' ? it.type : '') === 'video' || /\.(mp4|mov|avi)(\?|$)/i.test(url);
-      return isVideo
-        ? `<video controls style="max-width:720px; max-height:540px; margin:10px 0; border-radius:8px;"><source src="${url}" type="video/mp4"></video>`
-        : `<img src="${url}" style="max-width:720px; max-height:540px; margin:10px 0; border-radius:8px; object-fit:contain;">`;
-    }).join('');
-    const w = window.open('', '_blank', 'width=800,height=650');
-    w.document.write(`<body style="font-family:Kanit; padding:24px; background:#fafafa; text-align:center">${html}</body>`);
+  const safe = (images || []).filter(it => {
+    const raw = typeof it === 'string' ? it : (it?.url || '');
+    const u = String(raw).trim();
+    return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
+  });
+
+  if (safe.length === 0) {
+    alert('ไฟล์ชุดนี้เป็นไฟล์เก่าในเครื่อง จึงไม่สามารถแสดงบนระบบออนไลน์ได้');
+    return;
   }
+
+  const html = safe.map(it => {
+    const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
+    const isVideo = (typeof it === 'object' ? it.type : '') === 'video' || /\.(mp4|mov|avi)(\?|$)/i.test(url);
+    return isVideo
+      ? `<video controls style="max-width:720px; max-height:540px; margin:10px 0; border-radius:8px;"><source src="${url}" type="video/mp4"></video>`
+      : `<img src="${url}" style="max-width:720px; max-height:540px; margin:10px 0; border-radius:8px; object-fit:contain;">`;
+  }).join('');
+
+  const w = window.open('', '_blank', 'width=800,height=650');
+  w.document.write(`<body style="font-family:Kanit; padding:24px; background:#fafafa; text-align:center">${html}</body>`);
+}
+
 
   function parsePhoto(val) {
     if (!val) return [];
