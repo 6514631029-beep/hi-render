@@ -480,6 +480,56 @@ function removeFromOtherBuckets(originalId, keepTable, cb) {
   Promise.all(tasks).then(() => cb && cb());
 }
 // -----------------------------------------------
+// ✅ เปลี่ยนสถานะ (รอดำเนินการ / กำลังดำเนินการ) + คัดลอกไป bucket
+app.post('/set-status/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: '❌ ต้องระบุ status' });
+    }
+
+    // กันพลาด: "เสร็จสิ้น" ต้องใช้ /complete-with-media/:id
+    if (status === 'เสร็จสิ้น') {
+      return res.status(400).json({
+        success: false,
+        message: '❌ สถานะ "เสร็จสิ้น" กรุณาใช้ /complete-with-media/:id'
+      });
+    }
+
+    // 1) update ใน requests
+    await db.promise().query(
+      'UPDATE requests SET status = ? WHERE id = ?',
+      [status, id]
+    );
+
+    // 2) ดึงแถวล่าสุด
+    const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
+    }
+    const r = rows[0];
+
+    // 3) map status -> bucket table
+    let bucket = null;
+    if (status === 'รอดำเนินการ') bucket = 'pending';
+    if (status === 'กำลังดำเนินการ') bucket = 'inprogress';
+
+    // 4) upsert เข้า bucket + ลบออกจาก bucket อื่น
+    if (bucket) {
+      await new Promise((resolve, reject) => {
+        upsertToBucket(bucket, r, (err) => (err ? reject(err) : resolve()));
+      });
+      await new Promise((resolve) => removeFromOtherBuckets(r.id, bucket, resolve));
+    }
+
+    return res.json({ success: true, message: '✅ อัปเดตสถานะเรียบร้อย' });
+  } catch (err) {
+    console.error('❌ set-status error:', err);
+    return res.status(500).json({ success: false, message: '❌ Server error' });
+  }
+});
 
 // ✅ เพิ่มฟังก์ชันเปลี่ยนสถานะ
 // ✅ เปลี่ยนสถานะ + ถ้าเป็น "กำลังดำเนินการ" ให้คัดลอกไป inprogress
