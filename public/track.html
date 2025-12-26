@@ -164,32 +164,85 @@ input, button, select {
   img, video { max-width: 160px !important; max-height: 160px !important; }
 }
 /* ===== Fullscreen Media Modal (Mobile friendly) ===== */
-.media-modal{ position:fixed; inset:0; z-index:9999; display:none; }
-.media-modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.65); }
+/* ===== Media Modal (One clean version) ===== */
+.media-modal{ position:fixed; inset:0; z-index:99999; display:none; }
+.media-modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.70); }
+
 .media-modal__content{
-  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  width:min(96vw, 900px); height:min(92vh, 760px);
-  background:#fff; border-radius:14px; overflow:hidden;
-  display:flex; flex-direction:column;
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:min(96vw, 980px);
+  height:min(92vh, 820px);
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
+
 .media-modal__header{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 12px; border-bottom:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  border-bottom:1px solid #e5e7eb;
   background:#f8fafc;
 }
+
 .media-modal__title{ font-weight:700; color:#0f172a; }
+
 .media-modal__close{
-  border:1px solid #cbd5e1; background:#fff; border-radius:10px;
-  padding:8px 12px; font-size:16px; cursor:pointer;
+  position:sticky;   /* ✅ ช่วยให้ปุ่มอยู่บน header เสมอ */
+  top:0;
+  z-index:100000;
+  border:none;
+  background:#111827;
+  color:#fff;
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  font-size:22px;
+  line-height:40px;
+  cursor:pointer;
 }
-.media-modal__body{ padding:10px; overflow:auto; -webkit-overflow-scrolling:touch; }
-.media-modal__grid{ display:flex; flex-direction:column; gap:12px; }
-.media-modal__body img, .media-modal__body video{
-  width:100%; height:auto; max-height:78vh; object-fit:contain; border-radius:12px;
-  background:#00000008;
+
+
+.media-modal__body{
+  padding:12px;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
 }
-/* ให้ iPhone เล่น video ในหน้า ไม่เด้งเต็มจอ */
-.media-modal__body video{ display:block; }
+
+/* รูป/วิดีโอให้ใหญ่เต็มกว้าง */
+.media-modal__stack{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+
+.media-modal__stack img,
+.media-modal__stack video{
+  width:100%;
+  height:auto;
+  max-height:76vh;
+  object-fit:contain;
+  border-radius:12px;
+  background:#0000000a;
+}
+
+.media-modal__stack video{ display:block; }
+
+.thumb{
+  width:140px;
+  height:100px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+}
+/* ให้ thumb ชนะเสมอในกรอบ media-grid */
+.media-grid .thumb { width:140px; height:100px; object-fit:cover; }
 
   </style>
 </head>
@@ -360,7 +413,7 @@ if (completedFiles.length > 0) {
 
  function openMediaModal(files, titleText = 'ไฟล์แนบ') {
   const modal = document.getElementById('mediaModal');
-  const body = document.getElementById('mediaModalBody');
+  const body  = document.getElementById('mediaModalBody');
   const title = document.getElementById('mediaModalTitle');
 
   title.textContent = titleText;
@@ -383,7 +436,7 @@ if (completedFiles.length > 0) {
 
       return isVideo
         ? `<video controls playsinline preload="metadata">
-             <source src="${url}" type="video/mp4">
+             <source src="${url}">
            </video>`
         : `<img src="${url}" alt="">`;
     }).join('');
@@ -391,18 +444,27 @@ if (completedFiles.length > 0) {
 
   modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
+
+  // ปิดด้วย ESC (คอม) + รองรับบางมือถือ
+  document.addEventListener('keydown', escToClose);
+}
+
+function escToClose(e) {
+  if (e.key === 'Escape') closeMediaModal();
 }
 
 function closeMediaModal() {
-  document.getElementById('mediaModal').style.display = 'none';
+  const modal = document.getElementById('mediaModal');
+  modal.style.display = 'none';
   document.getElementById('mediaModalBody').innerHTML = '';
   document.body.style.overflow = '';
+  document.removeEventListener('keydown', escToClose);
 }
 
-/* ✅ showImages ใหม่ (แทนของเดิม) */
 function showImages(images) {
   openMediaModal(images, 'ดูไฟล์ทั้งหมด');
 }
+
 
 
 
@@ -412,19 +474,25 @@ function showImages(images) {
     catch { return []; }
   }
 </script>
+
+
+
 <div id="mediaModal" class="media-modal">
   <div class="media-modal__backdrop" onclick="closeMediaModal()"></div>
 
   <div class="media-modal__content" role="dialog" aria-modal="true">
     <div class="media-modal__header">
       <div id="mediaModalTitle" class="media-modal__title">ไฟล์แนบ</div>
-      <button class="media-modal__close" onclick="closeMediaModal()">ปิด</button>
+      <button type="button" class="media-modal__close" onclick="closeMediaModal()">✕</button>
     </div>
+
     <div class="media-modal__body">
-      <div id="mediaModalBody" class="media-modal__grid"></div>
+      <div id="mediaModalBody" class="media-modal__stack"></div>
     </div>
   </div>
 </div>
+
+
 
 </body>
 </html>
