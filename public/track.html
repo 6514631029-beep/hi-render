@@ -21,18 +21,35 @@
       justify-content: flex-start;
     }
       /* เพิ่มใน <style> */
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background-color: #ff9800;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      z-index: 1000; /* ให้ลอยเหนือ element อื่น */
-    }
+    .back-btn{
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #ff9800;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+/* ✅ มือถือ: เอา fixed ออก ไม่ให้ชนหัวข้อ */
+@media (max-width: 768px){
+  .back-btn{
+    position: relative;
+    top: auto;
+    left: auto;
+    margin: 12px auto 0;
+    display: inline-block;
+  }
+
+  h2{
+    margin-top: 12px; /* ลดระยะ เพราะไม่มีปุ่มลอยแล้ว */
+    text-align: center;
+  }
+}
+
     .back-btn:hover {
       background-color: #f57c00;
     }
@@ -194,19 +211,30 @@ input, button, select {
 .media-modal__title{ font-weight:700; color:#0f172a; }
 
 .media-modal__close{
-  position:sticky;   /* ✅ ช่วยให้ปุ่มอยู่บน header เสมอ */
-  top:0;
-  z-index:100000;
-  border:none;
-  background:#111827;
-  color:#fff;
-  width:40px;
-  height:40px;
-  border-radius:999px;
-  font-size:22px;
-  line-height:40px;
-  cursor:pointer;
+  border: none;
+  cursor: pointer;
+
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+
+  background: #111827;   /* ดำเรียบ ดูแพง */
+  color: #fff;
+
+  font-size: 22px;
+  line-height: 42px;
+  text-align: center;
+
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  transition: transform .15s ease, opacity .15s ease;
 }
+
+.media-modal__close:active{
+  transform: scale(0.92);
+  opacity: 0.9;
+}
+
+
 
 
 .media-modal__body{
@@ -277,6 +305,15 @@ input, button, select {
     max-height: calc(100vh - 74px) !important; /* หักส่วน header */
     object-fit: contain !important;
   }
+}
+
+@media (max-width: 768px){
+  .back-btn{
+    width: calc(100% - 28px);
+    text-align: center;
+    border-radius: 12px;
+  }
+  h2{ padding: 0 10px; }
 }
 
   </style>
