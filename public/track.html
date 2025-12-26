@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>🔍 ติดตามคำร้อง</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
 
@@ -109,6 +110,60 @@
   .media-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
   .media-grid img, .media-grid video { width:140px; height:100px; object-fit:cover; border-radius:8px; }
   .chip { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#e8f5e9; color:#1b5e20; }
+  /* ===== Mobile Responsive for track ===== */
+.container { max-width: 1100px; margin: 0 auto; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+input, button, select {
+  max-width: 100%;
+  font-size: 16px; /* กัน iOS ซูมเอง */
+}
+
+@media (max-width: 768px) {
+  body { padding: 14px !important; }
+  h2 { font-size: 20px; }
+  .search { width: 100% !important; }
+  .btn { width: 100%; padding: 12px 14px; }
+
+  table { display: block; width: 100%; border: none; box-shadow: none; background: transparent; }
+  thead { display: none; }
+  tbody { display: block; }
+
+  tr {
+    display: block;
+    background: #fff;
+    margin: 12px 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    text-align: left !important;
+    align-items: flex-start;
+  }
+
+  td:last-child { border-bottom: none !important; }
+
+  /* ใส่ชื่อหัวข้อให้แต่ละช่อง โดยอาศัย data-label */
+  td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #334155;
+    min-width: 120px;
+    flex: 0 0 120px;
+  }
+
+  img, video { max-width: 160px !important; max-height: 160px !important; }
+}
+
   </style>
 </head>
 <body>
