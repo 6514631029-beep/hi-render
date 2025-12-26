@@ -161,7 +161,8 @@ input, button, select {
     flex: 0 0 120px;
   }
 
-  img, video { max-width: 160px !important; max-height: 160px !important; }
+  #results img, #results video { max-width: 160px !important; max-height: 160px !important; }
+
 }
 /* ===== Fullscreen Media Modal (Mobile friendly) ===== */
 /* ===== Media Modal (One clean version) ===== */
@@ -243,6 +244,40 @@ input, button, select {
 }
 /* ให้ thumb ชนะเสมอในกรอบ media-grid */
 .media-grid .thumb { width:140px; height:100px; object-fit:cover; }
+
+.media-modal img, .media-modal video{
+  max-width: 100% !important;
+  max-height: 76vh !important;
+  width: 100% !important;
+  height: auto !important;
+}
+/* ✅ FIX: ให้ Modal เต็มจอบนมือถือ (Messenger/Safari) */
+@media (max-width: 768px) {
+  .media-modal__content{
+    left: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+  }
+
+  .media-modal__body{
+    padding: 12px !important;
+  }
+
+  .media-modal__stack{
+    width: 100% !important;
+  }
+
+  .media-modal__stack img,
+  .media-modal__stack video{
+    display: block !important;
+    width: 100% !important;
+    max-height: calc(100vh - 74px) !important; /* หักส่วน header */
+    object-fit: contain !important;
+  }
+}
 
   </style>
 </head>
