@@ -125,17 +125,31 @@
 
   <script>
   function formatDate(dateString) {
-    if (!dateString) return 'ไม่ทราบเวลา';
-    const fixed = String(dateString).trim().replace(' ', 'T');
-    const d = new Date(fixed);
-    if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-    return d.toLocaleString('th-TH', {
-      timeZone: 'Asia/Bangkok',
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      hour12: false
-    });
+  if (!dateString) return 'ไม่ทราบเวลา';
+
+  let s = String(dateString).trim();
+
+  // รองรับรูปแบบ "YYYY-MM-DD HH:mm:ss" -> "YYYY-MM-DDTHH:mm:ss"
+  s = s.replace(' ', 'T');
+
+  // ถ้าไม่มี timezone ติดมา (ไม่มี Z และไม่มี +07:00 / -xx:xx)
+  // ให้ถือว่าเป็น UTC แล้วเติม Z
+  const hasTZ = /([zZ]|[+\-]\d{2}:?\d{2})$/.test(s);
+  if (!hasTZ && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) {
+    s += 'Z';
   }
+
+  const d = new Date(s);
+  if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+
+  return d.toLocaleString('th-TH', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  });
+}
+
 
   async function fetchRequests(phone) {
   const res = await fetch('/track-requests', {
