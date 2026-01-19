@@ -4,34 +4,88 @@
 <head>
   <meta charset="UTF-8">
   <title>ส่งคำร้องสำเร็จ</title>
+
+  <!-- สำคัญมากสำหรับมือถือ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- ฟอนต์ -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Kanit', sans-serif;
-      background: #f0fdf4;
+      background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+      margin: 0;
+      padding:
+        env(safe-area-inset-top)
+        env(safe-area-inset-right)
+        env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
       min-height: 100vh;
       text-align: center;
       color: #166534;
     }
+
+    .card {
+      background: #ffffff;
+      padding: 32px 24px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 24px;
+    }
+
     a {
-      margin-top: 20px;
-      padding: 10px 20px;
+      display: block;
+      width: 100%;
+      padding: 14px 0;
       background-color: #22c55e;
       color: white;
       text-decoration: none;
-      border-radius: 8px;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      transition: background-color 0.2s ease;
     }
+
     a:hover {
       background-color: #16a34a;
+    }
+
+    /* 📱 มือถือจอเล็กมาก */
+    @media (max-width: 360px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      p {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>✅ ส่งคำร้องสำเร็จ</h1>
-  <p>ขอบคุณสำหรับการแจ้งเรื่อง</p>
-  <a href="/choose.html" class="back-btn">⬅️ กลับไปเมนูหลัก</a>
+
+  <div class="card">
+    <h1>✅ ส่งคำร้องสำเร็จ</h1>
+    <p>ขอบคุณสำหรับการแจ้งเรื่อง<br>เจ้าหน้าที่จะดำเนินการโดยเร็ว</p>
+    <a href="/choose.html">⬅️ กลับไปเมนูหลัก</a>
+  </div>
+
 </body>
 </html>
