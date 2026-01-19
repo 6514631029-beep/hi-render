@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>📝 ยังไม่ได้เลือกสถานะ - สำนักงานปลัด</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
     header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap}
@@ -23,27 +24,49 @@
   <header>
     <h2>📝 รายการคำร้อง — ยังไม่ได้เลือกสถานะ (สำนักงานปลัด)</h2>
     <div class="toolbar">
-      <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="applyFilters()" />
+      <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()" />
       <button class="btn link" onclick="location.href='admin-sp.html'">⬅️ กลับหน้าสำนักงานปลัด</button>
       <button class="btn" onclick="location.href='pending-sp.html'">⏳ รอดำเนินการ</button>
       <button class="btn" onclick="location.href='inprogress-sp.html'">⚙️ กำลังดำเนินการ</button>
       <button class="btn" onclick="location.href='completed-sp.html'">✅ เสร็จสิ้น</button>
+      <button id="refreshBtn" class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
     </div>
   </header>
 
   <table>
     <thead>
       <tr>
-        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th>
+        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th><th>ไฟล์(เสร็จสิ้น)</th>
       </tr>
     </thead>
     <tbody id="data-body"></tbody>
   </table>
 
+  <!-- ✅ Pagination -->
+  <div id="pagination"
+       style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
+    <button id="prevPage" onclick="changePage(-1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ก่อนหน้า
+    </button>
+
+    <span id="pageInfo">หน้า 1 จาก 1</span>
+
+    <button id="nextPage" onclick="changePage(1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ถัดไป
+    </button>
+  </div>
+
   <script>
     const ENDPOINT_ALL = '/data-sp-all';
     const DEPT = 'สำนักงานปลัด';
-    let allData = [], deptData = [];
+
+    let allData = [];
+    let deptData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const pageSize = 20;
 
     async function safeFetchJson(url){
       try{
@@ -57,58 +80,110 @@
     async function loadData(){
       const data = await safeFetchJson(ENDPOINT_ALL + '?_=' + Date.now());
       allData = Array.isArray(data) ? data : [];
-      // เฉพาะสำนักงานปลัดที่ยังไม่ได้เลือกสถานะ
+
+      // ✅ เฉพาะสำนักงานปลัด + status ว่าง
       deptData = allData.filter(r =>
         ((r.department||'').trim()===DEPT) &&
-        (r.status==null || String(r.status).trim()==='')
+        (!r.status || String(r.status).trim()==='')
       );
-      // เรียงล่าสุดก่อน
-      deptData.sort((a,b)=> new Date(b.created_at||0) - new Date(a.created_at||0));
-      applyFilters();
+
+      filteredData = deptData;
+      currentPage = 1;
+      renderCurrentPage();
     }
 
-    function applyFilters(){
-      const kw = (document.getElementById('searchInput').value||'').trim().toLowerCase();
-      const filtered = deptData.filter(r=>{
-        const name=(r.name||'').toLowerCase(), phone=(r.phone||'').toLowerCase();
+    function renderCurrentPage() {
+      const totalItems = filteredData.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredData.slice(start, end);
+
+      renderTable(pageData);
+
+      const info = document.getElementById('pageInfo');
+      if (info) info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderCurrentPage();
+    }
+
+    function filterByName(){
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+      filteredData = deptData.filter(r=>{
+        const name=(r.name||'').toLowerCase();
+        const phone=(r.phone||'').toLowerCase();
         return !kw || name.includes(kw) || phone.includes(kw);
       });
-      renderTable(filtered);
+      currentPage = 1;
+      renderCurrentPage();
     }
 
     function renderTable(rows){
-      const tbody=document.getElementById('data-body'); 
+      const tbody=document.getElementById('data-body');
       tbody.innerHTML='';
       if(!rows.length){
-        tbody.innerHTML=`<tr><td colspan="8">🙈 ไม่มีรายการที่ยังไม่ได้เลือกสถานะ</td></tr>`;
-        return; 
+        tbody.innerHTML=`<tr><td colspan="9">🙈 ไม่มีรายการที่ยังไม่ได้เลือกสถานะ</td></tr>`;
+        return;
       }
 
       rows.forEach(row=>{
-        // --- ไฟล์ ---
-        let files=[]; 
+        let files=[];
         try{
-          if(typeof row.photo==='string') files=JSON.parse(row.photo);
+          if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
           else if(Array.isArray(row.photo)) files=row.photo;
-        }catch{}
+        }catch{ files=[]; }
 
+        const completedFiles = files.filter(it => {
+          if (!it || typeof it !== 'object') return false;
+          return it.from === 'completed' || it.tag === 'completed';
+        });
+
+        const mainFiles = files.filter(it => {
+          if (!it) return false;
+          if (typeof it !== 'object') return true;
+          return !(it.from === 'completed' || it.tag === 'completed');
+        });
+
+        // ไฟล์เสร็จสิ้น
+        let completedLinks = "-";
+        if (completedFiles.length > 0) {
+          const cf = completedFiles[0];
+          const cfUrl = typeof cf === 'string'
+            ? (cf.startsWith('uploads/') ? `/${cf}` : cf)
+            : ((String(cf.url||'').startsWith('uploads/')) ? `/${cf.url}` : (cf.url || ''));
+
+          const cfBtn = `
+            <button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;"
+                    onclick='showImages(${JSON.stringify(completedFiles)})'>ดูทั้งหมด</button>`;
+
+          completedLinks = `
+            <div class="media-container">
+              ${cfBtn}
+              <button onclick="deleteCompletedFile(${row.id}, '${cfUrl}')"
+                style="margin-top:6px; padding:6px 12px; border:1px solid #dc2626;
+                       background:#fee2e2; color:#b91c1c; border-radius:6px; cursor:pointer;">
+                🗑 ลบไฟล์นี้
+              </button>
+            </div>
+          `;
+        }
+
+        // ไฟล์หลัก: แบบไฟฟ้า = ปุ่มดูทั้งหมดอย่างเดียว
         let fileLinks='-';
-        if(files.length){
-          const first=files[0];
-          const firstUrl = typeof first==='string'
-            ? (first.startsWith('uploads/')?`/${first}`:first)
-            : (String(first?.url||'').startsWith('uploads/')?`/${first.url}`:(first?.url||''));
-          const isVideo = (typeof first==='string')? false : ((first.type||'')==='video');
-
-          const firstEl = isVideo
-            ? `<video controls style="width:150px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)"><source src="${firstUrl}" type="video/mp4"></video>`
-            : `<img src="${firstUrl}" style="width:150px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)" />`;
-
-          const btnAll = files.length>1 
-            ? `<button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>`
-            : '';
-
-          fileLinks = `<div class="media-container">${firstEl}${btnAll}</div>`;
+        if(mainFiles.length){
+          const btnAll = `<button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;"
+                                  onclick='showImages(${JSON.stringify(mainFiles)})'>ดูทั้งหมด</button>`;
+          fileLinks = `<div class="media-container">${btnAll}</div>`;
         }
 
         const mapLink = (row.latitude&&row.longitude)
@@ -116,32 +191,38 @@
           : '-';
 
         const statusSelect = `
-          <select onchange="setStatus(${row.original_id || row.id}, this.value)">
-            <option value="" selected>โปรดเลือกสถานะ</option>
+          <select onchange="onStatusChange(${row.original_id || row.id}, this.value)">
+            <option value="" disabled selected>โปรดเลือกสถานะ</option>
             <option value="รอดำเนินการ">รอดำเนินการ</option>
             <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
             <option value="เสร็จสิ้น">เสร็จสิ้น</option>
           </select>`;
 
         tbody.innerHTML += `
-          <tr>
+          <tr id="row-${row.id}">
             <td>${row.name||'-'}</td>
-            <td>${row.phone?`<a href="tel:${row.phone}">${row.phone}</a>`:'-'}</td>
+            <td>${row.phone||'-'}</td>
             <td>${row.message||'-'}</td>
             <td>${fileLinks}</td>
             <td>${row.department||'-'}</td>
             <td>${statusSelect}</td>
             <td>${mapLink}</td>
             <td>${formatDate(row.created_at)}</td>
+            <td>${completedLinks}</td>
           </tr>`;
       });
     }
 
-    function formatDate(s){
-      if(!s) return 'ไม่ทราบเวลา';
-      const d=new Date(s);
+    function formatDate(dateString){
+      if(!dateString) return 'ไม่ทราบเวลา';
+      const d=new Date(dateString);
       if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-      return d.toLocaleString('th-TH',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      return d.toLocaleString('th-TH', {
+        timeZone: 'Asia/Bangkok',
+        year:'numeric',month:'2-digit',day:'2-digit',
+        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        hour12:false
+      });
     }
 
     function showImages(images){
@@ -151,7 +232,9 @@
           : (String(img?.url||'').startsWith('uploads/')?`/${img.url}`:(img?.url||''));
         const type = (typeof img==='string')?'':(img.type||'');
         if(type==='video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
-          return `<video controls style="max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)"><source src="${url}" type="video/mp4"></video>`;
+          return `<video controls style="max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)">
+                    <source src="${url}" type="video/mp4">
+                  </video>`;
         }
         return `<img src="${url}" style="max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2)" />`;
       }).join('');
@@ -168,7 +251,7 @@
         });
         if(res.ok){
           alert('อัปเดตสถานะเรียบร้อย');
-          loadData(); // รีโหลดเพื่อให้ลิสต์นี้หายจาก "ยังไม่ได้เลือกสถานะ"
+          await loadData();
         }else{
           alert('เกิดข้อผิดพลาดในการอัปเดต');
         }
@@ -177,6 +260,107 @@
       }
     }
 
+    async function refreshData() {
+      const btn = document.getElementById('refreshBtn');
+      btn.innerHTML = '⏳ กำลังรีเฟรช...';
+      btn.disabled = true;
+      await loadData();
+      setTimeout(() => {
+        btn.innerHTML = '🔄 รีเฟรช';
+        btn.disabled = false;
+      }, 500);
+    }
+  </script>
+
+  <!-- ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น" -->
+  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
+      <p style="margin:0 0 12px; color:#555">คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?</p>
+
+      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
+
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
+        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn" style="border-color:#15563b;background:#15563b;color:#fff">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let pendingCompleteId = null;
+
+    function onStatusChange(id, value) {
+      if (value === 'เสร็จสิ้น') {
+        pendingCompleteId = id;
+        openCompleteModal();
+      } else {
+        setStatus(id, value);
+      }
+    }
+
+    function openCompleteModal() {
+      document.getElementById('completeModal').style.display = 'flex';
+    }
+    function closeCompleteModal() {
+      document.getElementById('completeModal').style.display = 'none';
+      document.getElementById('completeFiles').value = '';
+      pendingCompleteId = null;
+    }
+
+    async function submitComplete() {
+      if (!pendingCompleteId) return;
+
+      const btn = document.getElementById('btnCompleteUpload');
+      btn.disabled = true;
+      btn.textContent = 'กำลังอัปโหลด...';
+
+      try {
+        const fd = new FormData();
+        const files = document.getElementById('completeFiles').files;
+        for (const f of files) fd.append('extraFiles', f);
+
+        const res = await fetch(`/complete-with-media/${pendingCompleteId}`, {
+          method: 'POST',
+          body: fd
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+          alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
+        } else {
+          alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
+          await loadData();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการอัปโหลด');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ยืนยัน';
+        closeCompleteModal();
+      }
+    }
+
+    async function deleteCompletedFile(id, fileUrl) {
+      if (!confirm('แน่ใจหรือไม่ว่าต้องการลบไฟล์นี้?')) return;
+
+      try {
+        const res = await fetch(`/delete-completed-file/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileUrl })
+        });
+        const data = await res.json();
+        alert(data.message);
+        if (data.success) await loadData();
+      } catch (err) {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
+      }
+    }
+
+    // init
     loadData();
   </script>
 </body>
