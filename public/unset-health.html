@@ -23,12 +23,16 @@
 <body>
   <header>
     <h2>📝 รายการคำร้อง — ยังไม่ได้เลือกสถานะ (สาธารณสุข)</h2>
+
+    <!-- ✅ โครงสร้าง toolbar ให้เหมือน engineer -->
     <div class="toolbar">
       <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()" />
+
       <button class="btn link" onclick="location.href='admin-health.html'">⬅️ กลับหน้าสาธารณสุข</button>
       <button class="btn" onclick="location.href='pending-health.html'">⏳ รอดำเนินการ</button>
       <button class="btn" onclick="location.href='inprogress-health.html'">⚙️ กำลังดำเนินการ</button>
       <button class="btn" onclick="location.href='completed-health.html'">✅ เสร็จสิ้น</button>
+
       <button id="refreshBtn" class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
     </div>
   </header>
@@ -81,7 +85,6 @@
       const data = await safeFetchJson(ENDPOINT_ALL + '?_=' + Date.now());
       allData = Array.isArray(data) ? data : [];
 
-      // ✅ เฉพาะสาธารณสุข + status ว่าง
       deptData = allData.filter(r =>
         ((r.department||'').trim()===DEPT) &&
         (!r.status || String(r.status).trim()==='')
@@ -117,6 +120,7 @@
       renderCurrentPage();
     }
 
+    // ✅ ชื่อฟังก์ชันให้เหมือน engineer
     function filterByName(){
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
       filteredData = deptData.filter(r=>{
@@ -154,7 +158,6 @@
           return !(it.from === 'completed' || it.tag === 'completed');
         });
 
-        // ไฟล์เสร็จสิ้น
         let completedLinks = "-";
         if (completedFiles.length > 0) {
           const cf = completedFiles[0];
@@ -178,7 +181,6 @@
           `;
         }
 
-        // ไฟล์หลัก: แบบไฟฟ้า = ปุ่มดูทั้งหมดอย่างเดียว
         let fileLinks='-';
         if(mainFiles.length){
           const btnAll = `<button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;"
@@ -360,7 +362,6 @@
       }
     }
 
-    // init
     loadData();
   </script>
 </body>
