@@ -1,104 +1,353 @@
-<!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8" /><title>⏳ รอดำเนินการ - สำนักงานปลัด</title>
-<style>
-  body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
-  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap}
-  h2{margin:0}.btn{padding:10px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600}
-  .btn.link{color:#15563b;border-color:#15563b}
-  .search{padding:10px;width:300px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-  table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.1)}
-  th,td{padding:10px;border:1px solid #ddd;text-align:center;vertical-align:middle}
-  th{background:#15563b;color:#fff}
-  img,video{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-  .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
-  a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
-</style>
-</head><body>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>⏳ รอดำเนินการ - สำนักงานปลัด</title>
+
+  <style>
+    body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap}
+    h2{margin:0}
+    .btn{padding:10px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600}
+    .btn.link{color:#15563b;border-color:#15563b}
+    .search{padding:10px;width:300px;border-radius:8px;border:1px solid #ccc;font-size:16px}
+    table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.1)}
+    th,td{padding:10px;border:1px solid #ddd;text-align:center;vertical-align:middle}
+    th{background:#15563b;color:#fff}
+    .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
+    a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
+    .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    /* ✅ modal เหมือน electric/health */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    .modal{
+      width:min(560px, 94vw);
+      background:#fff;
+      border-radius:14px;
+      box-shadow:0 12px 30px rgba(0,0,0,.25);
+      padding:18px;
+    }
+    .modal h3{ margin:0 0 10px; }
+    .modal .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .modal .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+    .btn.primary{ background:#15563b; color:#fff; border-color:#15563b; }
+    .hint{ color:#666; font-size:13px; margin-top:6px; }
+  </style>
+</head>
+
+<body>
 <header>
   <h2>⏳ รายการคำร้อง — รอดำเนินการ (สำนักงานปลัด)</h2>
-  <div>
-    <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="applyFilters()" />
-    <button class="btn link" onclick="location.href='admin-sp.html'">⬅️ กลับหน้า สำนักงานปลัด</button>
-    <button class="btn" onclick="location.href='inprogress-sp.html'">⚙️ กำลังดำเนินการ</button>
-    <button class="btn" onclick="location.href='completed-sp.html'">✅ เสร็จสิ้น</button>
+
+  <div class="toolbar">
+    <input id="searchInput" class="search"
+      placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+      oninput="applyFilters()" />
+
+    <button class="btn link" onclick="location.href='admin-sp.html'">
+      ⬅️ กลับหน้า สำนักงานปลัด
+    </button>
+
+    <button class="btn" onclick="location.href='inprogress-sp.html'">
+      ⚙️ กำลังดำเนินการ
+    </button>
+
+    <button class="btn" onclick="location.href='completed-sp.html'">
+      ✅ เสร็จสิ้น
+    </button>
   </div>
 </header>
 
-<table><thead><tr>
-  <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th>
-</tr></thead><tbody id="data-body"></tbody></table>
+<table>
+  <thead>
+    <tr>
+      <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th>
+    </tr>
+  </thead>
+  <tbody id="data-body"></tbody>
+</table>
+
+<!-- 🔢 แบ่งหน้าเหมือน electric/health -->
+<div id="pagination"
+     style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
+  <button id="prevPage"
+          onclick="changePage(-1)"
+          style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+    ก่อนหน้า
+  </button>
+
+  <span id="pageInfo">หน้า 1 จาก 1</span>
+
+  <button id="nextPage"
+          onclick="changePage(1)"
+          style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+    ถัดไป
+  </button>
+</div>
 
 <script>
-let allData=[], deptData=[];
-async function loadData(){
-  const res = await fetch('/data-pending?_=' + Date.now());
-  const data = await res.json();
-  allData = Array.isArray(data)?data:[];
-  deptData = allData.filter(r => (r.department||'') === 'สำนักงานปลัด');
-  applyFilters();
-}
-function applyFilters(){
-  const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-  renderTable(deptData.filter(r=>{
-    const n=(r.name||'').toLowerCase(), p=(r.phone||'').toLowerCase();
-    return !kw || n.includes(kw) || p.includes(kw);
-  }));
-}
-function renderTable(rows){
-  const tbody=document.getElementById('data-body'); tbody.innerHTML='';
-  rows.forEach(row=>{
-    let files=[]; try{
-      if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
-      else if(Array.isArray(row.photo)) files=row.photo;
-    }catch(e){ files=[]; }
-    let fileLinks='-';
-    if(files.length>0){
-      const f=files[0];
-      const url= typeof f==='string' ? (f.startsWith('uploads/')?`/${f}`:f)
-               : (f.url.startsWith('uploads/')?`/${f.url}`:f.url);
-      const type= (typeof f==='string') ? '' : (f.type||'');
-      const el = type==='video'
-        ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${url}" type="video/mp4"></video>`
-        : `<img src="${url}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
-      const btn = files.length>1 ? `<button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>` : '';
-      fileLinks = `<div class="media-container">${el}${btn}</div>`;
+  // ⭐ เหมือน pending-electric/health ทุกจุด
+  let allData = [];
+  let deptData = [];
+  let filteredRows = [];
+  let currentPage = 1;
+  const pageSize = 20;
+
+  // ✅ ใช้ endpoint แบบเดียวกัน เปลี่ยนแค่ department
+  const ENDPOINT = '/data-pending?department=สำนักงานปลัด';
+
+  async function loadData(){
+    try{
+      const res = await fetch(`${ENDPOINT}&_=${Date.now()}`);
+      const data = await res.json();
+      allData = Array.isArray(data) ? data : [];
+    }catch(e){
+      allData = [];
     }
-    const mapLink=(row.latitude && row.longitude)?`<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`:'-';
-    const statusSelect=`
-      <select onchange="setStatus(${row.original_id || row.id}, this.value)">
-        <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
-        <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
-        <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
-        <option value="เสร็จสิ้น" ${row.status==='เสร็จสิ้น'?'selected':''}>เสร็จสิ้น</option>
-      </select>`;
-    tbody.innerHTML += `
-      <tr>
-        <td>${row.name||'-'}</td><td>${row.phone||'-'}</td><td>${row.message||'-'}</td>
-        <td>${fileLinks}</td><td>${row.department||'-'}</td>
-        <td>${statusSelect}</td><td>${mapLink}</td><td>${formatDate(row.created_at)}</td>
-      </tr>`;
-  });
-}
-function formatDate(s){ if(!s) return 'ไม่ทราบเวลา'; const d=new Date(s); if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-  return d.toLocaleString('th-TH',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }
-function showImages(images){
-  const html = images.map(img=>{
-    const url = typeof img==='string'? (img.startsWith('uploads/')?`/${img}`:img)
-               : (img.url.startsWith('uploads/')?`/${img.url}`:img.url);
-    const type = (typeof img==='string')?'':(img.type||'');
-    if(type==='video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
-      return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${url}" type="video/mp4"></video>`;
+
+    // กันเหนียว (แม้ endpoint จะกรองให้แล้ว)
+    deptData = allData.filter(r => (r.department || '') === 'สำนักงานปลัด');
+    applyFilters();
+  }
+
+  function applyFilters(){
+    const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+    filteredRows = deptData.filter(r=>{
+      const name=(r.name||'').toLowerCase();
+      const phone=(r.phone||'').toLowerCase();
+      return !kw || name.includes(kw) || phone.includes(kw);
+    });
+
+    currentPage = 1;
+    renderCurrentPage();
+  }
+
+  // ✅ แบ่งหน้าเหมือนหน้าไฟฟ้า/สาธารณสุข
+  function renderCurrentPage() {
+    const totalItems = filteredRows.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    const pageData = filteredRows.slice(start, end);
+
+    renderTable(pageData);
+
+    const info = document.getElementById('pageInfo');
+    if (info) {
+      info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
     }
-    return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
-  }).join('');
-  const win=window.open('','_blank','width=800,height=600');
-  win.document.write(`<body style="font-family:kanit;padding:30px;text-align:center;background:#f9f9f9">${html}</body>`);
-}
-function setStatus(id,status){
-  fetch(`/set-status/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})})
-  .then(res=>{ if(res.ok){ alert('อัปเดตสถานะเรียบร้อย'); loadData(); } else { alert('เกิดข้อผิดพลาดในการอัปเดต'); } })
-  .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
-}
-loadData();
+
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+  }
+
+  function changePage(delta) {
+    currentPage += delta;
+    renderCurrentPage();
+  }
+
+  // ✅ ตารางเหมือน pending-electric/health (ไม่โชว์พรีวิวรูป, มีแต่ปุ่ม "ดูทั้งหมด")
+  function renderTable(rows){
+    const tbody = document.getElementById('data-body');
+    tbody.innerHTML = '';
+
+    // ✅ ไม่มีข้อมูล -> ขึ้นข้อความกลางเหมือนในไฟฟ้า
+    if (!rows || rows.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8"
+              style="padding:35px; text-align:center; color:#555; font-size:18px;">
+            📭 ยังไม่มีรายการคำร้องในสถานะ “รอดำเนินการ” สำหรับแผนกสำนักงานปลัด
+          </td>
+        </tr>`;
+      return;
+    }
+
+    rows.forEach(row=>{
+      const requestId = row.original_id || row.id;
+
+      // แปลงไฟล์ให้เหมือนกัน
+      let files=[];
+      try{
+        if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
+        else if(Array.isArray(row.photo)) files=row.photo;
+      }catch(e){ files=[]; }
+
+      // ✅ ไฟล์: ปุ่มดูทั้งหมดเท่านั้น (แม้มีไฟล์เดียวก็ขึ้น)
+      let fileLinks = '-';
+      if (files.length > 0) {
+        const btnAll = `
+          <button class="btn" style="margin-top:8px"
+            onclick='showImages(${JSON.stringify(files)})'>
+            ดูทั้งหมด
+          </button>`;
+        fileLinks = `<div class="media-container">${btnAll}</div>`;
+      }
+
+      const mapLink=(row.latitude && row.longitude)
+        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+        : '-';
+
+      // ✅ status เหมือนหน้าไฟฟ้า (เลือกเสร็จสิ้น -> เปิด modal)
+      const statusSelect = `
+        <select onchange="onStatusChange(${requestId}, this.value)">
+          <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
+          <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
+          <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
+          <option value="เสร็จสิ้น" ${row.status==='เสร็จสิ้น'?'selected':''}>เสร็จสิ้น</option>
+        </select>`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${row.name||'-'}</td>
+          <td>${row.phone||'-'}</td>
+          <td>${row.message||'-'}</td>
+          <td>${fileLinks}</td>
+          <td>${row.department||'-'}</td>
+          <td>${statusSelect}</td>
+          <td>${mapLink}</td>
+          <td>${formatDate(row.created_at)}</td>
+        </tr>`;
+    });
+  }
+
+  function formatDate(s){
+    if(!s) return 'ไม่ทราบเวลา';
+    const d=new Date(s);
+    if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+    return d.toLocaleString('th-TH',{
+      year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',second:'2-digit',
+      hour12:false
+    });
+  }
+
+  // ✅ ดูรูป/วิดีโอทั้งหมด เหมือนไฟฟ้า
+  function showImages(images){
+    const html = images.map(img=>{
+      const url = typeof img==='string'
+        ? (img.startsWith('uploads/')?`/${img}`:img)
+        : (String(img.url||'').startsWith('uploads/')?`/${img.url}`:img.url);
+
+      const type = (typeof img==='string') ? '' : (img.type||'');
+
+      if(type==='video' || url?.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
+        return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${url}" type="video/mp4"></video>`;
+      }
+      return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
+    }).join('');
+
+    const win=window.open('','_blank','width=800,height=600');
+    win.document.write(`<body style="font-family:kanit;padding:30px;text-align:center;background:#f9f9f9">${html}</body>`);
+  }
+
+  // ✅ set-status เหมือนไฟฟ้า
+  function setStatus(id,status){
+    fetch(`/set-status/${id}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({status})
+    })
+    .then(async res=>{
+      const data = await res.json().catch(()=> ({}));
+      if(res.ok){
+        alert(data.message || 'อัปเดตสถานะเรียบร้อย');
+        loadData();
+      }else{
+        alert(data.message || 'เกิดข้อผิดพลาดในการอัปเดต');
+      }
+    })
+    .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
+  }
+
+  // ✅ ถ้าเลือก "เสร็จสิ้น" ให้เปิด modal แนบไฟล์
+  function onStatusChange(id, status){
+    if(status === 'เสร็จสิ้น'){
+      openCompleteModal(id);
+      return;
+    }
+    setStatus(id, status);
+  }
+
+  // ✅ เสร็จสิ้น + แนบไฟล์ (complete-with-media)
+  let completeTargetId = null;
+
+  function openCompleteModal(id){
+    completeTargetId = id;
+    document.getElementById('completeFiles').value = '';
+    document.getElementById('completeModal').style.display = 'flex';
+  }
+
+  function closeCompleteModal(){
+    completeTargetId = null;
+    document.getElementById('completeModal').style.display = 'none';
+  }
+
+  async function submitComplete(){
+    if(!completeTargetId){
+      alert('❌ ไม่พบรหัสคำร้อง');
+      return;
+    }
+
+    const fd = new FormData();
+    const files = document.getElementById('completeFiles').files;
+
+    // ✅ ต้องตรงกับ server: upload.array('extraFiles')
+    for (const f of files) fd.append('extraFiles', f);
+
+    try{
+      const res = await fetch(`/complete-with-media/${completeTargetId}`, {
+        method:'POST',
+        body: fd
+      });
+
+      const data = await res.json().catch(()=> ({}));
+      if(res.ok && data.success !== false){
+        alert(data.message || '✅ อัปเดตเป็น "เสร็จสิ้น" แล้ว');
+        closeCompleteModal();
+        loadData();
+      }else{
+        alert(data.message || `❌ อัปเดตเสร็จสิ้นไม่สำเร็จ (${res.status})`);
+      }
+    }catch(e){
+      console.error(e);
+      alert('❌ เกิดข้อผิดพลาดในการอัปเดตเสร็จสิ้น');
+    }
+  }
+
+  loadData();
 </script>
-</body></html>
+
+<!-- ✅ Modal แนบไฟล์เหมือนหน้า electric -->
+<div id="completeModal" class="modal-backdrop">
+  <div class="modal">
+    <h3>✅ แนบไฟล์เพิ่มเติม (เสร็จสิ้น)</h3>
+
+    <div class="row">
+      <input id="completeFiles" type="file" multiple accept="image/*,video/*">
+    </div>
+
+    <div class="hint">
+      * ถ้าไม่แนบไฟล์ก็ได้ กด “ยืนยันเสร็จสิ้น” ได้เลย
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="closeCompleteModal()">ยกเลิก</button>
+      <button class="btn primary" onclick="submitComplete()">ยืนยันเสร็จสิ้น</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
