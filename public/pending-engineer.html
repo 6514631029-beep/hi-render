@@ -17,8 +17,57 @@
     .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
     a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
     .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    /* ✅ modal (เหมือน pending-electric/health) */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    .modal{
+      width:min(560px, 94vw);
+      background:#fff;
+      border-radius:14px;
+      box-shadow:0 12px 30px rgba(0,0,0,.25);
+      padding:18px;
+    }
+    .modal h3{ margin:0 0 10px; }
+    .modal .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .modal .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+    .btn.primary{ background:#15563b; color:#fff; border-color:#15563b; }
+    .hint{ color:#666; font-size:13px; margin-top:6px; }
+
+    /* ✅ พรีวิวไฟล์ (มีไว้เหมือนไฟฟ้า/health แม้ยังไม่ใช้) */
+    .preview-grid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    .preview-item{
+      width:120px; height:90px;
+      border-radius:10px;
+      overflow:hidden;
+      border:1px solid #e5e7eb;
+      background:#f8fafc;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .preview-item img,
+    .preview-item video{
+      width:100%; height:100%;
+      object-fit:cover;
+    }
+    .preview-empty{
+      margin-top:10px;
+      color:#999;
+      font-size:13px;
+    }
   </style>
 </head>
+
 <body>
   <header>
     <h2>⏳ รายการคำร้อง — รอดำเนินการ (กองช่าง)</h2>
@@ -39,50 +88,132 @@
     <tbody id="data-body"></tbody>
   </table>
 
+  <!-- 🔢 แถวแบ่งหน้า (เหมือน pending-electric/health) -->
+  <div id="pagination"
+       style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
+    <button id="prevPage"
+            onclick="changePage(-1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ก่อนหน้า
+    </button>
+
+    <span id="pageInfo">หน้า 1 จาก 1</span>
+
+    <button id="nextPage"
+            onclick="changePage(1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ถัดไป
+    </button>
+  </div>
+
   <script>
-    let allData=[], deptData=[];
+    // ⭐ ข้อมูล + แบ่งหน้า (เหมือน pending-electric/health)
+    let allData = [];        // ข้อมูลดิบจาก endpoint
+    let deptData = [];       // กรองเฉพาะกองช่าง
+    let filteredRows = [];   // ข้อมูลหลังค้นหา (ใช้สำหรับแบ่งหน้า)
+    let currentPage = 1;
+    const pageSize = 20;
+
+    // ✅ endpoint เหมือนไฟฟ้า/health เปลี่ยนแค่ department
+    const ENDPOINT = '/data-pending?department=กองช่าง';
+
     async function loadData(){
-      const res = await fetch('/data-pending?_=' + Date.now());
-      const data = await res.json();
-      allData = Array.isArray(data)?data:[];
-      deptData = allData.filter(r => (r.department||'') === 'กองช่าง');
+      try{
+        const res = await fetch(`${ENDPOINT}&_=${Date.now()}`);
+        const data = await res.json();
+        allData = Array.isArray(data) ? data : [];
+      }catch(e){
+        allData = [];
+      }
+
+      // กรองซ้ำไว้ปลอดภัย
+      deptData = allData.filter(r => (r.department || '') === 'กองช่าง');
       applyFilters();
     }
 
     function applyFilters(){
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-      const filtered = deptData.filter(r=>{
-        const name=(r.name||'').toLowerCase(), phone=(r.phone||'').toLowerCase();
+      filteredRows = deptData.filter(r=>{
+        const name=(r.name||'').toLowerCase();
+        const phone=(r.phone||'').toLowerCase();
         return !kw || name.includes(kw) || phone.includes(kw);
       });
-      renderTable(filtered);
+      currentPage = 1;
+      renderCurrentPage();
     }
 
+    // ✅ เรนเดอร์เฉพาะหน้าที่เลือก (เหมือนไฟฟ้า/health)
+    function renderCurrentPage() {
+      const totalItems = filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredRows.slice(start, end);
+
+      renderTable(pageData);
+
+      const info = document.getElementById('pageInfo');
+      if (info) {
+        info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+      }
+
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderCurrentPage();
+    }
+
+    // 🧾 เรนเดอร์ตาราง (เหมือนไฟฟ้า/health: ไม่โชว์รูป แค่ปุ่ม "ดูทั้งหมด")
     function renderTable(rows){
-      const tbody=document.getElementById('data-body'); tbody.innerHTML='';
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      // ✅ ไม่มีข้อมูล → แสดงข้อความกลางเหมือนทุกหน้า
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8"
+                style="padding:35px; text-align:center; color:#555; font-size:18px;">
+              📭 ยังไม่มีรายการคำร้องในสถานะ “รอดำเนินการ” สำหรับแผนกกองช่าง
+            </td>
+          </tr>`;
+        return;
+      }
+
       rows.forEach(row=>{
-        let files=[]; try{
+        const requestId = row.original_id || row.id;
+
+        // แปลงไฟล์
+        let files=[];
+        try{
           if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
           else if(Array.isArray(row.photo)) files=row.photo;
         }catch(e){ files=[]; }
 
-        let fileLinks='-';
-        if(files.length>0){
-          const first=files[0];
-          const firstUrl= typeof first==='string' ? (first.startsWith('uploads/')?`/${first}`:first)
-                         : (first.url.startsWith('uploads/')?`/${first.url}`:first.url);
-          const firstType= (typeof first==='string') ? '' : (first.type||'');
-          const firstEl = firstType==='video'
-            ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${firstUrl}" type="video/mp4"></video>`
-            : `<img src="${firstUrl}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
-          const btnAll = files.length>1 ? `<button class="view-all-btn" style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>` : '';
-          fileLinks = `<div class="media-container">${firstEl}${btnAll}</div>`;
+        // 🔹 ไฟล์: แสดงปุ่ม "ดูทั้งหมด" อย่างเดียว (แม้มีไฟล์เดียวก็มีปุ่ม)
+        let fileLinks = '-';
+        if (files.length > 0) {
+          const btnAll = `
+            <button class="btn" style="margin-top:8px"
+              onclick='showImages(${JSON.stringify(files)})'>
+              ดูทั้งหมด
+            </button>`;
+          fileLinks = `<div class="media-container">${btnAll}</div>`;
         }
 
-        const mapLink=(row.latitude && row.longitude)?`<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`:'-';
+        const mapLink=(row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
 
-        const statusSelect=`
-          <select onchange="setStatus(${row.original_id || row.id}, this.value)">
+        const statusSelect = `
+          <select onchange="onStatusChange(${requestId}, this.value)">
             <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
             <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
             <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
@@ -107,15 +238,21 @@
       if(!s) return 'ไม่ทราบเวลา';
       const d=new Date(s);
       if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-      return d.toLocaleString('th-TH',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      return d.toLocaleString('th-TH',{
+        year:'numeric',month:'2-digit',day:'2-digit',
+        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        hour12:false
+      });
     }
 
     function showImages(images){
       const html = images.map(img=>{
-        const url = typeof img==='string'? (img.startsWith('uploads/')?`/${img}`:img)
-                   : (img.url.startsWith('uploads/')?`/${img.url}`:img.url);
-        const type = (typeof img==='string')?'':(img.type||'');
-        if(type==='video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
+        const url = typeof img==='string'
+          ? (img.startsWith('uploads/')?`/${img}`:img)
+          : (String(img.url||'').startsWith('uploads/')?`/${img.url}`:img.url);
+        const type = (typeof img==='string') ? '' : (img.type||'');
+
+        if(type==='video' || url?.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
           return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${url}" type="video/mp4"></video>`;
         }
         return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
@@ -125,12 +262,119 @@
     }
 
     function setStatus(id,status){
-      fetch(`/set-status/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})})
-      .then(res=>{ if(res.ok){ alert('อัปเดตสถานะเรียบร้อย'); loadData(); } else { alert('เกิดข้อผิดพลาดในการอัปเดต'); } })
+      fetch(`/set-status/${id}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({status})
+      })
+      .then(async res=>{
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok){
+          alert(data.message || 'อัปเดตสถานะเรียบร้อย');
+          loadData();
+        }else{
+          alert(data.message || 'เกิดข้อผิดพลาดในการอัปเดต');
+        }
+      })
       .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
+    }
+
+    // ✅ เหมือนไฟฟ้า/health: ถ้าเลือก "เสร็จสิ้น" เปิด modal แนบไฟล์
+    function onStatusChange(id, status){
+      if(status === 'เสร็จสิ้น'){
+        openCompleteModal(id);
+        return;
+      }
+      setStatus(id, status);
+    }
+
+    // ✅ (สำรอง) เสร็จสิ้นแบบไม่แนบไฟล์ (เหมือนไฟฟ้า/health)
+    function completeWithoutFiles(id){
+      const fd = new FormData();
+      fetch(`/complete-with-media/${id}`, { method:'POST', body: fd })
+      .then(async res => {
+        const data = await res.json().catch(()=> ({}));
+        console.log('complete-with-media:', res.status, data);
+        if(res.ok && data.success !== false){
+          alert(data.message || '✅ อัปเดตเป็น "เสร็จสิ้น" แล้ว');
+          loadData();
+        }else{
+          alert(data.message || `❌ อัปเดตเสร็จสิ้นไม่สำเร็จ (${res.status})`);
+        }
+      })
+      .catch((e)=> {
+        console.error(e);
+        alert('❌ เกิดข้อผิดพลาดในการอัปเดตเสร็จสิ้น');
+      });
+    }
+
+    let completeTargetId = null;
+
+    function openCompleteModal(id){
+      completeTargetId = id;
+      document.getElementById('completeFiles').value = '';
+      document.getElementById('completeModal').style.display = 'flex';
+    }
+
+    function closeCompleteModal(){
+      completeTargetId = null;
+      document.getElementById('completeModal').style.display = 'none';
+    }
+
+    async function submitComplete(){
+      if(!completeTargetId){
+        alert('❌ ไม่พบรหัสคำร้อง');
+        return;
+      }
+
+      const fd = new FormData();
+      const files = document.getElementById('completeFiles').files;
+
+      // ✅ ชื่อต้องตรงกับ server: upload.array('extraFiles')
+      for (const f of files) fd.append('extraFiles', f);
+
+      try{
+        const res = await fetch(`/complete-with-media/${completeTargetId}`, {
+          method:'POST',
+          body: fd
+        });
+
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data.success !== false){
+          alert(data.message || '✅ อัปเดตเป็น "เสร็จสิ้น" แล้ว');
+          closeCompleteModal();
+          loadData();
+        }else{
+          alert(data.message || `❌ อัปเดตเสร็จสิ้นไม่สำเร็จ (${res.status})`);
+        }
+      }catch(e){
+        console.error(e);
+        alert('❌ เกิดข้อผิดพลาดในการอัปเดตเสร็จสิ้น');
+      }
     }
 
     loadData();
   </script>
+
+  <!-- ✅ Modal แนบไฟล์เพิ่มเติม (เสร็จสิ้น) -->
+  <div id="completeModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>✅ แนบไฟล์เพิ่มเติม (เสร็จสิ้น)</h3>
+
+      <div class="row">
+        <input id="completeFiles" type="file" multiple accept="image/*,video/*">
+      </div>
+
+      <div class="hint">
+        * ถ้าไม่แนบไฟล์ก็ได้ กด “ยืนยันเสร็จสิ้น” ได้เลย
+      </div>
+
+      <div class="actions">
+        <button class="btn" onclick="closeCompleteModal()">ยกเลิก</button>
+        <button class="btn primary" onclick="submitComplete()">ยืนยันเสร็จสิ้น</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
