@@ -5,33 +5,72 @@
   <title>📝 ยังไม่ได้เลือกสถานะ - สำนักงานปลัด</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap}
-    h2{margin:0}
-    .btn{padding:10px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600}
-    .btn.link{color:#15563b;border-color:#15563b}
-    .search{padding:10px;width:300px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-    table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.1)}
-    th,td{padding:10px;border:1px solid #ddd;text-align:center;vertical-align:middle}
-    th{background:#15563b;color:#fff}
-    img,video{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-    .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
-    a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
-    .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  </style>
+  body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  h2{margin:0}
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-left:auto;            /* ✅ ดัน toolbar ไปด้านขวาเหมือนไฟฟ้า */
+  }
+
+  .btn{
+    padding:10px 14px;
+    border-radius:8px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    cursor:pointer;
+    font-weight:600;
+    white-space:nowrap;
+  }
+
+  .btn.link{color:#15563b;border-color:#15563b}
+
+  .search{
+    padding:10px;
+    width:360px;                 /* ✅ ให้ช่องค้นหาดูยาวเหมือนไฟฟ้า */
+    max-width:45vw;              /* ✅ กันล้นจอ */
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:16px;
+  }
+
+  table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.1)}
+  th,td{padding:10px;border:1px solid #ddd;text-align:center;vertical-align:middle}
+  th{background:#15563b;color:#fff}
+  img,video{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+  .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
+  a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
+</style>
 </head>
 <body>
   <header>
-    <h2>📝 รายการคำร้อง — ยังไม่ได้เลือกสถานะ (สำนักงานปลัด)</h2>
-    <div class="toolbar">
-      <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()" />
-      <button class="btn link" onclick="location.href='admin-sp.html'">⬅️ กลับหน้าสำนักงานปลัด</button>
-      <button class="btn" onclick="location.href='pending-sp.html'">⏳ รอดำเนินการ</button>
-      <button class="btn" onclick="location.href='inprogress-sp.html'">⚙️ กำลังดำเนินการ</button>
-      <button class="btn" onclick="location.href='completed-sp.html'">✅ เสร็จสิ้น</button>
-      <button id="refreshBtn" class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
-    </div>
-  </header>
+  <h2>📝 รายการคำร้อง — ยังไม่ได้เลือกสถานะ (สาธารณสุข)</h2>
+
+  <div class="toolbar">
+    <input id="searchInput" class="search"
+           placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+           oninput="filterByName()" />
+
+    <button class="btn link" onclick="location.href='admin-health.html'">⬅️ กลับหน้าสาธารณสุข</button>
+    <button class="btn" onclick="location.href='pending-health.html'">⏳ รอดำเนินการ</button>
+    <button class="btn" onclick="location.href='inprogress-health.html'">⚙️ กำลังดำเนินการ</button>
+    <button class="btn" onclick="location.href='completed-health.html'">✅ เสร็จสิ้น</button>
+    <button id="refreshBtn" class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
+  </div>
+</header>
 
   <table>
     <thead>
