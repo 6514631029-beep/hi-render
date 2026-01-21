@@ -17,12 +17,14 @@
     .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
     a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
     button:hover{background:#e2e8f0;transition:.2s}
+    .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   </style>
 </head>
+
 <body>
   <header>
     <h2>⚙️ รายการคำร้อง — กำลังดำเนินการ (สำนักงานปลัด)</h2>
-    <div>
+    <div class="toolbar">
       <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="applyFilters()" />
       <button class="btn link" onclick="location.href='admin-sp.html'">⬅️ กลับหน้า สำนักงานปลัด</button>
       <button class="btn" onclick="location.href='pending-sp.html'">⏳ รอดำเนินการ</button>
@@ -40,52 +42,121 @@
     <tbody id="data-body"></tbody>
   </table>
 
+  <!-- 🔢 แถวแบ่งหน้า (เหมือนไฟฟ้า 100%) -->
+  <div id="pagination"
+       style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
+    <button id="prevPage"
+            onclick="changePage(-1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ก่อนหน้า
+    </button>
+
+    <span id="pageInfo">หน้า 1 จาก 1</span>
+
+    <button id="nextPage"
+            onclick="changePage(1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ถัดไป
+    </button>
+  </div>
+
   <script>
-    let allData=[], deptData=[];
+    // ⭐ ข้อมูล + ตัวแปรแบ่งหน้า (เหมือนไฟฟ้า 100%)
+    let allData = [];        // ดิบจาก /data-in-progress
+    let deptData = [];       // กรองเฉพาะสำนักงานปลัด
+    let filteredRows = [];   // ข้อมูลหลังค้นหา (ใช้แบ่งหน้า)
+    let currentPage = 1;
+    const pageSize = 20;     // จำนวนแถวต่อหน้า
 
     async function loadData(){
       const res = await fetch('/data-in-progress?_=' + Date.now());
       const data = await res.json();
       allData = Array.isArray(data) ? data : [];
-      deptData = allData.filter(r => (r.department||'') === 'สำนักงานปลัด');
+      // เผื่อ endpoint มีหลายแผนก → กรองเฉพาะสำนักงานปลัด
+      deptData = allData.filter(r => (r.department || '') === 'สำนักงานปลัด');
       applyFilters();
     }
 
     function applyFilters(){
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-      const filtered = deptData.filter(r=>{
-        const name=(r.name||'').toLowerCase(), phone=(r.phone||'').toLowerCase();
+      filteredRows = deptData.filter(r=>{
+        const name=(r.name||'').toLowerCase();
+        const phone=(r.phone||'').toLowerCase();
         return !kw || name.includes(kw) || phone.includes(kw);
       });
-      renderTable(filtered);
+      currentPage = 1;
+      renderCurrentPage();
     }
 
+    // ✅ แสดงเฉพาะหน้าปัจจุบัน (เหมือนไฟฟ้า 100%)
+    function renderCurrentPage() {
+      const totalItems = filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredRows.slice(start, end);
+
+      renderTable(pageData);
+
+      const info = document.getElementById('pageInfo');
+      if (info) {
+        info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+      }
+
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderCurrentPage();
+    }
+
+    // 🧾 เรนเดอร์ตาราง (ไม่โชว์รูป แค่ปุ่ม "ดูทั้งหมด") เหมือนไฟฟ้า 100%
     function renderTable(rows){
-      const tbody=document.getElementById('data-body'); tbody.innerHTML='';
+      const tbody=document.getElementById('data-body');
+      tbody.innerHTML='';
+
+      // ถ้าไม่มีคำร้องเลย (เหมือนไฟฟ้า 100%)
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="padding:24px;text-align:center;color:#64748b;font-size:15px;">
+              ⚙️ ยังไม่มีคำร้องที่อยู่ในสถานะ "กำลังดำเนินการ" สำหรับแผนกสำนักงานปลัด
+            </td>
+          </tr>`;
+        return;
+      }
+
       rows.forEach(row=>{
-        let files=[]; try{
+        let files=[];
+        try{
           if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
           else if(Array.isArray(row.photo)) files=row.photo;
         }catch(e){ files=[]; }
 
+        // ❌ ไม่แสดงรูป / วิดีโอในตาราง
+        // ✅ ถ้ามีไฟล์ ให้แค่ปุ่ม "ดูทั้งหมด"
         let fileLinks='-';
         if(files.length>0){
-          const first=files[0];
-          const firstUrl= typeof first==='string' ? (first.startsWith('uploads/')?`/${first}`:first)
-                         : (first.url.startsWith('uploads/')?`/${first.url}`:first.url);
-          const firstType= (typeof first==='string') ? '' : (first.type||'');
-          const firstEl = firstType==='video'
-            ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${firstUrl}" type="video/mp4"></video>`
-            : `<img src="${firstUrl}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
-          const btnAll = files.length>1 ? `<button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>` : '';
-          fileLinks = `<div class="media-container">${firstEl}${btnAll}</div>`;
+          const btnAll = `
+            <button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;"
+                    onclick='showImages(${JSON.stringify(files)})'>
+              ดูทั้งหมด
+            </button>`;
+          fileLinks = `<div class="media-container">${btnAll}</div>`;
         }
 
         const mapLink=(row.latitude && row.longitude)
-          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>` : '-';
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
 
         const statusSelect=`
-          <select onchange="setStatus(${row.original_id || row.id}, this.value)">
+          <select onchange="onStatusChange(${row.original_id || row.id}, this.value)">
             <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
             <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
             <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
@@ -110,16 +181,24 @@
       if(!s) return 'ไม่ทราบเวลา';
       const d=new Date(s);
       if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-      return d.toLocaleString('th-TH',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      return d.toLocaleString('th-TH',{
+        year:'numeric',month:'2-digit',day:'2-digit',
+        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        hour12:false
+      });
     }
 
     function showImages(images){
       const html = images.map(img=>{
-        const url = typeof img==='string'? (img.startsWith('uploads/')?`/${img}`:img)
-                   : (img.url.startsWith('uploads/')?`/${img.url}`:img.url);
+        const url = typeof img==='string'
+          ? (img.startsWith('uploads/')?`/${img}`:img)
+          : ((img.url||'').startsWith('uploads/')?`/${img.url}`:img.url);
         const type = (typeof img==='string')?'':(img.type||'');
-        if(type==='video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
-          return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${url}" type="video/mp4"></video>`;
+
+        if(type==='video' || (url && url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/))){
+          return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                    <source src="${url}" type="video/mp4">
+                  </video>`;
         }
         return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
       }).join('');
@@ -128,12 +207,93 @@
     }
 
     function setStatus(id,status){
-      fetch(`/set-status/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})})
-      .then(res=>{ if(res.ok){ alert('อัปเดตสถานะเรียบร้อย'); loadData(); } else { alert('เกิดข้อผิดพลาดในการอัปเดต'); } })
+      fetch(`/set-status/${id}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({status})
+      })
+      .then(res=>{
+        if(res.ok){
+          alert('อัปเดตสถานะเรียบร้อย');
+          loadData(); // โหลดใหม่ให้ข้อมูลอัปเดต
+        } else {
+          alert('เกิดข้อผิดพลาดในการอัปเดต');
+        }
+      })
       .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
     }
 
     loadData();
   </script>
+
+  <!-- ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น" (เหมือนไฟฟ้า 100%) -->
+  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
+      <p style="margin:0 0 12px; color:#555">คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?</p>
+      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
+        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn" style="border-color:#15563b;background:#15563b;color:#fff">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let pendingCompleteId = null;
+
+    function onStatusChange(id, value) {
+      if (value === 'เสร็จสิ้น') {
+        pendingCompleteId = id;
+        openCompleteModal();
+      } else {
+        setStatus(id, value);
+      }
+    }
+
+    function openCompleteModal() {
+      document.getElementById('completeModal').style.display = 'flex';
+    }
+    function closeCompleteModal() {
+      document.getElementById('completeModal').style.display = 'none';
+      document.getElementById('completeFiles').value = '';
+      pendingCompleteId = null;
+    }
+
+    async function submitComplete() {
+      if (!pendingCompleteId) return;
+
+      const btn = document.getElementById('btnCompleteUpload');
+      btn.disabled = true;
+      btn.textContent = 'กำลังอัปโหลด...';
+
+      try {
+        const fd = new FormData();
+        const files = document.getElementById('completeFiles').files;
+        for (const f of files) fd.append('extraFiles', f);
+
+        const res = await fetch(`/complete-with-media/${pendingCompleteId}`, {
+          method: 'POST',
+          body: fd
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+          alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
+        } else {
+          alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
+          await loadData();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการอัปโหลด');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ยืนยัน';
+        closeCompleteModal();
+      }
+    }
+  </script>
+
 </body>
 </html>
