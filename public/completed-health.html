@@ -13,12 +13,12 @@
     table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.1)}
     th,td{padding:10px;border:1px solid #ddd;text-align:center;vertical-align:middle}
     th{background:#15563b;color:#fff}
-    img,video{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
     .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
     a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
     .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   </style>
 </head>
+
 <body>
   <header>
     <h2>✅ รายการคำร้อง — เสร็จสิ้น (สาธารณสุข)</h2>
@@ -33,14 +33,45 @@
   <table>
     <thead>
       <tr>
-        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th>
+        <th>ชื่อ</th>
+        <th>เบอร์</th>
+        <th>ข้อความ</th>
+        <th>ไฟล์</th>
+        <th>แผนก</th>
+        <th>สถานะ</th>
+        <th>แผนที่</th>
+        <th>วันที่-เวลา</th>
+        <th>ไฟล์(เสร็จสิ้น)</th>
       </tr>
     </thead>
     <tbody id="data-body"></tbody>
   </table>
 
+  <!-- 🔢 แถวแบ่งหน้า -->
+  <div id="pagination"
+       style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
+    <button id="prevPage"
+            onclick="changePage(-1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ก่อนหน้า
+    </button>
+
+    <span id="pageInfo">หน้า 1 จาก 1</span>
+
+    <button id="nextPage"
+            onclick="changePage(1)"
+            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
+      ถัดไป
+    </button>
+  </div>
+
   <script>
-    let allData = [], deptData = [];
+    // ⭐ ข้อมูล + แบ่งหน้า
+    let allData = [];
+    let deptData = [];
+    let filteredRows = [];
+    let currentPage = 1;
+    const pageSize = 20;
 
     async function loadData(){
       const res = await fetch('/data-completed?_=' + Date.now());
@@ -52,35 +83,114 @@
 
     function applyFilters(){
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-      const filtered = deptData.filter(r=>{
-        const name=(r.name||'').toLowerCase(), phone=(r.phone||'').toLowerCase();
+      filteredRows = deptData.filter(r=>{
+        const name=(r.name||'').toLowerCase();
+        const phone=(r.phone||'').toLowerCase();
         return !kw || name.includes(kw) || phone.includes(kw);
       });
-      renderTable(filtered);
+      currentPage = 1;
+      renderCurrentPage();
+    }
+
+    function renderCurrentPage() {
+      const totalItems = filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredRows.slice(start, end);
+
+      renderTable(pageData);
+
+      const info = document.getElementById('pageInfo');
+      if (info) {
+        info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+      }
+
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderCurrentPage();
     }
 
     function renderTable(rows){
-      const tbody=document.getElementById('data-body'); tbody.innerHTML='';
+      const tbody=document.getElementById('data-body');
+      tbody.innerHTML='';
+
+      // ✅ ไม่มีข้อมูล
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="padding:24px;text-align:center;color:#64748b;font-size:15px;">
+              ✅ ยังไม่มีรายการคำร้องในสถานะ "เสร็จสิ้น" สำหรับแผนกสาธารณสุข
+            </td>
+          </tr>`;
+        return;
+      }
+
       rows.forEach(row=>{
-        let files=[]; try{
-          if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
-          else if(Array.isArray(row.photo)) files=row.photo;
+        let files=[];
+        try{
+          if (row.photo && typeof row.photo==='string') files = JSON.parse(row.photo);
+          else if (Array.isArray(row.photo)) files = row.photo;
         }catch(e){ files=[]; }
 
-        let fileLinks='-';
-        if(files.length>0){
-          const first=files[0];
-          const firstUrl= typeof first==='string' ? (first.startsWith('uploads/')?`/${first}`:first)
-                         : (first.url.startsWith('uploads/')?`/${first.url}`:first.url);
-          const firstType= (typeof first==='string') ? '' : (first.type||'');
-          const firstEl = firstType==='video'
-            ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${firstUrl}" type="video/mp4"></video>`
-            : `<img src="${firstUrl}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
-          const btnAll = files.length>1 ? `<button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>` : '';
-          fileLinks = `<div class="media-container">${firstEl}${btnAll}</div>`;
+        // --- แยกไฟล์เสร็จสิ้น ---
+        const completedFiles = files.filter(it=>{
+          if(!it || typeof it!=='object') return false;
+          return it.from==='completed' || it.tag==='completed';
+        });
+
+        // --- ไฟล์หลัก (ไม่ใช่ completed) ---
+        const mainFiles = files.filter(it=>{
+          if(!it) return false;
+          if(typeof it!=='object') return true;
+          return !(it.from==='completed' || it.tag==='completed');
+        });
+
+        // ✅ คอลัมน์ไฟล์(เสร็จสิ้น) - ไม่โชว์รูป มีแต่ปุ่ม
+        let completedLinks = "-";
+        if (completedFiles.length > 0) {
+          const cf = completedFiles[0];
+          const cfUrl = typeof cf === 'string'
+            ? (cf.startsWith('uploads/') ? `/${cf}` : cf)
+            : (((cf.url || '').startsWith('uploads/')) ? `/${cf.url}` : (cf.url || ''));
+
+          const btnView = `<button class="btn" style="margin-top:6px"
+                            onclick='showImages(${JSON.stringify(completedFiles)})'>ดูทั้งหมด</button>`;
+          const btnAdd  = `<button class="btn" style="margin-top:6px;border-color:#16a34a;color:#16a34a"
+                            onclick="openAddFilesModal(${row.original_id || row.id})">➕ เพิ่มไฟล์</button>`;
+          const btnDel  = `<button onclick="deleteCompletedFile(${row.original_id || row.id}, '${cfUrl}')"
+                            style="margin-top:6px;padding:6px 12px;border:1px solid #dc2626;
+                                   background:#fee2e2;color:#b91c1c;border-radius:6px;cursor:pointer;">
+                             🗑 ลบไฟล์นี้
+                           </button>`;
+
+          completedLinks = `<div class="media-container">${btnView}${btnAdd}${btnDel}</div>`;
+        } else {
+          const btnAdd  = `<button class="btn" style="margin-top:6px;border-color:#16a34a;color:#16a34a"
+                            onclick="openAddFilesModal(${row.original_id || row.id})">➕ เพิ่มไฟล์</button>`;
+          completedLinks = `<div class="media-container">${btnAdd}</div>`;
         }
 
-        const mapLink=(row.latitude && row.longitude)?`<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`:'-';
+        // ✅ คอลัมน์ไฟล์หลัก - ไม่โชว์รูป เหลือปุ่มดูทั้งหมด
+        let fileLinks='-';
+        if (mainFiles.length>0){
+          const btnAll =
+            `<button class="btn" style="margin-top:6px"
+                     onclick='showImages(${JSON.stringify(mainFiles)})'>ดูทั้งหมด</button>`;
+          fileLinks = `<div class="media-container">${btnAll}</div>`;
+        }
+
+        const mapLink=(row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
 
         const statusSelect=`
           <select onchange="setStatus(${row.original_id || row.id}, this.value)">
@@ -100,6 +210,7 @@
             <td>${statusSelect}</td>
             <td>${mapLink}</td>
             <td>${formatDate(row.created_at)}</td>
+            <td>${completedLinks}</td>
           </tr>`;
       });
     }
@@ -108,16 +219,23 @@
       if(!s) return 'ไม่ทราบเวลา';
       const d=new Date(s);
       if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-      return d.toLocaleString('th-TH',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      return d.toLocaleString('th-TH',{
+        year:'numeric',month:'2-digit',day:'2-digit',
+        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        hour12:false
+      });
     }
 
     function showImages(images){
       const html = images.map(img=>{
-        const url = typeof img==='string'? (img.startsWith('uploads/')?`/${img}`:img)
-                   : (img.url.startsWith('uploads/')?`/${img.url}`:img.url);
+        const url = typeof img==='string'
+          ? (img.startsWith('uploads/')?`/${img}`:img)
+          : ((img.url||'').startsWith('uploads/')?`/${img.url}`:(img.url||''));
         const type = (typeof img==='string')?'':(img.type||'');
-        if(type==='video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)){
-          return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);"><source src="${url}" type="video/mp4"></video>`;
+        if (type==='video' || /\.(mp4|mov|avi)(\?|$)/i.test((url||'').toLowerCase())){
+          return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                    <source src="${url}" type="video/mp4">
+                  </video>`;
         }
         return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
       }).join('');
@@ -126,12 +244,108 @@
     }
 
     function setStatus(id,status){
-      fetch(`/set-status/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})})
-      .then(res=>{ if(res.ok){ alert('อัปเดตสถานะเรียบร้อย'); loadData(); } else { alert('เกิดข้อผิดพลาดในการอัปเดต'); } })
+      fetch(`/set-status/${id}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({status})
+      })
+      .then(res=>{
+        if(res.ok){
+          alert('อัปเดตสถานะเรียบร้อย');
+          loadData();
+        } else {
+          alert('เกิดข้อผิดพลาดในการอัปเดต');
+        }
+      })
       .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
     }
 
     loadData();
   </script>
+
+  <script>
+    async function deleteCompletedFile(id, fileUrl) {
+      if (!confirm('แน่ใจหรือไม่ว่าต้องการลบไฟล์นี้?')) return;
+      try {
+        const res = await fetch(`/delete-completed-file/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileUrl })
+        });
+        const data = await res.json();
+        alert(data.message || 'ดำเนินการเสร็จแล้ว');
+        if (data.success) {
+          if (typeof loadData === 'function') await loadData();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
+      }
+    }
+  </script>
+
+  <!-- 🧩 Modal: แนบไฟล์(เสร็จสิ้น) เพิ่ม -->
+  <div id="addFilesModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไฟล์ “เสร็จสิ้น”)</h3>
+      <p style="margin:0 0 12px; color:#555">เลือกรูป/วิดีโอที่จะเพิ่มเข้าไปในคอลัมน์ “ไฟล์(เสร็จสิ้น)”</p>
+      <input id="addFilesInput" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button class="btn" onclick="closeAddFilesModal()">ยกเลิก</button>
+        <button id="btnAddFilesUpload" class="btn" style="border-color:#15563b;background:#15563b;color:#fff" onclick="submitAddFiles()">อัปโหลด</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let addFilesTargetId = null;
+
+    function openAddFilesModal(id){
+      addFilesTargetId = id;
+      document.getElementById('addFilesModal').style.display = 'flex';
+    }
+    function closeAddFilesModal(){
+      document.getElementById('addFilesModal').style.display = 'none';
+      document.getElementById('addFilesInput').value = '';
+      addFilesTargetId = null;
+    }
+
+    async function submitAddFiles(){
+      if (!addFilesTargetId) return;
+      const btn = document.getElementById('btnAddFilesUpload');
+      btn.disabled = true;
+      btn.textContent = 'กำลังอัปโหลด...';
+
+      try{
+        const fd = new FormData();
+        const files = document.getElementById('addFilesInput').files;
+        if (!files || files.length === 0){
+          alert('กรุณาเลือกไฟล์ก่อน');
+          btn.disabled = false;
+          btn.textContent = 'อัปโหลด';
+          return;
+        }
+        for (const f of files) fd.append('extraFiles', f);
+
+        const res = await fetch(`/complete-with-media/${addFilesTargetId}`, { method: 'POST', body: fd });
+        const data = await res.json().catch(()=>({}));
+
+        if (!res.ok || data.success === false){
+          alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
+        } else {
+          alert('✅ แนบไฟล์ “เสร็จสิ้น” เพิ่มเรียบร้อย');
+          if (typeof loadData === 'function') await loadData();
+        }
+      } catch(err){
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการอัปโหลด');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'อัปโหลด';
+        closeAddFilesModal();
+      }
+    }
+  </script>
+
 </body>
 </html>
