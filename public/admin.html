@@ -245,6 +245,19 @@
       </div>
     </div>
   </nav>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0 14px; gap:10px; flex-wrap:wrap;">
+  <div style="color:#334155; font-weight:600;">
+    🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+  </div>
+
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button class="btn" id="btn-refresh" onclick="manualRefresh()">รีเฟรชตอนนี้</button>
+    <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
+      <input type="checkbox" id="auto-refresh-toggle" checked />
+      รีเฟรชอัตโนมัติ
+    </label>
+  </div>
+</div>
 
   <div class="table-wrapper">
     <table id="data-table">
@@ -371,14 +384,16 @@
   async function approve(id) {
     const res = await fetch(`/approve/${id}`, { method: 'POST' });
     alert(await res.text());
-    loadData();
+    safeLoadData();
   }
+
 
   async function reject(id) {
     const res = await fetch(`/reject/${id}`, { method: 'POST' });
     alert(await res.text());
-    loadData();
+    safeLoadData();
   }
+
 
   async function setDept(id, dept) {
     const res = await fetch(`/set-department/${id}`, {
@@ -388,7 +403,7 @@
     });
     const data = await res.json();
     alert(data.message || 'เปลี่ยนแผนกแล้ว');
-    loadData();
+    safeLoadData();
   }
 
   async function setStatus(id, status) {
@@ -398,11 +413,63 @@
       body: JSON.stringify({ status })
     });
     alert(await res.text());
-    loadData();
+    safeLoadData();
   }
 
-  loadData();
+</script>
+<script>
+  let autoTimer = null;
+  let isLoading = false;
 
+  function setLastUpdated() {
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+  }
+
+  async function safeLoadData() {
+    if (isLoading) return;          // กันซ้อน ถ้าโหลดอยู่แล้วไม่ต้องซ้ำ
+    isLoading = true;
+    try {
+      await loadData();
+      setLastUpdated();
+    } catch (e) {
+      console.error("Auto refresh error:", e);
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  function startAutoRefresh(ms = 15000) { // 15 วินาที (ปรับได้)
+    stopAutoRefresh();
+    autoTimer = setInterval(() => {
+      const toggle = document.getElementById('auto-refresh-toggle');
+      if (!toggle || toggle.checked) safeLoadData();
+    }, ms);
+  }
+
+  function stopAutoRefresh() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+  }
+
+  function manualRefresh() {
+    safeLoadData();
+  }
+
+  // เริ่มทำงานเมื่อหน้าโหลดเสร็จ
+  window.addEventListener('load', () => {
+    safeLoadData();         // โหลดครั้งแรก + ตั้งเวลา
+    startAutoRefresh(15000);
+
+    const toggle = document.getElementById('auto-refresh-toggle');
+    if (toggle) {
+      toggle.addEventListener('change', () => {
+        if (!toggle.checked) stopAutoRefresh();
+        else startAutoRefresh(15000);
+      });
+    }
+  });
 </script>
 
 <script>
@@ -481,7 +548,7 @@ function showImages(images) {
       alert(text); // ถ้ามีข้อความธรรมดา
     }
     closeRejectModal();
-    loadData();
+    safeLoadData();
   }
 </script>
 
