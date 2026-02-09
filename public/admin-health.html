@@ -34,6 +34,17 @@
     <button id="refreshBtn" class="btn" onclick="refreshData()" style="margin-left:8px;">🔄 รีเฟรช</button>
   </div>
 
+  <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; margin:-8px 0 14px;">
+    <div style="color:#334155; font-weight:600;">
+      🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+    </div>
+
+    <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
+      <input type="checkbox" id="auto-refresh-toggle" checked />
+      รีเฟรชอัตโนมัติ
+    </label>
+  </div>
+
   <div style="text-align:center; margin:-8px 0 16px;">
     <button id="btn-unset" onclick="location.href='unset-health.html'"
             style="padding:10px 14px; border-radius:8px; border:1px solid #eab308; background:#fff8e1; color:#92400e; font-weight:600; cursor:pointer; margin-right:6px;">
@@ -89,13 +100,26 @@
     const pageSize = 20;
 
     async function loadData() {
+      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      const prevPage = currentPage;
+
       const res = await fetch('/data-health-all?_=' + Date.now());
       const data = await res.json();
 
       allHealthData = Array.isArray(data) ? data : [];
-      filteredData = allHealthData;
-      currentPage = 1;
 
+      // ถ้ามีการค้นหาอยู่ ให้กรองเหมือนเดิม
+      if (keyword) {
+        filteredData = allHealthData.filter(row =>
+          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
+          (row.phone && String(row.phone).toLowerCase().includes(keyword))
+        );
+      } else {
+        filteredData = allHealthData;
+      }
+
+      // พยายามคงหน้าเดิม (ไม่เด้งกลับหน้า 1)
+      currentPage = prevPage;
       renderCurrentPage();
     }
 
@@ -125,6 +149,11 @@
     }
 
     function filterByName() {
+      // ✅ กัน auto refresh รีเฟรชทับตอนกำลังพิมพ์
+      isTyping = true;
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => { isTyping = false; }, 800);
+
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
       filteredData = allHealthData.filter(row =>
@@ -257,8 +286,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
+
       if (res.ok) {
         alert('อัปเดตสถานะเรียบร้อย');
+        await safeLoadData(); // ✅ รีเฟรชตารางทันที
         if (typeof updateCounters === 'function') updateCounters();
       } else {
         alert('เกิดข้อผิดพลาดในการอัปเดต');
@@ -295,11 +326,56 @@
       }
     }
 
+    // ====== auto refresh table ======
+    let autoTimer = null;
+    let isLoading = false;
+
+    // ✅ เพิ่ม: กันกระตุกตอนพิมพ์ค้นหา (ไม่ลบของเดิม)
+    let isTyping = false;
+    let typingTimer = null;
+
+    function setLastUpdated() {
+      const now = new Date();
+      const el = document.getElementById('last-updated');
+      if (el) {
+        el.textContent = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+      }
+    }
+
+    async function safeLoadData() {
+      if (isLoading) return;      // กันโหลดซ้อน
+      isLoading = true;
+      try {
+        await loadData();
+        setLastUpdated();
+      } catch (e) {
+        console.error('Auto refresh error:', e);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function startAutoRefresh(ms = 15000) { // 15 วิ ปรับได้
+      stopAutoRefresh();
+      autoTimer = setInterval(() => {
+        const toggle = document.getElementById('auto-refresh-toggle');
+        // ✅ เพิ่ม: ถ้ากำลังพิมพ์ค้นหา ให้ไม่รีเฟรชทับ
+        if ((!toggle || toggle.checked) && !isTyping) safeLoadData();
+      }, ms);
+    }
+
+    function stopAutoRefresh() {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
     async function refreshData() {
       const btn = document.getElementById('refreshBtn');
       btn.innerHTML = '⏳ กำลังรีเฟรช...';
       btn.disabled = true;
-      await loadData();
+
+      await safeLoadData();
+
       setTimeout(() => {
         btn.innerHTML = '🔄 รีเฟรช';
         btn.disabled = false;
@@ -307,9 +383,22 @@
     }
 
     // init
-    loadData();
+    safeLoadData();
     updateCounters();
+
+    startAutoRefresh(15000);
     setInterval(updateCounters, 60000);
+
+    // ✅ เพิ่ม: ผูก checkbox ให้เปิด/ปิด auto refresh ได้จริง
+    window.addEventListener('load', () => {
+      const toggle = document.getElementById('auto-refresh-toggle');
+      if (toggle) {
+        toggle.addEventListener('change', () => {
+          if (toggle.checked) startAutoRefresh(15000);
+          else stopAutoRefresh();
+        });
+      }
+    });
   </script>
 
   <!-- ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น" -->
@@ -341,11 +430,13 @@
 
     function openCompleteModal() {
       document.getElementById('completeModal').style.display = 'flex';
+      stopAutoRefresh(); // ✅ หยุดออโต้ตอนเปิดโมดัล
     }
     function closeCompleteModal() {
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
       pendingCompleteId = null;
+      startAutoRefresh(15000); // ✅ เริ่มออโต้ใหม่ตอนปิดโมดัล
     }
 
     async function submitComplete() {
@@ -370,7 +461,7 @@
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
           alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
-          await loadData();
+          await safeLoadData();
           await updateCounters();
         }
       } catch (err) {
@@ -394,7 +485,7 @@
         });
         const data = await res.json();
         alert(data.message);
-        if (data.success) await loadData();
+        if (data.success) await safeLoadData();
       } catch (err) {
         console.error(err);
         alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
