@@ -14,7 +14,6 @@
     th, td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
     th { background: #15563b; color: white; }
     img, video { max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-
     .media-container { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0; }
     a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
     .btn { padding:10px 14px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-weight:600; cursor:pointer; }
@@ -33,6 +32,18 @@
       font-size: 16px;
     " />
     <button id="refreshBtn" class="btn" onclick="refreshData()" style="margin-left:8px;">🔄 รีเฟรช</button>
+  </div>
+
+  <!-- ✅ แสดงเวลาอัปเดตล่าสุด + เปิด/ปิดรีเฟรชอัตโนมัติ -->
+  <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; margin:-8px 0 14px;">
+    <div style="color:#334155; font-weight:600;">
+      🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+    </div>
+
+    <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
+      <input type="checkbox" id="auto-refresh-toggle" checked />
+      รีเฟรชอัตโนมัติ
+    </label>
   </div>
 
   <div style="text-align:center; margin:-8px 0 16px;">
@@ -89,14 +100,26 @@
     let currentPage = 1;
     const pageSize = 20;
 
+    // ✅ โหลดข้อมูลแบบคงหน้าเดิม + คงคำค้นเดิม (เหมือนไฟฟ้าที่แก้แล้ว)
     async function loadData() {
+      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      const prevPage = currentPage;
+
       const res = await fetch('/data-sp-all?_=' + Date.now());
       const data = await res.json();
 
       allSpData = Array.isArray(data) ? data : [];
-      filteredData = allSpData;
-      currentPage = 1;
 
+      if (keyword) {
+        filteredData = allSpData.filter(row =>
+          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
+          (row.phone && String(row.phone).toLowerCase().includes(keyword))
+        );
+      } else {
+        filteredData = allSpData;
+      }
+
+      currentPage = prevPage;
       renderCurrentPage();
     }
 
@@ -146,7 +169,7 @@
           else if (Array.isArray(row.photo)) files = row.photo;
         } catch (e) { files = []; }
 
-        // ✅ แยก completed vs main เหมือนไฟฟ้า
+        // ✅ แยก completed vs main
         const completedFiles = files.filter(it => {
           if (!it || typeof it !== 'object') return false;
           return it.from === 'completed' || it.tag === 'completed';
@@ -182,7 +205,7 @@
           `;
         }
 
-        // ไฟล์หลัก: เหมือนไฟฟ้า = ปุ่มดูทั้งหมดอย่างเดียว
+        // ไฟล์หลัก: ปุ่มดูทั้งหมดอย่างเดียว
         let fileLinks = "-";
         if (mainFiles.length > 0) {
           const buttonHtml =
@@ -247,6 +270,7 @@
       win.document.write(`<body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">${html}</body>`);
     }
 
+    // ✅ setStatus เดิม + เพิ่มรีเฟรชตารางทันทีหลังอัปเดต
     async function setStatus(id, status) {
       const res = await fetch(`/set-status/${id}`, {
         method: 'POST',
@@ -255,6 +279,7 @@
       });
       if (res.ok) {
         alert('อัปเดตสถานะเรียบร้อย');
+        await safeLoadData(); // ✅ รีเฟรชตารางทันที
         if (typeof updateCounters === 'function') updateCounters();
       } else {
         alert('เกิดข้อผิดพลาดในการอัปเดต');
@@ -291,11 +316,51 @@
       }
     }
 
+    // ====== auto refresh table (เพิ่มใหม่ แต่ไม่ลบของเดิม) ======
+    let autoTimer = null;
+    let isLoading = false;
+
+    function setLastUpdated() {
+      const now = new Date();
+      const el = document.getElementById('last-updated');
+      if (el) {
+        el.textContent = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+      }
+    }
+
+    async function safeLoadData() {
+      if (isLoading) return;
+      isLoading = true;
+      try {
+        await loadData();
+        setLastUpdated();
+      } catch (e) {
+        console.error('Auto refresh error:', e);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function startAutoRefresh(ms = 15000) {
+      stopAutoRefresh();
+      autoTimer = setInterval(() => {
+        const toggle = document.getElementById('auto-refresh-toggle');
+        if (!toggle || toggle.checked) safeLoadData();
+      }, ms);
+    }
+
+    function stopAutoRefresh() {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
     async function refreshData() {
       const btn = document.getElementById('refreshBtn');
       btn.innerHTML = '⏳ กำลังรีเฟรช...';
       btn.disabled = true;
-      await loadData();
+
+      await safeLoadData();
+
       setTimeout(() => {
         btn.innerHTML = '🔄 รีเฟรช';
         btn.disabled = false;
@@ -303,8 +368,9 @@
     }
 
     // init
-    loadData();
+    safeLoadData();                // ✅ โหลดตารางครั้งแรก + เวลาอัปเดต
     updateCounters();
+    startAutoRefresh(15000);       // ✅ รีเฟรชตารางทุก 15 วิ
     setInterval(updateCounters, 60000);
 
     // service worker (เดิม)
@@ -344,11 +410,13 @@
 
     function openCompleteModal() {
       document.getElementById('completeModal').style.display = 'flex';
+      if (typeof stopAutoRefresh === 'function') stopAutoRefresh(); // ✅ กันเด้ง/โหลดซ้อนตอนเลือกไฟล์
     }
     function closeCompleteModal() {
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
       pendingCompleteId = null;
+      if (typeof startAutoRefresh === 'function') startAutoRefresh(15000);
     }
 
     async function submitComplete() {
@@ -373,7 +441,7 @@
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
           alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
-          await loadData();
+          await safeLoadData();
           await updateCounters();
         }
       } catch (err) {
@@ -397,7 +465,7 @@
         });
         const data = await res.json();
         alert(data.message);
-        if (data.success) await loadData();
+        if (data.success) await safeLoadData();
       } catch (err) {
         console.error(err);
         alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');

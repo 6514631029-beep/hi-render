@@ -34,6 +34,18 @@
     <button id="refreshBtn" class="btn" onclick="refreshData()" style="margin-left:8px;">🔄 รีเฟรช</button>
   </div>
 
+  <!-- ✅ แสดงเวลาอัปเดตล่าสุด + เปิด/ปิดรีเฟรชอัตโนมัติ -->
+  <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; margin:-8px 0 14px;">
+    <div style="color:#334155; font-weight:600;">
+      🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+    </div>
+
+    <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
+      <input type="checkbox" id="auto-refresh-toggle" checked />
+      รีเฟรชอัตโนมัติ
+    </label>
+  </div>
+
   <div style="text-align:center; margin:-8px 0 16px;">
     <button id="btn-unset" onclick="location.href='unset-engineer.html'"
             style="padding:10px 14px; border-radius:8px; border:1px solid #eab308; background:#fff8e1; color:#92400e; font-weight:600; cursor:pointer; margin-right:6px;">
@@ -82,20 +94,32 @@
   <script>
     const DEPT = 'กองช่าง';
 
-    // ====== Pagination state เหมือนไฟฟ้า ======
+    // ====== Pagination state ======
     let allEngineerData = []; // ทั้งหมดจาก server
     let filteredData = [];    // หลังค้นหา
     let currentPage = 1;
     const pageSize = 20;
 
+    // ✅ โหลดข้อมูล (คงหน้าเดิม + คงคำค้นเดิม ไม่เด้งกลับหน้า 1 ตอน auto refresh)
     async function loadData() {
+      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      const prevPage = currentPage;
+
       const res = await fetch('/data-engineer-all?_=' + Date.now());
       const data = await res.json();
 
       allEngineerData = Array.isArray(data) ? data : [];
-      filteredData = allEngineerData;
-      currentPage = 1;
 
+      if (keyword) {
+        filteredData = allEngineerData.filter(row =>
+          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
+          (row.phone && String(row.phone).toLowerCase().includes(keyword))
+        );
+      } else {
+        filteredData = allEngineerData;
+      }
+
+      currentPage = prevPage;
       renderCurrentPage();
     }
 
@@ -148,7 +172,7 @@
           else if (Array.isArray(row.photo)) files = row.photo;
         } catch (e) { files = []; }
 
-        // แยกไฟล์เสร็จสิ้น vs ไฟล์หลัก (เหมือนไฟฟ้า)
+        // แยกไฟล์เสร็จสิ้น vs ไฟล์หลัก
         const completedFiles = files.filter(it => {
           if (!it || typeof it !== 'object') return false;
           return it.from === 'completed' || it.tag === 'completed';
@@ -160,7 +184,7 @@
           return !(it.from === 'completed' || it.tag === 'completed');
         });
 
-        // คอลัมน์ไฟล์(เสร็จสิ้น): ปุ่มดูทั้งหมด + ลบไฟล์ (เหมือนไฟฟ้า)
+        // คอลัมน์ไฟล์(เสร็จสิ้น): ปุ่มดูทั้งหมด + ลบไฟล์
         let completedLinks = "-";
         if (completedFiles.length > 0) {
           const cf = completedFiles[0];
@@ -186,7 +210,7 @@
           `;
         }
 
-        // คอลัมน์ไฟล์หลัก: “เหมือนไฟฟ้า” = แค่ปุ่มดูทั้งหมด
+        // คอลัมน์ไฟล์หลัก: แค่ปุ่มดูทั้งหมด
         let fileLinks = "-";
         if (mainFiles.length > 0) {
           const buttonHtml =
@@ -259,6 +283,7 @@
       win.document.write(`<body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">${html}</body>`);
     }
 
+    // ✅ setStatus เดิม + เพิ่มรีเฟรชตารางทันทีหลังอัปเดตสำเร็จ
     async function setStatus(id, status) {
       try {
         const res = await fetch(`/set-status/${id}`, {
@@ -267,7 +292,9 @@
           body: JSON.stringify({ status })
         });
         if (!res.ok) throw new Error('update failed');
+
         alert('อัปเดตสถานะเรียบร้อย');
+        await safeLoadData(); // ✅ รีเฟรชตารางทันที
         if (typeof updateCounters === 'function') updateCounters();
       } catch (err) {
         console.error(err);
@@ -275,7 +302,7 @@
       }
     }
 
-    // ====== Counters เหมือนไฟฟ้า (ส่ง department=...) ======
+    // ====== Counters (ส่ง department=...) ======
     async function updateCounters() {
       try {
         const [allRes, pRes, iRes, cRes] = await Promise.all([
@@ -305,11 +332,52 @@
       }
     }
 
+    // ====== auto refresh table ======
+    let autoTimer = null;
+    let isLoading = false;
+
+    function setLastUpdated() {
+      const now = new Date();
+      const el = document.getElementById('last-updated');
+      if (el) {
+        el.textContent = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+      }
+    }
+
+    async function safeLoadData() {
+      if (isLoading) return; // กันโหลดซ้อน
+      isLoading = true;
+      try {
+        await loadData();
+        setLastUpdated();
+      } catch (e) {
+        console.error('Auto refresh error:', e);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function startAutoRefresh(ms = 15000) { // 15 วิ ปรับได้
+      stopAutoRefresh();
+      autoTimer = setInterval(() => {
+        const toggle = document.getElementById('auto-refresh-toggle');
+        if (!toggle || toggle.checked) safeLoadData();
+      }, ms);
+    }
+
+    function stopAutoRefresh() {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
+    // ปุ่มรีเฟรชเดิม (ยังอยู่) แต่ให้ไปทาง safeLoadData
     async function refreshData() {
       const btn = document.getElementById('refreshBtn');
       btn.innerHTML = '⏳ กำลังรีเฟรช...';
       btn.disabled = true;
-      await loadData();
+
+      await safeLoadData();
+
       setTimeout(() => {
         btn.innerHTML = '🔄 รีเฟรช';
         btn.disabled = false;
@@ -317,8 +385,10 @@
     }
 
     // เริ่มทำงาน
-    loadData();
+    safeLoadData();          // ✅ โหลดตารางครั้งแรก + เซ็ตเวลาอัปเดต
     updateCounters();
+
+    startAutoRefresh(15000); // ✅ รีเฟรชตารางทุก 15 วิ
     setInterval(updateCounters, 60000);
   </script>
 
@@ -351,11 +421,13 @@
 
     function openCompleteModal() {
       document.getElementById('completeModal').style.display = 'flex';
+      if (typeof stopAutoRefresh === 'function') stopAutoRefresh(); // ✅ หยุด auto refresh ตอนเปิดโมดัล
     }
     function closeCompleteModal() {
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
       pendingCompleteId = null;
+      if (typeof startAutoRefresh === 'function') startAutoRefresh(15000); // ✅ เริ่มใหม่ตอนปิดโมดัล
     }
 
     async function submitComplete() {
@@ -380,7 +452,7 @@
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
           alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
-          await loadData();
+          await safeLoadData();     // ✅ ใช้ safeLoadData เพื่ออัปเดตเวลา + กันโหลดซ้อน
           await updateCounters();
         }
       } catch (err) {
@@ -404,7 +476,7 @@
         });
         const data = await res.json();
         alert(data.message);
-        if (data.success) await loadData();
+        if (data.success) await safeLoadData(); // ✅ รีเฟรชตาราง + อัปเดตเวลา
       } catch (err) {
         console.error(err);
         alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
