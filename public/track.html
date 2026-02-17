@@ -9,636 +9,562 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
 
-    :root{
-      --bg1:#e3f2fd;
-      --bg2:#f6fbff;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line:#e5e7eb;
-
-      --brand:#1976d2;
-      --brand2:#1565c0;
-
-      --shadow: 0 12px 30px rgba(2, 6, 23, .10);
-      --shadow2: 0 6px 18px rgba(2, 6, 23, .08);
-      --radius:16px;
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: #e3f2fd;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
-
-    *{ box-sizing:border-box; }
-
-    body{
-      font-family:'Kanit',sans-serif;
-      margin:0;
-      min-height:100vh;
-      color:var(--text);
-
-      background:
-        radial-gradient(1200px 600px at 20% 0%, #dbeafe 0%, transparent 55%),
-        radial-gradient(900px 500px at 90% 10%, #e0f2fe 0%, transparent 55%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
-
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding: 24px 14px;
-    }
-
-    /* back button */
+      /* เพิ่มใน <style> */
     .back-btn{
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      background-color: #ff9800;
-      color: #fff;
-      padding: 10px 18px;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #ff9800;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+/* ✅ มือถือ: เอา fixed ออก ไม่ให้ชนหัวข้อ */
+@media (max-width: 768px){
+  .back-btn{
+    position: relative;
+    top: auto;
+    left: auto;
+    margin: 12px auto 0;
+    display: inline-block;
+  }
+
+  h2{
+    margin-top: 12px; /* ลดระยะ เพราะไม่มีปุ่มลอยแล้ว */
+    text-align: center;
+  }
+}
+
+    .back-btn:hover {
+      background-color: #f57c00;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #1976d2;
+    }
+
+    form {
+      background: #ffffff;
+      padding: 20px 30px;
       border-radius: 12px;
-      text-decoration: none;
-      font-weight: 800;
-      z-index: 1000;
-      box-shadow: 0 10px 20px rgba(245,124,0,.18);
-      transition: transform .12s ease, filter .12s ease;
-      white-space:nowrap;
-    }
-    .back-btn:hover{ filter:brightness(1.02); }
-    .back-btn:active{ transform: translateY(1px) scale(.99); }
-
-    /* layout */
-    .app{
-      width: min(980px, 92vw);
-      margin-top: 56px;
-      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .hero{
-      display:flex;
-      gap:14px;
-      align-items:center;
-      margin-bottom:16px;
-    }
-    .hero__icon{
-      width:54px;height:54px;border-radius:16px;
-      display:grid;place-items:center;
-      background:#ffffffb5;
-      border:1px solid #ffffff;
-      box-shadow: var(--shadow2);
-      font-size:24px;
-      flex:0 0 auto;
-    }
-    .hero__title{
-      margin:0;
-      font-size:26px;
-      letter-spacing:.2px;
-    }
-    .hero__subtitle{
-      margin:4px 0 0;
-      color: var(--muted);
-      font-size:14px;
-      line-height:1.4;
+    input[type="tel"] {
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1.5px solid #90caf9;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      width: 260px;
+      background-color: #f0faff;
     }
 
-    .card{
-      background: var(--card);
-      border:1px solid #ffffff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
+    button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
     }
 
-    /* form */
-    .track-form{
-      display:flex;
-      gap:12px;
-      align-items:flex-end;
-      flex-wrap:wrap;
-    }
-    .field{ flex: 1 1 340px; }
-    .field__label{
-      display:block;
-      font-size:13px;
-      color: var(--muted);
-      margin-bottom:8px;
-    }
-    .field__input{
-      display:flex;
-      align-items:center;
-      border:1.5px solid #cfe3ff;
-      background:#f7fbff;
-      border-radius: 14px;
-      padding: 10px 12px;
-      gap:10px;
-    }
-    .field__prefix{ opacity:.85; }
-
-    /* กัน iOS ซูม */
-    input, button, select{ font-size:16px; max-width:100%; }
-
-    #phone{
-      width:100%;
-      border:none !important;
-      outline:none !important;
-      background:transparent !important;
-      padding: 0 !important;
-      margin:0 !important;
-      font-size:16px;
-    }
-    #phone::placeholder{ color:#94a3b8; }
-
-    .btn-primary{
-      background: linear-gradient(180deg, var(--brand), var(--brand2));
-      border:none;
-      color:#fff;
-      border-radius: 14px;
-      padding: 12px 18px;
-      font-weight:900;
-      cursor:pointer;
-      box-shadow: 0 10px 20px rgba(25,118,210,.25);
-      transition: transform .12s ease, filter .12s ease;
-      white-space:nowrap;
-    }
-    .btn-primary:hover{ filter: brightness(1.03); }
-    .btn-primary:active{ transform: translateY(1px) scale(.98); }
-
-    .hint{
-      width:100%;
-      margin-top:10px;
-      color: var(--muted);
-      font-size: 13px;
-      min-height: 18px;
+    button:hover {
+      background-color: #1565c0;
     }
 
-    /* results */
-    #results{
-      margin-top: 14px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-
-    .req{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: var(--shadow2);
-      padding: 14px;
-    }
-    .req__top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .req__id{
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .req__meta{
-      color: var(--muted);
-      font-size:13px;
-      margin-top:2px;
-    }
-    .req__row{ margin:8px 0; }
-    .req__row strong{ color:#0f172a; }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 900;
-      border: 1px solid transparent;
-    }
-    .badge--pending{ background:#fff7ed; color:#9a3412; border-color:#fed7aa; }
-    .badge--progress{ background:#fef9c3; color:#854d0e; border-color:#fde68a; }
-    .badge--done{ background:#dcfce7; color:#166534; border-color:#bbf7d0; }
-    .badge--reject{ background:#fee2e2; color:#991b1b; border-color:#fecaca; }
-
-    .chip{
-      display:inline-block;
-      padding:2px 10px;
-      border-radius:999px;
-      font-size:12px;
-      background:#e8f5e9;
-      color:#1b5e20;
-      font-weight:800;
-      border:1px solid #bbf7d0;
-    }
-
-    .btn-lite{
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
-      color:#0f172a;
+    #results {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 600px;
+      background: white;
       border-radius: 12px;
-      padding: 10px 12px;
-      font-weight:900;
-      cursor:pointer;
-      transition: transform .12s ease;
-    }
-    .btn-lite:active{ transform: translateY(1px); }
-
-    /* media thumbs */
-    .media-grid{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:8px;
-    }
-    .media-grid img,
-    .media-grid video{
-      width: 150px;
-      height: 110px;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 8px 16px rgba(0,0,0,.10);
-      background:#0000000a;
-    }
-    .thumb{ cursor:pointer; }
-    .media-grid .thumb{ width:150px; height:110px; object-fit:cover; }
-
-    /* ===== Media Modal ===== */
-    .media-modal{ position:fixed; inset:0; z-index:99999; display:none; }
-    .media-modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.70); }
-
-    .media-modal__content{
-      position:absolute;
-      left:50%; top:50%;
-      transform:translate(-50%,-50%);
-      width:min(96vw, 980px);
-      height:min(92vh, 820px);
-      background:#fff;
-      border-radius:14px;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .media-modal__header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:10px 12px;
-      border-bottom:1px solid #e5e7eb;
-      background:#f8fafc;
+    #results p {
+      margin: 8px 0;
     }
-    .media-modal__title{ font-weight:900; color:#0f172a; }
 
-    .media-modal__close{
-      border:none;
-      cursor:pointer;
-      width:42px; height:42px;
-      border-radius:999px;
-      background:#111827;
-      color:#fff;
-      font-size:22px;
-      line-height:42px;
-      text-align:center;
-      box-shadow:0 8px 18px rgba(0,0,0,0.25);
-      transition: transform .15s ease, opacity .15s ease;
+    hr {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid #ccc;
     }
-    .media-modal__close:active{ transform: scale(0.92); opacity:0.9; }
 
-    .media-modal__body{
-      padding:12px;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-    .media-modal__stack{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-    .media-modal__stack img,
-    .media-modal__stack video{
-      width:100%;
-      height:auto;
-      max-height:76vh;
-      object-fit:contain;
-      border-radius:12px;
-      background:#0000000a;
-    }
-    .media-modal__stack video{ display:block; }
-
-    /* mobile */
-    @media (max-width: 768px){
-      body{ padding: 14px !important; }
-      .app{ margin-top: 12px; }
-      .hero__title{ font-size:22px; }
-      .btn-primary{ width:100%; }
-      .back-btn{
-        position: relative;
-        top:auto; left:auto;
-        display:block;
-        width: calc(100% - 0px);
-        text-align:center;
-        margin: 0 0 10px 0;
-      }
-      .media-grid img, .media-grid video{
-        width: 46vw;
-        height: 30vw;
-        max-width: 220px;
-        max-height: 150px;
+    @media (max-width: 480px) {
+      input[type="tel"], button {
+        width: 100%;
       }
 
-      .media-modal__content{
-        left:0 !important;
-        top:0 !important;
-        transform:none !important;
-        width:100vw !important;
-        height:100vh !important;
-        border-radius:0 !important;
-      }
-      .media-modal__stack img,
-      .media-modal__stack video{
-        max-height: calc(100vh - 74px) !important;
+      form {
+        width: 90%;
       }
     }
+  .media-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+  .media-grid img, .media-grid video { width:140px; height:100px; object-fit:cover; border-radius:8px; }
+  .chip { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#e8f5e9; color:#1b5e20; }
+  /* ===== Mobile Responsive for track ===== */
+.container { max-width: 1100px; margin: 0 auto; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+input, button, select {
+  max-width: 100%;
+  font-size: 16px; /* กัน iOS ซูมเอง */
+}
+
+@media (max-width: 768px) {
+  body { padding: 14px !important; }
+  h2 { font-size: 20px; }
+  .search { width: 100% !important; }
+  .btn { width: 100%; padding: 12px 14px; }
+
+  table { display: block; width: 100%; border: none; box-shadow: none; background: transparent; }
+  thead { display: none; }
+  tbody { display: block; }
+
+  tr {
+    display: block;
+    background: #fff;
+    margin: 12px 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    text-align: left !important;
+    align-items: flex-start;
+  }
+
+  td:last-child { border-bottom: none !important; }
+
+  /* ใส่ชื่อหัวข้อให้แต่ละช่อง โดยอาศัย data-label */
+  td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #334155;
+    min-width: 120px;
+    flex: 0 0 120px;
+  }
+
+  #results img, #results video { max-width: 160px !important; max-height: 160px !important; }
+
+}
+/* ===== Fullscreen Media Modal (Mobile friendly) ===== */
+/* ===== Media Modal (One clean version) ===== */
+.media-modal{ position:fixed; inset:0; z-index:99999; display:none; }
+.media-modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.70); }
+
+.media-modal__content{
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:min(96vw, 980px);
+  height:min(92vh, 820px);
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.media-modal__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  border-bottom:1px solid #e5e7eb;
+  background:#f8fafc;
+}
+
+.media-modal__title{ font-weight:700; color:#0f172a; }
+
+.media-modal__close{
+  border: none;
+  cursor: pointer;
+
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+
+  background: #111827;   /* ดำเรียบ ดูแพง */
+  color: #fff;
+
+  font-size: 22px;
+  line-height: 42px;
+  text-align: center;
+
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+.media-modal__close:active{
+  transform: scale(0.92);
+  opacity: 0.9;
+}
+
+
+
+
+.media-modal__body{
+  padding:12px;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* รูป/วิดีโอให้ใหญ่เต็มกว้าง */
+.media-modal__stack{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+
+.media-modal__stack img,
+.media-modal__stack video{
+  width:100%;
+  height:auto;
+  max-height:76vh;
+  object-fit:contain;
+  border-radius:12px;
+  background:#0000000a;
+}
+
+.media-modal__stack video{ display:block; }
+
+.thumb{
+  width:140px;
+  height:100px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+}
+/* ให้ thumb ชนะเสมอในกรอบ media-grid */
+.media-grid .thumb { width:140px; height:100px; object-fit:cover; }
+
+.media-modal img, .media-modal video{
+  max-width: 100% !important;
+  max-height: 76vh !important;
+  width: 100% !important;
+  height: auto !important;
+}
+/* ✅ FIX: ให้ Modal เต็มจอบนมือถือ (Messenger/Safari) */
+@media (max-width: 768px) {
+  .media-modal__content{
+    left: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+  }
+
+  .media-modal__body{
+    padding: 12px !important;
+  }
+
+  .media-modal__stack{
+    width: 100% !important;
+  }
+
+  .media-modal__stack img,
+  .media-modal__stack video{
+    display: block !important;
+    width: 100% !important;
+    max-height: calc(100vh - 74px) !important; /* หักส่วน header */
+    object-fit: contain !important;
+  }
+}
+
+@media (max-width: 768px){
+  .back-btn{
+    width: calc(100% - 28px);
+    text-align: center;
+    border-radius: 12px;
+  }
+  h2{ padding: 0 10px; }
+}
+
   </style>
 </head>
-
 <body>
+
   <a href="/choose.html" class="back-btn">⬅️ กลับไปเมนูหลัก</a>
 
-  <main class="app">
-    <header class="hero">
-      <div class="hero__icon">🔍</div>
-      <div>
-        <h1 class="hero__title">ติดตามคำร้อง</h1>
-        <p class="hero__subtitle">กรอกเบอร์โทรเพื่อดูสถานะ และไฟล์แนบของคำร้อง</p>
-      </div>
-    </header>
+  <h2>🔍 ติดตามคำร้องด้วยเบอร์โทร</h2>
+  <form id="trackForm">
+    <input type="tel" id="phone" required placeholder="เบอร์โทร เช่น 0891234567" />
+    <button type="submit">ค้นหา</button>
+  </form>
 
-    <section class="card">
-      <form id="trackForm" class="track-form">
-        <label class="field">
-          <span class="field__label">เบอร์โทร</span>
-          <div class="field__input">
-            <span class="field__prefix">📞</span>
-            <input type="tel" id="phone" required placeholder="เช่น 0891234567" />
-          </div>
-        </label>
-
-        <button type="submit" class="btn-primary">ค้นหา</button>
-
-        <div id="uiHint" class="hint"></div>
-      </form>
-    </section>
-
-    <section id="results"></section>
-  </main>
+  <div id="results"></div>
 
   <script>
-    function formatDate(dateString) {
-      if (!dateString) return 'ไม่ทราบเวลา';
+  function formatDate(dateString) {
+  if (!dateString) return 'ไม่ทราบเวลา';
 
-      let s = String(dateString).trim();
+  let s = String(dateString).trim();
 
-      // รองรับรูปแบบ "YYYY-MM-DD HH:mm:ss" -> "YYYY-MM-DDTHH:mm:ss"
-      s = s.replace(' ', 'T');
+  // รองรับรูปแบบ "YYYY-MM-DD HH:mm:ss" -> "YYYY-MM-DDTHH:mm:ss"
+  s = s.replace(' ', 'T');
 
-      // ถ้าไม่มี timezone ติดมา (ไม่มี Z และไม่มี +07:00 / -xx:xx)
-      // ให้ถือว่าเป็น UTC แล้วเติม Z
-      const hasTZ = /([zZ]|[+\-]\d{2}:?\d{2})$/.test(s);
-      if (!hasTZ && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) {
-        s += 'Z';
-      }
+  // ถ้าไม่มี timezone ติดมา (ไม่มี Z และไม่มี +07:00 / -xx:xx)
+  // ให้ถือว่าเป็น UTC แล้วเติม Z
+  const hasTZ = /([zZ]|[+\-]\d{2}:?\d{2})$/.test(s);
+  if (!hasTZ && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) {
+    s += 'Z';
+  }
 
-      const d = new Date(s);
-      if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+  const d = new Date(s);
+  if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
 
-      return d.toLocaleString('th-TH', {
-        timeZone: 'Asia/Bangkok',
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-        hour12: false
-      });
+  return d.toLocaleString('th-TH', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  });
+}
+
+
+  async function fetchRequests(phone) {
+  const res = await fetch('/track-requests', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone })
+  });
+
+  const data = await res.json();
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '';
+
+  if (!Array.isArray(data) || data.length === 0) {
+    resultsDiv.textContent = '❌ ไม่พบข้อมูลคำร้อง';
+    return;
+  }
+
+  data.forEach(row => {
+    const photos = parsePhoto(row.photo);
+    const completedFiles = photos.filter(it => {
+  if (!it) return false;
+
+  // ✅ ต้องเป็น object เท่านั้น ถึงจะนับเป็น completed
+  if (typeof it === 'object') {
+    return it.from === 'completed' || it.tag === 'completed';
+  }
+
+  // ✅ string ไม่ใช่ completed (ปล่อยให้เป็นไฟล์ปกติ)
+  return false;
+});
+
+
+
+    let html = `
+      <hr/>
+      <p><strong>📄 รหัสคำร้อง:</strong> ${row.id}</p>
+      <p><strong>📝 ข้อความ:</strong> ${row.message}</p>
+      <p><strong>🕓 วันที่ส่ง:</strong> ${formatDate(row.created_at)}</p>
+      <p><strong>📌 สถานะ:</strong> ${row.status || 'รอดำเนินการ'}</p>
+    `;
+
+    if (row.status === 'เสร็จสิ้น' && row.completed_at) {
+      html += `<p><span class="chip">✅ เสร็จสิ้นเมื่อ: ${formatDate(row.completed_at)}</span></p>`;
     }
 
-    function statusBadge(status){
-      const s = status || 'รอดำเนินการ';
-      if (s === 'เสร็จสิ้น') return `<span class="badge badge--done">✅ ${s}</span>`;
-      if (s === 'กำลังดำเนินการ') return `<span class="badge badge--progress">⚙️ ${s}</span>`;
-      if (s === 'ไม่อนุมัติ') return `<span class="badge badge--reject">⛔ ${s}</span>`;
-      return `<span class="badge badge--pending">⏳ ${s}</span>`;
+    if (row.status === 'ไม่อนุมัติ' && row.reject_reason) {
+      html += `<p><strong>❗ เหตุผล:</strong> ${row.reject_reason}</p>`;
     }
 
-    async function fetchRequests(phone) {
-      const resultsDiv = document.getElementById('results');
-      const uiHint = document.getElementById('uiHint');
+    
+    // 🔽 แสดงรูป/วิดีโอที่แนบตอน "เสร็จสิ้น"
+if (completedFiles.length > 0) {
+  const safeFiles = completedFiles.filter(it => {
+    const raw = typeof it === 'string' ? it : (it?.url || '');
+    const u = String(raw).trim();
+    return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
+  });
 
-      resultsDiv.innerHTML = '';
-      uiHint.textContent = 'กำลังค้นหา...';
-
-      // loading card
-      resultsDiv.innerHTML = `<div class="req">⌛ กำลังโหลดข้อมูล...</div>`;
-
-      const res = await fetch('/track-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone })
-      });
-
-      const data = await res.json();
-
-      resultsDiv.innerHTML = '';
-
-      if (!Array.isArray(data) || data.length === 0) {
-        uiHint.textContent = '';
-        resultsDiv.innerHTML = `<div class="req">❌ ไม่พบข้อมูลคำร้อง</div>`;
-        return;
-      }
-
-      data.forEach(row => {
-        const photos = parsePhoto(row.photo);
-
-        const completedFiles = photos.filter(it => {
-          if (!it) return false;
-
-          // ✅ ต้องเป็น object เท่านั้น ถึงจะนับเป็น completed
-          if (typeof it === 'object') {
-            return it.from === 'completed' || it.tag === 'completed';
-          }
-
-          // ✅ string ไม่ใช่ completed (ปล่อยให้เป็นไฟล์ปกติ)
-          return false;
-        });
-
-        let html = `
-          <article class="req">
-            <div class="req__top">
-              <div>
-                <div class="req__id">📄 รหัสคำร้อง: ${row.id}</div>
-                <div class="req__meta">🕓 วันที่ส่ง: ${formatDate(row.created_at)}</div>
-              </div>
-              ${statusBadge(row.status)}
-            </div>
-
-            <div class="req__row"><strong>📝 ข้อความ:</strong> ${row.message}</div>
-        `;
-
-        if (row.status === 'เสร็จสิ้น' && row.completed_at) {
-          html += `<div class="req__row"><span class="chip">✅ เสร็จสิ้นเมื่อ: ${formatDate(row.completed_at)}</span></div>`;
-        }
-
-        if (row.status === 'ไม่อนุมัติ' && row.reject_reason) {
-          html += `<div class="req__row"><strong>❗ เหตุผล:</strong> ${row.reject_reason}</div>`;
-        }
-
-        // 🔽 แสดงรูป/วิดีโอที่แนบตอน "เสร็จสิ้น"
-        if (completedFiles.length > 0) {
-          const safeFiles = completedFiles.filter(it => {
-            const raw = typeof it === 'string' ? it : (it?.url || '');
-            const u = String(raw).trim();
-            return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
-          });
-
-          if (safeFiles.length === 0) {
-            html += `
-              <div style="margin-top:8px; color:#64748b; font-size:13px;">
-                📁 ไฟล์แนบ (เสร็จสิ้น) เป็นไฟล์เก่าในเครื่อง จึงไม่สามารถแสดงบนระบบออนไลน์ได้
-              </div>
-            `;
-          } else {
-            const thumbs = safeFiles.slice(0, 4).map(it => {
-              const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
-              const isVideo = (typeof it === 'object' && it.type === 'video') || /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
-
-              return isVideo
-                ? `<video muted class="thumb" playsinline onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์")'>
-                    <source src="${url}" type="video/mp4">
-                  </video>`
-                : `<img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์")'>`;
-            }).join('');
-
-            html += `
-              <div style="margin-top:10px;">
-                <strong>📷 ไฟล์ (เสร็จสิ้น):</strong>
-                <div class="media-grid">${thumbs}</div>
-                <button class="btn-lite" style="margin-top:10px" onclick='showImages(${JSON.stringify(safeFiles)})'>ดูทั้งหมด</button>
-              </div>
-            `;
-          }
-        }
-
-        html += `</article>`;
-        resultsDiv.innerHTML += html;
-      });
-
-      uiHint.textContent = '';
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedPhone = localStorage.getItem("phone");
-
-      if (savedPhone) {
-        // ถ้ามีเบอร์อยู่แล้ว → ซ่อนฟอร์ม กดค้นหาให้อัตโนมัติ
-        document.getElementById("trackForm").style.display = "none";
-        fetchRequests(savedPhone);
-      } else {
-        // ถ้าไม่มีเบอร์ → ให้ผู้ใช้กรอกตามปกติ
-        document.getElementById('trackForm').addEventListener('submit', (e) => {
-          e.preventDefault();
-          const phone = document.getElementById('phone').value;
-          localStorage.setItem("phone", phone); // บันทึกไว้รอบหน้า
-          fetchRequests(phone);
-        });
-      }
-    });
-  </script>
-
-  <script>
-    function normUrl(u) {
-      if (!u) return '';
-      u = String(u).trim();
-
-      // 1) ถ้าเป็น URL เต็ม (Cloudinary/https) ใช้เลย
-      if (/^https?:\/\//i.test(u)) return u;
-
-      // 2) รองรับ /uploads/... และ uploads/...
-      if (u.startsWith('/uploads/')) return encodeURI(u);
-      if (u.startsWith('uploads/')) return encodeURI('/' + u);
-
-      // 3) ถ้าเป็นชื่อไฟล์ล้วน ๆ -> เดาว่าอยู่ใน /uploads
-      return encodeURI('/uploads/' + u);
-    }
-
-    function openMediaModal(files, titleText = 'ไฟล์แนบ') {
-      const modal = document.getElementById('mediaModal');
-      const body  = document.getElementById('mediaModalBody');
-      const title = document.getElementById('mediaModalTitle');
-
-      title.textContent = titleText;
-      body.innerHTML = '';
-
-      const safe = (files || []).filter(it => {
-        const raw = typeof it === 'string' ? it : (it?.url || '');
-        const u = String(raw).trim();
-        return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
-      });
-
-      if (safe.length === 0) {
-        body.innerHTML = `<div style="color:#64748b">ไม่พบไฟล์ที่แสดงได้</div>`;
-      } else {
-        body.innerHTML = safe.map(it => {
-          const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
-          const isVideo =
-            (typeof it === 'object' && it.type === 'video') ||
-            /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
-
-          return isVideo
-            ? `<video controls playsinline preload="metadata">
-                 <source src="${url}">
-               </video>`
-            : `<img src="${url}" alt="">`;
-        }).join('');
-      }
-
-      modal.style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      document.addEventListener('keydown', escToClose);
-    }
-
-    function escToClose(e) {
-      if (e.key === 'Escape') closeMediaModal();
-    }
-
-    function closeMediaModal() {
-      const modal = document.getElementById('mediaModal');
-      modal.style.display = 'none';
-      document.getElementById('mediaModalBody').innerHTML = '';
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', escToClose);
-    }
-
-    function showImages(images) {
-      openMediaModal(images, 'ดูไฟล์ทั้งหมด');
-    }
-
-    function parsePhoto(val) {
-      if (!val) return [];
-      try { return Array.isArray(val) ? val : JSON.parse(val); }
-      catch { return []; }
-    }
-  </script>
-
-  <!-- Media Modal -->
-  <div id="mediaModal" class="media-modal">
-    <div class="media-modal__backdrop" onclick="closeMediaModal()"></div>
-
-    <div class="media-modal__content" role="dialog" aria-modal="true">
-      <div class="media-modal__header">
-        <div id="mediaModalTitle" class="media-modal__title">ไฟล์แนบ</div>
-        <button type="button" class="media-modal__close" onclick="closeMediaModal()">✕</button>
+  if (safeFiles.length === 0) {
+    html += `
+      <div style="margin-top:8px; color:#999; font-size:13px;">
+        📁 ไฟล์แนบ (เสร็จสิ้น) เป็นไฟล์เก่าในเครื่อง จึงไม่สามารถแสดงบนระบบออนไลน์ได้
       </div>
+    `;
+  } else {
+    const thumbs = safeFiles.slice(0, 4).map(it => {
+      const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
+      const isVideo = (typeof it === 'object' && it.type === 'video') || /\.(mp4|mov|avi)(\?|$)/i.test(url);
+      
+        return isVideo
+  ? `<video muted class="thumb" playsinline onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์")'>
+       <source src="${url}" type="video/mp4">
+     </video>`
+  : `<img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์")'>`;
 
-      <div class="media-modal__body">
-        <div id="mediaModalBody" class="media-modal__stack"></div>
+    }).join('');
+
+    html += `
+      <div style="margin-top:8px;">
+        <strong>📷 ไฟล์ (เสร็จสิ้น):</strong>
+        <div class="media-grid">${thumbs}</div>
+        <button style="margin-top:8px" onclick='showImages(${JSON.stringify(safeFiles)})'>ดูทั้งหมด</button>
       </div>
+    `;
+  }
+} 
+    resultsDiv.innerHTML += html;
+  });
+}
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedPhone = localStorage.getItem("phone");
+
+    if (savedPhone) {
+      // ถ้ามีเบอร์อยู่แล้ว → ซ่อนฟอร์ม กดค้นหาให้อัตโนมัติ
+      document.getElementById("trackForm").style.display = "none";
+      fetchRequests(savedPhone);
+    } else {
+      // ถ้าไม่มีเบอร์ → ให้ผู้ใช้กรอกตามปกติ
+      document.getElementById('trackForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const phone = document.getElementById('phone').value;
+        localStorage.setItem("phone", phone); // บันทึกไว้รอบหน้า
+        fetchRequests(phone);
+      });
+    }
+  });
+</script>
+<script>
+  function normUrl(u) {
+  if (!u) return '';
+
+  u = String(u).trim();
+
+  // 1) ถ้าเป็น URL เต็ม (Cloudinary/https) ใช้เลย
+  if (/^https?:\/\//i.test(u)) return u;
+
+  // 2) รองรับ /uploads/... และ uploads/...
+  if (u.startsWith('/uploads/')) return encodeURI(u);
+  if (u.startsWith('uploads/')) return encodeURI('/' + u);
+
+  // 3) ถ้าเป็นชื่อไฟล์ล้วน ๆ (เช่น 1766...on Twitter.jpeg) -> เดาว่าอยู่ใน /uploads
+  return encodeURI('/uploads/' + u);
+}
+
+
+ function openMediaModal(files, titleText = 'ไฟล์แนบ') {
+  const modal = document.getElementById('mediaModal');
+  const body  = document.getElementById('mediaModalBody');
+  const title = document.getElementById('mediaModalTitle');
+
+  title.textContent = titleText;
+  body.innerHTML = '';
+
+  const safe = (files || []).filter(it => {
+    const raw = typeof it === 'string' ? it : (it?.url || '');
+    const u = String(raw).trim();
+    return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
+  });
+
+  if (safe.length === 0) {
+    body.innerHTML = `<div style="color:#64748b">ไม่พบไฟล์ที่แสดงได้</div>`;
+  } else {
+    body.innerHTML = safe.map(it => {
+      const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
+      const isVideo =
+        (typeof it === 'object' && it.type === 'video') ||
+        /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
+
+      return isVideo
+        ? `<video controls playsinline preload="metadata">
+             <source src="${url}">
+           </video>`
+        : `<img src="${url}" alt="">`;
+    }).join('');
+  }
+
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  // ปิดด้วย ESC (คอม) + รองรับบางมือถือ
+  document.addEventListener('keydown', escToClose);
+}
+
+function escToClose(e) {
+  if (e.key === 'Escape') closeMediaModal();
+}
+
+function closeMediaModal() {
+  const modal = document.getElementById('mediaModal');
+  modal.style.display = 'none';
+  document.getElementById('mediaModalBody').innerHTML = '';
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', escToClose);
+}
+
+function showImages(images) {
+  openMediaModal(images, 'ดูไฟล์ทั้งหมด');
+}
+
+
+
+
+  function parsePhoto(val) {
+    if (!val) return [];
+    try { return Array.isArray(val) ? val : JSON.parse(val); }
+    catch { return []; }
+  }
+</script>
+
+
+
+<div id="mediaModal" class="media-modal">
+  <div class="media-modal__backdrop" onclick="closeMediaModal()"></div>
+
+  <div class="media-modal__content" role="dialog" aria-modal="true">
+    <div class="media-modal__header">
+      <div id="mediaModalTitle" class="media-modal__title">ไฟล์แนบ</div>
+      <button type="button" class="media-modal__close" onclick="closeMediaModal()">✕</button>
+    </div>
+
+    <div class="media-modal__body">
+      <div id="mediaModalBody" class="media-modal__stack"></div>
     </div>
   </div>
+</div>
+
+
 
 </body>
 </html>
