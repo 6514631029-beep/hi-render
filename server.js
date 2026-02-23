@@ -79,10 +79,25 @@ db.query('SELECT 1', (err) => {
 
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,          // 587 ต้อง false
+  requireTLS: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  connectionTimeout: 20000,
+  greetingTimeout: 20000,
+  socketTimeout: 30000
+});
+
+// เช็กตอนเริ่ม server
+transporter.verify((err, success) => {
+  if (err) {
+    console.error('❌ SMTP verify error:', err);
+  } else {
+    console.log('✅ SMTP พร้อมใช้งาน');
   }
 });
 
@@ -96,7 +111,7 @@ const sendEmail = (subject, body) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error('❌ ส่งอีเมลไม่สำเร็จ:', error.message);
+      console.error('❌ ส่งอีเมลไม่สำเร็จ:', error);
     } else {
       console.log('✅ ส่งอีเมลสำเร็จ:', info.response);
     }
