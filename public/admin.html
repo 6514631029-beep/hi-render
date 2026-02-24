@@ -397,6 +397,7 @@
       const isDeptSelected = row.department && row.department !== "-";
 
       const tr = document.createElement("tr");
+      tr.setAttribute("data-row-id", row.id);
       tr.innerHTML = `
         <td>${row.name || "-"}</td>
         <td>${row.phone || "-"}</td>
@@ -433,18 +434,48 @@
       tbody.appendChild(tr);
     }
   }
+    function removeRowFromTable(id) {
+      const tr = document.querySelector(`tr[data-row-id="${id}"]`);
+      if (tr) tr.remove();
 
-  async function approve(id) {
-    const res = await fetch(`/approve/${id}`, { method: 'POST' });
-    alert(await res.text());
-    safeLoadData();
+      const tbody = document.querySelector('#data-table tbody');
+      if (!tbody) return;
+
+      const rowCount = tbody.querySelectorAll('tr').length;
+      if (rowCount === 0) {
+        const emptyTr = document.createElement('tr');
+        emptyTr.innerHTML = `
+          <td colspan="8" style="padding:20px; color:#64748b; font-weight:600;">
+            ${currentViewMode === 'today'
+              ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
+              : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+          </td>
+        `;
+        tbody.appendChild(emptyTr);
+      }
+    }
+    async function approve(id) {
+    try {
+      const res = await fetch(`/approve/${id}`, { method: 'POST' });
+      const text = await res.text();
+
+      alert(text);
+
+      // ✅ ลบแถวออกทันทีจากหน้าจอ
+      removeRowFromTable(id);
+
+      // ✅ ค่อย sync ข้อมูลจริงตามหลัง (กันข้อมูลไม่ตรง)
+      setTimeout(() => {
+        safeLoadData();
+      }, 200);
+
+    } catch (err) {
+      console.error('approve error:', err);
+      alert('เกิดข้อผิดพลาดในการอนุมัติ');
+    }
   }
 
-  async function reject(id) {
-    const res = await fetch(`/reject/${id}`, { method: 'POST' });
-    alert(await res.text());
-    safeLoadData();
-  }
+ 
 
   async function setDept(id, dept) {
     const res = await fetch(`/set-department/${id}`, {
@@ -579,28 +610,46 @@ function showImages(images) {
   }
 
   async function submitReject() {
-    const reason = document.getElementById('reject-reason').value.trim();
+  const reason = document.getElementById('reject-reason').value.trim();
 
-    if (!reason) {
-      alert("กรุณากรอกเหตุผลก่อนส่ง");
-      return;
-    }
+  if (!reason) {
+    alert("กรุณากรอกเหตุผลก่อนส่ง");
+    return;
+  }
 
-    const res = await fetch(`/reject/${currentRejectId}`, {
+  // ✅ เก็บ id ไว้ก่อน เผื่อ currentRejectId เปลี่ยน
+  const rejectId = currentRejectId;
+
+  try {
+    const res = await fetch(`/reject/${rejectId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reason })
     });
 
     if (res.redirected) {
-      window.location.href = res.url; // ให้เบราว์เซอร์ redirect ตาม
+      window.location.href = res.url;
+      return;
     } else {
       const text = await res.text();
-      alert(text); // ถ้ามีข้อความธรรมดา
+      alert(text);
     }
+
     closeRejectModal();
-    safeLoadData();
+
+    // ✅ ลบแถวออกทันทีจากตาราง
+    removeRowFromTable(rejectId);
+
+    // ✅ sync ข้อมูลจริงตามหลัง
+    setTimeout(() => {
+      safeLoadData();
+    }, 200);
+
+  } catch (err) {
+    console.error('submitReject error:', err);
+    alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
   }
+}
 </script>
 
 
