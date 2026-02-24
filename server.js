@@ -403,7 +403,35 @@ app.post('/submit', (req, res) => {
     }
   });
 });
+app.get('/data-today', (req, res) => {
+  // 🔒 ป้องกันคนไม่ได้ล็อกอินเข้ามาเรียก API นี้ (แนะนำ)
+  if (!req.session.loggedIn) {
+    return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อน' });
+  }
 
+  const department = req.query.department;
+  let sql = `
+    SELECT * FROM requests
+    WHERE processed = false
+      AND DATE(created_at) = CURDATE()
+  `;
+  const params = [];
+
+  if (department) {
+    sql += ' AND department = ?';
+    params.push(department);
+  }
+
+  sql += ' ORDER BY id DESC';
+
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error('❌ /data-today error:', err);
+      return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลคำร้องวันนี้' });
+    }
+    res.json(results);
+  });
+});
 app.get('/data', (req, res) => {
   const department = req.query.department;
   let sql = 'SELECT * FROM requests WHERE processed = false';

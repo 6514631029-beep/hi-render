@@ -250,8 +250,26 @@
     🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
   </div>
 
-  <div style="display:flex; gap:10px; align-items:center;">
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <span id="view-mode-badge" style="
+      background:#e2e8f0;
+      color:#0f172a;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:13px;
+    ">โหมด: คำร้องใหม่ทั้งหมด</span>
+
+    <button class="btn" id="btn-show-all" onclick="setViewMode('all')" style="background:#e2e8f0; color:#0f172a;">
+      📋 คำร้องทั้งหมด
+    </button>
+
+    <button class="btn" id="btn-show-today" onclick="setViewMode('today')" style="background:#dbeafe; color:#1d4ed8;">
+      📅 คำร้องวันนี้
+    </button>
+
     <button class="btn" id="btn-refresh" onclick="manualRefresh()">รีเฟรชตอนนี้</button>
+
     <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
       <input type="checkbox" id="auto-refresh-toggle" checked />
       รีเฟรชอัตโนมัติ
@@ -279,19 +297,56 @@
   </div>
 
   <script>
+  let currentViewMode = 'all'; // all | today
+
+  function updateViewModeUI() {
+    const badge = document.getElementById('view-mode-badge');
+    const btnAll = document.getElementById('btn-show-all');
+    const btnToday = document.getElementById('btn-show-today');
+
+    if (badge) {
+      badge.textContent = currentViewMode === 'today'
+        ? 'โหมด: คำร้องวันนี้'
+        : 'โหมด: คำร้องใหม่ทั้งหมด';
+    }
+
+    if (btnAll) {
+      btnAll.style.background = currentViewMode === 'all' ? '#15563b' : '#e2e8f0';
+      btnAll.style.color = currentViewMode === 'all' ? '#fff' : '#0f172a';
+    }
+
+    if (btnToday) {
+      btnToday.style.background = currentViewMode === 'today' ? '#1d4ed8' : '#dbeafe';
+      btnToday.style.color = currentViewMode === 'today' ? '#fff' : '#1d4ed8';
+    }
+  }
+
+  async function setViewMode(mode) {
+    currentViewMode = mode === 'today' ? 'today' : 'all';
+    updateViewModeUI();
+    await safeLoadData();
+  }
+
   async function loadData() {
-    const res = await fetch('/data?_=' + Date.now()); // ป้องกัน cache
+    const endpoint = currentViewMode === 'today' ? '/data-today' : '/data';
+    const res = await fetch(`${endpoint}?_=${Date.now()}`); // ป้องกัน cache
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `โหลดข้อมูลไม่สำเร็จ (${res.status})`);
+    }
+
     const data = await res.json();
-    console.log("📌 โหลดข้อมูลใหม่:", data);
+    console.log(`📌 โหลดข้อมูลใหม่ [${currentViewMode}]:`, data);
 
     const tbody = document.querySelector("tbody");
     tbody.innerHTML = "";
 
     data.forEach(row => {
-      const statusText = row.status === 'pending' ? 'กำลังตรวจสอบ' : (row.status || '-');
       const mapLink = row.latitude && row.longitude
         ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
         : "-";
+
       const createdAt = row.created_at ? new Date(row.created_at) : null;
       const createdAtFormatted = createdAt
         ? createdAt.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
@@ -306,8 +361,6 @@
         } else {
           files = [];
         }
-
-
       } catch (e) {
         console.error('⚠️ JSON parse error:', e);
         files = [];
@@ -317,9 +370,8 @@
       if (files.length > 0) {
         const first = files[0];
         const rawUrl = typeof first === 'string' ? first : first.url;
-        const firstUrl = encodeURI(rawUrl); // <== แก้ตรงนี้
-
-        const firstType = first.type || "";
+        const firstUrl = encodeURI(rawUrl);
+        const firstType = (typeof first === 'object' && first.type) ? first.type : "";
 
         const firstElement = firstType === 'video'
           ? `<video controls style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
@@ -340,14 +392,8 @@
             ดูทั้งหมด
           </button>`;
 
-        
-
         fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
       }
-
-
-      
-
 
       const isDeptSelected = row.department && row.department !== "-";
 
@@ -358,13 +404,11 @@
         <td>${row.message || "-"}</td>
         <td>${fileLinks || "-"}</td>
         <td>${row.department || "-"}</td>
-        
         <td>${mapLink}</td>
         <td>${createdAtFormatted}</td>
         <td>
           <button class="btn approve" onclick="approve(${row.id})" ${!isDeptSelected ? 'disabled' : ''}>✅ อนุมัติ</button><br>
           <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
-
 
           <select onchange="setDept(${row.id}, this.value)">
             <option value="">เลือกแผนก</option>
@@ -374,11 +418,21 @@
             <option value="ไฟฟ้า" ${row.department === 'ไฟฟ้า' ? 'selected' : ''}>ไฟฟ้า</option>
             <option value="อื่นๆ" ${row.department === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
           </select><br>
-    
         </td>
       `;
       tbody.appendChild(tr);
     });
+
+    // กรณีไม่มีข้อมูล
+    if (data.length === 0) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td colspan="8" style="padding:20px; color:#64748b; font-weight:600;">
+          ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
   }
 
   async function approve(id) {
@@ -387,13 +441,11 @@
     safeLoadData();
   }
 
-
   async function reject(id) {
     const res = await fetch(`/reject/${id}`, { method: 'POST' });
     alert(await res.text());
     safeLoadData();
   }
-
 
   async function setDept(id, dept) {
     const res = await fetch(`/set-department/${id}`, {
@@ -415,7 +467,6 @@
     alert(await res.text());
     safeLoadData();
   }
-
 </script>
 <script>
   let autoTimer = null;
@@ -459,6 +510,7 @@
 
   // เริ่มทำงานเมื่อหน้าโหลดเสร็จ
   window.addEventListener('load', () => {
+    updateViewModeUI();
     safeLoadData();         // โหลดครั้งแรก + ตั้งเวลา
     startAutoRefresh(15000);
 
