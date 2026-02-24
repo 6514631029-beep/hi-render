@@ -152,7 +152,7 @@
     
     <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
 
-    <form action="/submit" method="post" enctype="multipart/form-data">
+    <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data">
       <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
       <div id="map"></div>
 
@@ -174,7 +174,10 @@
       <textarea name="message" rows="5" required></textarea>
 
       <label>แนบรูปภาพหรือวิดีโอ (หลายไฟล์ได้):</label>
-      <input type="file" name="mediaFiles" accept="image/*,video/*" multiple>
+      <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*">
+      <small style="color:#666; display:block; margin-top:6px;">
+        อัปโหลดได้สูงสุด 10 ไฟล์ | รูปไม่เกิน 10MB/ไฟล์ | วิดีโอไม่เกิน 50MB/ไฟล์ | รวมไม่เกิน 100MB
+      </small>
 
       <button type="submit">📩 ส่งคำร้อง</button>
       <button type="button" onclick="logout()" style="margin-top: 20px; background: #e53935;">🚪 ออกจากระบบ</button>
@@ -241,5 +244,59 @@
     });
   
   </script>
+  <script>
+  // ✅ ตรวจไฟล์ก่อน submit (ฝั่งหน้าเว็บ)
+  document.getElementById('complaintForm').addEventListener('submit', function (e) {
+    const input = document.getElementById('mediaFiles');
+    const files = Array.from(input.files || []);
+
+    const MAX_FILES = 10;
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;   // 10MB
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024;   // 50MB
+    const MAX_TOTAL_SIZE = 100 * 1024 * 1024;  // 100MB
+
+    // 1) จำนวนไฟล์
+    if (files.length > MAX_FILES) {
+      e.preventDefault();
+      alert(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
+      return;
+    }
+
+    // 2) ชนิด/ขนาดไฟล์ + รวมทั้งหมด
+    let totalSize = 0;
+
+    for (const f of files) {
+      totalSize += f.size || 0;
+
+      const isImage = f.type.startsWith('image/');
+      const isVideo = f.type.startsWith('video/');
+
+      if (!isImage && !isVideo) {
+        e.preventDefault();
+        alert(`ไฟล์ "${f.name}" ไม่ใช่รูปภาพหรือวิดีโอ`);
+        return;
+      }
+
+      if (isImage && f.size > MAX_IMAGE_SIZE) {
+        e.preventDefault();
+        alert(`ไฟล์รูป "${f.name}" มีขนาดเกิน 10MB`);
+        return;
+      }
+
+      if (isVideo && f.size > MAX_VIDEO_SIZE) {
+        e.preventDefault();
+        alert(`ไฟล์วิดีโอ "${f.name}" มีขนาดเกิน 50MB`);
+        return;
+      }
+    }
+
+    if (totalSize > MAX_TOTAL_SIZE) {
+      e.preventDefault();
+      alert('ขนาดไฟล์รวมเกิน 100MB กรุณาลดจำนวนหรือขนาดไฟล์');
+      return;
+    }
+  });
+</script>
+
 </body>
 </html>

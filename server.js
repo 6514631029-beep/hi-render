@@ -40,10 +40,114 @@ function uploadBufferToCloudinary(buffer, mimetype) {
 
 
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB (ปรับได้)
+// =========================
+// File Upload Limits Config
+// =========================
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;      // 10MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;      // 50MB
+const MAX_TOTAL_SIZE_SUBMIT = 100 * 1024 * 1024;   // 100MB (รวมทั้งหมด /submit)
+const MAX_TOTAL_SIZE_COMPLETE = 50 * 1024 * 1024;  // 50MB (รวมทั้งหมด /complete)
+
+const ALLOWED_MIME_TYPES = [
+  // Images
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+
+  // Videos
+  'video/mp4',
+  'video/quicktime', // .mov
+  'video/webm'
+  // ถ้าคุณอยากรับ mkv เพิ่มค่อยใส่ 'video/x-matroska'
+];
+
+const memoryStorage = multer.memoryStorage();
+
+// กรองชนิดไฟล์
+function commonFileFilter(req, file, cb) {
+  if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    return cb(new Error(`ไม่รองรับไฟล์ประเภท ${file.mimetype}`));
+  }
+  cb(null, true);
+}
+
+// สำหรับ /submit (ประชาชนส่งคำร้อง)
+const uploadSubmit = multer({
+  storage: memoryStorage,
+  limits: {
+    files: 10,               // ✅ สูงสุด 10 ไฟล์
+    fileSize: MAX_VIDEO_SIZE // ✅ จำกัดต่อไฟล์สูงสุด 50MB
+  },
+  fileFilter: commonFileFilter
 });
+
+// สำหรับ /complete-with-media/:id (แนบไฟล์ตอนเสร็จสิ้น)
+const uploadComplete = multer({
+  storage: memoryStorage,
+  limits: {
+    files: 5,                // ✅ สูงสุด 5 ไฟล์
+    fileSize: MAX_VIDEO_SIZE // ✅ จำกัดต่อไฟล์สูงสุด 50MB
+  },
+  fileFilter: commonFileFilter
+});
+
+// เช็กละเอียด (แยกรูป/วิดีโอ + ขนาดรวม)
+function validateFiles(files = [], options = {}) {
+  const {
+    maxTotalSize = MAX_TOTAL_SIZE_SUBMIT,
+    maxImageSize = MAX_IMAGE_SIZE,
+    maxVideoSize = MAX_VIDEO_SIZE
+  } = options;
+
+  let totalSize = 0;
+
+  for (const f of files) {
+    totalSize += (f.size || 0);
+
+    const isImage = f.mimetype && f.mimetype.startsWith('image/');
+    const isVideo = f.mimetype && f.mimetype.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      throw new Error(`ไฟล์ "${f.originalname}" ไม่ใช่รูปภาพหรือวิดีโอ`);
+    }
+
+    if (isImage && f.size > maxImageSize) {
+      throw new Error(`ไฟล์รูป "${f.originalname}" มีขนาดเกิน 10MB`);
+    }
+
+    if (isVideo && f.size > maxVideoSize) {
+      throw new Error(`ไฟล์วิดีโอ "${f.originalname}" มีขนาดเกิน 50MB`);
+    }
+  }
+
+  if (totalSize > maxTotalSize) {
+    const maxMB = Math.round(maxTotalSize / (1024 * 1024));
+    throw new Error(`ขนาดไฟล์รวมเกิน ${maxMB}MB กรุณาลดจำนวนหรือขนาดไฟล์`);
+  }
+
+  return true;
+}
+
+// แปลง Multer error เป็นข้อความไทย
+function handleMulterError(err, res) {
+  console.error('Multer error:', err);
+
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).send('ไฟล์มีขนาดใหญ่เกินกำหนด (สูงสุด 50MB ต่อไฟล์)');
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).send('จำนวนไฟล์เกินที่ระบบกำหนด');
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).send('ชื่อฟิลด์ไฟล์ไม่ถูกต้อง');
+    }
+    return res.status(400).send(`อัปโหลดไฟล์ไม่สำเร็จ: ${err.code}`);
+  }
+
+  return res.status(400).send(err.message || 'อัปโหลดไฟล์ไม่สำเร็จ');
+}
 
 
 app.use(express.urlencoded({ extended: true }));
@@ -228,68 +332,76 @@ app.use('/admin-sp', (req, res, next) => {
   }
   next();
 });
-app.post('/submit', upload.array('mediaFiles'), async (req, res) => {
-  try {
-    console.log('📨 รับข้อมูลใหม่:', JSON.stringify(req.body, null, 2));
-    console.log('🖼️ req.files:', req.files);
+app.post('/submit', (req, res) => {
+  uploadSubmit.array('mediaFiles', 10)(req, res, async (err) => {
+    if (err) return handleMulterError(err, res);
 
-    const files = req.files || [];
-    const { name, phone, address, message } = req.body;
-    const latitude = req.body.latitude ? parseFloat(req.body.latitude) : null;
-    const longitude = req.body.longitude ? parseFloat(req.body.longitude) : null;
+    try {
+      console.log('📨 รับข้อมูลใหม่:', JSON.stringify(req.body, null, 2));
+      console.log('🖼️ req.files:', req.files);
 
-    const category = '';
+      const files = req.files || [];
 
-    if (!name || !phone || !address || !message) {
-      return res.status(400).send('❌ ข้อมูลไม่ครบ');
-    }
-    // ✅ อัปโหลดทุกไฟล์ขึ้น Cloudinary
-    const uploaded = await Promise.all(
-      files.map(async (f) => {
-        const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
+      // ✅ ตรวจขนาดรวม + แยกรูป/วิดีโอ
+      validateFiles(files, {
+        maxTotalSize: MAX_TOTAL_SIZE_SUBMIT,
+        maxImageSize: MAX_IMAGE_SIZE,
+        maxVideoSize: MAX_VIDEO_SIZE
+      });
 
-        return {
-          url: result.secure_url,         // ✅ URL เต็ม (ดูรูปได้ตลอด)
-          public_id: result.public_id,    // ✅ ไว้ลบในอนาคต
-          type: f.mimetype.startsWith('video') ? 'video' :
-                f.mimetype.startsWith('image') ? 'image' : 'raw'
+      const { name, phone, address, message } = req.body;
+      const latitude = req.body.latitude ? parseFloat(req.body.latitude) : null;
+      const longitude = req.body.longitude ? parseFloat(req.body.longitude) : null;
 
-        };
-      })
-    );
+      const category = '';
 
-   const photoUrl = JSON.stringify(uploaded);
-
-    const sql = `
-      INSERT INTO requests 
-      (name, phone, address, category, message, latitude, longitude, photo)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [name, phone, address, category, message, latitude, longitude, photoUrl];
-
-    db.query(sql, values, (err, result) => {
-      if (err) {
-        console.error('❌ บันทึกข้อมูลล้มเหลว:', err);
-        return res.status(500).send('❌ บันทึกไม่สำเร็จ');
+      if (!name || !phone || !address || !message) {
+        return res.status(400).send('❌ ข้อมูลไม่ครบ');
       }
 
-      // ✅ เพิ่มตรงนี้: ส่งอีเมลแจ้งเตือน
-      sendEmail(
-        '📬 แจ้งเตือนคำร้องใหม่',
-        `ชื่อ: ${name}\nเบอร์โทร: ${phone}\nที่อยู่: ${address}\nข้อความ: ${message}`
+      // ✅ อัปโหลดทุกไฟล์ขึ้น Cloudinary
+      const uploaded = await Promise.all(
+        files.map(async (f) => {
+          const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
+
+          return {
+            url: result.secure_url,
+            public_id: result.public_id,
+            type: f.mimetype.startsWith('video') ? 'video' :
+                  f.mimetype.startsWith('image') ? 'image' : 'raw'
+          };
+        })
       );
 
-      console.log('✅ บันทึกคำร้อง:', JSON.stringify(result, null, 2));
-      return res.redirect('/submit-success.html');
+      const photoUrl = JSON.stringify(uploaded);
 
-        
-    });
+      const sql = `
+        INSERT INTO requests 
+        (name, phone, address, category, message, latitude, longitude, photo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      const values = [name, phone, address, category, message, latitude, longitude, photoUrl];
 
+      db.query(sql, values, (err, result) => {
+        if (err) {
+          console.error('❌ บันทึกข้อมูลล้มเหลว:', err);
+          return res.status(500).send('❌ บันทึกไม่สำเร็จ');
+        }
 
-  } catch (error) {
-    console.error('💥 เกิดข้อผิดพลาดไม่คาดคิด:', error);
-    res.status(500).send('💥 เกิดข้อผิดพลาดไม่คาดคิด');
-  }
+        sendEmail(
+          '📬 แจ้งเตือนคำร้องใหม่',
+          `ชื่อ: ${name}\nเบอร์โทร: ${phone}\nที่อยู่: ${address}\nข้อความ: ${message}\nจำนวนไฟล์แนบ: ${files.length} ไฟล์`
+        );
+
+        console.log('✅ บันทึกคำร้อง:', JSON.stringify(result, null, 2));
+        return res.redirect('/submit-success.html');
+      });
+
+    } catch (error) {
+      console.error('💥 เกิดข้อผิดพลาดไม่คาดคิด:', error);
+      return res.status(400).send(error.message || '💥 เกิดข้อผิดพลาดไม่คาดคิด');
+    }
+  });
 });
 
 app.get('/data', (req, res) => {
@@ -549,68 +661,82 @@ app.post('/set-status/:id', async (req, res) => {
 // ✅ เพิ่มฟังก์ชันเปลี่ยนสถานะ
 // ✅ เปลี่ยนสถานะ + ถ้าเป็น "กำลังดำเนินการ" ให้คัดลอกไป inprogress
 // เปลี่ยนสถานะ + คัดลอกเข้า bucket ที่ตรงสถานะ + ลบออกจาก bucket อื่น
-app.post('/complete-with-media/:id', upload.array('extraFiles'), async (req, res) => {
-  try {
-    const id = req.params.id;
-    const files = req.files || [];
+app.post('/complete-with-media/:id', (req, res) => {
+  uploadComplete.array('extraFiles', 5)(req, res, async (err) => {
+    if (err) return handleMulterError(err, res);
 
-    // 1) ดึงแถวเดิม
-    const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
-    }
-    const r = rows[0];
+    try {
+      const id = req.params.id;
+      const files = req.files || [];
 
-    // 2) แปลง photo เดิม -> array
-    let list = [];
-    try { list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]'); } catch { list = []; }
+      // ✅ ถ้าต้องการบังคับให้ต้องแนบไฟล์อย่างน้อย 1 ไฟล์
+      if (!files.length) {
+        return res.status(400).json({ success: false, message: '❌ กรุณาเลือกไฟล์อย่างน้อย 1 ไฟล์' });
+      }
 
-    // 3) อัปโหลดไฟล์ใหม่ขึ้น Cloudinary
-    const uploadedExtra = await Promise.all(
-      files.map(async (f) => {
-        const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
-        return {
-          url: result.secure_url,
-          public_id: result.public_id,
-          type: f.mimetype?.startsWith('video') ? 'video'
-              : f.mimetype?.startsWith('image') ? 'image'
-              : 'raw',
-
-          from: 'completed',
-          tag: 'completed'
-        };
-      })
-    );
-
-    // 4) รวมของเดิม + ของใหม่
-    const merged = [...list, ...uploadedExtra];
-
-    // 5) อัปเดตตารางหลัก
-    await db.promise().query(
-      `UPDATE requests SET status='เสร็จสิ้น', photo=?, completed_at=NOW() WHERE id=?`,
-      [JSON.stringify(merged), id]
-    );
-
-    // 6) ดึงข้อมูลล่าสุด แล้ว upsert ไป completed + ลบจาก bucket อื่น
-    const [rows2] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
-    if (rows2 && rows2.length > 0) {
-      const r2 = rows2[0];
-
-      await new Promise((resolve, reject) => {
-        upsertToBucket('completed', r2, (err) => err ? reject(err) : resolve());
+      // ✅ ตรวจขนาดรวม + แยกรูป/วิดีโอ
+      validateFiles(files, {
+        maxTotalSize: MAX_TOTAL_SIZE_COMPLETE,
+        maxImageSize: MAX_IMAGE_SIZE,
+        maxVideoSize: MAX_VIDEO_SIZE
       });
 
-      await new Promise((resolve) => removeFromOtherBuckets(r2.id, 'completed', resolve));
+      // 1) ดึงแถวเดิม
+      const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
+      }
+      const r = rows[0];
+
+      // 2) แปลง photo เดิม -> array
+      let list = [];
+      try { list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]'); } catch { list = []; }
+
+      // 3) อัปโหลดไฟล์ใหม่ขึ้น Cloudinary
+      const uploadedExtra = await Promise.all(
+        files.map(async (f) => {
+          const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
+          return {
+            url: result.secure_url,
+            public_id: result.public_id,
+            type: f.mimetype?.startsWith('video') ? 'video'
+                : f.mimetype?.startsWith('image') ? 'image'
+                : 'raw',
+            from: 'completed',
+            tag: 'completed'
+          };
+        })
+      );
+
+      // 4) รวมของเดิม + ของใหม่
+      const merged = [...list, ...uploadedExtra];
+
+      // 5) อัปเดตตารางหลัก
+      await db.promise().query(
+        `UPDATE requests SET status='เสร็จสิ้น', photo=?, completed_at=NOW() WHERE id=?`,
+        [JSON.stringify(merged), id]
+      );
+
+      // 6) ดึงข้อมูลล่าสุด แล้ว upsert ไป completed + ลบจาก bucket อื่น
+      const [rows2] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
+      if (rows2 && rows2.length > 0) {
+        const r2 = rows2[0];
+
+        await new Promise((resolve, reject) => {
+          upsertToBucket('completed', r2, (err) => err ? reject(err) : resolve());
+        });
+
+        await new Promise((resolve) => removeFromOtherBuckets(r2.id, 'completed', resolve));
+      }
+
+      return res.json({ success: true, message: '✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' });
+
+    } catch (error) {
+      console.error('❌ complete-with-media error:', error);
+      return res.status(400).json({ success: false, message: error.message || '❌ เกิดข้อผิดพลาดใน complete-with-media' });
     }
-
-    return res.json({ success: true, message: '✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' });
-
-  } catch (error) {
-    console.error('❌ complete-with-media error:', error);
-    return res.status(500).json({ success: false, message: '❌ เกิดข้อผิดพลาดใน complete-with-media' });
-  }
+  });
 });
-
 // ✅ ลบเฉพาะไฟล์ที่แนบตอน "เสร็จสิ้น"
 // ✅ ลบ “เฉพาะไฟล์ที่แนบตอนเสร็จสิ้น” + ซิงก์ตาราง completed
 app.post('/delete-completed-file/:id', async (req, res) => {
