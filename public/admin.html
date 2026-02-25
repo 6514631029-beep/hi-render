@@ -358,7 +358,51 @@ tr.row-new {
       console.warn('บันทึก seen ids ไม่สำเร็จ:', e);
     }
   }
+  function getActiveNewKey() {
+  return currentViewMode === 'today'
+    ? 'admin_active_new_ids_today_v1'
+    : 'admin_active_new_ids_all_v1';
+}
 
+  function getActiveNewIds() {
+    try {
+      const raw = localStorage.getItem(getActiveNewKey());
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.map(Number).filter(Boolean) : [];
+    } catch (e) {
+      console.warn('อ่าน active new ids ไม่สำเร็จ:', e);
+      return [];
+    }
+  }
+
+  function saveActiveNewIds(ids) {
+    try {
+      const unique = [...new Set(ids.map(Number).filter(Boolean))];
+      localStorage.setItem(getActiveNewKey(), JSON.stringify(unique));
+    } catch (e) {
+      console.warn('บันทึก active new ids ไม่สำเร็จ:', e);
+    }
+  }
+
+  function removeFromActiveNewIds(id) {
+    const target = Number(id);
+    const allKey = 'admin_active_new_ids_all_v1';
+    const todayKey = 'admin_active_new_ids_today_v1';
+
+    [allKey, todayKey].forEach((key) => {
+      try {
+        const raw = localStorage.getItem(key);
+        const arr = raw ? JSON.parse(raw) : [];
+        const next = (Array.isArray(arr) ? arr : [])
+          .map(Number)
+          .filter(x => x && x !== target);
+
+        localStorage.setItem(key, JSON.stringify([...new Set(next)]));
+      } catch (e) {
+        console.warn('ลบ active new id ไม่สำเร็จ:', e);
+      }
+    });
+  }
   function updateNewBanner(count) {
     const el = document.getElementById('new-banner');
     if (!el) return;
@@ -386,6 +430,8 @@ tr.row-new {
   function resetSeenNewState() {
     localStorage.removeItem('admin_seen_ids_all_v1');
     localStorage.removeItem('admin_seen_ids_today_v1');
+    localStorage.removeItem('admin_active_new_ids_all_v1');
+    localStorage.removeItem('admin_active_new_ids_today_v1');
     isFirstLoadByMode = { all: true, today: true };
     updateNewBanner(0);
     alert('รีเซ็ตสถานะ "ข้อมูลใหม่" แล้ว');
@@ -437,6 +483,7 @@ tr.row-new {
 
     // ===== NEW: ตรวจข้อมูลใหม่ =====
     const seenIds = new Set(getSeenIds());
+    const activeNewIds = new Set(getActiveNewIds());
     const isFirstLoad = isFirstLoadByMode[currentViewMode];
     let newCount = 0;
 
@@ -445,7 +492,15 @@ tr.row-new {
 
     data.forEach(row => {
       const rowId = Number(row.id);
-      const isNewRow = !isFirstLoad && rowId && !seenIds.has(rowId);
+
+      // ถ้าไม่ใช่ครั้งแรกของโหมดนี้ และ row นี้ยังไม่เคยเห็น -> เพิ่มเข้า activeNewIds
+      if (!isFirstLoad && rowId && !seenIds.has(rowId)) {
+        activeNewIds.add(rowId);
+      }
+
+      // จะถือว่า "ใหม่" ถ้ายังอยู่ใน activeNewIds
+      const isNewRow = !!(rowId && activeNewIds.has(rowId));
+
       if (isNewRow) newCount++;
 
       const mapLink = row.latitude && row.longitude
@@ -556,6 +611,8 @@ tr.row-new {
     ]);
     saveSeenIds([...merged]);
 
+    saveActiveNewIds([...activeNewIds]);
+
     isFirstLoadByMode[currentViewMode] = false;
   }
 
@@ -586,7 +643,7 @@ tr.row-new {
       const text = await res.text();
 
       alert(text);
-
+      removeFromActiveNewIds(id);
       removeRowFromTable(id);
 
       setTimeout(() => {
@@ -607,6 +664,7 @@ tr.row-new {
     });
     const data = await res.json();
     alert(data.message || 'เปลี่ยนแผนกแล้ว');
+    removeFromActiveNewIds(id);
     safeLoadData();
   }
 
@@ -757,10 +815,12 @@ function showImages(images) {
       alert(text);
     }
 
-    closeRejectModal();
+   closeRejectModal();
 
-    // ✅ ลบแถวออกทันทีจากตาราง
-    removeRowFromTable(rejectId);
+   removeFromActiveNewIds(rejectId);
+
+   // ✅ ลบแถวออกทันทีจากตาราง
+   removeRowFromTable(rejectId);
 
     // ✅ sync ข้อมูลจริงตามหลัง
     setTimeout(() => {
