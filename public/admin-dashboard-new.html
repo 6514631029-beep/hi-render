@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📊 Dashboard คำร้อง (ใหม่)</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+
+    :root{
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --line: #e6ebf2;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #5b4bff;
+      --primary-2: #7c3aed;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #0ea5e9;
+      --shadow: 0 10px 30px rgba(17,24,39,.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body{
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(180deg, #edf3ff 0%, #f7f9fc 100%);
+      color: var(--text);
+    }
+
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background: linear-gradient(180deg, #6a5cff 0%, #4f46e5 100%);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 18px;
+      height: calc(100vh - 36px);
+    }
+
+    .logo-dot{
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.18);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .side-btn{
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+      transition: .2s ease;
+      text-decoration: none;
+    }
+    .side-btn:hover,
+    .side-btn.active{
+      background: rgba(255,255,255,.22);
+      transform: translateY(-1px);
+    }
+
+    .side-spacer{ flex: 1; }
+
+    /* Main */
+    .main{
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
+    }
+
+    .content{
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    /* Topbar */
+    .topbar{
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-box{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f7f9fc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .search-box input{
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .ghost-btn{
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .ghost-btn:hover{ background: #f9fbff; }
+    .top-right{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .date-pill{
+      font-size: 13px;
+      color: var(--muted);
+      background: #f7f9fc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 12px;
+      white-space: nowrap;
+    }
+    .admin-pill{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 7px 10px;
+    }
+    .avatar{
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a5cff, #8b5cf6);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .admin-meta{
+      line-height: 1.05;
+    }
+    .admin-meta .name{
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .admin-meta .role{
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Cards */
+    .section-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+    .section-head h3{
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .section-head small{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .cards-wrap{
+      padding: 16px;
+    }
+    .cards-grid{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat-card{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      min-height: 112px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+    .stat-title{
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .stat-value{
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-sub{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .badge-icon{
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      color: white;
+    }
+    .bg-primary{ background: linear-gradient(135deg, #5b4bff, #7c3aed); }
+    .bg-success{ background: linear-gradient(135deg, #10b981, #16a34a); }
+    .bg-warning{ background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .bg-info{ background: linear-gradient(135deg, #06b6d4, #0ea5e9); }
+    .bg-danger{ background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .bg-slate{ background: linear-gradient(135deg, #64748b, #475569); }
+
+    /* Table */
+    .table-panel{
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .table-toolbar{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .table-toolbar h4{
+      margin: 0;
+      font-size: 18px;
+    }
+    .table-tools{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .table-wrap{
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+    }
+    th, td{
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th{
+      background: #f8faff;
+      color: #475569;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tr:hover td{ background: #fafcff; }
+
+    .status-chip{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .chip-pending{ background: #fff7ed; color: #b45309; border-color: #fed7aa; }
+    .chip-progress{ background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .chip-done{ background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .chip-rejected{ background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .chip-wait{ background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+
+    .dept-chip{
+      background: #f5f3ff;
+      color: #5b21b6;
+      border: 1px solid #ddd6fe;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .text-truncate{
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    }
+
+    .link-btn{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .link-btn:hover{ background: #f8faff; }
+
+    /* Right side */
+    .side-right{
+      display: grid;
+      gap: 18px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .side-box{
+      padding: 14px;
+    }
+    .side-box h4{
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .mini-list{
+      display: grid;
+      gap: 10px;
+    }
+    .mini-item{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff;
+    }
+    .mini-item .top{
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .mini-item .title{
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .mini-item .meta{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .mini-item .mini-status{
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .summary-bars{
+      display: grid;
+      gap: 10px;
+    }
+    .bar-row{
+      display: grid;
+      gap: 6px;
+    }
+    .bar-label{
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .bar-track{
+      height: 10px;
+      background: #eef2f7;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #e5eaf1;
+    }
+    .bar-fill{
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width .35s ease;
+    }
+
+    .dept-grid{
+      display: grid;
+      gap: 10px;
+    }
+    .dept-row{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 13px;
+    }
+    .dept-row strong{ font-size: 14px; }
+
+    .empty{
+      color: var(--muted);
+      text-align: center;
+      padding: 18px 10px;
+      font-size: 13px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      background: #fafcff;
+    }
+
+    .loading-dot{
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--warning);
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 1.2s infinite;
+      vertical-align: middle;
+    }
+    @keyframes pulse{
+      0%,100%{ opacity: .35; transform: scale(.85); }
+      50%{ opacity: 1; transform: scale(1); }
+    }
+
+    .footer-note{
+      padding: 0 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px){
+      .main{
+        grid-template-columns: 1fr;
+      }
+      .side-right{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .cards-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px){
+      .app{
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .sidebar{
+        position: static;
+        height: auto;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        border-radius: 18px;
+        padding: 10px;
+        overflow-x: auto;
+      }
+      .logo-dot{ margin: 0; min-width: 42px; }
+      .side-btn{ min-width: 46px; width: 46px; height: 46px; border-radius: 12px; }
+      .side-spacer{ display: none; }
+
+      .topbar{
+        grid-template-columns: 1fr;
+      }
+      .top-right{
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .cards-grid{
+        grid-template-columns: 1fr;
+      }
+      .side-right{
+        grid-template-columns: 1fr;
+      }
+      .stat-value{
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo-dot">🏛️</div>
+
+      <a class="side-btn active" href="/admin-dashboard-new.html" title="Dashboard">📊</a>
+      <a class="side-btn" href="/admin.html" title="จัดการคำร้องหลัก">📋</a>
+      <a class="side-btn" href="/approved-all.html" title="อนุมัติแล้ว">✅</a>
+      <a class="side-btn" href="/rejected.html" title="ไม่อนุมัติ">❌</a>
+      <a class="side-btn" href="/processed.html" title="Processed">🧩</a>
+      <a class="side-btn" href="/track.html" title="ติดตามคำร้อง">🔎</a>
+
+      <div class="side-spacer"></div>
+
+      <button class="side-btn" title="รีเฟรชข้อมูล" onclick="refreshDashboard()">🔄</button>
+      <a class="side-btn" href="/logout" title="ออกจากระบบ">↩️</a>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="content">
+        <!-- Topbar -->
+        <section class="panel topbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input
+              id="globalSearch"
+              type="text"
+              placeholder="ค้นหาชื่อ / เบอร์ / ข้อความ / แผนก..."
+              oninput="applySearch()"
+            />
+          </div>
+
+          <button class="ghost-btn" onclick="refreshDashboard()">
+            <span id="refreshState"><span class="loading-dot" style="display:none"></span>รีเฟรชข้อมูล</span>
+          </button>
+
+          <div class="top-right">
+            <div class="date-pill" id="todayLabel">--</div>
+            <div class="admin-pill">
+              <div class="avatar">AD</div>
+              <div class="admin-meta">
+                <div class="name">Admin Dashboard</div>
+                <div class="role">ระบบคำร้อง</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="panel cards-wrap">
+          <div class="section-head">
+            <h3>Dashboard คำร้อง</h3>
+            <small id="lastUpdatedText">ยังไม่อัปเดต</small>
+          </div>
+
+          <div class="cards-grid">
+            <div class="stat-card">
+              <div>
+                <div class="stat-title">📥 คำร้องวันนี้</div>
+                <div class="stat-value" id="statToday">0</div>
+                <div class="stat-sub">รายการที่ส่งเข้าวันนี้</div>
+              </div>
+              <div class="badge-icon bg-primary">📥</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-title">⏳ รอดำเนินการ</div>
+                <div class="stat-value" id="statPending">0</div>
+                <div class="stat-sub">กำลังรอเจ้าหน้าที่เริ่มงาน</div>
+              </div>
+              <div class="badge-icon bg-warning">⏳</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-title">⚙️ กำลังดำเนินการ</div>
+                <div class="stat-value" id="statInProgress">0</div>
+                <div class="stat-sub">อยู่ระหว่างดำเนินการ</div>
+              </div>
+              <div class="badge-icon bg-info">⚙️</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-title">✅ เสร็จสิ้น</div>
+                <div class="stat-value" id="statCompleted">0</div>
+                <div class="stat-sub">งานที่ดำเนินการเสร็จแล้ว</div>
+              </div>
+              <div class="badge-icon bg-success">✅</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-title">❌ ไม่อนุมัติ</div>
+                <div class="stat-value" id="statRejected">0</div>
+                <div class="stat-sub">คำร้องที่ไม่ผ่านการอนุมัติ</div>
+              </div>
+              <div class="badge-icon bg-danger">❌</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-title">📋 คำร้องทั้งหมด</div>
+                <div class="stat-value" id="statAll">0</div>
+                <div class="stat-sub">รวมจากระบบทั้งหมด</div>
+              </div>
+              <div class="badge-icon bg-slate">📋</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Table -->
+        <section class="panel table-panel">
+          <div class="table-toolbar">
+            <h4>รายการคำร้องล่าสุด</h4>
+            <div class="table-tools">
+              <button class="ghost-btn" onclick="toggleLatestOnly()" id="btnLatestOnly">แสดงล่าสุด 10 รายการ: เปิด</button>
+              <button class="ghost-btn" onclick="refreshDashboard()">รีโหลด</button>
+              <a class="ghost-btn" href="/admin.html">ไปหน้า Admin เดิม</a>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:70px;">ID</th>
+                  <th style="width:140px;">ชื่อ</th>
+                  <th style="width:130px;">เบอร์</th>
+                  <th>ข้อความ</th>
+                  <th style="width:110px;">แผนก</th>
+                  <th style="width:120px;">สถานะ</th>
+                  <th style="width:110px;">ไฟล์</th>
+                  <th style="width:100px;">แผนที่</th>
+                  <th style="width:165px;">วันที่แจ้ง</th>
+                </tr>
+              </thead>
+              <tbody id="requestTableBody">
+                <tr><td colspan="9"><div class="empty">กำลังโหลดข้อมูล...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="footer-note" style="margin-top:8px;">
+            * ใช้ข้อมูลจาก API เดิมของคุณ และปรับแสดงผลใน Dashboard ใหม่
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Side -->
+      <aside class="side-right">
+        <section class="panel side-box">
+          <div class="section-head" style="margin-bottom:8px;">
+            <h4 style="margin:0;">งานด่วน / ล่าสุด</h4>
+            <small>Top 5</small>
+          </div>
+          <div id="recentMiniList" class="mini-list">
+            <div class="empty">ยังไม่มีข้อมูล</div>
+          </div>
+        </section>
+
+        <section class="panel side-box">
+          <div class="section-head" style="margin-bottom:8px;">
+            <h4 style="margin:0;">สัดส่วนสถานะ</h4>
+            <small>ภาพรวม</small>
+          </div>
+          <div class="summary-bars">
+            <div class="bar-row">
+              <div class="bar-label"><span>⏳ รอดำเนินการ</span><strong id="pctPendingText">0%</strong></div>
+              <div class="bar-track"><div id="barPending" class="bar-fill" style="background: linear-gradient(90deg,#f59e0b,#f97316);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>⚙️ กำลังดำเนินการ</span><strong id="pctInProgressText">0%</strong></div>
+              <div class="bar-track"><div id="barInProgress" class="bar-fill" style="background: linear-gradient(90deg,#06b6d4,#0ea5e9);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>✅ เสร็จสิ้น</span><strong id="pctCompletedText">0%</strong></div>
+              <div class="bar-track"><div id="barCompleted" class="bar-fill" style="background: linear-gradient(90deg,#10b981,#16a34a);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>❌ ไม่อนุมัติ</span><strong id="pctRejectedText">0%</strong></div>
+              <div class="bar-track"><div id="barRejected" class="bar-fill" style="background: linear-gradient(90deg,#ef4444,#dc2626);"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel side-box">
+          <div class="section-head" style="margin-bottom:8px;">
+            <h4 style="margin:0;">แยกตามแผนก</h4>
+            <small>จากรายการทั้งหมด</small>
+          </div>
+          <div id="deptSummary" class="dept-grid">
+            <div class="empty">ยังไม่มีข้อมูล</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // Config / State
+    // =========================
+    let allRequests = [];
+    let filteredRequests = [];
+    let latestOnly = true;
+
+    const endpoints = {
+      all: '/data',                  // คำร้องทั้งหมด (admin)
+      today: '/data-today',          // คำร้องวันนี้ (ถ้ามี)
+      pending: '/data-pending',      // bucket pending
+      inprogress: '/data-in-progress', // bucket inprogress
+      completed: '/data-completed',  // bucket completed
+      rejected: '/data-rejected'     // ไม่อนุมัติ
+    };
+
+    // =========================
+    // Utils
+    // =========================
+    function qs(id){ return document.getElementById(id); }
+
+    function setTodayLabel() {
+      const now = new Date();
+      const thai = now.toLocaleString('th-TH', {
+        dateStyle: 'full',
+        timeStyle: 'short',
+        timeZone: 'Asia/Bangkok'
+      });
+      qs('todayLabel').textContent = thai;
+    }
+
+    function setRefreshLoading(isLoading){
+      const state = qs('refreshState');
+      state.innerHTML = isLoading
+        ? '<span class="loading-dot"></span>กำลังรีเฟรช...'
+        : 'รีเฟรชข้อมูล';
+    }
+
+    function formatDateTime(value){
+      if (!value) return '-';
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return String(value);
+      return d.toLocaleString('th-TH', {
+        timeZone: 'Asia/Bangkok',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function normalizePhoto(photoField){
+      if (!photoField) return [];
+      if (Array.isArray(photoField)) return photoField;
+
+      // บาง endpoint อาจเก็บเป็น JSON string
+      if (typeof photoField === 'string') {
+        try {
+          const parsed = JSON.parse(photoField);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          // ถ้าเป็น url เดี่ยว
+          return photoField.trim() ? [{ url: photoField, type: 'image' }] : [];
+        }
+      }
+
+      return [];
+    }
+
+    function getCreatedAt(row){
+      return row.created_at || row.createdAt || row.date || row.created || row.timestamp || null;
+    }
+
+    function getStatusText(row){
+      const s = (row.status || '').trim();
+      if (!s) return 'ยังไม่เลือกสถานะ';
+      return s;
+    }
+
+    function getStatusClass(status){
+      const s = (status || '').trim();
+      if (s === 'รอดำเนินการ') return 'chip-pending';
+      if (s === 'กำลังดำเนินการ') return 'chip-progress';
+      if (s === 'เสร็จสิ้น') return 'chip-done';
+      if (s === 'ไม่อนุมัติ') return 'chip-rejected';
+      return 'chip-wait';
+    }
+
+    function escapeHtml(str = ''){
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getDepartmentText(row){
+      return (row.department || row.dept || 'ยังไม่ระบุ').trim() || 'ยังไม่ระบุ';
+    }
+
+    function getMapLink(row){
+      const lat = row.latitude || row.lat;
+      const lng = row.longitude || row.lng || row.lon;
+      if (lat && lng) return `https://www.google.com/maps?q=${lat},${lng}`;
+      return null;
+    }
+
+    function countByDepartment(rows){
+      const map = {};
+      for (const row of rows) {
+        const dept = getDepartmentText(row);
+        map[dept] = (map[dept] || 0) + 1;
+      }
+      return Object.entries(map).sort((a,b)=> b[1]-a[1]);
+    }
+
+    function sortByNewest(rows){
+      return [...rows].sort((a,b) => {
+        const ta = new Date(getCreatedAt(a) || 0).getTime() || 0;
+        const tb = new Date(getCreatedAt(b) || 0).getTime() || 0;
+        return tb - ta;
+      });
+    }
+
+    function pct(part, total){
+      if (!total) return 0;
+      return Math.round((part / total) * 100);
+    }
+
+    async function safeFetchJSON(url){
+      try{
+        const res = await fetch(url, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        // บาง endpoint อาจคืน {data:[]} หรือ array ตรงๆ
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.data)) return data.data;
+        if (Array.isArray(data.rows)) return data.rows;
+        return data; // เผื่อ endpoint today คืน object count
+      }catch(err){
+        console.warn('Fetch failed:', url, err.message);
+        return null;
+      }
+    }
+
+    // =========================
+    // Render
+    // =========================
+    function renderStats(stats){
+      qs('statToday').textContent = stats.todayCount;
+      qs('statPending').textContent = stats.pendingCount;
+      qs('statInProgress').textContent = stats.inProgressCount;
+      qs('statCompleted').textContent = stats.completedCount;
+      qs('statRejected').textContent = stats.rejectedCount;
+      qs('statAll').textContent = stats.allCount;
+
+      const totalForRatio = stats.pendingCount + stats.inProgressCount + stats.completedCount + stats.rejectedCount;
+      const p1 = pct(stats.pendingCount, totalForRatio);
+      const p2 = pct(stats.inProgressCount, totalForRatio);
+      const p3 = pct(stats.completedCount, totalForRatio);
+      const p4 = pct(stats.rejectedCount, totalForRatio);
+
+      qs('pctPendingText').textContent = `${p1}%`;
+      qs('pctInProgressText').textContent = `${p2}%`;
+      qs('pctCompletedText').textContent = `${p3}%`;
+      qs('pctRejectedText').textContent = `${p4}%`;
+
+      qs('barPending').style.width = `${p1}%`;
+      qs('barInProgress').style.width = `${p2}%`;
+      qs('barCompleted').style.width = `${p3}%`;
+      qs('barRejected').style.width = `${p4}%`;
+    }
+
+    function renderTable(rows){
+      const tbody = qs('requestTableBody');
+
+      if (!rows.length){
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty">ไม่พบข้อมูลคำร้อง</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(row => {
+        const id = row.original_id || row.id || '-';
+        const name = row.name || row.fullname || '-';
+        const phone = row.phone || row.tel || '-';
+        const message = row.message || row.detail || row.description || '-';
+        const dept = getDepartmentText(row);
+        const status = getStatusText(row);
+        const photos = normalizePhoto(row.photo);
+        const fileCount = photos.length;
+        const mapLink = getMapLink(row);
+        const dateText = formatDateTime(getCreatedAt(row));
+
+        return `
+          <tr>
+            <td>${escapeHtml(String(id))}</td>
+            <td>${escapeHtml(name)}</td>
+            <td>${escapeHtml(phone)}</td>
+            <td><span class="text-truncate" title="${escapeHtml(message)}">${escapeHtml(message)}</span></td>
+            <td><span class="dept-chip">${escapeHtml(dept)}</span></td>
+            <td><span class="status-chip ${getStatusClass(status)}">${escapeHtml(status)}</span></td>
+            <td>
+              ${fileCount > 0
+                ? `<button class="link-btn" onclick='showFiles(${JSON.stringify(photos).replace(/'/g, "\\'")})'>📎 ${fileCount} ไฟล์</button>`
+                : `<span style="color:#94a3b8;">ไม่มี</span>`}
+            </td>
+            <td>
+              ${mapLink
+                ? `<a class="link-btn" href="${mapLink}" target="_blank" rel="noopener">📍 เปิดแผนที่</a>`
+                : `<span style="color:#94a3b8;">-</span>`}
+            </td>
+            <td>${escapeHtml(dateText)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderRecentMini(rows){
+      const box = qs('recentMiniList');
+
+      if (!rows.length){
+        box.innerHTML = `<div class="empty">ยังไม่มีรายการล่าสุด</div>`;
+        return;
+      }
+
+      box.innerHTML = rows.slice(0,5).map(row => {
+        const id = row.original_id || row.id || '-';
+        const name = row.name || '-';
+        const dept = getDepartmentText(row);
+        const status = getStatusText(row);
+        const statusColor =
+          status === 'เสร็จสิ้น' ? '#15803d' :
+          status === 'กำลังดำเนินการ' ? '#1d4ed8' :
+          status === 'รอดำเนินการ' ? '#b45309' :
+          status === 'ไม่อนุมัติ' ? '#b91c1c' : '#475569';
+
+        return `
+          <div class="mini-item">
+            <div class="top">
+              <div class="title">#${escapeHtml(String(id))} - ${escapeHtml(name)}</div>
+              <div class="mini-status" style="color:${statusColor}">${escapeHtml(status)}</div>
+            </div>
+            <div class="meta">
+              แผนก: ${escapeHtml(dept)}<br>
+              วันที่: ${escapeHtml(formatDateTime(getCreatedAt(row)))}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDeptSummary(rows){
+      const box = qs('deptSummary');
+      const counts = countByDepartment(rows);
+
+      if (!counts.length){
+        box.innerHTML = `<div class="empty">ยังไม่มีข้อมูลแผนก</div>`;
+        return;
+      }
+
+      box.innerHTML = counts.map(([dept, count]) => `
+        <div class="dept-row">
+          <span>${escapeHtml(dept)}</span>
+          <strong>${count}</strong>
+        </div>
+      `).join('');
+    }
+
+    // =========================
+    // Search / Filter
+    // =========================
+    function applySearch(){
+      const q = (qs('globalSearch').value || '').trim().toLowerCase();
+
+      filteredRequests = allRequests.filter(row => {
+        if (!q) return true;
+        const pool = [
+          row.id,
+          row.original_id,
+          row.name,
+          row.phone,
+          row.message,
+          row.department,
+          row.status
+        ].map(v => String(v || '').toLowerCase()).join(' ');
+        return pool.includes(q);
+      });
+
+      redrawTableArea();
+    }
+
+    function redrawTableArea(){
+      const sorted = sortByNewest(filteredRequests);
+      const tableRows = latestOnly ? sorted.slice(0,10) : sorted;
+      renderTable(tableRows);
+      renderRecentMini(sorted);
+      renderDeptSummary(filteredRequests);
+    }
+
+    function toggleLatestOnly(){
+      latestOnly = !latestOnly;
+      qs('btnLatestOnly').textContent = `แสดงล่าสุด 10 รายการ: ${latestOnly ? 'เปิด' : 'ปิด'}`;
+      redrawTableArea();
+    }
+
+    // =========================
+    // Main loader
+    // =========================
+    async function refreshDashboard(){
+      setRefreshLoading(true);
+
+      try {
+        // ดึงพร้อมกัน
+        const [
+          allData,
+          todayData,
+          pendingData,
+          inProgressData,
+          completedData,
+          rejectedData
+        ] = await Promise.all([
+          safeFetchJSON(endpoints.all),
+          safeFetchJSON(endpoints.today),
+          safeFetchJSON(endpoints.pending),
+          safeFetchJSON(endpoints.inprogress),
+          safeFetchJSON(endpoints.completed),
+          safeFetchJSON(endpoints.rejected)
+        ]);
+
+        // /data (รายการทั้งหมด)
+        allRequests = Array.isArray(allData) ? allData : [];
+        filteredRequests = [...allRequests];
+
+        // today endpoint อาจคืน array หรือ object เช่น {count: n}
+        let todayCount = 0;
+        if (Array.isArray(todayData)) {
+          todayCount = todayData.length;
+        } else if (todayData && typeof todayData === 'object') {
+          todayCount = Number(todayData.count || todayData.total || 0);
+        } else {
+          // fallback: คำนวณจาก allRequests โดยเทียบวันที่ไทย
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = now.getMonth();
+          const d = now.getDate();
+          todayCount = allRequests.filter(r => {
+            const t = new Date(getCreatedAt(r));
+            return t && !isNaN(t) &&
+              t.getFullYear() === y &&
+              t.getMonth() === m &&
+              t.getDate() === d;
+          }).length;
+        }
+
+        const pendingCount = Array.isArray(pendingData) ? pendingData.length : 0;
+        const inProgressCount = Array.isArray(inProgressData) ? inProgressData.length : 0;
+        const completedCount = Array.isArray(completedData) ? completedData.length : 0;
+        const rejectedCount = Array.isArray(rejectedData) ? rejectedData.length : 0;
+
+        renderStats({
+          todayCount,
+          pendingCount,
+          inProgressCount,
+          completedCount,
+          rejectedCount,
+          allCount: allRequests.length
+        });
+
+        redrawTableArea();
+
+        const nowText = new Date().toLocaleString('th-TH', {
+          timeZone: 'Asia/Bangkok',
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+        qs('lastUpdatedText').textContent = `อัปเดตล่าสุด: ${nowText}`;
+      } catch (err) {
+        console.error(err);
+        qs('requestTableBody').innerHTML = `
+          <tr>
+            <td colspan="9">
+              <div class="empty">โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบว่า login แล้ว และ endpoint ใช้งานได้</div>
+            </td>
+          </tr>
+        `;
+      } finally {
+        setRefreshLoading(false);
+      }
+    }
+
+    // =========================
+    // File preview helper
+    // =========================
+    function showFiles(files){
+      try{
+        const arr = Array.isArray(files) ? files : [];
+        if (!arr.length){
+          alert('ไม่มีไฟล์แนบ');
+          return;
+        }
+
+        const win = window.open('', '_blank');
+        const html = `
+          <!doctype html>
+          <html lang="th">
+          <head>
+            <meta charset="UTF-8" />
+            <title>ไฟล์แนบทั้งหมด</title>
+            <style>
+              body{font-family:sans-serif;margin:0;padding:16px;background:#f4f6fb}
+              h2{margin:0 0 14px}
+              .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+              .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+              img,video{width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:#000}
+              a{display:inline-block;margin-top:8px;text-decoration:none;color:#2563eb}
+              .meta{font-size:12px;color:#64748b;margin-top:6px}
+            </style>
+          </head>
+          <body>
+            <h2>📎 ไฟล์แนบทั้งหมด (${arr.length})</h2>
+            <div class="grid">
+              ${arr.map(f => {
+                const url = f.url || f.secure_url || '';
+                const type = (f.type || '').toLowerCase();
+                if (!url) return '';
+                const isVideo = type.includes('video') || /\.(mp4|mov|webm|m4v)$/i.test(url);
+                return `
+                  <div class="card">
+                    ${isVideo
+                      ? `<video controls src="${url}"></video>`
+                      : `<img src="${url}" alt="file" />`}
+                    <div class="meta">ชนิด: ${type || (isVideo ? 'video' : 'image')}</div>
+                    <a href="${url}" target="_blank" rel="noopener">เปิดไฟล์ต้นฉบับ</a>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </body>
+          </html>
+        `;
+        win.document.write(html);
+        win.document.close();
+      }catch(e){
+        console.error(e);
+        alert('เปิดไฟล์แนบไม่สำเร็จ');
+      }
+    }
+
+    // =========================
+    // Init
+    // =========================
+    setTodayLabel();
+    refreshDashboard();
+
+    // รีเฟรชอัตโนมัติทุก 60 วินาที (เหมือนหน้าอื่นของคุณ)
+    setInterval(() => {
+      refreshDashboard();
+      setTodayLabel();
+    }, 60000);
+  </script>
+</body>
+</html>
