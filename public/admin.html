@@ -764,11 +764,17 @@ function showImages(images) {
         <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
           ${mediaHtml}
         </div>
+
         <div class="media-meta">
           <span class="media-index">ไฟล์ที่ ${index + 1}</span>
-          <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
-            เปิดเต็ม
-          </button>
+          <div class="media-actions">
+            <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
+              เปิดเต็ม
+            </button>
+            <a class="download-btn" href="${url}" target="_blank" rel="noopener" download>
+              ดาวน์โหลด
+            </a>
+          </div>
         </div>
       </div>
     `;
@@ -867,6 +873,28 @@ function showImages(images) {
           font-weight: 700;
           cursor: pointer;
         }
+        .media-actions {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        .download-btn {
+          text-decoration: none;
+          background: #16a34a;
+          color: #fff;
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          line-height: 1.2;
+        }
+
+        .download-btn:hover {
+          filter: brightness(0.95);
+        }
         .empty {
           text-align: center;
           padding: 40px 20px;
@@ -960,7 +988,10 @@ function showImages(images) {
               <body>
                 <div class="top">
                   <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
-                  <a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง (ถ้าจำเป็น)</a>
+                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn" href="\${url}" target="_blank" rel="noopener" download>⬇️ ดาวน์โหลดวิดีโอ</a>
+                    <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                  </div>
                 </div>
                 <div class="wrap">
                   <video controls autoplay playsinline>
@@ -972,39 +1003,78 @@ function showImages(images) {
               </html>
             \`);
           } else {
-            viewer.document.write(\`
-              <!DOCTYPE html>
-              <html lang="th">
-              <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>รูปภาพไฟล์ที่ \${index}</title>
-                <style>
-                  body {
-                    margin: 0;
-                    background: #0f172a;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    min-height: 100vh;
-                    padding: 16px;
-                  }
-                  img {
-                    max-width: 100%;
-                    max-height: 100vh;
-                    object-fit: contain;
-                    border-radius: 12px;
-                    box-shadow: 0 8px 30px rgba(0,0,0,.35);
-                    background: white;
-                  }
-                </style>
-              </head>
-              <body>
-                <img src="\${url}" alt="ไฟล์ที่ \${index}" />
-              </body>
-              </html>
-            \`);
-          }
+      viewer.document.write(\`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>รูปภาพไฟล์ที่ \${index}</title>
+          <style>
+            body {
+              margin: 0;
+              background: #0f172a;
+              color: white;
+              font-family: sans-serif;
+              display: flex;
+              flex-direction: column;
+              min-height: 100vh;
+            }
+            .top {
+              padding: 12px 16px;
+              background: rgba(15,23,42,.95);
+              border-bottom: 1px solid rgba(255,255,255,.1);
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              gap:10px;
+              flex-wrap:wrap;
+            }
+            .btn {
+              color: white;
+              background: #16a34a;
+              text-decoration: none;
+              padding: 8px 12px;
+              border-radius: 8px;
+              font-weight: 700;
+              font-size: 13px;
+            }
+            .btn-secondary {
+              background: #334155;
+            }
+            .wrap {
+              flex: 1;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 16px;
+            }
+            img {
+              max-width: 100%;
+              max-height: calc(100vh - 90px);
+              object-fit: contain;
+              border-radius: 12px;
+              box-shadow: 0 8px 30px rgba(0,0,0,.35);
+              background: white;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="top">
+            <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <a class="btn" href="\${url}" target="_blank" rel="noopener" download>⬇️ ดาวน์โหลดรูปภาพ</a>
+              <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+            </div>
+          </div>
+
+          <div class="wrap">
+            <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+          </div>
+        </body>
+        </html>
+      \`);
+    }
 
           viewer.document.close();
         }
