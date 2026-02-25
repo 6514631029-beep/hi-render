@@ -89,6 +89,7 @@
       transition: background-color 0.2s ease;
       font-family: 'Kanit', sans-serif;
     }
+
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -771,9 +772,6 @@ function showImages(images) {
             <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
               เปิดเต็ม
             </button>
-            <a class="download-btn" href="${url}" target="_blank" rel="noopener" download>
-              ดาวน์โหลด
-            </a>
           </div>
         </div>
       </div>
@@ -881,20 +879,6 @@ function showImages(images) {
           justify-content: flex-end;
         }
 
-        .download-btn {
-          text-decoration: none;
-          background: #16a34a;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 700;
-          line-height: 1.2;
-        }
-
-        .download-btn:hover {
-          filter: brightness(0.95);
-        }
         .empty {
           text-align: center;
           padding: 40px 20px;
@@ -968,6 +952,9 @@ function showImages(images) {
                     font-weight: 700;
                     font-size: 13px;
                   }
+                  .btn-secondary {
+                    background: #334155;
+                  }
                   .wrap {
                     flex: 1;
                     display: flex;
@@ -989,7 +976,6 @@ function showImages(images) {
                 <div class="top">
                   <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <a class="btn" href="\${url}" target="_blank" rel="noopener" download>⬇️ ดาวน์โหลดวิดีโอ</a>
                     <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
                   </div>
                 </div>
@@ -1063,7 +1049,6 @@ function showImages(images) {
           <div class="top">
             <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <a class="btn" href="\${url}" target="_blank" rel="noopener" download>⬇️ ดาวน์โหลดรูปภาพ</a>
               <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
             </div>
           </div>
