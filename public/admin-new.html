@@ -18,7 +18,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 220px 1fr; /* ย่อ sidebar */
+      grid-template-columns: 220px 1fr;
       grid-template-rows: 60px 1fr;
       grid-template-areas:
         "sidebar topbar"
@@ -177,6 +177,13 @@
 
     .btn:hover { transform: translateY(-1px); }
 
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
     .btn.primary {
       background: #1976d2;
       color: white;
@@ -280,7 +287,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 940px; /* ลดจากเดิม */
+      min-width: 940px;
     }
 
     th, td {
@@ -303,7 +310,7 @@
 
     td.text-left {
       text-align: left;
-      max-width: 140px; /* ลดให้พอดีจอ */
+      max-width: 140px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -576,22 +583,22 @@
     }
 
     function setView(view) {
-      currentView = view;
+      currentView = view === 'today' ? 'today' : 'all';
 
       // active menu
       const menuAll = document.getElementById('menu-all');
       const menuToday = document.getElementById('menu-today');
       menuAll.classList.remove('active');
       menuToday.classList.remove('active');
-      if (view === 'today') menuToday.classList.add('active');
+      if (currentView === 'today') menuToday.classList.add('active');
       else menuAll.classList.add('active');
 
       document.getElementById('pageTitle').textContent =
-        view === 'today' ? 'คำร้องวันนี้ (Admin)' : 'จัดการคำร้อง (Admin)';
+        currentView === 'today' ? 'คำร้องวันนี้ (Admin)' : 'จัดการคำร้อง (Admin)';
       document.getElementById('tableTitle').textContent =
-        view === 'today' ? 'รายการคำร้องวันนี้' : 'รายการคำร้องใหม่';
+        currentView === 'today' ? 'รายการคำร้องวันนี้' : 'รายการคำร้องใหม่';
       document.getElementById('viewChip').textContent =
-        view === 'today' ? 'โหมด: คำร้องวันนี้' : 'โหมด: ทั้งหมด';
+        currentView === 'today' ? 'โหมด: คำร้องวันนี้' : 'โหมด: ทั้งหมด';
 
       renderTable();
     }
@@ -636,7 +643,7 @@
       return 'image';
     }
 
-    // ✅ เหลือแค่ปุ่มดูไฟล์ (ไม่แสดง preview)
+    // ✅ แสดงเป็นปุ่มอย่างเดียว ไม่ preview ในตาราง
     function renderMediaCell(photo, rowId) {
       const files = normalizePhoto(photo);
       if (!files.length) return '-';
@@ -646,6 +653,21 @@
           ดูรูปภาพและวิดีโอ (${files.length})
         </button>
       `;
+    }
+
+    // ===== Helper ให้พฤติกรรม approve เหมือน admin หลัก =====
+    function findRowById(id) {
+      const all = [...(allRequests || []), ...(todayRequests || [])];
+      return all.find(r => String(r.id) === String(id));
+    }
+
+    function hasDepartmentSelected(row) {
+      return !!(
+        row &&
+        row.department &&
+        String(row.department).trim() !== '' &&
+        String(row.department).trim() !== '-'
+      );
     }
 
     function showImages(rowId) {
@@ -773,9 +795,10 @@
 
         const msg = String(row.message || '-');
         const safeTitle = msg.replace(/"/g, '&quot;');
+        const canApprove = hasDepartmentSelected(row);
 
         return `
-          <tr>
+          <tr data-row-id="${row.id}">
             <td>${i + 1}</td>
             <td>${row.name || '-'}</td>
             <td>${row.phone || '-'}</td>
@@ -800,7 +823,12 @@
 
             <td>
               <div class="actions">
-                <button class="btn success" onclick="approveRequest(${row.id})">อนุมัติ</button>
+                <button class="btn success"
+                        data-approve-btn="1"
+                        onclick="approveRequest(${row.id})"
+                        ${canApprove ? '' : 'disabled title="กรุณาเลือกแผนกก่อนอนุมัติ"'}>
+                  อนุมัติ
+                </button>
                 <button class="btn danger" onclick="rejectRequest(${row.id})">ไม่อนุมัติ</button>
               </div>
             </td>
@@ -813,8 +841,24 @@
 
     async function approveRequest(id) {
       try {
+        const row = findRowById(id);
+
+        // ✅ กันพลาดซ้ำอีกชั้น (เหมือน admin หลัก)
+        if (!hasDepartmentSelected(row)) {
+          alert('กรุณาเลือกแผนกก่อนอนุมัติ');
+          return;
+        }
+
         const res = await fetch(`/approve/${id}`, { method: 'POST' });
-        const result = await res.json().catch(() => ({}));
+
+        // รองรับทั้ง API ที่ส่ง json หรือ text
+        let result = {};
+        try {
+          result = await res.json();
+        } catch {
+          const text = await res.text().catch(() => '');
+          result = { message: text };
+        }
 
         if (!res.ok) throw new Error(result.message || 'อนุมัติไม่สำเร็จ');
 
@@ -837,7 +881,14 @@
           body: JSON.stringify({ reason })
         });
 
-        const result = await res.json().catch(() => ({}));
+        let result = {};
+        try {
+          result = await res.json();
+        } catch {
+          const text = await res.text().catch(() => '');
+          result = { message: text };
+        }
+
         if (!res.ok) throw new Error(result.message || 'ไม่อนุมัติไม่สำเร็จ');
 
         alert(result.message || 'ไม่อนุมัติแล้ว');
@@ -849,7 +900,21 @@
     }
 
     async function setDepartment(id, department) {
-      if (!department) return;
+      // ถ้าเลือกค่าว่าง -> ปิดปุ่มอนุมัติในแถวนั้นทันที
+      if (!department) {
+        [allRequests, todayRequests].forEach(arr => {
+          const item = arr.find(r => String(r.id) === String(id));
+          if (item) item.department = '';
+        });
+
+        const tr = document.querySelector(`tr[data-row-id="${id}"]`);
+        const approveBtn = tr?.querySelector('[data-approve-btn]');
+        if (approveBtn) {
+          approveBtn.disabled = true;
+          approveBtn.title = 'กรุณาเลือกแผนกก่อนอนุมัติ';
+        }
+        return;
+      }
 
       try {
         const res = await fetch(`/set-department/${id}`, {
@@ -866,9 +931,21 @@
           const item = arr.find(r => String(r.id) === String(id));
           if (item) item.department = department;
         });
+
+        // ✅ เปิดปุ่มอนุมัติในแถวนั้นทันที (ไม่ต้องรีเฟรช)
+        const tr = document.querySelector(`tr[data-row-id="${id}"]`);
+        const approveBtn = tr?.querySelector('[data-approve-btn]');
+        if (approveBtn) {
+          approveBtn.disabled = false;
+          approveBtn.removeAttribute('title');
+        }
+
       } catch (e) {
         console.error(e);
         alert(e.message || 'เกิดข้อผิดพลาดในการตั้งค่าแผนก');
+
+        // rollback ให้ UI ตรง DB
+        await loadCountsAndData();
       }
     }
 
