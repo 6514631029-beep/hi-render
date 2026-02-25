@@ -163,7 +163,43 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+    /* ===== NEW ITEM HIGHLIGHT ===== */
+.new-banner {
+  display: none;
+  margin: 0 0 12px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: 700;
+}
 
+.new-banner.show {
+  display: block;
+}
+
+tr.row-new {
+  background-color: #fff8c5 !important;
+  animation: newRowPulse 1s ease-in-out 2;
+}
+
+.new-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+@keyframes newRowPulse {
+  0%   { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0.35); }
+  100% { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0); }
+}
   </style>
 </head>
 <body>
@@ -275,7 +311,7 @@
     </label>
   </div>
 </div>
-
+  <div id="new-banner" class="new-banner"></div>
   <div class="table-wrapper">
     <table id="data-table">
       <thead>
@@ -294,7 +330,68 @@
       <tbody></tbody>
     </table>
   </div>
+  <script>
+  // ===== New item detection (client-side only) =====
+  let isFirstLoadByMode = { all: true, today: true };
 
+  function getSeenKey() {
+    return currentViewMode === 'today'
+      ? 'admin_seen_ids_today_v1'
+      : 'admin_seen_ids_all_v1';
+  }
+
+  function getSeenIds() {
+    try {
+      const raw = localStorage.getItem(getSeenKey());
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      console.warn('อ่าน seen ids ไม่สำเร็จ:', e);
+      return [];
+    }
+  }
+
+  function saveSeenIds(ids) {
+    try {
+      localStorage.setItem(getSeenKey(), JSON.stringify(ids));
+    } catch (e) {
+      console.warn('บันทึก seen ids ไม่สำเร็จ:', e);
+    }
+  }
+
+  function updateNewBanner(count) {
+    const el = document.getElementById('new-banner');
+    if (!el) return;
+
+    if (count > 0) {
+      el.textContent = `🔔 มีคำร้องใหม่ ${count} รายการ`;
+      el.classList.add('show');
+    } else {
+      el.textContent = '';
+      el.classList.remove('show');
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m]));
+  }
+
+  // (ไม่บังคับ) ใช้ตอนทดสอบ อยากให้ระบบนับใหม่อีกครั้ง
+  function resetSeenNewState() {
+    localStorage.removeItem('admin_seen_ids_all_v1');
+    localStorage.removeItem('admin_seen_ids_today_v1');
+    isFirstLoadByMode = { all: true, today: true };
+    updateNewBanner(0);
+    alert('รีเซ็ตสถานะ "ข้อมูลใหม่" แล้ว');
+    safeLoadData();
+  }
+</script>
   <script>
   let currentViewMode = 'all'; // all | today
 
@@ -338,10 +435,19 @@
     const data = await res.json();
     console.log(`📌 โหลดข้อมูลใหม่ [${currentViewMode}]:`, data);
 
+    // ===== NEW: ตรวจข้อมูลใหม่ =====
+    const seenIds = new Set(getSeenIds());
+    const isFirstLoad = isFirstLoadByMode[currentViewMode];
+    let newCount = 0;
+
     const tbody = document.querySelector("tbody");
     tbody.innerHTML = "";
 
     data.forEach(row => {
+      const rowId = Number(row.id);
+      const isNewRow = !isFirstLoad && rowId && !seenIds.has(rowId);
+      if (isNewRow) newCount++;
+
       const mapLink = row.latitude && row.longitude
         ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
         : "-";
@@ -398,12 +504,19 @@
 
       const tr = document.createElement("tr");
       tr.setAttribute("data-row-id", row.id);
+
+      // ===== NEW: ไฮไลต์แถวใหม่ =====
+      if (isNewRow) tr.classList.add('row-new');
+
       tr.innerHTML = `
-        <td>${row.name || "-"}</td>
-        <td>${row.phone || "-"}</td>
-        <td>${row.message || "-"}</td>
+        <td>
+          ${escapeHtml(row.name || "-")}
+          ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
+        </td>
+        <td>${escapeHtml(row.phone || "-")}</td>
+        <td>${escapeHtml(row.message || "-")}</td>
         <td>${fileLinks || "-"}</td>
-        <td>${row.department || "-"}</td>
+        <td>${escapeHtml(row.department || "-")}</td>
         <td>${mapLink}</td>
         <td>${createdAtFormatted}</td>
         <td>
@@ -433,38 +546,49 @@
       `;
       tbody.appendChild(tr);
     }
+
+    // ===== NEW: banner + จำว่าเคยเห็นแล้ว =====
+    updateNewBanner(newCount);
+
+    const merged = new Set([
+      ...seenIds,
+      ...data.map(r => Number(r.id)).filter(Boolean)
+    ]);
+    saveSeenIds([...merged]);
+
+    isFirstLoadByMode[currentViewMode] = false;
   }
-    function removeRowFromTable(id) {
-      const tr = document.querySelector(`tr[data-row-id="${id}"]`);
-      if (tr) tr.remove();
 
-      const tbody = document.querySelector('#data-table tbody');
-      if (!tbody) return;
+  function removeRowFromTable(id) {
+    const tr = document.querySelector(`tr[data-row-id="${id}"]`);
+    if (tr) tr.remove();
 
-      const rowCount = tbody.querySelectorAll('tr').length;
-      if (rowCount === 0) {
-        const emptyTr = document.createElement('tr');
-        emptyTr.innerHTML = `
-          <td colspan="8" style="padding:20px; color:#64748b; font-weight:600;">
-            ${currentViewMode === 'today'
-              ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
-              : '📭 ไม่มีข้อมูลคำร้องใหม่'}
-          </td>
-        `;
-        tbody.appendChild(emptyTr);
-      }
+    const tbody = document.querySelector('#data-table tbody');
+    if (!tbody) return;
+
+    const rowCount = tbody.querySelectorAll('tr').length;
+    if (rowCount === 0) {
+      const emptyTr = document.createElement('tr');
+      emptyTr.innerHTML = `
+        <td colspan="8" style="padding:20px; color:#64748b; font-weight:600;">
+          ${currentViewMode === 'today'
+            ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
+            : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+        </td>
+      `;
+      tbody.appendChild(emptyTr);
     }
-    async function approve(id) {
+  }
+
+  async function approve(id) {
     try {
       const res = await fetch(`/approve/${id}`, { method: 'POST' });
       const text = await res.text();
 
       alert(text);
 
-      // ✅ ลบแถวออกทันทีจากหน้าจอ
       removeRowFromTable(id);
 
-      // ✅ ค่อย sync ข้อมูลจริงตามหลัง (กันข้อมูลไม่ตรง)
       setTimeout(() => {
         safeLoadData();
       }, 200);
@@ -474,8 +598,6 @@
       alert('เกิดข้อผิดพลาดในการอนุมัติ');
     }
   }
-
- 
 
   async function setDept(id, dept) {
     const res = await fetch(`/set-department/${id}`, {
