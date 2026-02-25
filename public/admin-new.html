@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📋 Admin Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Kanit', sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 64px 1fr;
+      grid-template-areas:
+        "sidebar topbar"
+        "sidebar main";
+      min-height: 100vh;
+    }
+
+    /* Topbar */
+    .topbar {
+      grid-area: topbar;
+      background: linear-gradient(90deg, #0f2f6b, #1976d2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .logout-btn {
+      background: #ffffff;
+      color: #0f2f6b;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      grid-area: sidebar;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: #64748b;
+      margin: 12px 10px 8px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu a, .menu button {
+      text-decoration: none;
+      border: none;
+      background: transparent;
+      color: #334155;
+      text-align: left;
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: .2s ease;
+    }
+
+    .menu a:hover, .menu button:hover {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .menu a.active {
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .submenu {
+      margin-left: 8px;
+      border-left: 2px dashed #e2e8f0;
+      padding-left: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* Main */
+    .main {
+      grid-area: main;
+      padding: 18px;
+    }
+
+    .page-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .page-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: #0f172a;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #1976d2;
+      color: white;
+      border-color: #1976d2;
+    }
+
+    .btn.success {
+      background: #16a34a;
+      color: white;
+      border-color: #16a34a;
+    }
+
+    .btn.danger {
+      background: #dc2626;
+      color: white;
+      border-color: #dc2626;
+    }
+
+    .search-input {
+      padding: 10px 12px;
+      min-width: 240px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-family: inherit;
+      background: white;
+    }
+
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 14px rgba(15,23,42,.04);
+    }
+
+    .card .label {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+
+    .card .sub {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 5px;
+    }
+
+    /* Table */
+    .table-wrap {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 14px rgba(15,23,42,.04);
+      overflow: hidden;
+    }
+
+    .table-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td.text-left { text-align: left; }
+
+    .table-scroll {
+      overflow: auto;
+      max-height: 62vh;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    select {
+      padding: 7px 8px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-family: inherit;
+      background: white;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 64px auto 1fr;
+        grid-template-areas:
+          "topbar"
+          "sidebar"
+          "main";
+      }
+
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+
+      .search-input {
+        min-width: 180px;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+      .page-header h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="menu-title">เมนูหลัก</div>
+      <nav class="menu">
+        <a href="#" class="active" onclick="setView('all')">🏠 หน้าแรก / คำร้องใหม่</a>
+        <a href="#" onclick="setView('today')">📅 คำร้องวันนี้</a>
+        <a href="approved-all.html">✅ อนุมัติแล้ว</a>
+        <a href="rejected.html">❌ ไม่อนุมัติ</a>
+        <a href="processed.html">🗂 ดำเนินการแล้ว</a>
+        <a href="track.html" target="_blank">🔍 หน้าติดตามคำร้อง</a>
+      </nav>
+
+      <div class="menu-title">แผนก</div>
+      <nav class="menu">
+        <a href="admin-sp.html">🏛 สำนักงานปลัด</a>
+        <a href="admin-health.html">🏥 สาธารณสุข</a>
+        <a href="admin-engineer.html">🏗 กองช่าง</a>
+        <a href="admin-electric.html">⚡ ไฟฟ้า</a>
+        <a href="admin-other.html">📦 อื่นๆ</a>
+      </nav>
+
+      <div class="menu-title">เพิ่มเติม</div>
+      <nav class="menu">
+        <a href="#" onclick="refreshData()">🔄 รีเฟรชข้อมูล</a>
+      </nav>
+    </aside>
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="brand">📋 Hi-Form Admin</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="admin-box">👤 แอดมิน</div>
+        <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="page-header">
+        <h2 id="pageTitle">จัดการคำร้อง (Admin)</h2>
+        <div class="toolbar">
+          <input id="searchInput" class="search-input" type="text" placeholder="ค้นหาชื่อ / เบอร์ / ข้อความ..." oninput="renderTable()" />
+          <button class="btn" onclick="refreshData()">รีเฟรช</button>
+          <button class="btn primary" onclick="setView('today')">ดูคำร้องวันนี้</button>
+          <button class="btn" onclick="setView('all')">ดูทั้งหมดรอจัดการ</button>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <section class="cards">
+        <div class="card">
+          <div class="label">คำร้องวันนี้</div>
+          <div class="value" id="countToday">0</div>
+          <div class="sub">จาก /data-today</div>
+        </div>
+        <div class="card">
+          <div class="label">รอจัดการ</div>
+          <div class="value" id="countPendingReview">0</div>
+          <div class="sub">ยังไม่ processed</div>
+        </div>
+        <div class="card">
+          <div class="label">ข้อมูลที่แสดง</div>
+          <div class="value" id="countCurrentView">0</div>
+          <div class="sub">ตาม filter ปัจจุบัน</div>
+        </div>
+        <div class="card">
+          <div class="label">ทั้งหมด (โหลดล่าสุด)</div>
+          <div class="value" id="countLoaded">0</div>
+          <div class="sub">ก่อนค้นหา</div>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section class="table-wrap">
+        <div class="table-head">
+          <span id="tableTitle">รายการคำร้องใหม่</span>
+          <span class="chip" id="viewChip">โหมด: ทั้งหมด</span>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>ลำดับ</th>
+                <th>ชื่อ</th>
+                <th>เบอร์โทร</th>
+                <th>ข้อความ</th>
+                <th>พิกัด</th>
+                <th>แผนก</th>
+                <th>จัดการ</th>
+                <th>วันที่</th>
+              </tr>
+            </thead>
+            <tbody id="requestTableBody">
+              <tr><td colspan="8" class="empty">กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let allRequests = [];
+    let todayRequests = [];
+    let currentView = 'all'; // all | today
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ: ' + url);
+      return await res.json();
+    }
+
+    async function loadCountsAndData() {
+      try {
+        const [allData, todayData] = await Promise.all([
+          fetchJson('/data'),
+          fetchJson('/data-today')
+        ]);
+
+        allRequests = Array.isArray(allData) ? allData : [];
+        todayRequests = Array.isArray(todayData) ? todayData : [];
+
+        document.getElementById('countPendingReview').textContent = allRequests.length;
+        document.getElementById('countToday').textContent = todayRequests.length;
+
+        renderTable();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('requestTableBody').innerHTML =
+          '<tr><td colspan="8" class="empty">โหลดข้อมูลไม่สำเร็จ กรุณาลองรีเฟรช</td></tr>';
+      }
+    }
+
+    function getCurrentData() {
+      return currentView === 'today' ? todayRequests : allRequests;
+    }
+
+    function setView(view) {
+      currentView = view;
+      document.getElementById('pageTitle').textContent =
+        view === 'today' ? 'คำร้องวันนี้ (Admin)' : 'จัดการคำร้อง (Admin)';
+      document.getElementById('tableTitle').textContent =
+        view === 'today' ? 'รายการคำร้องวันนี้' : 'รายการคำร้องใหม่';
+      document.getElementById('viewChip').textContent =
+        view === 'today' ? 'โหมด: คำร้องวันนี้' : 'โหมด: ทั้งหมด';
+      renderTable();
+    }
+
+    function formatDateTime(dt) {
+      if (!dt) return '-';
+      try {
+        return new Date(dt).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
+      } catch {
+        return dt;
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('requestTableBody');
+      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      let data = getCurrentData();
+
+      document.getElementById('countLoaded').textContent = data.length;
+
+      if (q) {
+        data = data.filter(row => {
+          const text = [
+            row.name || '',
+            row.phone || '',
+            row.message || '',
+            row.address || '',
+            row.department || ''
+          ].join(' ').toLowerCase();
+          return text.includes(q);
+        });
+      }
+
+      document.getElementById('countCurrentView').textContent = data.length;
+
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">ไม่พบข้อมูล</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map((row, i) => {
+        const mapLink = (row.latitude && row.longitude)
+          ? `https://www.google.com/maps?q=${row.latitude},${row.longitude}`
+          : '';
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${row.name || '-'}</td>
+            <td>${row.phone || '-'}</td>
+            <td class="text-left">${row.message || '-'}</td>
+            <td>
+              ${mapLink ? `<a href="${mapLink}" target="_blank">📍 ดูแผนที่</a>` : '-'}
+            </td>
+            <td>
+              <select onchange="setDepartment(${row.id}, this.value)">
+                <option value="">-- เลือกแผนก --</option>
+                <option value="สำนักงานปลัด" ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}>สำนักงานปลัด</option>
+                <option value="สาธารณสุข" ${row.department === 'สาธารณสุข' ? 'selected' : ''}>สาธารณสุข</option>
+                <option value="กองช่าง" ${row.department === 'กองช่าง' ? 'selected' : ''}>กองช่าง</option>
+                <option value="ไฟฟ้า" ${row.department === 'ไฟฟ้า' ? 'selected' : ''}>ไฟฟ้า</option>
+                <option value="อื่นๆ" ${row.department === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
+              </select>
+            </td>
+            <td>
+              <div class="actions">
+                <button class="btn success" onclick="approveRequest(${row.id})">อนุมัติ</button>
+                <button class="btn danger" onclick="rejectRequest(${row.id})">ไม่อนุมัติ</button>
+              </div>
+            </td>
+            <td>${formatDateTime(row.created_at)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function approveRequest(id) {
+      try {
+        const res = await fetch(`/approve/${id}`, { method: 'POST' });
+        const result = await res.json();
+        alert(result.message || 'อนุมัติแล้ว');
+        await loadCountsAndData();
+      } catch (e) {
+        console.error(e);
+        alert('เกิดข้อผิดพลาดในการอนุมัติ');
+      }
+    }
+
+    async function rejectRequest(id) {
+      const reason = prompt('กรุณาระบุเหตุผลที่ไม่อนุมัติ');
+      if (reason === null) return;
+
+      try {
+        const res = await fetch(`/reject/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        const result = await res.json();
+        alert(result.message || 'ไม่อนุมัติแล้ว');
+        await loadCountsAndData();
+      } catch (e) {
+        console.error(e);
+        alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
+      }
+    }
+
+    async function setDepartment(id, department) {
+      if (!department) return;
+      try {
+        const res = await fetch(`/set-department/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ department })
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || 'ตั้งค่าแผนกไม่สำเร็จ');
+        // ไม่ alert ถี่เกินไป จะใช้งานลื่นกว่า
+      } catch (e) {
+        console.error(e);
+        alert(e.message || 'เกิดข้อผิดพลาดในการตั้งค่าแผนก');
+      }
+    }
+
+    async function refreshData() {
+      await loadCountsAndData();
+    }
+
+    function logout() {
+      window.location.href = '/logout';
+    }
+
+    // เริ่มโหลด
+    loadCountsAndData();
+  </script>
+</body>
+</html>
