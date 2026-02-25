@@ -736,12 +736,17 @@ tr.row-new {
 
 <script>
 function showImages(images) {
-  const itemsHtml = (images || []).map((img, index) => {
+  const safeImages = (images || []).filter(img => {
+    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+    return !!rawUrl;
+  });
+
+  const itemsHtml = safeImages.map((img, index) => {
     const rawUrl = typeof img === 'string' ? img : (img?.url || '');
     const url = encodeURI(rawUrl);
     const type = (typeof img === 'object' && img?.type) ? img.type : '';
 
-    const isVideo = type === 'video' || /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
+    const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
 
     const mediaHtml = isVideo
       ? `
@@ -756,12 +761,14 @@ function showImages(images) {
 
     return `
       <div class="media-card">
-        <a href="${url}" target="_blank" class="media-link" title="เปิดไฟล์เต็ม">
+        <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
           ${mediaHtml}
-        </a>
+        </div>
         <div class="media-meta">
           <span class="media-index">ไฟล์ที่ ${index + 1}</span>
-          <a href="${url}" target="_blank" class="open-btn">เปิดเต็ม</a>
+          <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
+            เปิดเต็ม
+          </button>
         </div>
       </div>
     `;
@@ -789,7 +796,6 @@ function showImages(images) {
           background: #f1f5f9;
           color: #0f172a;
         }
-
         .topbar {
           position: sticky;
           top: 0;
@@ -803,13 +809,7 @@ function showImages(images) {
           gap: 10px;
           flex-wrap: wrap;
         }
-
-        .title {
-          font-size: 18px;
-          font-weight: 700;
-          margin: 0;
-        }
-
+        .title { font-size: 18px; font-weight: 700; margin: 0; }
         .count-badge {
           background: #15563b;
           color: #fff;
@@ -818,20 +818,13 @@ function showImages(images) {
           font-size: 13px;
           font-weight: 700;
         }
-
-        .container {
-          padding: 16px;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-
+        .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
         .grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
           gap: 16px;
           align-items: start;
         }
-
         .media-card {
           background: #fff;
           border: 1px solid #e2e8f0;
@@ -839,21 +832,19 @@ function showImages(images) {
           overflow: hidden;
           box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-
         .media-link {
           display: block;
           text-decoration: none;
           background: #f8fafc;
+          cursor: pointer;
         }
-
         .preview-media {
           display: block;
           width: 100%;
-          height: 220px;          /* ✅ ทำให้ทุกการ์ดสูงเท่ากัน */
-          object-fit: cover;      /* ✅ เรียบร้อยเท่ากัน */
+          height: 220px;
+          object-fit: cover;
           background: #e2e8f0;
         }
-
         .media-meta {
           display: flex;
           justify-content: space-between;
@@ -861,23 +852,21 @@ function showImages(images) {
           gap: 8px;
           padding: 10px 12px;
         }
-
         .media-index {
           font-size: 13px;
           color: #475569;
           font-weight: 600;
         }
-
         .open-btn {
-          text-decoration: none;
+          border: none;
           background: #2563eb;
           color: #fff;
           padding: 6px 10px;
           border-radius: 8px;
           font-size: 12px;
           font-weight: 700;
+          cursor: pointer;
         }
-
         .empty {
           text-align: center;
           padding: 40px 20px;
@@ -886,8 +875,6 @@ function showImages(images) {
           border: 1px solid #e2e8f0;
           border-radius: 12px;
         }
-
-        /* มือถือ */
         @media (max-width: 640px) {
           .container { padding: 12px; }
           .grid { grid-template-columns: 1fr; gap: 12px; }
@@ -899,15 +886,129 @@ function showImages(images) {
     <body>
       <div class="topbar">
         <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
-        <div class="count-badge">ทั้งหมด ${(images || []).length} ไฟล์</div>
+        <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+      </div>
+      <div class="container">
+        ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
       </div>
 
-      <div class="container">
-        ${(images && images.length)
-          ? `<div class="grid">${itemsHtml}</div>`
-          : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`
+      <script>
+        function openMediaViewer(payload) {
+          const { url, isVideo, index } = payload || {};
+          if (!url) return;
+
+          const viewer = window.open('', '_blank', 'width=1200,height=800');
+          if (!viewer) {
+            alert('กรุณาอนุญาต popup');
+            return;
+          }
+
+          if (isVideo) {
+            viewer.document.write(\`
+              <!DOCTYPE html>
+              <html lang="th">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>วิดีโอไฟล์ที่ \${index}</title>
+                <style>
+                  body {
+                    margin: 0;
+                    background: #0f172a;
+                    color: white;
+                    font-family: sans-serif;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100vh;
+                  }
+                  .top {
+                    padding: 12px 16px;
+                    background: rgba(15,23,42,.95);
+                    border-bottom: 1px solid rgba(255,255,255,.1);
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:10px;
+                    flex-wrap:wrap;
+                  }
+                  .btn {
+                    color: white;
+                    background: #2563eb;
+                    text-decoration: none;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 13px;
+                  }
+                  .wrap {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 16px;
+                  }
+                  video {
+                    width: 100%;
+                    max-width: 1200px;
+                    max-height: calc(100vh - 90px);
+                    background: black;
+                    border-radius: 12px;
+                    outline: none;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="top">
+                  <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
+                  <a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง (ถ้าจำเป็น)</a>
+                </div>
+                <div class="wrap">
+                  <video controls autoplay playsinline>
+                    <source src="\${url}">
+                    เบราว์เซอร์ไม่รองรับการเล่นวิดีโอไฟล์นี้
+                  </video>
+                </div>
+              </body>
+              </html>
+            \`);
+          } else {
+            viewer.document.write(\`
+              <!DOCTYPE html>
+              <html lang="th">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>รูปภาพไฟล์ที่ \${index}</title>
+                <style>
+                  body {
+                    margin: 0;
+                    background: #0f172a;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    padding: 16px;
+                  }
+                  img {
+                    max-width: 100%;
+                    max-height: 100vh;
+                    object-fit: contain;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 30px rgba(0,0,0,.35);
+                    background: white;
+                  }
+                </style>
+              </head>
+              <body>
+                <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+              </body>
+              </html>
+            \`);
+          }
+
+          viewer.document.close();
         }
-      </div>
+      <\/script>
     </body>
     </html>
   `);
