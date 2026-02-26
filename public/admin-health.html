@@ -17,11 +17,33 @@
     .media-container { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0; }
     a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
     .btn { padding:10px 14px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-weight:600; cursor:pointer; }
+    .btn.primary { border-color:#15563b; background:#15563b; color:#fff; }
+    .btn.danger  { border-color:#dc2626; background:#fee2e2; color:#b91c1c; }
+    .chip { display:inline-block; padding:6px 10px; border-radius:999px; font-weight:700; font-size:13px; }
+    .chip.inbox { background:#e0f2fe; color:#075985; border:1px solid #7dd3fc; }
+    .chip.work  { background:#dcfce7; color:#166534; border:1px solid #86efac; }
   </style>
 </head>
 
 <body>
   <h2>📋 รายการคำร้อง - สาธารณสุข</h2>
+
+  <!-- ✅ โหมดสลับ: กล่องรับเรื่อง / งานของแผนก -->
+  <div style="text-align:center; margin:-6px 0 14px;">
+    <button id="btn-inbox" class="btn" onclick="setView('inbox')"
+      style="margin-right:6px; border-color:#0284c7; background:#e0f2fe; color:#075985;">
+      📥 กล่องรับเรื่อง (0)
+    </button>
+
+    <button id="btn-work" class="btn" onclick="setView('work')"
+      style="border-color:#15563b; background:#dcfce7; color:#166534;">
+      📋 งานของแผนก
+    </button>
+
+    <div style="margin-top:10px; color:#334155; font-weight:700;">
+      โหมด: <span id="modeBadge" class="chip inbox">📥 กล่องรับเรื่อง</span>
+    </div>
+  </div>
 
   <div style="text-align:center; margin-bottom: 20px;">
     <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()" style="
@@ -69,13 +91,13 @@
   <table>
     <thead>
       <tr>
-        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th><th>ไฟล์(เสร็จสิ้น)</th>
+        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ/จัดการ</th><th>แผนที่</th><th>วันที่-เวลา</th><th>ไฟล์(เสร็จสิ้น)</th>
       </tr>
     </thead>
     <tbody id="data-body"></tbody>
   </table>
 
-  <!-- ✅ Pagination เหมือนไฟฟ้า -->
+  <!-- ✅ Pagination -->
   <div id="pagination"
        style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
     <button id="prevPage" onclick="changePage(-1)"
@@ -92,17 +114,63 @@
   <script>
     const DEPT = 'สาธารณสุข';
 
+    // ✅ โหมดหน้า (inbox / work)
+    let VIEW_MODE = 'inbox'; // ค่าเริ่มต้น
+
     // ====== pagination state ======
     let allHealthData = [];
     let filteredData = [];
     let currentPage = 1;
     const pageSize = 20;
 
+    function setModeBadge() {
+      const badge = document.getElementById('modeBadge');
+      if (!badge) return;
+
+      if (VIEW_MODE === 'inbox') {
+        badge.className = 'chip inbox';
+        badge.textContent = '📥 กล่องรับเรื่อง';
+      } else {
+        badge.className = 'chip work';
+        badge.textContent = '📋 งานของแผนก';
+      }
+    }
+
+    async function setView(mode) {
+      VIEW_MODE = mode === 'work' ? 'work' : 'inbox';
+      currentPage = 1;
+
+      // อัปเดตปุ่มให้ดูเหมือนเลือกอยู่
+      const btnInbox = document.getElementById('btn-inbox');
+      const btnWork  = document.getElementById('btn-work');
+
+      if (btnInbox && btnWork) {
+        if (VIEW_MODE === 'inbox') {
+          btnInbox.style.opacity = '1';
+          btnWork.style.opacity  = '0.65';
+        } else {
+          btnWork.style.opacity  = '1';
+          btnInbox.style.opacity = '0.65';
+        }
+      }
+
+      setModeBadge();
+      await safeLoadData();
+    }
+
+    function getEndpointForMode() {
+      // ✅ inbox: เฉพาะรายการรอรับเรื่อง
+      if (VIEW_MODE === 'inbox') return '/data-health-inbox';
+      // ✅ work: รายการทั้งหมดของสาธารณสุข (เดิม)
+      return '/data-health-all';
+    }
+
     async function loadData() {
       const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
       const prevPage = currentPage;
 
-      const res = await fetch('/data-health-all?_=' + Date.now());
+      const endpoint = getEndpointForMode();
+      const res = await fetch(endpoint + '?_=' + Date.now());
       const data = await res.json();
 
       allHealthData = Array.isArray(data) ? data : [];
@@ -117,7 +185,7 @@
         filteredData = allHealthData;
       }
 
-      // พยายามคงหน้าเดิม (ไม่เด้งกลับหน้า 1)
+      // คงหน้าที่อยู่
       currentPage = prevPage;
       renderCurrentPage();
     }
@@ -148,7 +216,6 @@
     }
 
     function filterByName() {
-      // ✅ กัน auto refresh รีเฟรชทับตอนกำลังพิมพ์
       isTyping = true;
       clearTimeout(typingTimer);
       typingTimer = setTimeout(() => { isTyping = false; }, 800);
@@ -175,7 +242,6 @@
           else if (Array.isArray(row.photo)) files = row.photo;
         } catch (e) { files = []; }
 
-        // ✅ แยกไฟล์เสร็จสิ้นเหมือนไฟฟ้า
         const completedFiles = files.filter(it => {
           if (!it || typeof it !== 'object') return false;
           return it.from === 'completed' || it.tag === 'completed';
@@ -213,7 +279,7 @@
           `;
         }
 
-        // คอลัมน์ไฟล์หลัก: แบบไฟฟ้า = ปุ่มดูทั้งหมดอย่างเดียว
+        // คอลัมน์ไฟล์หลัก
         let fileLinks = "-";
         if (mainFiles.length > 0) {
           const buttonHtml =
@@ -226,14 +292,35 @@
           ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
           : '-';
 
-        const statusSelect = `
-          <select onchange="onStatusChange(${row.id}, this.value)">
-            <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
-            <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
-            <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
-            <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
-          </select>
-        `;
+        // ✅ คอลัมน์สถานะ/จัดการ: เปลี่ยนตามโหมด
+        let statusCellHtml = '-';
+
+        if (VIEW_MODE === 'inbox') {
+          // โหมดกล่องรับเรื่อง: มีปุ่มรับ/ไม่รับ
+          statusCellHtml = `
+            <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div style="font-weight:800; color:#075985;">รอแผนกรับเรื่อง</div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+                <button class="btn primary" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
+                <button class="btn danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
+              </div>
+              <div style="font-size:12px; color:#64748b;">
+                ถ้ารับเรื่อง ระบบจะย้ายไป “งานของแผนก”
+              </div>
+            </div>
+          `;
+        } else {
+          // โหมดงานของแผนก: ใช้ select เดิม
+          const statusSelect = `
+            <select onchange="onStatusChange(${row.id}, this.value)">
+              <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+              <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
+              <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
+              <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
+            </select>
+          `;
+          statusCellHtml = statusSelect;
+        }
 
         tbody.innerHTML += `
           <tr id="row-${row.id}">
@@ -242,7 +329,7 @@
             <td>${row.message || '-'}</td>
             <td>${fileLinks || '-'}</td>
             <td>${row.department || '-'}</td>
-            <td>${statusSelect}</td>
+            <td>${statusCellHtml}</td>
             <td>${mapLink}</td>
             <td>${formatDate(row.completed_at || row.created_at)}</td>
             <td>${completedLinks || '-'}</td>
@@ -279,6 +366,40 @@
       win.document.write(`<body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">${html}</body>`);
     }
 
+    // ✅ ใหม่: รับเรื่อง / ไม่รับเรื่อง (ใช้ API ที่คุณเพิ่มใน server.js แล้ว)
+    async function acceptDept(id) {
+      if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
+      const res = await fetch(`/dept-accept/${id}`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        alert('✅ รับเรื่องแล้ว (ย้ายไปงานของแผนก)');
+        // หลังรับเรื่อง ให้ไปโหมดงานของแผนกทันที
+        await setView('work');
+        await updateCounters();
+      } else {
+        alert('❌ รับเรื่องไม่สำเร็จ');
+      }
+    }
+
+    async function rejectDept(id) {
+      const reason = prompt('❌ ไม่รับเรื่องเพราะอะไร? (ใส่หรือเว้นว่างได้)');
+      if (reason === null) return;
+
+      const res = await fetch(`/dept-reject/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        alert('✅ ส่งกลับแอดมินหลักแล้ว');
+        await safeLoadData();
+        await updateCounters();
+      } else {
+        alert('❌ ส่งกลับไม่สำเร็จ');
+      }
+    }
+
     async function setStatus(id, status) {
       const res = await fetch(`/set-status/${id}`, {
         method: 'POST',
@@ -288,26 +409,32 @@
 
       if (res.ok) {
         alert('อัปเดตสถานะเรียบร้อย');
-        await safeLoadData(); // ✅ รีเฟรชตารางทันที
+        await safeLoadData();
         if (typeof updateCounters === 'function') updateCounters();
       } else {
         alert('เกิดข้อผิดพลาดในการอัปเดต');
       }
     }
 
-    // ====== counters แบบไฟฟ้า (มี department=...) ======
+    // ====== counters ======
     async function updateCounters() {
       try {
-        const [allRes, pRes, iRes, cRes] = await Promise.all([
+        const [inboxRes, allRes, pRes, iRes, cRes] = await Promise.all([
+          fetch('/data-health-inbox?_=' + Date.now()),
           fetch('/data-health-all?_=' + Date.now()),
           fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
           fetch('/data-in-progress?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
           fetch('/data-completed?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
         ]);
 
-        const [allData, pAll, iAll, cAll] = await Promise.all([
-          allRes.json(), pRes.json(), iRes.json(), cRes.json()
+        const [inboxData, allData, pAll, iAll, cAll] = await Promise.all([
+          inboxRes.json(), allRes.json(), pRes.json(), iRes.json(), cRes.json()
         ]);
+
+        // ✅ inbox count
+        const inboxCount = Array.isArray(inboxData) ? inboxData.length : 0;
+        const btnInbox = document.getElementById('btn-inbox');
+        if (btnInbox) btnInbox.textContent = `📥 กล่องรับเรื่อง (${inboxCount})`;
 
         const byDept = (r) => ((r.department || '').trim() === DEPT);
 
@@ -329,7 +456,6 @@
     let autoTimer = null;
     let isLoading = false;
 
-    // ✅ เพิ่ม: กันกระตุกตอนพิมพ์ค้นหา (ไม่ลบของเดิม)
     let isTyping = false;
     let typingTimer = null;
 
@@ -342,7 +468,7 @@
     }
 
     async function safeLoadData() {
-      if (isLoading) return;      // กันโหลดซ้อน
+      if (isLoading) return;
       isLoading = true;
       try {
         await loadData();
@@ -354,11 +480,10 @@
       }
     }
 
-    function startAutoRefresh(ms = 15000) { // 15 วิ ปรับได้
+    function startAutoRefresh(ms = 15000) {
       stopAutoRefresh();
       autoTimer = setInterval(() => {
         const toggle = document.getElementById('auto-refresh-toggle');
-        // ✅ เพิ่ม: ถ้ากำลังพิมพ์ค้นหา ให้ไม่รีเฟรชทับ
         if ((!toggle || toggle.checked) && !isTyping) safeLoadData();
       }, ms);
     }
@@ -368,27 +493,14 @@
       autoTimer = null;
     }
 
-    async function refreshData() {
-      const btn = document.getElementById('refreshBtn');
-      btn.innerHTML = '⏳ กำลังรีเฟรช...';
-      btn.disabled = true;
-
-      await safeLoadData();
-
-      setTimeout(() => {
-        btn.innerHTML = '🔄 รีเฟรช';
-        btn.disabled = false;
-      }, 500);
-    }
-
     // init
-    safeLoadData();
+    setModeBadge();
+    setView('inbox'); // เริ่มที่ inbox
     updateCounters();
 
     startAutoRefresh(15000);
     setInterval(updateCounters, 60000);
 
-    // ✅ เพิ่ม: ผูก checkbox ให้เปิด/ปิด auto refresh ได้จริง
     window.addEventListener('load', () => {
       const toggle = document.getElementById('auto-refresh-toggle');
       if (toggle) {
@@ -410,7 +522,7 @@
 
       <div style="display:flex; gap:8px; justify-content:flex-end">
         <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
-        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn" style="border-color:#15563b;background:#15563b;color:#fff">ยืนยัน</button>
+        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn primary">ยืนยัน</button>
       </div>
     </div>
   </div>
@@ -429,13 +541,13 @@
 
     function openCompleteModal() {
       document.getElementById('completeModal').style.display = 'flex';
-      stopAutoRefresh(); // ✅ หยุดออโต้ตอนเปิดโมดัล
+      stopAutoRefresh();
     }
     function closeCompleteModal() {
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
       pendingCompleteId = null;
-      startAutoRefresh(15000); // ✅ เริ่มออโต้ใหม่ตอนปิดโมดัล
+      startAutoRefresh(15000);
     }
 
     async function submitComplete() {
