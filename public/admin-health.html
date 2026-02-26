@@ -463,7 +463,30 @@ tbody tr:hover{ background:#f3f7ff; }
   background: rgba(34,197,94,.18);
   border-color: rgba(34,197,94,.35);
 }
-  
+/* ✅ FIX: dropdown ตัวใหญ่ + กรอบไม่พอดี (Safari/mac) */
+.status-select{
+  font-size: 15px !important;      /* ลดขนาดตัวอักษรใน select */
+  line-height: 1.1 !important;     /* ล็อกความสูงบรรทัด */
+  height: 40px !important;         /* ล็อกความสูงกรอบให้พอดี */
+  padding: 0 42px 0 16px !important; /* ใช้ padding แบบแน่นๆ */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+/* ✅ ตอนเปิด dropdown ใน Safari บางครั้งจะซูมตัวหนังสือ
+   ให้บังคับขนาด option ด้วย */
+.status-select option{
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+}
+
+/* ✅ ถ้าตารางบีบ select ให้แคบ/สูงผิด */
+td .status-select{
+  min-width: 170px;
+}
   </style>
 </head>
 
