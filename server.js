@@ -171,9 +171,19 @@ db.query('SELECT 1', (err) => {
   if (err) console.error('❌ MySQL error:', err);
   else console.log('✅ MySQL connected!');
 });
+
+
+const crypto = require('crypto');
+
+function normalizeThaiPhone(input = '') {
+  const digits = String(input).replace(/\D/g, '');
+  if (digits.startsWith('66') && digits.length >= 11) return '0' + digits.slice(2);
+  return digits;
+}
+
 app.get('/line/is-linked', async (req, res) => {
   try {
-    const phone = String(req.query.phone || '').trim();
+    const phone = normalizeThaiPhone(req.query.phone || '');
     if (!phone) return res.status(400).json({ linked: false });
 
     const [rows] = await db.promise().query(
@@ -187,14 +197,6 @@ app.get('/line/is-linked', async (req, res) => {
     return res.status(500).json({ linked: false });
   }
 });
-
-const crypto = require('crypto');
-
-function normalizeThaiPhone(input = '') {
-  const digits = String(input).replace(/\D/g, '');
-  if (digits.startsWith('66') && digits.length >= 11) return '0' + digits.slice(2);
-  return digits;
-}
 async function pushLineMessage(to, text) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
