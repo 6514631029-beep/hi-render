@@ -209,6 +209,31 @@
       alert('คัดลอกไม่สำเร็จ ให้กดค้างแล้วคัดลอกด้วยตัวเอง');
     }
   }
+   
+  
+  // ✅ เช็คว่าเบอร์นี้ผูก LINE แล้วหรือยัง (ถ้าผูกแล้ว ซ่อนกล่องนี้)
+  async function checkLineLinked() {
+    if (!phone) return; // ไม่มีเบอร์ก็ข้าม
+
+    try {
+      const r = await fetch(`/line/is-linked?phone=${encodeURIComponent(phone)}`);
+      const data = await r.json();
+
+      if (data.linked) {
+        // ผูกแล้ว ✅ ซ่อนทั้งกล่อง
+        const sec = document.getElementById('lineSection');
+        if (sec) sec.style.display = 'none';
+
+        // (ทางเลือก) จะขึ้นข้อความแทนก็ทำได้ เดี๋ยวบอกด้านล่าง
+      }
+    } catch (e) {
+      console.log('checkLineLinked error:', e);
+      // ถ้าพัง ก็ปล่อยให้โชว์ปกติ
+    }
+  }
+
+  checkLineLinked();
+
 </script>
 
 </body>
