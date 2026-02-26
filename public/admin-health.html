@@ -462,17 +462,6 @@
 
 <body>
   <div class="app">
-
-    <!-- ===== Sidebar ===== -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">🏥</div>
-        <div>
-          <div class="title">สาธารณสุข • Dashboard</div>
-          <div class="sub">Hi-Form หน่วยงาน</div>
-        </div>
-      </div>
-
       <div class="menu">
         <div class="menu-title">สรุปสถานะ</div>
         <div class="side-kpis">
@@ -530,18 +519,8 @@
           <div class="topbar-left">
             <div>
               <h1>🏛️ ระบบรับเรื่องร้องเรียน • งานสาธารณสุข</h1>
-              <div class="sub">องค์การบริหารส่วนตำบล • Dashboard หน่วยงาน</div>
+              <div class="sub">องค์การบริหารส่วนตำบล /div>
             </div>
-          </div>
-
-          <div class="topbar-actions">
-            <div class="pill">🕒 <small>อัปเดตล่าสุด:</small> <span id="last-updated">-</span></div>
-
-            <label class="pill" style="cursor:pointer;">
-              <span class="auto-dot" id="autoDot"></span>
-              <input type="checkbox" id="auto-refresh-toggle" checked style="accent-color: var(--gold);">
-              รีเฟรชอัตโนมัติ
-            </label>
           </div>
         </div>
       </header>
@@ -550,37 +529,15 @@
       <div class="content">
 
         <!-- KPI + Search + Tabs -->
+        <!-- KPI + Search + Tabs (ไม่มี KPI แล้ว) -->
         <div class="card">
           <div class="card-h">
             <h2>ภาพรวมงาน</h2>
-            <span id="modeBadge" class="chip inbox">📥 กล่องรับเรื่อง</span>
+            <!-- ลบกล่องรับเรื่องขวาบนแล้ว -->
           </div>
 
           <div class="card-b">
-            <div class="kpis">
-              <div class="kpi">
-                <div class="t">Inbox</div>
-                <div class="v info" id="kpi-inbox">0</div>
-                <div class="tiny">รอแผนกรับเรื่อง</div>
-              </div>
-              <div class="kpi">
-                <div class="t">รอดำเนินการ</div>
-                <div class="v warn" id="kpi-pending">0</div>
-                <div class="tiny">งานค้างดำเนินการ</div>
-              </div>
-              <div class="kpi">
-                <div class="t">กำลังดำเนินการ</div>
-                <div class="v gold" id="kpi-inprogress">0</div>
-                <div class="tiny">อยู่ระหว่างดำเนินงาน</div>
-              </div>
-              <div class="kpi">
-                <div class="t">เสร็จสิ้น</div>
-                <div class="v ok" id="kpi-completed">0</div>
-                <div class="tiny">ปิดงานเรียบร้อย</div>
-              </div>
-            </div>
-
-            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
               <div class="tabs">
                 <button id="btn-inbox" class="tab active" onclick="setView('inbox')">📥 กล่องรับเรื่อง (0)</button>
                 <button id="btn-work" class="tab" onclick="setView('work')">📋 งานของแผนก</button>
