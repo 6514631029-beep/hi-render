@@ -487,6 +487,23 @@ tbody tr:hover{ background:#f3f7ff; }
 td .status-select{
   min-width: 170px;
 }
+/* ✅ FIX ชัวร์: กรอบพอดี + ข้อความอยู่กลาง */
+.status-select{
+  height: 44px !important;        /* ปรับได้: 40/42/44 */
+  line-height: 44px !important;   /* ต้องเท่ากับ height */
+  padding: 0 48px 0 18px !important; /* บน/ล่าง = 0 */
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  vertical-align: middle;
+}
+
+/* ✅ กัน option ในเมนูใหญ่เกิน */
+.status-select option{
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
   </style>
 </head>
 
