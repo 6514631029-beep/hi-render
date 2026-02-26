@@ -7,44 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>🏛️ Dashboard - สาธารณสุข</title>
 
-  <style>
-    /* =========================
-       ✅ TH Sarabun New (Local)
-       ใช้ไฟล์จริงใน public/fonts/
-       - THSarabunNew.woff2
-       - THSarabunNew Bold.woff2
-       - THSarabunNew Italic.woff2
-       - THSarabunNew BoldItalic.woff2
-       ========================= */
-    @font-face{
-      font-family:"THSarabunNew";
-      src:url("/fonts/THSarabunNew.woff2") format("woff2");
-      font-weight:400;
-      font-style:normal;
-      font-display:swap;
-    }
-    @font-face{
-      font-family:"THSarabunNew";
-      src:url("/fonts/THSarabunNew%20Bold.woff2") format("woff2");
-      font-weight:700;
-      font-style:normal;
-      font-display:swap;
-    }
-    @font-face{
-      font-family:"THSarabunNew";
-      src:url("/fonts/THSarabunNew%20Italic.woff2") format("woff2");
-      font-weight:400;
-      font-style:italic;
-      font-display:swap;
-    }
-    @font-face{
-      font-family:"THSarabunNew";
-      src:url("/fonts/THSarabunNew%20BoldItalic.woff2") format("woff2");
-      font-weight:700;
-      font-style:italic;
-      font-display:swap;
-    }
+  <!-- ✅ ฟอนต์กลาง ใช้ทุกหน้า -->
+  <link rel="stylesheet" href="/admin-font.css" />
 
+  <style>
     :root{
       --bg: #eef3fb;
       --card: #ffffff;
@@ -72,10 +38,13 @@
       --sidebarW: 260px;
     }
 
+    /* ✅ ปรับให้ TH Sarabun ไม่ดูเล็ก */
+    html{ font-size: 20px; }
+    body{ font-size: 18px; line-height: 1.5; }
+
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       color:var(--ink);
       background:
         radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
@@ -121,8 +90,8 @@
       flex:0 0 auto;
       box-shadow: 0 12px 22px rgba(201,162,39,.25);
     }
-    .brand .title{font-weight:1000; line-height:1.1; font-size:14px;}
-    .brand .sub{font-size:12px; opacity:.85; font-weight:700;}
+    .brand .title{font-weight:1000; line-height:1.1; font-size:15px;}
+    .brand .sub{font-size:13px; opacity:.85; font-weight:700;}
 
     .menu{
       display:flex;
@@ -131,7 +100,7 @@
       padding: 10px 6px;
     }
     .menu-title{
-      font-size:12px;
+      font-size:13px;
       color: rgba(255,255,255,.72);
       font-weight:900;
       margin: 6px 6px 2px;
@@ -153,8 +122,8 @@
       font-weight:900;
       cursor:pointer;
       transition: .15s transform, .15s background, .15s border;
-      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       text-align:left;
+      font-size:16px;
     }
     .side-link:hover{
       background: rgba(255,255,255,.10);
@@ -176,6 +145,7 @@
       border: 1px solid rgba(201,162,39,.35);
       color: var(--gold);
       font-weight:1000;
+      font-size:14px;
     }
 
     .divider{
@@ -199,13 +169,13 @@
       color:#fff;
     }
     .side-kpi .t{
-      font-size:11px;
+      font-size:12px;
       opacity:.82;
       font-weight:900;
       letter-spacing:.2px;
     }
     .side-kpi .v{
-      font-size:18px;
+      font-size:20px;
       font-weight:1000;
       margin-top:4px;
     }
@@ -257,13 +227,13 @@
     }
     .topbar-left h1{
       margin:0;
-      font-size:18px;
+      font-size:20px;
       font-weight:1000;
       white-space:nowrap;
     }
     .topbar-left .sub{
       margin-top:2px;
-      font-size:12px;
+      font-size:14px;
       opacity:.82;
       font-weight:800;
       white-space:nowrap;
@@ -281,7 +251,7 @@
       padding:8px 12px;border-radius:999px;
       background: rgba(255,255,255,.12);
       border:1px solid rgba(255,255,255,.16);
-      color:#fff;font-weight:900;font-size:13px;
+      color:#fff;font-weight:900;font-size:15px;
       white-space:nowrap;
     }
     .pill small{opacity:.85;font-weight:800}
@@ -304,8 +274,8 @@
       cursor:pointer;
       font-weight:900;
       transition:.15s transform, .15s box-shadow, .15s background;
-      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       white-space:nowrap;
+      font-size:16px;
     }
     .btn:hover{transform:translateY(-1px)}
     .btn:active{transform:translateY(1px)}
@@ -323,7 +293,7 @@
     .btn.danger{
       background:#fee2e2;border-color:#fecaca;color:#991b1b;
     }
-    .btn.mini{padding:8px 10px;border-radius:10px;font-size:13px}
+    .btn.mini{padding:8px 10px;border-radius:10px;font-size:15px}
     .btn.primary.mini{box-shadow:none}
     .btn.danger.mini{box-shadow:none}
 
@@ -348,13 +318,13 @@
       display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
       background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
-    .card-h h2{margin:0;font-size:16px;font-weight:1000}
+    .card-h h2{margin:0;font-size:18px;font-weight:1000}
     .card-b{padding:12px 14px}
 
     /* Badge chip */
     .chip{
       display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;font-weight:1000;font-size:13px;
+      padding:8px 10px;border-radius:999px;font-weight:1000;font-size:15px;
       border:1px solid var(--line);
       background:#fff;
     }
@@ -386,13 +356,13 @@
       background: radial-gradient(circle at 30% 30%, rgba(37,99,235,.18), transparent 60%);
       pointer-events:none;
     }
-    .kpi .t{font-size:12px;color:var(--muted);font-weight:900}
-    .kpi .v{font-size:26px;font-weight:1000;margin-top:4px}
+    .kpi .t{font-size:13px;color:var(--muted);font-weight:900}
+    .kpi .v{font-size:28px;font-weight:1000;margin-top:4px}
     .kpi .v.ok{color:var(--ok)}
     .kpi .v.warn{color:var(--warn)}
     .kpi .v.info{color:var(--info)}
     .kpi .v.gold{color:var(--gold)}
-    .tiny{font-size:12px;color:#64748b;font-weight:800}
+    .tiny{font-size:14px;color:#64748b;font-weight:800}
 
     /* Tabs */
     .tabs{display:flex;gap:8px;flex-wrap:wrap}
@@ -400,6 +370,7 @@
       padding:10px 12px;border-radius:999px;border:1px solid var(--line);
       background:#fff;cursor:pointer;font-weight:1000;
       transition:.15s transform, .15s background, .15s border;
+      font-size:16px;
     }
     .tab:hover{transform:translateY(-1px)}
     .tab.active{
@@ -416,7 +387,6 @@
       font-size:16px;
       outline:none;
       background:#fff;
-      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       font-weight:800;
     }
 
@@ -436,7 +406,6 @@
       border-bottom:1px solid var(--line);
       text-align:center;
       vertical-align:middle;
-      font-size:14px;
     }
     th{
       position:sticky;
@@ -449,6 +418,7 @@
       text-transform:uppercase;
       box-shadow: 0 8px 18px rgba(2,6,23,.10);
     }
+    td{ font-size:15px; }
     tbody tr:nth-child(even){background:#fbfdff}
     tbody tr:hover{background:#eef6ff}
     a.map-link{color:var(--info);font-weight:1000;text-decoration:none;white-space:nowrap}
@@ -855,7 +825,7 @@
           `;
         } else {
           const statusSelect = `
-            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid var(--line); font-family:'THSarabunNew','TH Sarabun New','Sarabun',Tahoma,Arial,sans-serif; font-weight:900;">
+            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid var(--line); font-family:var(--thai-font,'THSarabunNew','Sarabun',Tahoma,Arial,sans-serif); font-weight:900;">
               <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
               <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
               <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
@@ -916,7 +886,7 @@
       }).join('');
 
       const win = window.open('', '_blank', 'width=1000,height=700');
-      win.document.write(`<body style="font-family:'THSarabunNew','TH Sarabun New','Sarabun',Tahoma,Arial,sans-serif; padding:28px; text-align:center; background:#f1f5f9">${html}</body>`);
+      win.document.write(`<body style="font-family:'THSarabunNew','Sarabun',Tahoma,Arial,sans-serif; padding:28px; text-align:center; background:#f1f5f9">${html}</body>`);
     }
 
     async function acceptDept(id) {
