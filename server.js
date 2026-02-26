@@ -393,8 +393,12 @@ app.post('/submit', (req, res) => {
           `ชื่อ: ${name}\nเบอร์โทร: ${phone}\nที่อยู่: ${address}\nข้อความ: ${message}\nจำนวนไฟล์แนบ: ${files.length} ไฟล์`
         );
 
+        const requestId = result.insertId; // ✅ เลขคำร้องที่เพิ่ง insert
+
         console.log('✅ บันทึกคำร้อง:', JSON.stringify(result, null, 2));
-        return res.redirect('/submit-success.html');
+
+        // ✅ ส่งเลขคำร้อง + เบอร์ ไปหน้า success
+        return res.redirect(`/submit-success.html?rid=${requestId}&phone=${encodeURIComponent(phone)}`);
       });
 
     } catch (error) {

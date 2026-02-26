@@ -9,12 +9,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- ฟอนต์ -->
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Kanit', sans-serif;
@@ -35,47 +33,117 @@
 
     .card {
       background: #ffffff;
-      padding: 32px 24px;
+      padding: 28px 22px;
       border-radius: 20px;
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin: 12px;
     }
 
     h1 {
       font-size: 1.8rem;
-      margin-bottom: 10px;
+      margin: 0 0 10px;
+      font-weight: 800;
     }
 
     p {
       font-size: 1rem;
-      margin-bottom: 24px;
+      margin: 0 0 18px;
+      color: #14532d;
     }
 
-    a {
+    .section {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      text-align: left;
+    }
+
+    .section h2{
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      color:#166534;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .muted{
+      color:#166534;
+      opacity: .9;
+      font-size: .95rem;
+      line-height: 1.45;
+      margin: 0 0 10px;
+      text-align: left;
+    }
+
+    .rid {
+      display:inline-block;
+      margin-top: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      font-weight: 800;
+      color:#166534;
+      font-size: .95rem;
+    }
+
+    .btn {
       display: block;
       width: 100%;
       padding: 14px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family:'Kanit',sans-serif;
+      transition: transform .08s ease, background-color .2s ease;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn:active{ transform: scale(.99); }
+
+    .btn-green {
       background-color: #22c55e;
       color: white;
-      text-decoration: none;
-      font-size: 1.1rem;
-      border-radius: 12px;
-      transition: background-color 0.2s ease;
     }
+    .btn-green:hover { background-color: #16a34a; }
 
-    a:hover {
-      background-color: #16a34a;
+    .btn-line{
+      background:#06C755;
+      color:#fff;
+      margin-top: 10px;
+    }
+    .btn-line:hover{ background:#05b84c; }
+
+    .btn-gray{
+      background:#e5e7eb;
+      color:#111827;
+      margin-top: 10px;
+    }
+    .btn-gray:hover{ background:#d1d5db; }
+
+    .code {
+      margin-top: 10px;
+      background: #ffffff;
+      border: 1px dashed #86efac;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .95rem;
+      color:#14532d;
+      word-break: break-word;
+      text-align: left;
     }
 
     /* 📱 มือถือจอเล็กมาก */
     @media (max-width: 360px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-      p {
-        font-size: 0.95rem;
-      }
+      h1 { font-size: 1.5rem; }
+      p { font-size: 0.95rem; }
     }
   </style>
 </head>
@@ -84,8 +152,64 @@
   <div class="card">
     <h1>✅ ส่งคำร้องสำเร็จ</h1>
     <p>ขอบคุณสำหรับการแจ้งเรื่อง<br>เจ้าหน้าที่จะดำเนินการโดยเร็ว</p>
-    <a href="/choose.html">⬅️ กลับไปเมนูหลัก</a>
+
+    <!-- ✅ (เพิ่มใหม่) แสดงเลขคำร้อง ถ้ามีส่งมาใน URL -->
+    <div id="ridWrap" style="display:none;">
+      <div class="rid">เลขคำร้อง: <span id="rid">-</span></div>
+    </div>
+
+    <!-- ✅ (เพิ่มใหม่) ส่วนแอดไลน์ -->
+    <div class="section">
+      <h2>🔔 รับแจ้งเตือนผ่าน LINE</h2>
+      <div class="muted">
+        กดแอดไลน์ OA ของหน่วยงานเพื่อรับแจ้งเตือนเมื่อดำเนินการเสร็จสิ้น<br>
+        <b>สำคัญ:</b> หลังแอดแล้วให้ทักข้อความผูกเบอร์ 1 ครั้ง เพื่อให้ระบบส่งแจ้งเตือนได้
+      </div>
+
+      <button class="btn btn-line" id="btnAddLine">➕ แอดไลน์เพื่อรับแจ้งเตือน</button>
+
+      <div class="muted" style="margin-top:10px; font-weight:800;">📩 ข้อความที่ต้องส่งใน LINE</div>
+      <div class="code" id="bindText">ผูกเบอร์ (พิมพ์เบอร์ของคุณ)</div>
+
+      <button class="btn btn-gray" onclick="copyBindText()">คัดลอกข้อความผูกเบอร์</button>
+    </div>
+
+    <!-- ปุ่มเดิมของคุณ -->
+    <a class="btn btn-green" href="/choose.html" style="margin-top:14px;">⬅️ กลับไปเมนูหลัก</a>
   </div>
+
+<script>
+  // ✅ ใส่ลิงก์ OA ของคุณตรงนี้ (ตอนนี้ยังเป็นตัวอย่าง)
+  const YOUR_OA_LINK = "https://lin.ee/XXXXXXXX"; // <-- แก้เป็นของจริง
+
+  const params = new URLSearchParams(location.search);
+  const rid = params.get('rid');     // เช่น /submit-success.html?rid=73&phone=08xxxx
+  const phone = params.get('phone');
+
+  // แสดงเลขคำร้อง ถ้ามี
+  if (rid) {
+    document.getElementById('ridWrap').style.display = 'block';
+    document.getElementById('rid').textContent = rid;
+  }
+
+  // เตรียมข้อความผูกเบอร์
+  const bindText = phone ? `ผูกเบอร์ ${phone}` : `ผูกเบอร์ (พิมพ์เบอร์ของคุณ)`;
+  document.getElementById('bindText').textContent = bindText;
+
+  document.getElementById('btnAddLine').addEventListener('click', () => {
+    window.open(YOUR_OA_LINK, '_blank');
+  });
+
+  async function copyBindText(){
+    const text = document.getElementById('bindText').textContent;
+    try{
+      await navigator.clipboard.writeText(text);
+      alert('คัดลอกแล้ว ✅ นำไปวางใน LINE ได้เลย');
+    }catch(e){
+      alert('คัดลอกไม่สำเร็จ ให้กดค้างแล้วคัดลอกด้วยตัวเอง');
+    }
+  }
+</script>
 
 </body>
 </html>
