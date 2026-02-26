@@ -166,7 +166,13 @@
 
       <label>เบอร์โทรศัพท์:</label>
       <input type="tel" name="phone" required>
-
+      <label for="category">แจ้งเรื่องอะไร:</label>
+      <select name="category" id="category" required>
+        <option value="" disabled selected>-- เลือกประเภทเรื่อง --</option>
+        <option value="ขยะ">🗑️ ขยะ</option>
+        <option value="ไฟฟ้า">💡 ไฟฟ้า</option>
+        <option value="ถนน/เสาไฟชำรุด">🛣️ ถนน/เสาไฟชำรุด</option>
+      </select>
       <label>กรุณาใส่เลขที่บ้าน เเละ หมู่:</label>
       <textarea name="address" rows="2" required></textarea>
 
