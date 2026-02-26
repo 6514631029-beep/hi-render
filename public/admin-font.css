@@ -67,3 +67,21 @@ td{ font-size: 15px; }
 .kpi .v{ font-size: 28px; }
 table th{ font-size: 13px !important; }
 table td{ font-size: 15px !important; }
+/* ===== Bigger UI (Sarabun) ===== */
+html{ font-size: 22px; }        /* จากเดิม 20 -> 22 */
+body{ font-size: 20px; line-height: 1.55; }
+
+.btn, .tab, .pill, .chip{ font-size: 18px; }
+.search{ font-size: 18px; }
+
+table td{ font-size: 17px; }
+table th{ font-size: 14px; }
+
+.brand .title{ font-size: 16px; }
+.brand .sub{ font-size: 14px; }
+.menu-title{ font-size: 14px; }
+
+.side-kpi .t{ font-size: 13px; }
+.side-kpi .v{ font-size: 22px; }
+.kpi .t{ font-size: 14px; }
+.kpi .v{ font-size: 30px; }
