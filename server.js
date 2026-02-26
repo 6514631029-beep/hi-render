@@ -20,18 +20,25 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
 function uploadBufferToCloudinary(buffer, mimetype) {
   return new Promise((resolve, reject) => {
-    const resource_type = mimetype.startsWith('video')
-      ? 'video'
-      : mimetype.startsWith('image')
-      ? 'image'
-      : 'raw';
+    const isVideo = mimetype?.startsWith('video/');
+    const isHeic = mimetype === 'image/heic' || mimetype === 'image/heif';
 
-    const stream = cloudinary.uploader.upload_stream(
-      { resource_type, folder: 'hi-form' },
-      (err, result) => (err ? reject(err) : resolve(result))
-    );
+    const resource_type = isVideo ? 'video' : 'image';
+
+    // ✅ ถ้าเป็น HEIC/HEIF ให้แปลงเป็น JPG ตอนอัปโหลด
+    const options = {
+      resource_type,
+      folder: 'hi-form',
+      ...(isHeic ? { format: 'jpg' } : {})
+    };
+
+    const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
 
     stream.end(buffer);
   });
@@ -54,22 +61,30 @@ const ALLOWED_MIME_TYPES = [
   'image/png',
   'image/webp',
   'image/gif',
+  'image/heic', // ✅ เพิ่ม
+  'image/heif', // ✅ เพิ่ม
 
   // Videos
   'video/mp4',
   'video/quicktime', // .mov
   'video/webm'
-  // ถ้าคุณอยากรับ mkv เพิ่มค่อยใส่ 'video/x-matroska'
 ];
 
 const memoryStorage = multer.memoryStorage();
 
 // กรองชนิดไฟล์
 function commonFileFilter(req, file, cb) {
-  if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-    return cb(new Error(`ไม่รองรับไฟล์ประเภท ${file.mimetype}`));
-  }
-  cb(null, true);
+  const mime = (file.mimetype || '').toLowerCase();
+  const name = (file.originalname || '').toLowerCase();
+
+  // ✅ อนุญาตจาก MIME ที่เรารู้จัก
+  if (ALLOWED_MIME_TYPES.includes(mime)) return cb(null, true);
+
+  // ✅ กันเคส iPhone / Browser ส่งมาเป็น octet-stream แต่ชื่อไฟล์เป็น .heic/.heif/.jpg/.png/.mp4 ฯลฯ
+  const extOK = /\.(jpe?g|png|webp|gif|heic|heif|mp4|mov|webm)$/i.test(name);
+  if (mime === 'application/octet-stream' && extOK) return cb(null, true);
+
+  return cb(new Error(`ไม่รองรับไฟล์ประเภท ${file.mimetype}`));
 }
 
 // สำหรับ /submit (ประชาชนส่งคำร้อง)
@@ -105,12 +120,21 @@ function validateFiles(files = [], options = {}) {
   for (const f of files) {
     totalSize += (f.size || 0);
 
-    const isImage = f.mimetype && f.mimetype.startsWith('image/');
-    const isVideo = f.mimetype && f.mimetype.startsWith('video/');
+    const mime = (f.mimetype || '').toLowerCase();
+    const name = (f.originalname || '').toLowerCase();
 
-    if (!isImage && !isVideo) {
-      throw new Error(`ไฟล์ "${f.originalname}" ไม่ใช่รูปภาพหรือวิดีโอ`);
+    let isImage = mime.startsWith('image/');
+    let isVideo = mime.startsWith('video/');
+
+    // ✅ เคส octet-stream ให้เดาจากนามสกุลไฟล์
+    if (!isImage && !isVideo && mime === 'application/octet-stream') {
+      if (/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(name)) isImage = true;
+      if (/\.(mp4|mov|webm)$/i.test(name)) isVideo = true;
     }
+
+if (!isImage && !isVideo) {
+  throw new Error(`ไฟล์ "${f.originalname}" ไม่ใช่รูปภาพหรือวิดีโอ`);
+}
 
     if (isImage && f.size > maxImageSize) {
       throw new Error(`ไฟล์รูป "${f.originalname}" มีขนาดเกิน 10MB`);
@@ -148,7 +172,19 @@ function handleMulterError(err, res) {
 
   return res.status(400).send(err.message || 'อัปโหลดไฟล์ไม่สำเร็จ');
 }
+function detectFileType(file) {
+  const mime = (file.mimetype || '').toLowerCase();
+  const name = (file.originalname || '').toLowerCase();
 
+  if (mime.startsWith('video/')) return 'video';
+  if (mime.startsWith('image/')) return 'image';
+
+  // octet-stream → เดาจากนามสกุล
+  if (/\.(mp4|mov|webm)$/i.test(name)) return 'video';
+  if (/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(name)) return 'image';
+
+  return 'raw';
+}
 
 
 // LINE Webhook (ต้องอยู่ก่อน 404)
@@ -218,12 +254,25 @@ async function pushLineMessage(to, text) {
 
   if (!res.ok) console.error('LINE push failed:', await res.text());
 }
+function toJpgCloudinary(url = '') {
+  // แปลง Cloudinary URL ให้เป็น .jpg (แบบง่ายสุด)
+  // ถ้า url ไม่ใช่ cloudinary ก็คืนเหมือนเดิม
+  if (!url.includes('res.cloudinary.com')) return url;
+  if (url.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) return url;
+
+  // ใส่ f_jpg ก่อนส่วนชื่อไฟล์
+  // .../upload/...  -> .../upload/f_jpg/...
+  return url.replace('/upload/', '/upload/f_jpg/');
+}
+
 async function pushLineImage(to, imageUrl) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
     console.log('[LINE MOCK push image]', to, imageUrl);
     return;
   }
+
+  const safeUrl = toJpgCloudinary(imageUrl);
 
   const res = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
@@ -234,11 +283,7 @@ async function pushLineImage(to, imageUrl) {
     body: JSON.stringify({
       to,
       messages: [
-        {
-          type: 'image',
-          originalContentUrl: imageUrl,
-          previewImageUrl: imageUrl
-        }
+        { type: 'image', originalContentUrl: safeUrl, previewImageUrl: safeUrl }
       ]
     })
   });
@@ -521,8 +566,7 @@ app.post('/submit', (req, res) => {
           return {
             url: result.secure_url,
             public_id: result.public_id,
-            type: f.mimetype.startsWith('video') ? 'video' :
-                  f.mimetype.startsWith('image') ? 'image' : 'raw'
+            type: detectFileType(f)
           };
         })
       );
@@ -885,9 +929,7 @@ app.post('/complete-with-media/:id', (req, res) => {
           return {
             url: result.secure_url,
             public_id: result.public_id,
-            type: f.mimetype?.startsWith('video') ? 'video'
-                : f.mimetype?.startsWith('image') ? 'image'
-                : 'raw',
+            type: detectFileType(f),
             from: 'completed',
             tag: 'completed'
           };
