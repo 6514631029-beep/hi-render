@@ -12,15 +12,18 @@
 
   <style>
     :root{
-      --bg: #eef3fb;
+      /* Light / Government style */
+      --bg: #f3f7ff;
       --card: #ffffff;
       --ink: #0f172a;
       --muted: #64748b;
 
-      --navy: #0b2a4a;
-      --navy-2:#133a63;
+      --navy: #0f3a66;
+      --navy-2:#155263;
+      --navy-soft:#e8f1fb;
+
       --gold: #c9a227;
-      --gold-2:#f4e3a1;
+      --gold-soft:#fff6d8;
 
       --line: #e2e8f0;
       --ok: #16a34a;
@@ -29,47 +32,41 @@
       --info:#2563eb;
 
       --radius: 16px;
-      --shadow: 0 12px 30px rgba(2,6,23,.08);
-      --shadow2: 0 8px 24px rgba(2,6,23,.06);
+      --shadow: 0 10px 28px rgba(2,6,23,.08);
+      --shadow2: 0 8px 22px rgba(2,6,23,.06);
 
-      --chip: #e2e8f0;
-      --soft: #f8fafc;
-
-      --sidebarW: 260px;
+      --sidebarW: 270px;
     }
 
-    /* ✅ ปรับให้ TH Sarabun ไม่ดูเล็ก */
-    html{ font-size: 20px; }
-    body{ font-size: 18px; line-height: 1.5; }
-
+    html{ font-size: 18px; }
+    body{ font-size: 17px; line-height: 1.55; }
     *{box-sizing:border-box}
+
     body{
       margin:0;
       color:var(--ink);
       background:
-        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
-        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
+        radial-gradient(1100px 460px at 60% -60%, rgba(21,82,99,.18), transparent 60%),
+        radial-gradient(900px 420px at 0% 0%, rgba(201,162,39,.16), transparent 55%),
         var(--bg);
     }
 
-    /* ===== Layout (sidebar + main) ===== */
     .app{
       display:flex;
       min-height:100vh;
-      gap:0;
     }
 
-    /* ===== Sidebar ===== */
+    /* ===== Sidebar (light but visible) ===== */
     .sidebar{
       width: var(--sidebarW);
-      background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
-      border-right: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, #ffffff 0%, #f6fbff 70%, #eef6ff 100%);
+      border-right: 1px solid var(--line);
       position:sticky;
       top:0;
       height:100vh;
       overflow:auto;
       padding: 14px 12px;
-      box-shadow: 6px 0 22px rgba(2,6,23,.06);
+      box-shadow: 6px 0 18px rgba(2,6,23,.06);
     }
 
     .brand{
@@ -77,21 +74,30 @@
       align-items:center;
       gap:10px;
       padding: 10px 10px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.12);
+      border-bottom: 1px dashed rgba(15,58,102,.22);
       margin-bottom: 10px;
-      color:#fff;
     }
     .brand .logo{
-      width:38px;height:38px;border-radius:12px;
-      background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(21,82,99,.18), rgba(201,162,39,.22));
       display:flex;align-items:center;justify-content:center;
-      color:#1f2937;
+      color: var(--navy);
       font-weight:1000;
       flex:0 0 auto;
-      box-shadow: 0 12px 22px rgba(201,162,39,.25);
+      box-shadow: 0 10px 18px rgba(21,82,99,.10);
     }
-    .brand .title{font-weight:1000; line-height:1.1; font-size:15px;}
-    .brand .sub{font-size:13px; opacity:.85; font-weight:700;}
+    .brand .title{
+      font-weight:1000;
+      line-height:1.1;
+      font-size:15px;
+      color: var(--navy);
+    }
+    .brand .sub{
+      font-size:13px;
+      color: rgba(15,58,102,.75);
+      font-weight:800;
+      margin-top:2px;
+    }
 
     .menu{
       display:flex;
@@ -100,14 +106,52 @@
       padding: 10px 6px;
     }
     .menu-title{
-      font-size:13px;
-      color: rgba(255,255,255,.72);
-      font-weight:900;
+      font-size:12px;
+      color: rgba(15,58,102,.75);
+      font-weight:1000;
       margin: 6px 6px 2px;
       text-transform:uppercase;
-      letter-spacing:.4px;
+      letter-spacing:.6px;
     }
 
+    .divider{
+      height:1px;
+      background: rgba(15,58,102,.14);
+      margin: 10px 6px;
+    }
+
+    /* KPI in sidebar */
+    .side-kpis{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      padding: 6px;
+    }
+    .side-kpi{
+      background: #ffffff;
+      border: 1px solid rgba(21,82,99,.14);
+      border-radius: 14px;
+      padding: 10px 10px;
+      box-shadow: 0 6px 14px rgba(2,6,23,.05);
+    }
+    .side-kpi .t{
+      font-size:12px;
+      color: rgba(15,58,102,.75);
+      font-weight:1000;
+      letter-spacing:.2px;
+    }
+    .side-kpi .v{
+      font-size:22px;
+      font-weight:1000;
+      margin-top:4px;
+      color: var(--navy);
+    }
+    .side-kpi .v.ok{color:var(--ok)}
+    .side-kpi .v.warn{color:var(--warn)}
+    .side-kpi .v.info{color:var(--info)}
+    .side-kpi .v.gold{color: var(--gold)}
+
+    /* Sidebar links */
     .side-link{
       width:100%;
       display:flex;
@@ -116,18 +160,20 @@
       gap:10px;
       padding: 10px 12px;
       border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      color:#fff;
-      font-weight:900;
+      border: 1px solid rgba(21,82,99,.18);
+      background: #ffffff;
+      color: var(--navy);
+      font-weight:1000;
       cursor:pointer;
-      transition: .15s transform, .15s background, .15s border;
+      transition: .15s transform, .15s box-shadow, .15s border, .15s background;
       text-align:left;
-      font-size:16px;
+      font-size:15px;
+      box-shadow: 0 6px 14px rgba(2,6,23,.05);
     }
     .side-link:hover{
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,255,255,.18);
+      background: var(--navy-soft);
+      border-color: rgba(21,82,99,.28);
+      transform: translateY(-1px);
     }
     .side-link:active{ transform: translateY(1px); }
     .side-link .label{
@@ -141,48 +187,12 @@
       text-align:center;
       padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(201,162,39,.18);
+      background: var(--gold-soft);
       border: 1px solid rgba(201,162,39,.35);
-      color: var(--gold);
+      color: #8a6a00;
       font-weight:1000;
-      font-size:14px;
+      font-size:13px;
     }
-
-    .divider{
-      height:1px;
-      background: rgba(255,255,255,.12);
-      margin: 10px 6px;
-    }
-
-    /* KPI in sidebar (small) */
-    .side-kpis{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      padding: 6px;
-    }
-    .side-kpi{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      padding: 10px 10px;
-      color:#fff;
-    }
-    .side-kpi .t{
-      font-size:12px;
-      opacity:.82;
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .side-kpi .v{
-      font-size:20px;
-      font-weight:1000;
-      margin-top:4px;
-    }
-    .side-kpi .v.ok{color:#86efac}
-    .side-kpi .v.warn{color:#fde68a}
-    .side-kpi .v.info{color:#93c5fd}
-    .side-kpi .v.gold{color: var(--gold-2)}
 
     /* ===== Main ===== */
     .main{
@@ -192,27 +202,17 @@
       flex-direction:column;
     }
 
-    /* Topbar */
+    /* Topbar (lighter) */
     .topbar{
       position:sticky;
       top:0;
       z-index:60;
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #0a2340 100%);
-      color:#fff;
-      border-bottom: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(135deg, #ffffff 0%, #f3f8ff 55%, #eef6ff 100%);
+      border-bottom: 1px solid var(--line);
       box-shadow: var(--shadow);
       padding: 12px 16px;
-      overflow:hidden;
-    }
-    .topbar::after{
-      content:"";
-      position:absolute;
-      inset:-1px;
-      background: radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.32), transparent 62%);
-      pointer-events:none;
     }
     .topbar-row{
-      position:relative;
       display:flex;
       justify-content:space-between;
       align-items:center;
@@ -227,17 +227,19 @@
     }
     .topbar-left h1{
       margin:0;
-      font-size:20px;
+      font-size:18px;
       font-weight:1000;
+      color: var(--navy);
       white-space:nowrap;
     }
     .topbar-left .sub{
       margin-top:2px;
-      font-size:14px;
-      opacity:.82;
-      font-weight:800;
+      font-size:13px;
+      color: rgba(15,58,102,.75);
+      font-weight:900;
       white-space:nowrap;
     }
+
     .topbar-actions{
       display:flex;
       align-items:center;
@@ -249,12 +251,15 @@
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 12px;border-radius:999px;
-      background: rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.16);
-      color:#fff;font-weight:900;font-size:15px;
+      background: #fff;
+      border:1px solid rgba(21,82,99,.16);
+      color: var(--navy);
+      font-weight:1000;
+      font-size:14px;
       white-space:nowrap;
+      box-shadow: 0 6px 14px rgba(2,6,23,.05);
     }
-    .pill small{opacity:.85;font-weight:800}
+    .pill small{opacity:.8;font-weight:900}
 
     .auto-dot{
       width:10px;height:10px;border-radius:999px;
@@ -269,35 +274,31 @@
     .btn{
       padding:10px 14px;
       border-radius:12px;
-      border:1px solid var(--line);
+      border:1px solid rgba(21,82,99,.18);
       background:#fff;
       cursor:pointer;
-      font-weight:900;
+      font-weight:1000;
       transition:.15s transform, .15s box-shadow, .15s background;
       white-space:nowrap;
-      font-size:16px;
+      font-size:15px;
+      color: var(--navy);
+      box-shadow: 0 6px 14px rgba(2,6,23,.05);
     }
-    .btn:hover{transform:translateY(-1px)}
+    .btn:hover{transform:translateY(-1px); background: var(--navy-soft);}
     .btn:active{transform:translateY(1px)}
     .btn.primary{
-      background: linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
-      border-color: rgba(0,0,0,.06);
+      background: linear-gradient(135deg, rgba(201,162,39,.95) 0%, rgba(244,227,161,.9) 100%);
+      border-color: rgba(201,162,39,.35);
       color:#1f2937;
-      box-shadow: 0 10px 22px rgba(201,162,39,.22);
-    }
-    .btn.ghost{
-      background: rgba(255,255,255,.12);
-      border-color: rgba(255,255,255,.16);
-      color:#fff;
+      box-shadow: 0 10px 18px rgba(201,162,39,.18);
     }
     .btn.danger{
       background:#fee2e2;border-color:#fecaca;color:#991b1b;
+      box-shadow:none;
     }
-    .btn.mini{padding:8px 10px;border-radius:10px;font-size:15px}
-    .btn.primary.mini{box-shadow:none}
-    .btn.danger.mini{box-shadow:none}
+    .btn.mini{padding:8px 10px;border-radius:10px;font-size:14px; box-shadow:none}
 
-    /* Content container */
+    /* Content */
     .content{
       padding: 16px 18px 26px;
       max-width: 1400px;
@@ -318,61 +319,29 @@
       display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
       background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
-    .card-h h2{margin:0;font-size:18px;font-weight:1000}
+    .card-h h2{margin:0;font-size:16px;font-weight:1000;color:var(--navy)}
     .card-b{padding:12px 14px}
 
-    /* Badge chip */
     .chip{
       display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;font-weight:1000;font-size:15px;
-      border:1px solid var(--line);
+      padding:8px 10px;border-radius:999px;font-weight:1000;font-size:14px;
+      border:1px solid rgba(21,82,99,.16);
       background:#fff;
+      color: var(--navy);
     }
     .chip.inbox{border-color:#7dd3fc;background:#e0f2fe;color:#075985;}
     .chip.work{border-color:#86efac;background:#dcfce7;color:#166534;}
 
-    /* KPI cards */
-    .kpis{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:12px;
-    }
-    @media (max-width: 980px){
-      .kpis{grid-template-columns: repeat(2, 1fr)}
-    }
-    .kpi{
-      border:1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px 12px;
-      background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
-      position:relative;
-      overflow:hidden;
-    }
-    .kpi::after{
-      content:"";
-      position:absolute;
-      right:-40px; top:-40px;
-      width:120px;height:120px;border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, rgba(37,99,235,.18), transparent 60%);
-      pointer-events:none;
-    }
-    .kpi .t{font-size:13px;color:var(--muted);font-weight:900}
-    .kpi .v{font-size:28px;font-weight:1000;margin-top:4px}
-    .kpi .v.ok{color:var(--ok)}
-    .kpi .v.warn{color:var(--warn)}
-    .kpi .v.info{color:var(--info)}
-    .kpi .v.gold{color:var(--gold)}
-    .tiny{font-size:14px;color:#64748b;font-weight:800}
-
     /* Tabs */
     .tabs{display:flex;gap:8px;flex-wrap:wrap}
     .tab{
-      padding:10px 12px;border-radius:999px;border:1px solid var(--line);
+      padding:10px 12px;border-radius:999px;border:1px solid rgba(21,82,99,.18);
       background:#fff;cursor:pointer;font-weight:1000;
       transition:.15s transform, .15s background, .15s border;
-      font-size:16px;
+      font-size:15px;
+      color: var(--navy);
     }
-    .tab:hover{transform:translateY(-1px)}
+    .tab:hover{transform:translateY(-1px); background: var(--navy-soft);}
     .tab.active{
       border-color: rgba(201,162,39,.55);
       background: linear-gradient(135deg, rgba(201,162,39,.18), rgba(201,162,39,.06));
@@ -383,12 +352,13 @@
       width:100%;
       padding:12px 12px;
       border-radius: 14px;
-      border:1px solid var(--line);
-      font-size:16px;
+      border:1px solid rgba(21,82,99,.18);
+      font-size:15px;
       outline:none;
       background:#fff;
-      font-weight:800;
+      font-weight:900;
     }
+    .tiny{font-size:13px;color:rgba(15,58,102,.75);font-weight:900}
 
     /* Table */
     .table-wrap{
@@ -413,12 +383,12 @@
       z-index:5;
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
       color:#fff;
-      font-size:13px;
+      font-size:12px;
       letter-spacing:.4px;
       text-transform:uppercase;
       box-shadow: 0 8px 18px rgba(2,6,23,.10);
     }
-    td{ font-size:15px; }
+    td{ font-size:14px; }
     tbody tr:nth-child(even){background:#fbfdff}
     tbody tr:hover{background:#eef6ff}
     a.map-link{color:var(--info);font-weight:1000;text-decoration:none;white-space:nowrap}
@@ -462,6 +432,17 @@
 
 <body>
   <div class="app">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">🏥</div>
+        <div>
+          <div class="title">สาธารณสุข</div>
+          <div class="sub">Hi-Form • หน่วยงาน</div>
+        </div>
+      </div>
+
       <div class="menu">
         <div class="menu-title">สรุปสถานะ</div>
         <div class="side-kpis">
@@ -519,8 +500,21 @@
           <div class="topbar-left">
             <div>
               <h1>🏛️ ระบบรับเรื่องร้องเรียน • งานสาธารณสุข</h1>
-              <div class="sub">องค์การบริหารส่วนตำบล /div>
+              <div class="sub">องค์การบริหารส่วนตำบล</div>
             </div>
+          </div>
+
+          <!-- คืนตำแหน่งฟังก์ชันด้านขวาบน แต่ทำให้โทนสว่าง -->
+          <div class="topbar-actions">
+            <div class="pill">🕒 <small>อัปเดตล่าสุด:</small> <span id="last-updated">-</span></div>
+
+            <label class="pill" style="cursor:pointer;">
+              <span class="auto-dot" id="autoDot"></span>
+              <input type="checkbox" id="auto-refresh-toggle" checked style="accent-color: var(--gold);">
+              รีเฟรชอัตโนมัติ
+            </label>
+
+            <button class="btn primary" onclick="safeLoadData()">🔄 รีเฟรช</button>
           </div>
         </div>
       </header>
@@ -528,12 +522,11 @@
       <!-- ===== Content ===== -->
       <div class="content">
 
-        <!-- KPI + Search + Tabs -->
-        <!-- KPI + Search + Tabs (ไม่มี KPI แล้ว) -->
+        <!-- Tabs + Search -->
         <div class="card">
           <div class="card-h">
             <h2>ภาพรวมงาน</h2>
-            <!-- ลบกล่องรับเรื่องขวาบนแล้ว -->
+            <span id="modeBadge" class="chip inbox">📥 กล่องรับเรื่อง</span>
           </div>
 
           <div class="card-b">
@@ -580,7 +573,7 @@
           <!-- Pagination -->
           <div id="pagination">
             <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
-            <span id="pageInfo" class="pill" style="color:var(--ink); background:#fff; border-color: var(--line);">
+            <span id="pageInfo" class="pill" style="color:var(--ink); background:#fff; border-color: rgba(21,82,99,.18);">
               หน้า 1 จาก 1
             </span>
             <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
@@ -771,14 +764,14 @@
               <div style="font-weight:1000; color:#075985;">รอแผนกรับเรื่อง</div>
               <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
                 <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
-                <button class="btn danger mini" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
+                <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
               </div>
               <div class="tiny">ถ้ารับเรื่อง ระบบจะย้ายไป “งานของแผนก”</div>
             </div>
           `;
         } else {
           const statusSelect = `
-            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid var(--line); font-family:var(--thai-font,'THSarabunNew','Sarabun',Tahoma,Arial,sans-serif); font-weight:900;">
+            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid rgba(21,82,99,.18); font-family:var(--thai-font,'THSarabunNew','Sarabun',Tahoma,Arial,sans-serif); font-weight:900; color:var(--navy); background:#fff;">
               <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
               <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
               <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
@@ -806,7 +799,7 @@
       if (!data.length) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" style="padding:22px; color:#64748b; font-weight:900;">
+            <td colspan="9" style="padding:22px; color:#64748b; font-weight:1000;">
               ไม่มีข้อมูลในโหมดนี้
             </td>
           </tr>
@@ -833,9 +826,9 @@
           : ((img.url || '').startsWith('uploads/') ? `/${img.url}` : (img.url || ''));
         const type = (typeof img === 'string') ? "" : (img.type || "");
         if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/)) {
-          return `<video controls style="width:auto;max-width:900px;max-height:520px;margin-bottom:20px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.25);"><source src="${url}"></video>`;
+          return `<video controls style="width:auto;max-width:900px;max-height:520px;margin-bottom:20px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.18);"><source src="${url}"></video>`;
         }
-        return `<img src="${url}" style="width:auto;max-width:900px;max-height:520px;margin-bottom:20px;border-radius:12px;object-fit:contain;box-shadow:0 10px 24px rgba(0,0,0,.25);" />`;
+        return `<img src="${url}" style="width:auto;max-width:900px;max-height:520px;margin-bottom:20px;border-radius:12px;object-fit:contain;box-shadow:0 10px 24px rgba(0,0,0,.18);" />`;
       }).join('');
 
       const win = window.open('', '_blank', 'width=1000,height=700');
@@ -914,16 +907,6 @@
 
         const btnInbox = document.getElementById('btn-inbox');
         if (btnInbox) btnInbox.textContent = `📥 กล่องรับเรื่อง (${inboxCount})`;
-
-        // KPI (main)
-        const elInbox = document.getElementById('kpi-inbox');
-        const elP = document.getElementById('kpi-pending');
-        const elI = document.getElementById('kpi-inprogress');
-        const elC = document.getElementById('kpi-completed');
-        if (elInbox) elInbox.textContent = String(inboxCount);
-        if (elP) elP.textContent = String(pending);
-        if (elI) elI.textContent = String(inProgress);
-        if (elC) elC.textContent = String(completed);
 
         // KPI (sidebar mirror)
         const sInbox = document.getElementById('kpi-inbox-side');
