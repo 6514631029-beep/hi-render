@@ -1,0 +1,69 @@
+/* public/admin-font.css */
+/* ===== TH Sarabun New (Local) =====
+   ต้องมีไฟล์ใน public/fonts/
+   - THSarabunNew.woff2
+   - THSarabunNew Bold.woff2
+   - THSarabunNew Italic.woff2
+   - THSarabunNew BoldItalic.woff2
+*/
+
+@font-face{
+  font-family:"THSarabunNew";
+  src:url("/fonts/THSarabunNew.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"THSarabunNew";
+  src:url("/fonts/THSarabunNew%20Bold.woff2") format("woff2");
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"THSarabunNew";
+  src:url("/fonts/THSarabunNew%20Italic.woff2") format("woff2");
+  font-weight:400;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:"THSarabunNew";
+  src:url("/fonts/THSarabunNew%20BoldItalic.woff2") format("woff2");
+  font-weight:700;
+  font-style:italic;
+  font-display:swap;
+}
+
+/* ใช้ทั้งระบบ */
+:root{
+  --thai-font: "THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
+}
+
+html, body{
+  font-family: var(--thai-font);
+}
+
+button, input, select, textarea{
+  font-family: var(--thai-font);
+}
+/* ===== Sarabun size tuning ===== */
+html{ font-size: 20px; }                 /* เดิม 16px เลยดูเล็ก */
+body{ font-size: 18px; line-height: 1.5; }
+
+.btn, .pill, .chip, .tab{ font-size: 16px; }
+.menu-title{ font-size: 13px; }
+.brand .title{ font-size: 15px; }
+.brand .sub{ font-size: 13px; }
+
+.search{ font-size: 16px; }
+th{ font-size: 13px; }
+td{ font-size: 15px; }
+
+.side-kpi .t{ font-size: 12px; }
+.side-kpi .v{ font-size: 20px; }
+.kpi .t{ font-size: 13px; }
+.kpi .v{ font-size: 28px; }
+table th{ font-size: 13px !important; }
+table td{ font-size: 15px !important; }
