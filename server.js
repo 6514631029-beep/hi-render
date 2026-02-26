@@ -148,8 +148,31 @@ function handleMulterError(err, res) {
 
   return res.status(400).send(err.message || 'อัปโหลดไฟล์ไม่สำเร็จ');
 }
+
+
+
 // LINE Webhook (ต้องอยู่ก่อน 404)
 // =========================
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  connectTimeout: 10000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+  ssl: { rejectUnauthorized: false }
+});
+
+db.query('SELECT 1', (err) => {
+  if (err) console.error('❌ MySQL error:', err);
+  else console.log('✅ MySQL connected!');
+});
+
+
 const crypto = require('crypto');
 
 function normalizeThaiPhone(input = '') {
@@ -157,7 +180,27 @@ function normalizeThaiPhone(input = '') {
   if (digits.startsWith('66') && digits.length >= 11) return '0' + digits.slice(2);
   return digits;
 }
+async function pushLineMessage(to, text) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.log('[LINE MOCK push]', to, text);
+    return;
+  }
 
+  const res = await fetch('https://api.line.me/v2/bot/message/push', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      to,
+      messages: [{ type: 'text', text }]
+    })
+  });
+
+  if (!res.ok) console.error('LINE push failed:', await res.text());
+}
 async function replyLineMessage(replyToken, text) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
@@ -247,25 +290,6 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  connectTimeout: 10000,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  ssl: { rejectUnauthorized: false }
-});
-
-db.query('SELECT 1', (err) => {
-  if (err) console.error('❌ MySQL error:', err);
-  else console.log('✅ MySQL connected!');
-});
 
 
 const transporter = nodemailer.createTransport({
@@ -846,7 +870,41 @@ app.post('/complete-with-media/:id', (req, res) => {
 
         await new Promise((resolve) => removeFromOtherBuckets(r2.id, 'completed', resolve));
       }
+      // ✅ 7) ส่งแจ้งเตือน LINE (กันส่งซ้ำด้วย notified_completed_at)
+      try {
+        const [rqRows] = await db.promise().query(
+          'SELECT id, phone, notified_completed_at FROM requests WHERE id = ?',
+          [id]
+        );
 
+        if (rqRows?.length) {
+          const rq = rqRows[0];
+
+          if (!rq.notified_completed_at) {
+            const [linkRows] = await db.promise().query(
+              'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+              [rq.phone]
+            );
+
+            if (linkRows?.length) {
+              const lineUserId = linkRows[0].line_user_id;
+
+              const msg =
+                `✅ คำร้องเลขที่ ${rq.id} ดำเนินการ "เสร็จสิ้น" แล้ว\n` +
+                `ขอบคุณที่แจ้งเรื่องครับ`;
+
+              await pushLineMessage(lineUserId, msg);
+
+              await db.promise().query(
+                'UPDATE requests SET notified_completed_at = NOW() WHERE id = ?',
+                [rq.id]
+              );
+            }
+          }
+        }
+      } catch (e) {
+        console.error('LINE notify error:', e);
+      }
       return res.json({ success: true, message: '✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' });
 
     } catch (error) {
