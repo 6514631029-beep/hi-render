@@ -36,11 +36,15 @@
   font-display:swap;
 }
 
-/* ใช้ทั้งระบบ */
+/* ===== Global Font + UI scale ===== */
 :root{
   --thai-font: "THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
+
+  /* ✅ ปรับขนาดทั้งหน้า (20% = 1.2) */
+  --uiScale: 1.2;
 }
 
+/* ใช้ทั้งระบบ */
 html, body{
   font-family: var(--thai-font);
 }
@@ -48,40 +52,35 @@ html, body{
 button, input, select, textarea{
   font-family: var(--thai-font);
 }
-/* ===== Sarabun size tuning ===== */
-html{ font-size: 20px; }                 /* เดิม 16px เลยดูเล็ก */
-body{ font-size: 18px; line-height: 1.5; }
 
-.btn, .pill, .chip, .tab{ font-size: 16px; }
-.menu-title{ font-size: 13px; }
-.brand .title{ font-size: 15px; }
-.brand .sub{ font-size: 13px; }
-
-.search{ font-size: 16px; }
-th{ font-size: 13px; }
-td{ font-size: 15px; }
-
-.side-kpi .t{ font-size: 12px; }
-.side-kpi .v{ font-size: 20px; }
-.kpi .t{ font-size: 13px; }
-.kpi .v{ font-size: 28px; }
-table th{ font-size: 13px !important; }
-table td{ font-size: 15px !important; }
-/* ===== Bigger UI (Sarabun) ===== */
-html{ font-size: 22px; }        /* จากเดิม 20 -> 22 */
+/* ===== Base sizes (ใหญ่ขึ้น อ่านง่าย) ===== */
+html{ font-size: 22px; }
 body{ font-size: 20px; line-height: 1.55; }
 
+/* Components */
 .btn, .tab, .pill, .chip{ font-size: 18px; }
 .search{ font-size: 18px; }
 
-table td{ font-size: 17px; }
-table th{ font-size: 14px; }
-
+.menu-title{ font-size: 14px; }
 .brand .title{ font-size: 16px; }
 .brand .sub{ font-size: 14px; }
-.menu-title{ font-size: 14px; }
 
 .side-kpi .t{ font-size: 13px; }
 .side-kpi .v{ font-size: 22px; }
-.kpi .t{ font-size: 14px; }
-.kpi .v{ font-size: 30px; }
+
+/* Tables */
+table th{ font-size: 14px !important; }
+table td{ font-size: 17px !important; }
+
+/* ===== Optional: Zoom whole layout (works well on Chromium) =====
+   ทำงานเมื่อหน้า HTML มีโครงสร้าง:
+   <div class="app"> ... <main class="main">...</main> ... </div>
+*/
+.app{
+  zoom: var(--uiScale);
+}
+
+/* ชดเชยความกว้างไม่ให้ล้นขวาหลัง zoom */
+.main{
+  width: calc(100% / var(--uiScale));
+}
