@@ -383,10 +383,7 @@
     }
 
     /* =========================================================
-       ✅ STATUS SELECT (Minimal แบบในรูป)
-       - ไม่มีสีตามสถานะ
-       - ไม่มีกรอบเส้นขอบ
-       - กล่องขาวเรียบ + ลูกศร
+       ✅ STATUS SELECT (Minimal + หดพอดีกับตัวหนังสือ)
        ========================================================= */
     .status-select{
       appearance:none;
@@ -411,6 +408,12 @@
       white-space:nowrap;
       box-sizing:border-box;
 
+      /* ✅ หดตามข้อความ */
+      width: fit-content !important;
+      display: inline-block !important;
+      max-width: 100%;
+      min-width: 0 !important;
+
       /* ลูกศร dropdown */
       background-image:
         linear-gradient(45deg, transparent 50%, #0f172a 50%),
@@ -422,9 +425,11 @@
       background-repeat: no-repeat;
     }
 
-    td .status-select{
-      min-width: 220px;
-      max-width: 260px;
+    /* fallback ถ้า browser ไม่รองรับ fit-content */
+    @supports not (width: fit-content){
+      .status-select{
+        width: auto !important;
+      }
     }
 
     /* ปิดสีสถานะทั้งหมด (ถึง JS จะใส่ class ก็ไม่เปลี่ยนสี) */
@@ -687,7 +692,6 @@
       renderCurrentPage();
     }
 
-    // ยังเก็บไว้ (ไม่ทำสีแล้ว แต่ปล่อยไว้เพื่อไม่ให้ฟังก์ชันพัง)
     function setStatusColor(selectEl){
       if(!selectEl) return;
       // ไม่ต้องทำอะไร เพราะเราเอาสีออกหมดแล้ว
