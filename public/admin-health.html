@@ -136,13 +136,92 @@
       margin: 14px auto 0;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
+    /* ✅ Sidebar layout */
+    .shell{
+      display:flex;
       gap:12px;
+      align-items:flex-start;
     }
+    .sidebar{
+      width: 260px;
+      position: sticky;
+      top: 92px; /* ไม่ทับ header */
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .side-head{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      color:#fff;
+    }
+    .side-title{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.4px;
+    }
+    .side-sub{
+      margin:4px 0 0;
+      font-size:12px;
+      color: rgba(255,255,255,.75);
+      font-weight:700;
+    }
+    .side-menu{
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .side-link{
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      transition: .15s transform, .15s background, .15s border;
+      font-family:'Kanit',sans-serif;
+      text-align:left;
+    }
+    .side-link:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.18);
+    }
+    .side-link:active{ transform: translateY(1px); }
+    .side-link .label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+    .side-link .count{
+      min-width: 34px;
+      text-align:center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(201,162,39,.18);
+      border: 1px solid rgba(201,162,39,.35);
+      color: var(--gold);
+      font-weight:900;
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+    }
+
     @media (max-width: 980px){
-      .grid{grid-template-columns:1fr}
+      .shell{flex-direction:column;}
+      .sidebar{width:100%; position:relative; top:0;}
     }
 
     .card{
@@ -271,98 +350,118 @@
   </div>
 
   <div class="container">
+    <div class="shell">
 
-    <div class="grid">
-      <!-- ซ้าย: KPI + Search + Tabs -->
-      <div class="card">
-        <div class="card-h">
-          <h2>ภาพรวมงาน</h2>
-          <span id="modeBadge" class="chip inbox">📥 กล่องรับเรื่อง</span>
+      <!-- ✅ Sidebar ซ้าย: เมนูสถานะ -->
+      <aside class="sidebar">
+        <div class="side-head">
+          <p class="side-title">เมนูสถานะ</p>
+          <p class="side-sub">ลิงก์แยกหน้าตามสถานะ</p>
         </div>
-        <div class="card-b">
-          <div class="kpis">
-            <div class="kpi">
-              <div class="t">Inbox</div>
-              <div class="v info" id="kpi-inbox">0</div>
-            </div>
-            <div class="kpi">
-              <div class="t">รอดำเนินการ</div>
-              <div class="v warn" id="kpi-pending">0</div>
-            </div>
-            <div class="kpi">
-              <div class="t">กำลังดำเนินการ</div>
-              <div class="v gold" id="kpi-inprogress">0</div>
-            </div>
-            <div class="kpi">
-              <div class="t">เสร็จสิ้น</div>
-              <div class="v ok" id="kpi-completed">0</div>
-            </div>
+
+        <div class="side-menu">
+          <!-- (ซ่อน) ยังไม่เลือกสถานะ -->
+          <button id="btn-unset" class="side-link" style="display:none" onclick="location.href='unset-health.html'">
+            <span class="label">📝 ยังไม่ได้เลือกสถานะ</span>
+            <span class="count" id="count-unset">0</span>
+          </button>
+
+          <button id="btn-pending" class="side-link" onclick="location.href='pending-health.html'">
+            <span class="label">⏳ รอดำเนินการ</span>
+            <span class="count" id="count-pending">0</span>
+          </button>
+
+          <button id="btn-inprogress" class="side-link" onclick="location.href='inprogress-health.html'">
+            <span class="label">⚙️ กำลังดำเนินการ</span>
+            <span class="count" id="count-inprogress">0</span>
+          </button>
+
+          <button id="btn-completed" class="side-link" onclick="location.href='completed-health.html'">
+            <span class="label">✅ เสร็จสิ้น</span>
+            <span class="count" id="count-completed">0</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ✅ Main ขวา -->
+      <main class="main">
+
+        <!-- KPI + Search + Tabs -->
+        <div class="card">
+          <div class="card-h">
+            <h2>ภาพรวมงาน</h2>
+            <span id="modeBadge" class="chip inbox">📥 กล่องรับเรื่อง</span>
           </div>
 
-          <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
-            <div class="tabs">
-              <button id="btn-inbox" class="tab active" onclick="setView('inbox')">📥 กล่องรับเรื่อง (0)</button>
-              <button id="btn-work" class="tab" onclick="setView('work')">📋 งานของแผนก</button>
+          <div class="card-b">
+            <div class="kpis">
+              <div class="kpi">
+                <div class="t">Inbox</div>
+                <div class="v info" id="kpi-inbox">0</div>
+              </div>
+              <div class="kpi">
+                <div class="t">รอดำเนินการ</div>
+                <div class="v warn" id="kpi-pending">0</div>
+              </div>
+              <div class="kpi">
+                <div class="t">กำลังดำเนินการ</div>
+                <div class="v gold" id="kpi-inprogress">0</div>
+              </div>
+              <div class="kpi">
+                <div class="t">เสร็จสิ้น</div>
+                <div class="v ok" id="kpi-completed">0</div>
+              </div>
             </div>
-            <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบแบ่งหน้า</div>
+
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
+              <div class="tabs">
+                <button id="btn-inbox" class="tab active" onclick="setView('inbox')">📥 กล่องรับเรื่อง (0)</button>
+                <button id="btn-work" class="tab" onclick="setView('work')">📋 งานของแผนก</button>
+              </div>
+              <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบแบ่งหน้า</div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <input type="text" id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()">
+            </div>
+          </div>
+        </div>
+
+        <!-- ตาราง -->
+        <div class="card" style="margin-top:12px;">
+          <div class="card-h">
+            <h2>รายการคำร้อง</h2>
+            <div class="tiny">โหมด Inbox จะมีปุ่มรับ/ไม่รับ • โหมดงานแผนกจะเลือกสถานะได้</div>
           </div>
 
-          <div style="margin-top:12px;">
-            <input type="text" id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ/จัดการ</th><th>แผนที่</th><th>วันที่-เวลา</th><th>ไฟล์(เสร็จสิ้น)</th>
+                </tr>
+              </thead>
+              <tbody id="data-body"></tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div id="pagination" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+            <span id="pageInfo" class="pill" style="color:var(--ink); background:#fff; border-color: var(--line);">หน้า 1 จาก 1</span>
+            <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
           </div>
         </div>
-      </div>
 
-      <!-- ขวา: เมนูสถานะ -->
-      <div class="card">
-        <div class="card-h">
-          <h2>เมนูสถานะ</h2>
-          <div class="tiny">ลิงก์แยกหน้าตามสถานะ</div>
-        </div>
-        <div class="card-b" style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button id="btn-unset" class="btn" style="display:none" onclick="location.href='unset-health.html'">📝 ยังไม่ได้เลือกสถานะ (0)</button>
-
-          <button id="btn-pending" class="btn" onclick="location.href='pending-health.html'">⏳ รอดำเนินการ (0)</button>
-          <button id="btn-inprogress" class="btn" onclick="location.href='inprogress-health.html'">⚙️ กำลังดำเนินการ (0)</button>
-          <button id="btn-completed" class="btn" onclick="location.href='completed-health.html'">✅ เสร็จสิ้น (0)</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ตาราง -->
-    <div class="card" style="margin-top:12px;">
-      <div class="card-h">
-        <h2>รายการคำร้อง</h2>
-        <div class="tiny">โหมด Inbox จะมีปุ่มรับ/ไม่รับ • โหมดงานแผนกจะเลือกสถานะได้</div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ/จัดการ</th><th>แผนที่</th><th>วันที่-เวลา</th><th>ไฟล์(เสร็จสิ้น)</th>
-            </tr>
-          </thead>
-          <tbody id="data-body"></tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div id="pagination" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap;">
-        <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
-        <span id="pageInfo" class="pill" style="color:var(--ink); background:#fff; border-color: var(--line);">หน้า 1 จาก 1</span>
-        <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
-      </div>
+      </main>
     </div>
   </div>
 
   <script>
     const DEPT = 'สาธารณสุข';
 
-    // ✅ โหมดหน้า (inbox / work)
     let VIEW_MODE = 'inbox';
 
-    // ====== pagination state ======
     let allHealthData = [];
     let filteredData = [];
     let currentPage = 1;
@@ -385,7 +484,6 @@
       VIEW_MODE = mode === 'work' ? 'work' : 'inbox';
       currentPage = 1;
 
-      // ✅ ทำแท็บ active
       const tabInbox = document.getElementById('btn-inbox');
       const tabWork = document.getElementById('btn-work');
       if (tabInbox && tabWork) {
@@ -454,11 +552,9 @@
       renderCurrentPage();
     }
 
-    // ====== auto refresh state ======
     let autoTimer = null;
     let isLoading = false;
 
-    // ✅ กันกระตุกตอนพิมพ์ค้นหา
     let isTyping = false;
     let typingTimer = null;
 
@@ -500,7 +596,6 @@
           return !(it.from === 'completed' || it.tag === 'completed');
         });
 
-        // คอลัมน์ไฟล์เสร็จสิ้น
         let completedLinks = "-";
         if (completedFiles.length > 0) {
           const cf = completedFiles[0];
@@ -523,7 +618,6 @@
           `;
         }
 
-        // คอลัมน์ไฟล์หลัก
         let fileLinks = "-";
         if (mainFiles.length > 0) {
           const buttonHtml =
@@ -535,7 +629,6 @@
           ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
           : '-';
 
-        // ✅ คอลัมน์สถานะ/จัดการ: เปลี่ยนตามโหมด
         let statusCellHtml = '-';
 
         if (VIEW_MODE === 'inbox') {
@@ -615,7 +708,6 @@
       win.document.write(`<body style="font-family:Kanit; padding:28px; text-align:center; background:#f1f5f9">${html}</body>`);
     }
 
-    // ✅ รับเรื่อง / ไม่รับเรื่อง
     async function acceptDept(id) {
       if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
       const res = await fetch(`/dept-accept/${id}`, { method: 'POST' });
@@ -664,7 +756,6 @@
       }
     }
 
-    // ====== counters ======
     async function updateCounters() {
       try {
         const [inboxRes, allRes, pRes, iRes, cRes] = await Promise.all([
@@ -687,22 +778,8 @@
         const inProgress = Array.isArray(iAll) ? iAll.length : 0;
         const completed  = Array.isArray(cAll) ? cAll.length : 0;
 
-        // ปุ่ม Inbox
         const btnInbox = document.getElementById('btn-inbox');
         if (btnInbox) btnInbox.textContent = `📥 กล่องรับเรื่อง (${inboxCount})`;
-
-        // ปุ่มเมนู
-        const btnUnset = document.getElementById('btn-unset');
-        if (btnUnset) btnUnset.textContent = `📝 ยังไม่ได้เลือกสถานะ (${unset})`;
-
-        const btnPending = document.getElementById('btn-pending');
-        if (btnPending) btnPending.textContent = `⏳ รอดำเนินการ (${pending})`;
-
-        const btnInprogress = document.getElementById('btn-inprogress');
-        if (btnInprogress) btnInprogress.textContent = `⚙️ กำลังดำเนินการ (${inProgress})`;
-
-        const btnCompleted = document.getElementById('btn-completed');
-        if (btnCompleted) btnCompleted.textContent = `✅ เสร็จสิ้น (${completed})`;
 
         // KPI
         const elInbox = document.getElementById('kpi-inbox');
@@ -714,12 +791,21 @@
         if (elI) elI.textContent = String(inProgress);
         if (elC) elC.textContent = String(completed);
 
+        // ✅ Sidebar badges
+        const cUnset = document.getElementById('count-unset');
+        const cP = document.getElementById('count-pending');
+        const cI = document.getElementById('count-inprogress');
+        const cC = document.getElementById('count-completed');
+        if (cUnset) cUnset.textContent = String(unset);
+        if (cP) cP.textContent = String(pending);
+        if (cI) cI.textContent = String(inProgress);
+        if (cC) cC.textContent = String(completed);
+
       } catch (err) {
         console.error('Error updating counters:', err);
       }
     }
 
-    // ====== auto refresh ======
     function setLastUpdated() {
       const now = new Date();
       const el = document.getElementById('last-updated');
@@ -754,7 +840,6 @@
       autoTimer = null;
     }
 
-    // init
     setModeBadge();
     setView('inbox');
     updateCounters();
