@@ -171,7 +171,22 @@ db.query('SELECT 1', (err) => {
   if (err) console.error('❌ MySQL error:', err);
   else console.log('✅ MySQL connected!');
 });
+app.get('/line/is-linked', async (req, res) => {
+  try {
+    const phone = String(req.query.phone || '').trim();
+    if (!phone) return res.status(400).json({ linked: false });
 
+    const [rows] = await db.promise().query(
+      'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+      [phone]
+    );
+
+    return res.json({ linked: rows.length > 0 });
+  } catch (e) {
+    console.error('is-linked error:', e);
+    return res.status(500).json({ linked: false });
+  }
+});
 
 const crypto = require('crypto');
 
