@@ -311,7 +311,14 @@ async function replyLineMessage(replyToken, text) {
 
   if (!res.ok) console.error('LINE reply failed:', await res.text());
 }
-
+function mapCategoryToDept(category) {
+  const map = {
+    'ขยะ': 'สาธารณสุข',
+    'ไฟฟ้า': 'ไฟฟ้า',
+    'ถนน/เสาไฟชำรุด': 'กองช่าง'
+  };
+  return map[(category || '').trim()] || null;
+}
 // ✅ ต้องอยู่ก่อน app.use(express.json())
 app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
@@ -552,9 +559,24 @@ app.post('/submit', (req, res) => {
       const latitude = req.body.latitude ? parseFloat(req.body.latitude) : null;
       const longitude = req.body.longitude ? parseFloat(req.body.longitude) : null;
 
-      const category = '';
+      // ✅ รับค่าจาก dropdown ที่หน้า index
+      const category = (req.body.category || '').trim();
 
-      if (!name || !phone || !address || !message) {
+      // ✅ map ไปแผนกทันทีตามประเภท
+      const department = mapCategoryToDept(category);
+      if (!department) {
+        return res.status(400).send('❌ กรุณาเลือกประเภทเรื่องให้ถูกต้อง');
+      }
+
+      // ✅ สถานะเริ่มต้นใหม่: รอให้แผนกกดรับ/ไม่รับ
+      const status = 'รอแผนกรับเรื่อง';
+
+      // ✅ คอลัมน์ใหม่ใน DB
+      const routed_to = department;
+      const dept_accept = null;   // ให้เป็น NULL ตอนส่งใหม่
+      const dept_reason = null;   // ยังไม่มีเหตุผลตอนส่ง
+
+      if (!name || !phone || !address || !message || latitude == null || longitude == null) {
         return res.status(400).send('❌ ข้อมูลไม่ครบ');
       }
 
@@ -574,11 +596,17 @@ app.post('/submit', (req, res) => {
       const photoUrl = JSON.stringify(uploaded);
 
       const sql = `
-        INSERT INTO requests 
-        (name, phone, address, category, message, latitude, longitude, photo)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO requests
+        (name, phone, address, category, message, latitude, longitude, photo,
+        department, status, routed_to, dept_accept, dept_reason)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?)
       `;
-      const values = [name, phone, address, category, message, latitude, longitude, photoUrl];
+
+      const values = [
+        name, phone, address, category, message, latitude, longitude, photoUrl,
+        department, status, routed_to, dept_accept, dept_reason
+      ];
 
       db.query(sql, values, (err, result) => {
         if (err) {
@@ -604,6 +632,38 @@ app.post('/submit', (req, res) => {
       return res.status(400).send(error.message || '💥 เกิดข้อผิดพลาดไม่คาดคิด');
     }
   });
+});
+app.post('/dept-accept/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await db.promise().query(
+      "UPDATE requests SET dept_accept = 1, status = 'รอดำเนินการ' WHERE id = ?",
+      [id]
+    );
+
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('dept-accept error:', e);
+    return res.status(500).json({ ok: false });
+  }
+});
+
+app.post('/dept-reject/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const reason = (req.body?.reason || '').trim();
+
+    await db.promise().query(
+      "UPDATE requests SET dept_accept = 0, dept_reason = ?, status = 'รอแอดมินหลัก', department = NULL WHERE id = ?",
+      [reason, id]
+    );
+
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('dept-reject error:', e);
+    return res.status(500).json({ ok: false });
+  }
 });
 app.get('/data-today', (req, res) => {
   // 🔒 ป้องกันคนไม่ได้ล็อกอินเข้ามาเรียก API นี้ (แนะนำ)
@@ -927,12 +987,12 @@ app.post('/complete-with-media/:id', (req, res) => {
         files.map(async (f) => {
           const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
           return {
-            url: result.secure_url,
-            public_id: result.public_id,
-            type: detectFileType(f),
-            from: 'completed',
-            tag: 'completed'
-          };
+          url: result.secure_url,
+          public_id: result.public_id,
+          type: detectFileType(f),
+          from: 'completed',
+          tag: 'completed'
+        };
         })
       );
 
@@ -1113,6 +1173,45 @@ app.get('/data-approved-all', (req, res) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(results);
   });
+});
+app.get('/data-health-inbox', (req, res) => {
+  db.query(
+    `SELECT * FROM requests
+     WHERE department='สาธารณสุข'
+       AND status='รอแผนกรับเรื่อง'
+       AND dept_accept IS NULL
+     ORDER BY id DESC`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      res.json(results);
+    }
+  );
+});
+app.get('/data-electric-inbox', (req, res) => {
+  db.query(
+    `SELECT * FROM requests
+     WHERE department='ไฟฟ้า'
+       AND status='รอแผนกรับเรื่อง'
+       AND dept_accept IS NULL
+     ORDER BY id DESC`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      res.json(results);
+    }
+  );
+});
+app.get('/data-engineer-inbox', (req, res) => {
+  db.query(
+    `SELECT * FROM requests
+     WHERE department='กองช่าง'
+       AND status='รอแผนกรับเรื่อง'
+       AND dept_accept IS NULL
+     ORDER BY id DESC`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      res.json(results);
+    }
+  );
 });
 app.get('/data-rejected', (req, res) => {
   const sql = 'SELECT * FROM requests WHERE processed = true AND approved = 0 ORDER BY id DESC';
