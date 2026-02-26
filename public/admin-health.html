@@ -8,7 +8,42 @@
   <title>🏛️ Dashboard - สาธารณสุข</title>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800;900&display=swap');
+    /* =========================
+       ✅ TH Sarabun New (Local)
+       ใช้ไฟล์จริงใน public/fonts/
+       - THSarabunNew.woff2
+       - THSarabunNew Bold.woff2
+       - THSarabunNew Italic.woff2
+       - THSarabunNew BoldItalic.woff2
+       ========================= */
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew.woff2") format("woff2");
+      font-weight:400;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew%20Bold.woff2") format("woff2");
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew%20Italic.woff2") format("woff2");
+      font-weight:400;
+      font-style:italic;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew%20BoldItalic.woff2") format("woff2");
+      font-weight:700;
+      font-style:italic;
+      font-display:swap;
+    }
 
     :root{
       --bg: #eef3fb;
@@ -40,7 +75,7 @@
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:'Kanit',sans-serif;
+      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       color:var(--ink);
       background:
         radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
@@ -118,7 +153,7 @@
       font-weight:900;
       cursor:pointer;
       transition: .15s transform, .15s background, .15s border;
-      font-family:'Kanit',sans-serif;
+      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       text-align:left;
     }
     .side-link:hover{
@@ -269,7 +304,7 @@
       cursor:pointer;
       font-weight:900;
       transition:.15s transform, .15s box-shadow, .15s background;
-      font-family:'Kanit',sans-serif;
+      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       white-space:nowrap;
     }
     .btn:hover{transform:translateY(-1px)}
@@ -381,7 +416,7 @@
       font-size:16px;
       outline:none;
       background:#fff;
-      font-family:'Kanit',sans-serif;
+      font-family:"THSarabunNew","TH Sarabun New","Sarabun",Tahoma,Arial,sans-serif;
       font-weight:800;
     }
 
@@ -820,7 +855,7 @@
           `;
         } else {
           const statusSelect = `
-            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid var(--line); font-family:Kanit; font-weight:900;">
+            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid var(--line); font-family:'THSarabunNew','TH Sarabun New','Sarabun',Tahoma,Arial,sans-serif; font-weight:900;">
               <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
               <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
               <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
@@ -881,7 +916,7 @@
       }).join('');
 
       const win = window.open('', '_blank', 'width=1000,height=700');
-      win.document.write(`<body style="font-family:Kanit; padding:28px; text-align:center; background:#f1f5f9">${html}</body>`);
+      win.document.write(`<body style="font-family:'THSarabunNew','TH Sarabun New','Sarabun',Tahoma,Arial,sans-serif; padding:28px; text-align:center; background:#f1f5f9">${html}</body>`);
     }
 
     async function acceptDept(id) {
