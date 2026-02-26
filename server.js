@@ -201,6 +201,33 @@ async function pushLineMessage(to, text) {
 
   if (!res.ok) console.error('LINE push failed:', await res.text());
 }
+async function pushLineImage(to, imageUrl) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.log('[LINE MOCK push image]', to, imageUrl);
+    return;
+  }
+
+  const res = await fetch('https://api.line.me/v2/bot/message/push', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      to,
+      messages: [
+        {
+          type: 'image',
+          originalContentUrl: imageUrl,
+          previewImageUrl: imageUrl
+        }
+      ]
+    })
+  });
+
+  if (!res.ok) console.error('LINE push image failed:', await res.text());
+}
 async function replyLineMessage(replyToken, text) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
@@ -870,6 +897,7 @@ app.post('/complete-with-media/:id', (req, res) => {
 
         await new Promise((resolve) => removeFromOtherBuckets(r2.id, 'completed', resolve));
       }
+      
       // ✅ 7) ส่งแจ้งเตือน LINE (กันส่งซ้ำด้วย notified_completed_at)
       try {
         const [rqRows] = await db.promise().query(
@@ -894,7 +922,19 @@ app.post('/complete-with-media/:id', (req, res) => {
                 `ขอบคุณที่แจ้งเรื่องครับ`;
 
               await pushLineMessage(lineUserId, msg);
+              // ส่งรูปทั้งหมดที่แนบตอนเสร็จสิ้น (เฉพาะ type=image)
+              for (const f of uploadedExtra) {
+                if (f.type === 'image') {
+                  await pushLineImage(lineUserId, f.url);
+                }
+              }
 
+              // วิดีโอ: แนะนำส่งเป็นลิงก์ข้อความก่อน (ง่ายสุด)
+              const videos = uploadedExtra.filter(x => x.type === 'video');
+              if (videos.length) {
+                const list = videos.map((v,i)=>`${i+1}) ${v.url}`).join('\n');
+                await pushLineMessage(lineUserId, `🎥 ไฟล์วิดีโอแนบตอนเสร็จสิ้น:\n${list}`);
+              }
               await db.promise().query(
                 'UPDATE requests SET notified_completed_at = NOW() WHERE id = ?',
                 [rq.id]
