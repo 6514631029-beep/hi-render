@@ -666,47 +666,33 @@ app.post('/dept-reject/:id', async (req, res) => {
   }
 });
 app.get('/data-today', (req, res) => {
-  // 🔒 ป้องกันคนไม่ได้ล็อกอินเข้ามาเรียก API นี้ (แนะนำ)
-  if (!req.session.loggedIn) {
-    return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อน' });
-  }
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อน' });
 
-  const department = req.query.department;
-  let sql = `
+  const sql = `
     SELECT * FROM requests
     WHERE processed = false
       AND DATE(created_at) = CURDATE()
+      AND (status = 'รอแอดมินหลัก' OR department IS NULL)
+    ORDER BY id DESC
   `;
-  const params = [];
 
-  if (department) {
-    sql += ' AND department = ?';
-    params.push(department);
-  }
-
-  sql += ' ORDER BY id DESC';
-
-  db.query(sql, params, (err, results) => {
-    if (err) {
-      console.error('❌ /data-today error:', err);
-      return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลคำร้องวันนี้' });
-    }
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลคำร้องวันนี้' });
     res.json(results);
   });
 });
 app.get('/data', (req, res) => {
-  const department = req.query.department;
-  let sql = 'SELECT * FROM requests WHERE processed = false';
-  const params = [];
+  // ✅ admin หลักเห็นเฉพาะ:
+  // 1) งานที่แผนก "ไม่รับ" แล้วส่งกลับ (status = 'รอแอดมินหลัก')
+  // 2) งานที่ยังไม่มีแผนก (department IS NULL) (เช่นยังไม่ได้จัดสรร/หรือถูกเด้งกลับ)
+  const sql = `
+    SELECT * FROM requests
+    WHERE processed = false
+      AND (status = 'รอแอดมินหลัก' OR department IS NULL)
+    ORDER BY id DESC
+  `;
 
-  if (department) {
-    sql += ' AND department = ?';
-    params.push(department);
-  }
-
-  sql += ' ORDER BY id DESC';
-
-  db.query(sql, params, (err, results) => {
+  db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
     res.json(results);
   });
