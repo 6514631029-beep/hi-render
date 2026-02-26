@@ -45,6 +45,7 @@
         radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
         radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
         var(--bg);
+      -webkit-text-size-adjust: 100%;
     }
 
     .app{
@@ -314,6 +315,7 @@
     .table-wrap{
       overflow:auto;
       background:#fff;
+      border-radius: 16px;
     }
     table{
       width:100%;
@@ -327,20 +329,24 @@
       text-align:center;
       vertical-align:middle;
     }
+
+    /* ===== Light Table Header ===== */
     th{
       position:sticky;
       top:0;
       z-index:5;
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
-      color:#fff;
+      background: #eef2f7 !important;
+      color: #0f172a !important;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+      box-shadow: none !important;
+      border-bottom: 1px solid #e5e7eb !important;
       font-size:13px;
-      letter-spacing:.4px;
-      text-transform:uppercase;
-      box-shadow: 0 8px 18px rgba(2,6,23,.10);
     }
+
     td{ font-size:15px; }
     tbody tr:nth-child(even){background:#fbfdff}
-    tbody tr:hover{background:#eef6ff}
+    tbody tr:hover{background:#f3f7ff}
     a.map-link{color:var(--info);font-weight:1000;text-decoration:none;white-space:nowrap}
 
     .media-container{
@@ -375,135 +381,68 @@
       .content{padding:14px}
       table{min-width:980px}
     }
-    /* ===== Light Table Header (เหมือนรูป) ===== */
-.table-wrap{ border-radius: 16px; overflow:auto; background:#fff; }
-table{ background:#fff; }
-th{
-  background: #eef2f7 !important;
-  color: #0f172a !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  box-shadow: none !important;
-  border-bottom: 1px solid #e5e7eb !important;
-}
-tbody tr:nth-child(even){ background:#fbfdff; }
-tbody tr:hover{ background:#f3f7ff; }
 
-/* ===== Status Pill Select (สีตามสถานะ) ===== */
-.status-select{
-  appearance:none;
-  -webkit-appearance:none;
-  -moz-appearance:none;
+    /* =========================================================
+       ✅ STATUS SELECT (Minimal แบบในรูป)
+       - ไม่มีสีตามสถานะ
+       - ไม่มีกรอบเส้นขอบ
+       - กล่องขาวเรียบ + ลูกศร
+       ========================================================= */
+    .status-select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
 
-  padding: 10px 42px 10px 14px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
+      background:#fff !important;
+      border:none !important;
+      box-shadow:none !important;
+      outline:none !important;
 
-  font-weight: 900;
-  font-size: 16px;
-  cursor: pointer;
+      height: 44px !important;
+      line-height: 44px !important;
+      padding: 0 46px 0 18px !important;
 
-  /* ลูกศร dropdown */
-  background-image:
-    linear-gradient(45deg, transparent 50%, #334155 50%),
-    linear-gradient(135deg, #334155 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) calc(50% - 2px),
-    calc(100% - 12px) calc(50% - 2px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
+      border-radius: 16px !important;
+      font-size: 16px !important;
+      font-weight: 900 !important;
+      color:#0f172a !important;
 
-/* ยังไม่เลือก */
-.status-unset{
-  background:#f8fafc;
-  border-color:#e2e8f0;
-  color:#334155;
-}
+      cursor:pointer;
+      white-space:nowrap;
+      box-sizing:border-box;
 
-/* รอดำเนินการ (เหลือง) */
-.status-pending{
-  background:#FEF3C7;
-  border-color:#F59E0B;
-  color:#92400E;
-}
+      /* ลูกศร dropdown */
+      background-image:
+        linear-gradient(45deg, transparent 50%, #0f172a 50%),
+        linear-gradient(135deg, #0f172a 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
 
-/* กำลังดำเนินการ (ฟ้า/เขียวอมฟ้า) */
-.status-inprogress{
-  background:#D1FAE5;
-  border-color:#10B981;
-  color:#065F46;
-}
+    td .status-select{
+      min-width: 220px;
+      max-width: 260px;
+    }
 
-/* เสร็จสิ้น (เขียวอ่อน) */
-.status-completed{
-  background:#DCFCE7;
-  border-color:#22C55E;
-  color:#166534;
-}
+    /* ปิดสีสถานะทั้งหมด (ถึง JS จะใส่ class ก็ไม่เปลี่ยนสี) */
+    .status-unset,
+    .status-pending,
+    .status-inprogress,
+    .status-completed{
+      background:#fff !important;
+      border:none !important;
+      color:#0f172a !important;
+    }
 
-/* ===== KPI ซ้ายให้มีสีแบบการ์ด (เหมือนรูป) ===== */
-.side-kpis .side-kpi{
-  background: rgba(255,255,255,.06);
-}
-.side-kpis .side-kpi:nth-child(1){
-  background: rgba(59,130,246,.18);
-  border-color: rgba(59,130,246,.35);
-}
-.side-kpis .side-kpi:nth-child(2){
-  background: rgba(245,158,11,.18);
-  border-color: rgba(245,158,11,.35);
-}
-.side-kpis .side-kpi:nth-child(3){
-  background: rgba(16,185,129,.18);
-  border-color: rgba(16,185,129,.35);
-}
-.side-kpis .side-kpi:nth-child(4){
-  background: rgba(34,197,94,.18);
-  border-color: rgba(34,197,94,.35);
-}
-/* ✅ FIX: dropdown ตัวใหญ่ + กรอบไม่พอดี (Safari/mac) */
-.status-select{
-  font-size: 15px !important;      /* ลดขนาดตัวอักษรใน select */
-  line-height: 1.1 !important;     /* ล็อกความสูงบรรทัด */
-  height: 40px !important;         /* ล็อกความสูงกรอบให้พอดี */
-  padding: 0 42px 0 16px !important; /* ใช้ padding แบบแน่นๆ */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  white-space: nowrap;
-}
-
-/* ✅ ตอนเปิด dropdown ใน Safari บางครั้งจะซูมตัวหนังสือ
-   ให้บังคับขนาด option ด้วย */
-.status-select option{
-  font-size: 15px !important;
-  line-height: 1.2 !important;
-}
-
-/* ✅ ถ้าตารางบีบ select ให้แคบ/สูงผิด */
-td .status-select{
-  min-width: 170px;
-}
-/* ✅ FIX ชัวร์: กรอบพอดี + ข้อความอยู่กลาง */
-.status-select{
-  height: 44px !important;        /* ปรับได้: 40/42/44 */
-  line-height: 44px !important;   /* ต้องเท่ากับ height */
-  padding: 0 48px 0 18px !important; /* บน/ล่าง = 0 */
-  font-size: 14px !important;
-  font-weight: 900 !important;
-  border-radius: 999px !important;
-  box-sizing: border-box !important;
-  vertical-align: middle;
-}
-
-/* ✅ กัน option ในเมนูใหญ่เกิน */
-.status-select option{
-  font-size: 14px !important;
-  line-height: 1.2 !important;
-}
+    /* ===== KPI ซ้ายให้มีสีแบบการ์ด ===== */
+    .side-kpis .side-kpi{ background: rgba(255,255,255,.06); }
+    .side-kpis .side-kpi:nth-child(1){ background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.35); }
+    .side-kpis .side-kpi:nth-child(2){ background: rgba(245,158,11,.18); border-color: rgba(245,158,11,.35); }
+    .side-kpis .side-kpi:nth-child(3){ background: rgba(16,185,129,.18); border-color: rgba(16,185,129,.35); }
+    .side-kpis .side-kpi:nth-child(4){ background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.35); }
   </style>
 </head>
 
@@ -521,8 +460,6 @@ td .status-select{
       </div>
 
       <div class="menu">
-
-        <!-- ✅ ย้าย Inbox/งานแผนก มาไว้ซ้ายแบบ Gmail -->
         <div class="menu-title">กล่องรับเรื่อง</div>
         <button id="btn-inbox" class="side-link view-link active" onclick="setView('inbox')">
           <span class="label">📥 กล่องรับเรื่อง</span>
@@ -657,7 +594,6 @@ td .status-select{
     let currentPage = 1;
     const pageSize = 20;
 
-    // ✅ ปรับให้ highlight เมนูซ้ายแบบ Gmail
     function syncLeftViewActive(){
       const inboxBtn = document.getElementById('btn-inbox');
       const workBtn  = document.getElementById('btn-work');
@@ -731,9 +667,7 @@ td .status-select{
       renderCurrentPage();
     }
 
-    let autoTimer = null;
     let isLoading = false;
-
     let isTyping = false;
     let typingTimer = null;
 
@@ -752,17 +686,13 @@ td .status-select{
       currentPage = 1;
       renderCurrentPage();
     }
+
+    // ยังเก็บไว้ (ไม่ทำสีแล้ว แต่ปล่อยไว้เพื่อไม่ให้ฟังก์ชันพัง)
     function setStatusColor(selectEl){
       if(!selectEl) return;
-
-      selectEl.classList.remove('status-unset','status-pending','status-inprogress','status-completed');
-
-      const v = (selectEl.value || '').trim();
-      if (!v) selectEl.classList.add('status-unset');
-      else if (v === 'รอดำเนินการ') selectEl.classList.add('status-pending');
-      else if (v === 'กำลังดำเนินการ') selectEl.classList.add('status-inprogress');
-      else if (v === 'เสร็จสิ้น') selectEl.classList.add('status-completed');
+      // ไม่ต้องทำอะไร เพราะเราเอาสีออกหมดแล้ว
     }
+
     function renderTable(data) {
       const tbody = document.getElementById('data-body');
       tbody.innerHTML = '';
@@ -867,9 +797,7 @@ td .status-select{
           </tr>
         `;
       }
-      document.querySelectorAll('.status-select').forEach(setStatusColor);
     }
-
 
     function formatDate(dateString) {
       if (!dateString) return 'ไม่ทราบเวลา';
@@ -969,11 +897,9 @@ td .status-select{
         const inProgress = Array.isArray(iAll) ? iAll.length : 0;
         const completed  = Array.isArray(cAll) ? cAll.length : 0;
 
-        // left view counts
         const leftInbox = document.getElementById('count-inbox-left');
         if (leftInbox) leftInbox.textContent = String(inboxCount);
 
-        // sidebar KPIs
         const sInbox = document.getElementById('kpi-inbox-side');
         const sP = document.getElementById('kpi-pending-side');
         const sI = document.getElementById('kpi-inprogress-side');
@@ -983,7 +909,6 @@ td .status-select{
         if (sI) sI.textContent = String(inProgress);
         if (sC) sC.textContent = String(completed);
 
-        // sidebar badges
         const cUnset = document.getElementById('count-unset');
         const cP = document.getElementById('count-pending');
         const cI = document.getElementById('count-inprogress');
