@@ -375,6 +375,95 @@
       .content{padding:14px}
       table{min-width:980px}
     }
+    /* ===== Light Table Header (เหมือนรูป) ===== */
+.table-wrap{ border-radius: 16px; overflow:auto; background:#fff; }
+table{ background:#fff; }
+th{
+  background: #eef2f7 !important;
+  color: #0f172a !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+tbody tr:nth-child(even){ background:#fbfdff; }
+tbody tr:hover{ background:#f3f7ff; }
+
+/* ===== Status Pill Select (สีตามสถานะ) ===== */
+.status-select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+
+  padding: 10px 42px 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+
+  /* ลูกศร dropdown */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #334155 50%),
+    linear-gradient(135deg, #334155 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* ยังไม่เลือก */
+.status-unset{
+  background:#f8fafc;
+  border-color:#e2e8f0;
+  color:#334155;
+}
+
+/* รอดำเนินการ (เหลือง) */
+.status-pending{
+  background:#FEF3C7;
+  border-color:#F59E0B;
+  color:#92400E;
+}
+
+/* กำลังดำเนินการ (ฟ้า/เขียวอมฟ้า) */
+.status-inprogress{
+  background:#D1FAE5;
+  border-color:#10B981;
+  color:#065F46;
+}
+
+/* เสร็จสิ้น (เขียวอ่อน) */
+.status-completed{
+  background:#DCFCE7;
+  border-color:#22C55E;
+  color:#166534;
+}
+
+/* ===== KPI ซ้ายให้มีสีแบบการ์ด (เหมือนรูป) ===== */
+.side-kpis .side-kpi{
+  background: rgba(255,255,255,.06);
+}
+.side-kpis .side-kpi:nth-child(1){
+  background: rgba(59,130,246,.18);
+  border-color: rgba(59,130,246,.35);
+}
+.side-kpis .side-kpi:nth-child(2){
+  background: rgba(245,158,11,.18);
+  border-color: rgba(245,158,11,.35);
+}
+.side-kpis .side-kpi:nth-child(3){
+  background: rgba(16,185,129,.18);
+  border-color: rgba(16,185,129,.35);
+}
+.side-kpis .side-kpi:nth-child(4){
+  background: rgba(34,197,94,.18);
+  border-color: rgba(34,197,94,.35);
+}
+  
   </style>
 </head>
 
@@ -623,7 +712,17 @@
       currentPage = 1;
       renderCurrentPage();
     }
+    function setStatusColor(selectEl){
+      if(!selectEl) return;
 
+      selectEl.classList.remove('status-unset','status-pending','status-inprogress','status-completed');
+
+      const v = (selectEl.value || '').trim();
+      if (!v) selectEl.classList.add('status-unset');
+      else if (v === 'รอดำเนินการ') selectEl.classList.add('status-pending');
+      else if (v === 'กำลังดำเนินการ') selectEl.classList.add('status-inprogress');
+      else if (v === 'เสร็จสิ้น') selectEl.classList.add('status-completed');
+    }
     function renderTable(data) {
       const tbody = document.getElementById('data-body');
       tbody.innerHTML = '';
@@ -694,8 +793,8 @@
           `;
         } else {
           const statusSelect = `
-            <select onchange="onStatusChange(${row.id}, this.value)" style="padding:8px; border-radius:12px; border:1px solid var(--line); font-family:var(--thai-font,'THSarabunNew','Sarabun',Tahoma,Arial,sans-serif); font-weight:900;">
-              <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+            <select class="status-select" onchange="onStatusChange(${row.id}, this.value); setStatusColor(this);">
+              <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
               <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
               <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
               <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
@@ -728,7 +827,9 @@
           </tr>
         `;
       }
+      document.querySelectorAll('.status-select').forEach(setStatusColor);
     }
+
 
     function formatDate(dateString) {
       if (!dateString) return 'ไม่ทราบเวลา';
