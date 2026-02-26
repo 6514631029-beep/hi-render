@@ -53,7 +53,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 980px; /* ✅ เพิ่มนิดนึงเพราะเพิ่มคอลัมน์ */
     }
     th, td {
       padding: 14px 10px;
@@ -115,16 +115,6 @@
       width: 110px;
       font-family: 'Kanit', sans-serif;
     }
-    .status {
-      font-weight: bold;
-    }
-    .status.รอตรวจสอบ,
-    .status.pending {
-      color: #f97316;
-    }
-    .status.เสร็จสิ้น {
-      color: #16a34a;
-    }
     a.map-link {
       text-decoration: none;
       color: #2563eb;
@@ -164,102 +154,118 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+
     /* ===== NEW ITEM HIGHLIGHT ===== */
-.new-banner {
-  display: none;
-  margin: 0 0 12px 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-  font-weight: 700;
-}
+    .new-banner {
+      display: none;
+      margin: 0 0 12px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-weight: 700;
+    }
+    .new-banner.show { display:block; }
+    tr.row-new {
+      background-color: #fff8c5 !important;
+      animation: newRowPulse 1s ease-in-out 2;
+    }
+    .new-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f59e0b;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    @keyframes newRowPulse {
+      0%   { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0.35); }
+      100% { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0); }
+    }
 
-.new-banner.show {
-  display: block;
-}
+    /* ✅ badge สำหรับตีกลับ */
+    .bounce-badge {
+      display:inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      margin-bottom: 6px;
+    }
 
-tr.row-new {
-  background-color: #fff8c5 !important;
-  animation: newRowPulse 1s ease-in-out 2;
-}
-
-.new-badge {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #f59e0b;
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  vertical-align: middle;
-}
-
-@keyframes newRowPulse {
-  0%   { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0.35); }
-  100% { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0); }
-}
+    .small-muted {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
   </style>
 </head>
 <body>
- <!-- กล่อง modal สำหรับป้อนเหตุผล -->
+
+<!-- กล่อง modal สำหรับป้อนเหตุผล -->
 <div id="reject-modal" style="
-  display: none; 
-  position: fixed; 
-  top: 0; left: 0; right: 0; bottom: 0; 
-  background-color: rgba(0,0,0,0.4); 
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.4);
   z-index: 9999;
   justify-content: center;
   align-items: center;
 ">
   <div style="
-    background:white; 
-    padding:24px; 
-    border-radius:16px; 
-    width:90%; 
-    max-width:460px; 
-    font-family:'Kanit'; 
+    background:white;
+    padding:24px;
+    border-radius:16px;
+    width:90%;
+    max-width:460px;
+    font-family:'Kanit';
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     text-align: center;
   ">
     <h3 style="margin-bottom:16px; font-size:20px; text-align:center;">
       📣 กรุณาระบุเหตุผลไม่อนุมัติ
     </h3>
-    
+
     <textarea id="reject-reason" rows="4" style="
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      padding:12px; 
-      border-radius:10px; 
-      border:1.5px solid #ccc; 
-      font-size:16px; 
+      padding:12px;
+      border-radius:10px;
+      border:1.5px solid #ccc;
+      font-size:16px;
       resize: vertical;
       transition: border 0.2s;
       font-family: 'Kanit', sans-serif;
     "></textarea>
-    
+
     <div style="margin-top:20px; text-align:center; display:flex; gap:10px; justify-content:center;">
       <button onclick="submitReject()" style="
-        padding:10px 20px; 
-        background:#ef4444; 
-        color:white; 
-        border:none; 
-        border-radius:10px; 
+        padding:10px 20px;
+        background:#ef4444;
+        color:white;
+        border:none;
+        border-radius:10px;
         font-weight:bold;
         font-size:15px;
         cursor:pointer;
         transition: background 0.2s;
       " onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">ส่ง</button>
-      
+
       <button onclick="closeRejectModal()" style="
-        padding:10px 20px; 
-        background:#f3f4f6; 
-        color:#111827; 
-        border:none; 
-        border-radius:10px; 
+        padding:10px 20px;
+        background:#f3f4f6;
+        color:#111827;
+        border:none;
+        border-radius:10px;
         font-weight:bold;
         font-size:15px;
         cursor:pointer;
@@ -268,9 +274,6 @@ tr.row-new {
     </div>
   </div>
 </div>
-
-
-
 
   <nav class="navbar">
     <div class="navbar-container">
@@ -281,38 +284,41 @@ tr.row-new {
       </div>
     </div>
   </nav>
+
   <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0 14px; gap:10px; flex-wrap:wrap;">
-  <div style="color:#334155; font-weight:600;">
-    🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
-  </div>
+    <div style="color:#334155; font-weight:600;">
+      🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+    </div>
 
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-    <span id="view-mode-badge" style="
-      background:#e2e8f0;
-      color:#0f172a;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:700;
-      font-size:13px;
-    ">โหมด: คำร้องใหม่ทั้งหมด</span>
+      <span id="view-mode-badge" style="
+        background:#e2e8f0;
+        color:#0f172a;
+        padding:6px 10px;
+        border-radius:999px;
+        font-weight:700;
+        font-size:13px;
+      ">โหมด: คำร้องใหม่ทั้งหมด</span>
 
-    <button class="btn" id="btn-show-all" onclick="setViewMode('all')" style="background:#e2e8f0; color:#0f172a;">
-      📋 คำร้องทั้งหมด
-    </button>
+      <button class="btn" id="btn-show-all" onclick="setViewMode('all')" style="background:#e2e8f0; color:#0f172a;">
+        📋 คำร้องทั้งหมด
+      </button>
 
-    <button class="btn" id="btn-show-today" onclick="setViewMode('today')" style="background:#dbeafe; color:#1d4ed8;">
-      📅 คำร้องวันนี้
-    </button>
+      <button class="btn" id="btn-show-today" onclick="setViewMode('today')" style="background:#dbeafe; color:#1d4ed8;">
+        📅 คำร้องวันนี้
+      </button>
 
-    <button class="btn" id="btn-refresh" onclick="manualRefresh()">รีเฟรชตอนนี้</button>
+      <button class="btn" id="btn-refresh" onclick="manualRefresh()">รีเฟรชตอนนี้</button>
 
-    <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
-      <input type="checkbox" id="auto-refresh-toggle" checked />
-      รีเฟรชอัตโนมัติ
-    </label>
+      <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
+        <input type="checkbox" id="auto-refresh-toggle" checked />
+        รีเฟรชอัตโนมัติ
+      </label>
+    </div>
   </div>
-</div>
+
   <div id="new-banner" class="new-banner"></div>
+
   <div class="table-wrapper">
     <table id="data-table">
       <thead>
@@ -322,7 +328,10 @@ tr.row-new {
           <th>ข้อความ</th>
           <th>ไฟล์</th>
           <th>แผนก</th>
-         
+
+          <!-- ✅ เพิ่มคอลัมน์นี้ -->
+          <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
+
           <th>แผนที่</th>
           <th>วันที่และเวลา</th>
           <th>จัดการ</th>
@@ -331,7 +340,8 @@ tr.row-new {
       <tbody></tbody>
     </table>
   </div>
-  <script>
+
+<script>
   // ===== New item detection (client-side only) =====
   let isFirstLoadByMode = { all: true, today: true };
 
@@ -359,11 +369,12 @@ tr.row-new {
       console.warn('บันทึก seen ids ไม่สำเร็จ:', e);
     }
   }
+
   function getActiveNewKey() {
-  return currentViewMode === 'today'
-    ? 'admin_active_new_ids_today_v1'
-    : 'admin_active_new_ids_all_v1';
-}
+    return currentViewMode === 'today'
+      ? 'admin_active_new_ids_today_v1'
+      : 'admin_active_new_ids_all_v1';
+  }
 
   function getActiveNewIds() {
     try {
@@ -404,6 +415,7 @@ tr.row-new {
       }
     });
   }
+
   function updateNewBanner(count) {
     const el = document.getElementById('new-banner');
     if (!el) return;
@@ -439,7 +451,8 @@ tr.row-new {
     safeLoadData();
   }
 </script>
-  <script>
+
+<script>
   let currentViewMode = 'all'; // all | today
 
   function updateViewModeUI() {
@@ -472,7 +485,7 @@ tr.row-new {
 
   async function loadData() {
     const endpoint = currentViewMode === 'today' ? '/data-today' : '/data';
-    const res = await fetch(`${endpoint}?_=${Date.now()}`); // ป้องกัน cache
+    const res = await fetch(`${endpoint}?_=${Date.now()}`);
 
     if (!res.ok) {
       const text = await res.text();
@@ -494,14 +507,11 @@ tr.row-new {
     data.forEach(row => {
       const rowId = Number(row.id);
 
-      // ถ้าไม่ใช่ครั้งแรกของโหมดนี้ และ row นี้ยังไม่เคยเห็น -> เพิ่มเข้า activeNewIds
       if (!isFirstLoad && rowId && !seenIds.has(rowId)) {
         activeNewIds.add(rowId);
       }
 
-      // จะถือว่า "ใหม่" ถ้ายังอยู่ใน activeNewIds
       const isNewRow = !!(rowId && activeNewIds.has(rowId));
-
       if (isNewRow) newCount++;
 
       const mapLink = row.latitude && row.longitude
@@ -515,13 +525,9 @@ tr.row-new {
 
       let files = [];
       try {
-        if (row.photo && typeof row.photo === 'string') {
-          files = JSON.parse(row.photo);
-        } else if (Array.isArray(row.photo)) {
-          files = row.photo;
-        } else {
-          files = [];
-        }
+        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+        else if (Array.isArray(row.photo)) files = row.photo;
+        else files = [];
       } catch (e) {
         console.error('⚠️ JSON parse error:', e);
         files = [];
@@ -556,12 +562,24 @@ tr.row-new {
         fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
       }
 
+      // ✅ เคสตีกลับจากหน่วยงาน
+      const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
+      const bounceFrom = bounced ? (row.routed_to || '-') : '-';
+      const bounceReason = bounced ? (row.dept_reason || '-') : '-';
+
+      const bounceCell = bounced
+        ? `
+          <div class="bounce-badge">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
+          <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
+        `
+        : '-';
+
+      // ✅ ปุ่มอนุมัติจะ disable ถ้ายังไม่เลือกแผนก
       const isDeptSelected = row.department && row.department !== "-";
 
       const tr = document.createElement("tr");
       tr.setAttribute("data-row-id", row.id);
 
-      // ===== NEW: ไฮไลต์แถวใหม่ =====
       if (isNewRow) tr.classList.add('row-new');
 
       tr.innerHTML = `
@@ -573,6 +591,10 @@ tr.row-new {
         <td>${escapeHtml(row.message || "-")}</td>
         <td>${fileLinks || "-"}</td>
         <td>${escapeHtml(row.department || "-")}</td>
+
+        <!-- ✅ เพิ่มคอลัมน์นี้ -->
+        <td>${bounceCell}</td>
+
         <td>${mapLink}</td>
         <td>${createdAtFormatted}</td>
         <td>
@@ -592,18 +614,16 @@ tr.row-new {
       tbody.appendChild(tr);
     });
 
-    // กรณีไม่มีข้อมูล
     if (data.length === 0) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td colspan="8" style="padding:20px; color:#64748b; font-weight:600;">
+        <td colspan="9" style="padding:20px; color:#64748b; font-weight:600;">
           ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
         </td>
       `;
       tbody.appendChild(tr);
     }
 
-    // ===== NEW: banner + จำว่าเคยเห็นแล้ว =====
     updateNewBanner(newCount);
 
     const merged = new Set([
@@ -628,7 +648,7 @@ tr.row-new {
     if (rowCount === 0) {
       const emptyTr = document.createElement('tr');
       emptyTr.innerHTML = `
-        <td colspan="8" style="padding:20px; color:#64748b; font-weight:600;">
+        <td colspan="9" style="padding:20px; color:#64748b; font-weight:600;">
           ${currentViewMode === 'today'
             ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
             : '📭 ไม่มีข้อมูลคำร้องใหม่'}
@@ -647,10 +667,7 @@ tr.row-new {
       removeFromActiveNewIds(id);
       removeRowFromTable(id);
 
-      setTimeout(() => {
-        safeLoadData();
-      }, 200);
-
+      setTimeout(() => { safeLoadData(); }, 200);
     } catch (err) {
       console.error('approve error:', err);
       alert('เกิดข้อผิดพลาดในการอนุมัติ');
@@ -679,6 +696,7 @@ tr.row-new {
     safeLoadData();
   }
 </script>
+
 <script>
   let autoTimer = null;
   let isLoading = false;
@@ -690,7 +708,7 @@ tr.row-new {
   }
 
   async function safeLoadData() {
-    if (isLoading) return;          // กันซ้อน ถ้าโหลดอยู่แล้วไม่ต้องซ้ำ
+    if (isLoading) return;
     isLoading = true;
     try {
       await loadData();
@@ -702,7 +720,7 @@ tr.row-new {
     }
   }
 
-  function startAutoRefresh(ms = 15000) { // 15 วินาที (ปรับได้)
+  function startAutoRefresh(ms = 15000) {
     stopAutoRefresh();
     autoTimer = setInterval(() => {
       const toggle = document.getElementById('auto-refresh-toggle');
@@ -719,10 +737,9 @@ tr.row-new {
     safeLoadData();
   }
 
-  // เริ่มทำงานเมื่อหน้าโหลดเสร็จ
   window.addEventListener('load', () => {
     updateViewModeUI();
-    safeLoadData();         // โหลดครั้งแรก + ตั้งเวลา
+    safeLoadData();
     startAutoRefresh(15000);
 
     const toggle = document.getElementById('auto-refresh-toggle');
@@ -878,7 +895,6 @@ function showImages(images) {
           flex-wrap: wrap;
           justify-content: flex-end;
         }
-
         .empty {
           text-align: center;
           padding: 40px 20px;
@@ -924,58 +940,18 @@ function showImages(images) {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>วิดีโอไฟล์ที่ \${index}</title>
                 <style>
-                  body {
-                    margin: 0;
-                    background: #0f172a;
-                    color: white;
-                    font-family: sans-serif;
-                    display: flex;
-                    flex-direction: column;
-                    min-height: 100vh;
-                  }
-                  .top {
-                    padding: 12px 16px;
-                    background: rgba(15,23,42,.95);
-                    border-bottom: 1px solid rgba(255,255,255,.1);
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:center;
-                    gap:10px;
-                    flex-wrap:wrap;
-                  }
-                  .btn {
-                    color: white;
-                    background: #2563eb;
-                    text-decoration: none;
-                    padding: 8px 12px;
-                    border-radius: 8px;
-                    font-weight: 700;
-                    font-size: 13px;
-                  }
-                  .btn-secondary {
-                    background: #334155;
-                  }
-                  .wrap {
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 16px;
-                  }
-                  video {
-                    width: 100%;
-                    max-width: 1200px;
-                    max-height: calc(100vh - 90px);
-                    background: black;
-                    border-radius: 12px;
-                    outline: none;
-                  }
+                  body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                  .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                  .btn { color:#fff; background:#2563eb; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
+                  .btn-secondary { background:#334155; }
+                  .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                  video { width:100%; max-width:1200px; max-height:calc(100vh - 90px); background:black; border-radius:12px; outline:none; }
                 </style>
               </head>
               <body>
                 <div class="top">
                   <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
-                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
                   </div>
                 </div>
@@ -989,77 +965,36 @@ function showImages(images) {
               </html>
             \`);
           } else {
-      viewer.document.write(\`
-        <!DOCTYPE html>
-        <html lang="th">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>รูปภาพไฟล์ที่ \${index}</title>
-          <style>
-            body {
-              margin: 0;
-              background: #0f172a;
-              color: white;
-              font-family: sans-serif;
-              display: flex;
-              flex-direction: column;
-              min-height: 100vh;
-            }
-            .top {
-              padding: 12px 16px;
-              background: rgba(15,23,42,.95);
-              border-bottom: 1px solid rgba(255,255,255,.1);
-              display:flex;
-              justify-content:space-between;
-              align-items:center;
-              gap:10px;
-              flex-wrap:wrap;
-            }
-            .btn {
-              color: white;
-              background: #16a34a;
-              text-decoration: none;
-              padding: 8px 12px;
-              border-radius: 8px;
-              font-weight: 700;
-              font-size: 13px;
-            }
-            .btn-secondary {
-              background: #334155;
-            }
-            .wrap {
-              flex: 1;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              padding: 16px;
-            }
-            img {
-              max-width: 100%;
-              max-height: calc(100vh - 90px);
-              object-fit: contain;
-              border-radius: 12px;
-              box-shadow: 0 8px 30px rgba(0,0,0,.35);
-              background: white;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="top">
-            <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
-            </div>
-          </div>
-
-          <div class="wrap">
-            <img src="\${url}" alt="ไฟล์ที่ \${index}" />
-          </div>
-        </body>
-        </html>
-      \`);
-    }
+            viewer.document.write(\`
+              <!DOCTYPE html>
+              <html lang="th">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>รูปภาพไฟล์ที่ \${index}</title>
+                <style>
+                  body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                  .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                  .btn { color:#fff; background:#16a34a; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
+                  .btn-secondary { background:#334155; }
+                  .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                  img { max-width:100%; max-height:calc(100vh - 90px); object-fit:contain; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.35); background:#fff; }
+                </style>
+              </head>
+              <body>
+                <div class="top">
+                  <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                  </div>
+                </div>
+                <div class="wrap">
+                  <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+                </div>
+              </body>
+              </html>
+            \`);
+          }
 
           viewer.document.close();
         }
@@ -1071,6 +1006,7 @@ function showImages(images) {
   win.document.close();
 }
 </script>
+
 <script>
   let currentRejectId = null;
 
@@ -1085,50 +1021,40 @@ function showImages(images) {
   }
 
   async function submitReject() {
-  const reason = document.getElementById('reject-reason').value.trim();
-
-  if (!reason) {
-    alert("กรุณากรอกเหตุผลก่อนส่ง");
-    return;
-  }
-
-  // ✅ เก็บ id ไว้ก่อน เผื่อ currentRejectId เปลี่ยน
-  const rejectId = currentRejectId;
-
-  try {
-    const res = await fetch(`/reject/${rejectId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reason })
-    });
-
-    if (res.redirected) {
-      window.location.href = res.url;
+    const reason = document.getElementById('reject-reason').value.trim();
+    if (!reason) {
+      alert("กรุณากรอกเหตุผลก่อนส่ง");
       return;
-    } else {
-      const text = await res.text();
-      alert(text);
     }
 
-   closeRejectModal();
+    const rejectId = currentRejectId;
 
-   removeFromActiveNewIds(rejectId);
+    try {
+      const res = await fetch(`/reject/${rejectId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
 
-   // ✅ ลบแถวออกทันทีจากตาราง
-   removeRowFromTable(rejectId);
+      if (res.redirected) {
+        window.location.href = res.url;
+        return;
+      } else {
+        const text = await res.text();
+        alert(text);
+      }
 
-    // ✅ sync ข้อมูลจริงตามหลัง
-    setTimeout(() => {
-      safeLoadData();
-    }, 200);
+      closeRejectModal();
+      removeFromActiveNewIds(rejectId);
+      removeRowFromTable(rejectId);
 
-  } catch (err) {
-    console.error('submitReject error:', err);
-    alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
+      setTimeout(() => { safeLoadData(); }, 200);
+    } catch (err) {
+      console.error('submitReject error:', err);
+      alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
+    }
   }
-}
 </script>
-
 
 </body>
 </html>
