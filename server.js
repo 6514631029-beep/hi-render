@@ -1045,7 +1045,91 @@ app.get('/completed', (req, res) => {
 app.get('/submit', (req, res) => {
   res.redirect('/'); // หรือ '/index.html' ถ้าคุณใช้ชื่อนั้น
 });
+// =========================
+// LINE Webhook (ต้องอยู่ก่อน 404)
+// =========================
+const crypto = require('crypto');
 
+function normalizeThaiPhone(input = '') {
+  const digits = String(input).replace(/\D/g, '');
+  if (digits.startsWith('66') && digits.length >= 11) return '0' + digits.slice(2);
+  return digits;
+}
+
+async function replyLineMessage(replyToken, text) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.log('[LINE MOCK reply]', text);
+    return;
+  }
+
+  const res = await fetch('https://api.line.me/v2/bot/message/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      replyToken,
+      messages: [{ type: 'text', text }]
+    })
+  });
+
+  if (!res.ok) {
+    console.error('LINE reply failed:', await res.text());
+  }
+}
+
+app.post('/line/webhook', express.raw({ type: '*/*' }), async (req, res) => {
+  try {
+    const secret = process.env.LINE_CHANNEL_SECRET;
+    const signature = req.headers['x-line-signature'];
+
+    // verify signature
+    if (secret) {
+      const hash = crypto.createHmac('SHA256', secret).update(req.body).digest('base64');
+      if (hash !== signature) return res.status(401).send('Invalid signature');
+    }
+
+    const body = JSON.parse(req.body.toString('utf8'));
+    const events = body.events || [];
+
+    for (const ev of events) {
+      if (ev.type !== 'message') continue;
+      if (ev.message?.type !== 'text') continue;
+
+      const text = (ev.message.text || '').trim();
+      const replyToken = ev.replyToken;
+      const userId = ev.source?.userId;
+
+      const m = text.match(/ผูกเบอร์\s*([0-9+ -]{8,20})/i);
+      if (m && userId) {
+        const phone = normalizeThaiPhone(m[1]);
+
+        if (!/^0\d{8,9}$/.test(phone)) {
+          await replyLineMessage(replyToken, '❌ เบอร์ไม่ถูกต้อง กรุณาส่ง: ผูกเบอร์ 08xxxxxxxx');
+          continue;
+        }
+
+        await db.promise().query(
+          `INSERT INTO line_links (phone, line_user_id)
+           VALUES (?, ?)
+           ON DUPLICATE KEY UPDATE line_user_id=VALUES(line_user_id), updated_at=NOW()`,
+          [phone, userId]
+        );
+
+        await replyLineMessage(replyToken, `✅ ผูกเบอร์ ${phone} สำเร็จ`);
+      } else {
+        await replyLineMessage(replyToken, 'พิมพ์: ผูกเบอร์ 08xxxxxxxx เพื่อรับแจ้งเตือน');
+      }
+    }
+
+    res.status(200).send('OK');
+  } catch (e) {
+    console.error('LINE webhook error:', e);
+    res.status(500).send('Server error');
+  }
+});
 app.use((req, res) => {
   res.status(404).send('ไม่พบหน้าเว็บที่คุณเรียก');
 });
