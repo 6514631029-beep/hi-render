@@ -1,240 +1,294 @@
-<!-- public/submit-success.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>ส่งคำร้องสำเร็จ</title>
 
-  <!-- สำคัญมากสำหรับมือถือ -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-  <!-- ฟอนต์ -->
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
-
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      font-family: 'Kanit', sans-serif;
-      background: linear-gradient(135deg, #dcfce7, #f0fdf4);
-      margin: 0;
-      padding:
-        env(safe-area-inset-top)
-        env(safe-area-inset-right)
-        env(safe-area-inset-bottom)
-        env(safe-area-inset-left);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      text-align: center;
+    :root{
+      --bg:#dff7ee;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --green:#16a34a;
+      --green2:#22c55e;
+      --line:#06c755;
+      --border:#e2e8f0;
+      --shadow: 0 20px 50px rgba(2, 6, 23, .10);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Kanit", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px 12px;
+    }
+    .wrap{
+      width: min(520px, 100%);
+    }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      border: 1px solid rgba(226,232,240,.8);
+    }
+    .title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:center;
+      margin: 6px 0 10px;
       color: #166534;
+      font-weight: 900;
+      font-size: 26px;
     }
-
-    .card {
-      background: #ffffff;
-      padding: 28px 22px;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 460px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      margin: 12px;
+    .subtitle{
+      text-align:center;
+      color: var(--muted);
+      line-height:1.5;
+      margin:0 0 14px;
+      font-size: 15px;
     }
-
-    h1 {
-      font-size: 1.8rem;
-      margin: 0 0 10px;
-      font-weight: 800;
+    .pill{
+      margin: 10px auto 14px;
+      display:flex;
+      justify-content:center;
     }
-
-    p {
-      font-size: 1rem;
-      margin: 0 0 18px;
-      color: #14532d;
-    }
-
-    .section {
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 16px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      text-align: left;
-    }
-
-    .section h2{
-      margin: 0 0 8px;
-      font-size: 1.05rem;
+    .pill span{
+      background:#e8f7ee;
+      border:1px solid #bfead0;
       color:#166534;
-      font-weight: 800;
-      text-align: left;
-    }
-
-    .muted{
-      color:#166534;
-      opacity: .9;
-      font-size: .95rem;
-      line-height: 1.45;
-      margin: 0 0 10px;
-      text-align: left;
-    }
-
-    .rid {
-      display:inline-block;
-      margin-top: 6px;
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 999px;
-      background: #dcfce7;
-      border: 1px solid #86efac;
       font-weight: 800;
-      color:#166534;
-      font-size: .95rem;
+      font-size: 14px;
     }
 
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 14px 0;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.05rem;
-      font-weight: 800;
-      cursor: pointer;
-      font-family:'Kanit',sans-serif;
-      transition: transform .08s ease, background-color .2s ease;
-      text-decoration: none;
-      text-align: center;
+    .section{
+      margin-top: 14px;
+      border: 1px solid #bfead0;
+      background: #eefcf5;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .section h2{
+      margin:0 0 8px;
+      font-size: 16px;
+      font-weight: 900;
+      color:#14532d;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .muted{ color: var(--muted); font-size: 14px; line-height:1.45; }
+    .btn{
+      width:100%;
+      border:none;
+      border-radius: 14px;
+      padding: 14px 14px;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: transform .06s ease;
     }
     .btn:active{ transform: scale(.99); }
+    .btn-line{ background: var(--line); color: #fff; }
+    .btn-green{ background: var(--green); color:#fff; }
+    .btn-gray{ background:#e2e8f0; color:#0f172a; }
 
-    .btn-green {
-      background-color: #22c55e;
-      color: white;
-    }
-    .btn-green:hover { background-color: #16a34a; }
-
-    .btn-line{
-      background:#06C755;
-      color:#fff;
+    .editBox{
+      display:none;
       margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #bfead0;
     }
-    .btn-line:hover{ background:#05b84c; }
-
-    .btn-gray{
-      background:#e5e7eb;
-      color:#111827;
-      margin-top: 10px;
-    }
-    .btn-gray:hover{ background:#d1d5db; }
-
-    .code {
-      margin-top: 10px;
-      background: #ffffff;
-      border: 1px dashed #86efac;
+    .input{
+      width:100%;
+      padding: 12px 12px;
       border-radius: 12px;
-      padding: 10px 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: .95rem;
-      color:#14532d;
-      word-break: break-word;
-      text-align: left;
+      border: 1px solid #cbd5e1;
+      font-size: 16px;
+      outline:none;
+      background:#fff;
     }
 
-    /* 📱 มือถือจอเล็กมาก */
-    @media (max-width: 360px) {
-      h1 { font-size: 1.5rem; }
-      p { font-size: 0.95rem; }
+    .footer{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .footer .btn{
+      margin-top:0;
+      flex:1;
+      min-width: 180px;
+    }
+
+    .warn{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 12px;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#9a3412;
+      font-size: 13px;
+      line-height:1.45;
+      display:none;
     }
   </style>
 </head>
+
 <body>
+  <div class="wrap">
+    <div class="card">
+      <div class="title">✅ ส่งคำร้องสำเร็จ</div>
+      <p class="subtitle">
+        ขอบคุณสำหรับการแจ้งเรื่อง<br/>
+        เจ้าหน้าที่จะดำเนินการโดยเร็ว
+      </p>
 
-  <div class="card">
-    <h1>✅ ส่งคำร้องสำเร็จ</h1>
-    <p>ขอบคุณสำหรับการแจ้งเรื่อง<br>เจ้าหน้าที่จะดำเนินการโดยเร็ว</p>
-
-    <!-- ✅ (เพิ่มใหม่) แสดงเลขคำร้อง ถ้ามีส่งมาใน URL -->
-    <div id="ridWrap" style="display:none;">
-      <div class="rid">เลขคำร้อง: <span id="rid">-</span></div>
-    </div>
-
-    <!-- ✅ (เพิ่มใหม่) ส่วนแอดไลน์ -->
-    <div class="section" id="lineSection">
-      <h2>🔔 รับแจ้งเตือนผ่าน LINE</h2>
-      <div class="muted">
-        กดแอดไลน์ OA ของหน่วยงานเพื่อรับแจ้งเตือนเมื่อดำเนินการเสร็จสิ้น<br>
-        <b>สำคัญ:</b> หลังแอดแล้วให้ทักข้อความผูกเบอร์ 1 ครั้ง เพื่อให้ระบบส่งแจ้งเตือนได้
+      <div class="pill" id="ridWrap" style="display:none;">
+        <span>เลขคำร้อง: <b id="rid">-</b></span>
       </div>
 
-      <button class="btn btn-line" id="btnAddLine">➕ แอดไลน์เพื่อรับแจ้งเตือน</button>
+      <!-- LINE Section -->
+      <div class="section" id="lineSection">
+        <h2>🔔 รับแจ้งเตือนผ่าน LINE</h2>
+        <div class="muted">
+          ยืนยันเบอร์สำหรับรับแจ้งเตือน: <b id="phoneMasked">-</b>
+        </div>
 
-      <div class="muted" style="margin-top:10px; font-weight:800;">📩 ข้อความที่ต้องส่งใน LINE</div>
-      <div class="code" id="bindText">ผูกเบอร์ (พิมพ์เบอร์ของคุณ)</div>
+        <button class="btn btn-line" id="btnBindNow">✅ ใช่ — ผูก LINE ด้วยเบอร์นี้</button>
+        <button class="btn btn-gray" id="btnEditPhone">✏️ แก้เบอร์</button>
 
-      <button class="btn btn-gray" onclick="copyBindText()">คัดลอกข้อความผูกเบอร์</button>
+        <div class="editBox" id="editPhoneBox">
+          <div class="muted" style="margin-bottom:6px;">กรอกเบอร์ใหม่ (10 หลัก)</div>
+          <input class="input" id="newPhone" inputmode="numeric" maxlength="10" placeholder="0xxxxxxxxx" />
+          <button class="btn btn-green" id="btnSavePhone">บันทึกเบอร์ใหม่</button>
+        </div>
+
+        <div class="muted" style="margin-top:10px; opacity:.9;">
+          * กด “ผูก LINE” ระบบจะเปิดแชท LINE OA พร้อมข้อความให้แล้ว (กดส่งครั้งเดียว)
+        </div>
+
+        <div class="warn" id="warnBox"></div>
+      </div>
+
+      <div class="footer">
+        <button class="btn btn-green" onclick="location.href='/'">⬅️ กลับไปเมนูหลัก</button>
+      </div>
     </div>
-
-    <!-- ปุ่มเดิมของคุณ -->
-    <a class="btn btn-green" href="/choose.html" style="margin-top:14px;">⬅️ กลับไปเมนูหลัก</a>
   </div>
 
-<script>
-  // ✅ ใส่ลิงก์ OA ของคุณตรงนี้ (ตอนนี้ยังเป็นตัวอย่าง)
-  const YOUR_OA_LINK = "https://line.me/R/ti/p/@300ifqgu";
+  <script>
+    // ✅ OA Basic ID ของคุณ (ต้องตรงกับ OA จริง)
+    const OA_BASIC_ID = "@300ifqgu";
+    const OA_ADD_LINK = "https://line.me/R/ti/p/@300ifqgu";
 
-  const params = new URLSearchParams(location.search);
-  const rid = params.get('rid');     // เช่น /submit-success.html?rid=73&phone=08xxxx
-  const phone = params.get('phone');
+    const params = new URLSearchParams(location.search);
+    const rid = params.get('rid');
+    const token = params.get('t');
 
-  // แสดงเลขคำร้อง ถ้ามี
-  if (rid) {
-    document.getElementById('ridWrap').style.display = 'block';
-    document.getElementById('rid').textContent = rid;
-  }
+    const ridWrap = document.getElementById('ridWrap');
+    const ridEl = document.getElementById('rid');
+    const phoneMaskedEl = document.getElementById('phoneMasked');
+    const lineSection = document.getElementById('lineSection');
+    const editBox = document.getElementById('editPhoneBox');
+    const warnBox = document.getElementById('warnBox');
 
-  // เตรียมข้อความผูกเบอร์
-  const bindText = phone ? `ผูกเบอร์ ${phone}` : `ผูกเบอร์ (พิมพ์เบอร์ของคุณ)`;
-  document.getElementById('bindText').textContent = bindText;
-
-  document.getElementById('btnAddLine').addEventListener('click', () => {
-    window.open(YOUR_OA_LINK, '_blank');
-  });
-
-  async function copyBindText(){
-    const text = document.getElementById('bindText').textContent;
-    try{
-      await navigator.clipboard.writeText(text);
-      alert('คัดลอกแล้ว ✅ นำไปวางใน LINE ได้เลย');
-    }catch(e){
-      alert('คัดลอกไม่สำเร็จ ให้กดค้างแล้วคัดลอกด้วยตัวเอง');
+    if (rid) {
+      ridWrap.style.display = 'flex';
+      ridEl.textContent = rid;
     }
-  }
-   
-  
-  // ✅ เช็คว่าเบอร์นี้ผูก LINE แล้วหรือยัง (ถ้าผูกแล้ว ซ่อนกล่องนี้)
-  async function checkLineLinked() {
-    if (!phone) return; // ไม่มีเบอร์ก็ข้าม
 
-    try {
-      const r = await fetch(`/line/is-linked?phone=${encodeURIComponent(phone)}`);
-      const data = await r.json();
+    function showWarn(msg){
+      warnBox.style.display = 'block';
+      warnBox.textContent = msg;
+    }
 
-      if (data.linked) {
-        // ผูกแล้ว ✅ ซ่อนทั้งกล่อง
-        const sec = document.getElementById('lineSection');
-        if (sec) sec.style.display = 'none';
-
-        // (ทางเลือก) จะขึ้นข้อความแทนก็ทำได้ เดี๋ยวบอกด้านล่าง
+    async function loadBindInfo(){
+      if (!token) {
+        showWarn('ไม่พบโค้ดผูก LINE (token) กรุณาส่งคำร้องใหม่อีกครั้ง');
+        phoneMaskedEl.textContent = '-';
+        return;
       }
-    } catch (e) {
-      console.log('checkLineLinked error:', e);
-      // ถ้าพัง ก็ปล่อยให้โชว์ปกติ
+
+      try{
+        const r = await fetch(`/line/bind-info?t=${encodeURIComponent(token)}`);
+        const data = await r.json();
+
+        if (!data.ok){
+          if (r.status === 410) showWarn('โค้ดหมดอายุแล้ว กรุณาส่งคำร้องใหม่หรือกลับไปหน้าเดิมเพื่อสร้างใหม่');
+          else showWarn('ไม่พบโค้ดผูก LINE กรุณาส่งคำร้องใหม่อีกครั้ง');
+          phoneMaskedEl.textContent = '-';
+          return;
+        }
+
+        phoneMaskedEl.textContent = data.phoneMasked || '-';
+
+        // ถ้าผูกแล้ว ซ่อนกล่องนี้ไปเลย
+        if (data.linked) {
+          lineSection.style.display = 'none';
+        }
+      }catch(e){
+        console.error(e);
+        showWarn('เกิดข้อผิดพลาดในการโหลดข้อมูลผูก LINE');
+      }
     }
-  }
 
-  checkLineLinked();
+    function openLineWithBindToken(){
+      if (!token) {
+        window.open(OA_ADD_LINK, '_blank');
+        return;
+      }
+      const msg = `BIND ${token}`;
+      const deeplink = `https://line.me/R/oaMessage/${encodeURIComponent(OA_BASIC_ID)}/?${encodeURIComponent(msg)}`;
+      window.open(deeplink, '_blank');
+    }
 
-</script>
+    document.getElementById('btnBindNow').addEventListener('click', openLineWithBindToken);
 
+    document.getElementById('btnEditPhone').addEventListener('click', () => {
+      editBox.style.display = (editBox.style.display === 'none') ? 'block' : 'none';
+    });
+
+    document.getElementById('btnSavePhone').addEventListener('click', async () => {
+      const p = (document.getElementById('newPhone').value || '').replace(/\D/g,'').trim();
+      if (!/^0\d{9}$/.test(p)) {
+        alert('❌ กรุณากรอกเบอร์ 10 หลัก (ขึ้นต้นด้วย 0)');
+        return;
+      }
+
+      try{
+        const r = await fetch('/line/update-phone', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ t: token, phone: p })
+        });
+        const data = await r.json();
+        if (!data.ok) {
+          alert('❌ บันทึกไม่สำเร็จ');
+          return;
+        }
+        phoneMaskedEl.textContent = data.phoneMasked || '-';
+        editBox.style.display = 'none';
+        alert('✅ อัปเดตเบอร์แล้ว');
+      }catch(e){
+        console.error(e);
+        alert('❌ เกิดข้อผิดพลาด');
+      }
+    });
+
+    loadBindInfo();
+  </script>
 </body>
 </html>

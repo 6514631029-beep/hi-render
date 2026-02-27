@@ -211,10 +211,22 @@ db.query('SELECT 1', (err) => {
 
 const crypto = require('crypto');
 
+
+
 function normalizeThaiPhone(input = '') {
   const digits = String(input).replace(/\D/g, '');
   if (digits.startsWith('66') && digits.length >= 11) return '0' + digits.slice(2);
   return digits;
+}
+
+function genBindToken() {
+  return crypto.randomBytes(18).toString('base64url'); // เดายาก + ใช้ใน URL ได้
+}
+
+function maskPhone(phone='') {
+  const p = normalizeThaiPhone(phone);
+  if (p.length < 10) return p;
+  return `${p.slice(0,3)}-xxx-${p.slice(-4)}`;
 }
 
 app.get('/line/is-linked', async (req, res) => {
@@ -231,6 +243,72 @@ app.get('/line/is-linked', async (req, res) => {
   } catch (e) {
     console.error('is-linked error:', e);
     return res.status(500).json({ linked: false });
+  }
+});
+app.get('/line/bind-info', async (req, res) => {
+  try {
+    const token = String(req.query.t || '').trim();
+    if (!token) return res.status(400).json({ ok:false, message:'missing token' });
+
+    const [rows] = await db.promise().query(
+      `SELECT token, request_id, phone, used, expires_at
+       FROM line_bind_tokens
+       WHERE token = ? LIMIT 1`,
+      [token]
+    );
+    if (!rows.length) return res.status(404).json({ ok:false, message:'token not found' });
+
+    const r = rows[0];
+    const expired = new Date(r.expires_at).getTime() < Date.now();
+    if (expired) return res.status(410).json({ ok:false, message:'token expired' });
+
+    const phone = normalizeThaiPhone(r.phone);
+
+    const [linkRows] = await db.promise().query(
+      'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+      [phone]
+    );
+
+    return res.json({
+      ok:true,
+      requestId: r.request_id,
+      phoneMasked: maskPhone(phone),
+      linked: linkRows.length > 0
+    });
+  } catch (e) {
+    console.error('bind-info error:', e);
+    return res.status(500).json({ ok:false });
+  }
+});
+
+app.post('/line/update-phone', async (req, res) => {
+  try {
+    const token = String(req.body?.t || '').trim();
+    const newPhone = normalizeThaiPhone(req.body?.phone || '');
+
+    if (!token) return res.status(400).json({ ok:false, message:'missing token' });
+    if (!/^0\d{9}$/.test(newPhone)) return res.status(400).json({ ok:false, message:'invalid phone' });
+
+    const [rows] = await db.promise().query(
+      `SELECT request_id, expires_at FROM line_bind_tokens WHERE token=? LIMIT 1`,
+      [token]
+    );
+    if (!rows.length) return res.status(404).json({ ok:false, message:'token not found' });
+
+    const expired = new Date(rows[0].expires_at).getTime() < Date.now();
+    if (expired) return res.status(410).json({ ok:false, message:'token expired' });
+
+    const requestId = rows[0].request_id;
+
+    // ✅ อัปเดตใน requests ด้วย (กันเบอร์ผิด)
+    await db.promise().query(`UPDATE requests SET phone=? WHERE id=?`, [newPhone, requestId]);
+    // ✅ อัปเดตใน token ด้วย
+    await db.promise().query(`UPDATE line_bind_tokens SET phone=? WHERE token=?`, [newPhone, token]);
+
+    return res.json({ ok:true, phoneMasked: maskPhone(newPhone) });
+  } catch (e) {
+    console.error('update-phone error:', e);
+    return res.status(500).json({ ok:false });
   }
 });
 async function pushLineMessage(to, text) {
@@ -346,26 +424,53 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
       const replyToken = ev.replyToken;
       const userId = ev.source?.userId;
 
-      const m = text.match(/ผูกเบอร์\s*([0-9+ -]{8,20})/i);
-      if (m && userId) {
-        const phone = normalizeThaiPhone(m[1]);
+      const mToken = text.match(/^(?:BIND|ผูก)\s+([A-Za-z0-9\-_]{10,80})$/i);
 
-        if (!/^0\d{8,9}$/.test(phone)) {
-          await replyLineMessage(replyToken, '❌ เบอร์ไม่ถูกต้อง กรุณาส่ง: ผูกเบอร์ 08xxxxxxxx');
+      if (mToken && userId) {
+        const token = mToken[1];
+
+        const [rows] = await db.promise().query(
+          `SELECT request_id, phone, used, expires_at
+          FROM line_bind_tokens WHERE token=? LIMIT 1`,
+          [token]
+        );
+
+        if (!rows.length) {
+          await replyLineMessage(replyToken, '❌ โค้ดไม่ถูกต้อง');
           continue;
         }
 
+        const t = rows[0];
+        if (t.used) {
+          await replyLineMessage(replyToken, '⚠️ โค้ดนี้ถูกใช้ไปแล้ว');
+          continue;
+        }
+
+        const expired = new Date(t.expires_at).getTime() < Date.now();
+        if (expired) {
+          await replyLineMessage(replyToken, '⏳ โค้ดหมดอายุแล้ว กรุณากลับไปหน้าเดิมเพื่อสร้างใหม่');
+          continue;
+        }
+
+        const phone = normalizeThaiPhone(t.phone);
+
         await db.promise().query(
           `INSERT INTO line_links (phone, line_user_id)
-           VALUES (?, ?)
-           ON DUPLICATE KEY UPDATE line_user_id=VALUES(line_user_id), updated_at=NOW()`,
+          VALUES (?, ?)
+          ON DUPLICATE KEY UPDATE line_user_id=VALUES(line_user_id), updated_at=NOW()`,
           [phone, userId]
         );
 
-        await replyLineMessage(replyToken, `✅ ผูกเบอร์ ${phone} สำเร็จ`);
-      } else {
-        await replyLineMessage(replyToken, 'พิมพ์: ผูกเบอร์ 08xxxxxxxx เพื่อรับแจ้งเตือน');
+        await db.promise().query(
+          `UPDATE line_bind_tokens SET used=1 WHERE token=?`,
+          [token]
+        );
+
+        await replyLineMessage(replyToken, `✅ ผูก LINE สำเร็จ\nเบอร์: ${maskPhone(phone)}\nเลขคำร้อง: ${t.request_id}`);
+        continue;
       }
+
+      await replyLineMessage(replyToken, 'พิมพ์: BIND <โค้ด> เพื่อผูก LINE');
     }
 
     return res.status(200).send('OK');
@@ -608,7 +713,7 @@ app.post('/submit', (req, res) => {
         department, status, routed_to, dept_accept, dept_reason
       ];
 
-      db.query(sql, values, (err, result) => {
+      db.query(sql, values, async (err, result) => {
         if (err) {
           console.error('❌ บันทึกข้อมูลล้มเหลว:', err);
           return res.status(500).send('❌ บันทึกไม่สำเร็จ');
@@ -619,12 +724,21 @@ app.post('/submit', (req, res) => {
           `ชื่อ: ${name}\nเบอร์โทร: ${phone}\nที่อยู่: ${address}\nข้อความ: ${message}\nจำนวนไฟล์แนบ: ${files.length} ไฟล์`
         );
 
-        const requestId = result.insertId; // ✅ เลขคำร้องที่เพิ่ง insert
+        const requestId = result.insertId; // ✅ เลขคำร้อง
 
-        console.log('✅ บันทึกคำร้อง:', JSON.stringify(result, null, 2));
+        // ✅ สร้าง token ผูก LINE (หมดอายุ 30 นาที)
+        const token = genBindToken();
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
-        // ✅ ส่งเลขคำร้อง + เบอร์ ไปหน้า success
-        return res.redirect(`/submit-success.html?rid=${requestId}&phone=${encodeURIComponent(phone)}`);
+        // ✅ บันทึก token ลง DB
+        await db.promise().query(
+          `INSERT INTO line_bind_tokens (token, request_id, phone, expires_at)
+          VALUES (?, ?, ?, ?)`,
+          [token, requestId, normalizeThaiPhone(phone), expiresAt]
+        );
+
+        // ✅ redirect แบบใหม่ (ไม่ส่ง phone ใน URL)
+        return res.redirect(`/submit-success.html?rid=${requestId}&t=${encodeURIComponent(token)}`);
       });
 
     } catch (error) {
