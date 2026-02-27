@@ -229,88 +229,6 @@ function maskPhone(phone='') {
   return `${p.slice(0,3)}-xxx-${p.slice(-4)}`;
 }
 
-app.get('/line/is-linked', async (req, res) => {
-  try {
-    const phone = normalizeThaiPhone(req.query.phone || '');
-    if (!phone) return res.status(400).json({ linked: false });
-
-    const [rows] = await db.promise().query(
-      'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
-      [phone]
-    );
-
-    return res.json({ linked: rows.length > 0 });
-  } catch (e) {
-    console.error('is-linked error:', e);
-    return res.status(500).json({ linked: false });
-  }
-});
-app.get('/line/bind-info', async (req, res) => {
-  try {
-    const token = String(req.query.t || '').trim();
-    if (!token) return res.status(400).json({ ok:false, message:'missing token' });
-
-    const [rows] = await db.promise().query(
-      `SELECT token, request_id, phone, used, expires_at
-       FROM line_bind_tokens
-       WHERE token = ? LIMIT 1`,
-      [token]
-    );
-    if (!rows.length) return res.status(404).json({ ok:false, message:'token not found' });
-
-    const r = rows[0];
-    const expired = new Date(r.expires_at).getTime() < Date.now();
-    if (expired) return res.status(410).json({ ok:false, message:'token expired' });
-
-    const phone = normalizeThaiPhone(r.phone);
-
-    const [linkRows] = await db.promise().query(
-      'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
-      [phone]
-    );
-
-    return res.json({
-      ok:true,
-      requestId: r.request_id,
-      phoneMasked: maskPhone(phone),
-      linked: linkRows.length > 0
-    });
-  } catch (e) {
-    console.error('bind-info error:', e);
-    return res.status(500).json({ ok:false });
-  }
-});
-
-app.post('/line/update-phone', async (req, res) => {
-  try {
-    const token = String(req.body?.t || '').trim();
-    const newPhone = normalizeThaiPhone(req.body?.phone || '');
-
-    if (!token) return res.status(400).json({ ok:false, message:'missing token' });
-    if (!/^0\d{9}$/.test(newPhone)) return res.status(400).json({ ok:false, message:'invalid phone' });
-
-    const [rows] = await db.promise().query(
-      `SELECT request_id, expires_at FROM line_bind_tokens WHERE token=? LIMIT 1`,
-      [token]
-    );
-    if (!rows.length) return res.status(404).json({ ok:false, message:'token not found' });
-
-    const expired = new Date(rows[0].expires_at).getTime() < Date.now();
-    if (expired) return res.status(410).json({ ok:false, message:'token expired' });
-
-    const requestId = rows[0].request_id;
-
-    // ✅ อัปเดตใน requests ด้วย (กันเบอร์ผิด)
-    await db.promise().query(`UPDATE requests SET phone=? WHERE id=?`, [newPhone, requestId]);
-    // ✅ อัปเดตใน token ด้วย
-    await db.promise().query(`UPDATE line_bind_tokens SET phone=? WHERE token=?`, [newPhone, token]);
-
-    return res.json({ ok:true, phoneMasked: maskPhone(newPhone) });
-  } catch (e) {
-    console.error('update-phone error:', e);
-    return res.status(500).json({ ok:false });
-  }
-});
 async function pushLineMessage(to, text) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
@@ -484,7 +402,88 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
+app.get('/line/is-linked', async (req, res) => {
+  try {
+    const phone = normalizeThaiPhone(req.query.phone || '');
+    if (!phone) return res.status(400).json({ linked: false });
 
+    const [rows] = await db.promise().query(
+      'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+      [phone]
+    );
+
+    return res.json({ linked: rows.length > 0 });
+  } catch (e) {
+    console.error('is-linked error:', e);
+    return res.status(500).json({ linked: false });
+  }
+});
+app.get('/line/bind-info', async (req, res) => {
+  try {
+    const token = String(req.query.t || '').trim();
+    if (!token) return res.status(400).json({ ok:false, message:'missing token' });
+
+    const [rows] = await db.promise().query(
+      `SELECT token, request_id, phone, used, expires_at
+       FROM line_bind_tokens
+       WHERE token = ? LIMIT 1`,
+      [token]
+    );
+    if (!rows.length) return res.status(404).json({ ok:false, message:'token not found' });
+
+    const r = rows[0];
+    const expired = new Date(r.expires_at).getTime() < Date.now();
+    if (expired) return res.status(410).json({ ok:false, message:'token expired' });
+
+    const phone = normalizeThaiPhone(r.phone);
+
+    const [linkRows] = await db.promise().query(
+      'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+      [phone]
+    );
+
+    return res.json({
+      ok:true,
+      requestId: r.request_id,
+      phoneMasked: maskPhone(phone),
+      linked: linkRows.length > 0
+    });
+  } catch (e) {
+    console.error('bind-info error:', e);
+    return res.status(500).json({ ok:false });
+  }
+});
+
+app.post('/line/update-phone', async (req, res) => {
+  try {
+    const token = String(req.body?.t || '').trim();
+    const newPhone = normalizeThaiPhone(req.body?.phone || '');
+
+    if (!token) return res.status(400).json({ ok:false, message:'missing token' });
+    if (!/^0\d{9}$/.test(newPhone)) return res.status(400).json({ ok:false, message:'invalid phone' });
+
+    const [rows] = await db.promise().query(
+      `SELECT request_id, expires_at FROM line_bind_tokens WHERE token=? LIMIT 1`,
+      [token]
+    );
+    if (!rows.length) return res.status(404).json({ ok:false, message:'token not found' });
+
+    const expired = new Date(rows[0].expires_at).getTime() < Date.now();
+    if (expired) return res.status(410).json({ ok:false, message:'token expired' });
+
+    const requestId = rows[0].request_id;
+
+    // ✅ อัปเดตใน requests ด้วย (กันเบอร์ผิด)
+    await db.promise().query(`UPDATE requests SET phone=? WHERE id=?`, [newPhone, requestId]);
+    // ✅ อัปเดตใน token ด้วย
+    await db.promise().query(`UPDATE line_bind_tokens SET phone=? WHERE token=?`, [newPhone, token]);
+
+    return res.json({ ok:true, phoneMasked: maskPhone(newPhone) });
+  } catch (e) {
+    console.error('update-phone error:', e);
+    return res.status(500).json({ ok:false });
+  }
+});
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'hi-form-secret',
