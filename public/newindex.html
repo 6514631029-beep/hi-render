@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ส่งคำร้อง - อบต.ท่าช้าง จ.จันทบุรี</title>
+
+  <script>
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      window.location.href = "/login.html";
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: #3d2a2a;
+      background: linear-gradient(135deg, #a3d8f4 0%, #f8a4d8 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ✅ ลายน้ำพื้นหลัง */
+    .background-logo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.1;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .background-logo img {
+      width: 90vmin;
+      height: auto;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+      max-width: 600px;
+      width: 90%;
+      margin: 3rem auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      text-align: center;
+      color: #c2185b;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1.2rem;
+      font-weight: 600;
+      color: #6a1b9a;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      margin-top: 0.3rem;
+      border: 1.8px solid #ce93d8;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #fdf5fb;
+    }
+
+    button {
+      margin-top: 1.2rem;
+      width: 100%;
+      padding: 1rem;
+      background-color: #2196f3;
+      color: white;
+      font-size: 1.15rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.95;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    #map {
+      height: 250px;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .use-location-btn {
+      margin-bottom: 1rem;
+      background-color: #64b5f6;
+    }
+
+    /* ✅ Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .loading-card {
+      width: min(92vw, 420px);
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+      padding: 28px 22px;
+      text-align: center;
+      border: 1px solid #f3d1ea;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border: 6px solid #f8cbe6;
+      border-top: 6px solid #2196f3;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .loading-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #c2185b;
+      margin-bottom: 8px;
+    }
+
+    .loading-text {
+      font-size: 0.98rem;
+      color: #6b4b5a;
+      line-height: 1.6;
+    }
+
+    .loading-subtext {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem 1.2rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+
+      .loading-card {
+        padding: 24px 18px;
+      }
+
+      .loading-title {
+        font-size: 1.08rem;
+      }
+
+      .loading-text {
+        font-size: 0.94rem;
+      }
+    }
+  </style>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+  <!-- ✅ Loading ระหว่างส่งข้อมูล -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-title">📩 กำลังส่งคำร้อง</div>
+      <div class="loading-text">
+        กรุณารอสักครู่ ระบบกำลังอัปโหลดข้อมูล<br />
+        และไฟล์รูปภาพ/วิดีโอของคุณ
+      </div>
+      <div class="loading-subtext">
+        โปรดอย่าปิดหน้านี้ระหว่างการส่งข้อมูล
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('userPhone');
+      window.location.href = "/login.html";
+    }
+  </script>
+
+  <div class="container">
+    <!-- ✅ โลโก้ด้านบนสุดของแบบฟอร์ม -->
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <img src="your-logo.png" alt="โลโก้ อบต.ท่าช้าง" style="width: 100px;" />
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const phone = localStorage.getItem('userPhone');
+        if (phone) {
+          const phoneInput = document.querySelector('input[name="phone"]');
+          if (phoneInput) phoneInput.value = phone;
+        }
+      });
+    </script>
+
+    <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
+
+    <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data">
+      <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
+      <div id="map"></div>
+
+      <button type="button" class="use-location-btn" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
+
+      <input type="hidden" name="latitude" id="latitude" required>
+      <input type="hidden" name="longitude" id="longitude" required>
+
+      <label>ชื่อ:</label>
+      <input type="text" name="name" required>
+
+      <label>เบอร์โทรศัพท์:</label>
+      <input type="tel" name="phone" required>
+
+      <label for="category">แจ้งเรื่องอะไร:</label>
+      <select name="category" id="category" required>
+        <option value="" disabled selected>-- เลือกประเภทเรื่อง --</option>
+        <option value="ขยะ">🗑️ ขยะ</option>
+        <option value="ไฟฟ้า">💡 ไฟฟ้า</option>
+        <option value="ถนน/เสาไฟชำรุด">🛣️ ถนน/เสาไฟชำรุด</option>
+      </select>
+
+      <label>กรุณาใส่เลขที่บ้าน เเละ หมู่:</label>
+      <textarea name="address" rows="2" required></textarea>
+
+      <label>ข้อความ:</label>
+      <textarea name="message" rows="5" required></textarea>
+
+      <label>แนบรูปภาพหรือวิดีโอ (หลายไฟล์ได้):</label>
+      <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*">
+      <small style="color:#666; display:block; margin-top:6px;">
+        อัปโหลดได้สูงสุด 10 ไฟล์ | รูปไม่เกิน 10MB/ไฟล์ | วิดีโอไม่เกิน 50MB/ไฟล์ | รวมไม่เกิน 100MB
+      </small>
+
+      <button type="submit" id="submitBtn">📩 ส่งคำร้อง</button>
+
+      <button type="button" onclick="logout()" style="margin-top: 20px; background: #e53935;">🚪 ออกจากระบบ</button>
+
+      <a href="/track.html" style="
+        display: block;
+        margin-top: 20px;
+        padding: 1rem;
+        background-color: #10b981;
+        color: white;
+        font-size: 1.15rem;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: bold;
+      ">📋 ติดตามคำร้อง</a>
+    </form>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([12.616, 102.104], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let marker = null;
+
+    function setMarker(latlng) {
+      if (marker) {
+        marker.setLatLng(latlng);
+      } else {
+        marker = L.marker(latlng).addTo(map);
+      }
+      document.getElementById('latitude').value = latlng.lat.toFixed(6);
+      document.getElementById('longitude').value = latlng.lng.toFixed(6);
+    }
+
+    function useMyLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLatLng = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            map.setView(userLatLng, 15);
+            setMarker(userLatLng);
+          },
+          (error) => {
+            alert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message);
+          }
+        );
+      } else {
+        alert("เบราว์เซอร์ไม่รองรับ Geolocation");
+      }
+    }
+
+    map.on('click', function(e) {
+      setMarker(e.latlng);
+    });
+  </script>
+
+  <script>
+    const complaintForm = document.getElementById('complaintForm');
+    const mediaInput = document.getElementById('mediaFiles');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    function showLoading() {
+      loadingOverlay.classList.add('show');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.remove('show');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '📩 ส่งคำร้อง';
+    }
+
+    // ✅ ตรวจไฟล์ก่อน submit (ฝั่งหน้าเว็บ)
+    complaintForm.addEventListener('submit', function (e) {
+      const files = Array.from(mediaInput.files || []);
+
+      const MAX_FILES = 10;
+      const MAX_IMAGE_SIZE = 10 * 1024 * 1024;   // 10MB
+      const MAX_VIDEO_SIZE = 50 * 1024 * 1024;   // 50MB
+      const MAX_TOTAL_SIZE = 100 * 1024 * 1024;  // 100MB
+
+      // 1) จำนวนไฟล์
+      if (files.length > MAX_FILES) {
+        e.preventDefault();
+        hideLoading();
+        alert(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
+        return;
+      }
+
+      // 2) ชนิด/ขนาดไฟล์ + รวมทั้งหมด
+      let totalSize = 0;
+
+      for (const f of files) {
+        totalSize += f.size || 0;
+
+        const isImage = f.type.startsWith('image/');
+        const isVideo = f.type.startsWith('video/');
+
+        if (!isImage && !isVideo) {
+          e.preventDefault();
+          hideLoading();
+          alert(`ไฟล์ "${f.name}" ไม่ใช่รูปภาพหรือวิดีโอ`);
+          return;
+        }
+
+        if (isImage && f.size > MAX_IMAGE_SIZE) {
+          e.preventDefault();
+          hideLoading();
+          alert(`ไฟล์รูป "${f.name}" มีขนาดเกิน 10MB`);
+          return;
+        }
+
+        if (isVideo && f.size > MAX_VIDEO_SIZE) {
+          e.preventDefault();
+          hideLoading();
+          alert(`ไฟล์วิดีโอ "${f.name}" มีขนาดเกิน 50MB`);
+          return;
+        }
+      }
+
+      if (totalSize > MAX_TOTAL_SIZE) {
+        e.preventDefault();
+        hideLoading();
+        alert('ขนาดไฟล์รวมเกิน 100MB กรุณาลดจำนวนหรือขนาดไฟล์');
+        return;
+      }
+
+      // ✅ ถ้าผ่านทุกอย่าง ค่อยโชว์ loading
+      showLoading();
+    });
+
+    // ✅ กันกรณีกด back แล้วปุ่มยัง disabled / loading ยังโชว์
+    window.addEventListener('pageshow', function () {
+      hideLoading();
+    });
+  </script>
+
+</body>
+</html>
