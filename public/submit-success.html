@@ -257,8 +257,12 @@
 
     document.getElementById('btnBindNow').addEventListener('click', openLineWithBindToken);
 
-    document.getElementById('btnEditPhone').addEventListener('click', () => {
-      editBox.style.display = (editBox.style.display === 'none') ? 'block' : 'none';
+    const btnEditPhone = document.getElementById('btnEditPhone');
+
+    btnEditPhone.addEventListener('click', () => {
+      const isHidden = window.getComputedStyle(editBox).display === 'none';
+      editBox.style.display = isHidden ? 'block' : 'none';
+      btnEditPhone.textContent = isHidden ? '❌ ยกเลิกการแก้ไข' : '✏️ แก้เบอร์';
     });
 
     document.getElementById('btnSavePhone').addEventListener('click', async () => {
