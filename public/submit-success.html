@@ -283,6 +283,7 @@
           alert('❌ บันทึกไม่สำเร็จ');
           return;
         }
+        localStorage.setItem('userPhone', p);
         phoneMaskedEl.textContent = data.phoneMasked || '-';
         editBox.style.display = 'none';
         alert('✅ อัปเดตเบอร์แล้ว');
