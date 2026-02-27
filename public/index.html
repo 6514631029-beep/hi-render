@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>ส่งคำร้อง - อบต.ท่าช้าง จ.จันทบุรี</title>
 
   <script>
@@ -18,99 +18,56 @@
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap');
 
     :root{
-      --bg1:#9ed8ff;
-      --bg2:#f7b4da;
-      --bg3:#ffe9a8;
-      --card:rgba(255,255,255,.88);
-      --card-strong:#ffffff;
-      --text:#3f2340;
-      --muted:#7a5f76;
-      --primary:#d63384;
-      --primary-2:#ec4899;
-      --blue:#2196f3;
-      --blue-2:#60a5fa;
+      --bg1:#dff4ff;
+      --bg2:#ffe2f1;
+      --bg3:#fff7d8;
+      --card:#ffffff;
+      --ink:#3d2a2a;
+      --muted:#7b6b73;
+      --primary:#db2777;
+      --primary2:#ec4899;
+      --blue:#2563eb;
+      --blue2:#60a5fa;
       --green:#10b981;
-      --danger:#ef4444;
-      --border:rgba(255,255,255,.45);
-      --shadow:0 16px 40px rgba(94, 32, 87, 0.18);
+      --green2:#34d399;
+      --red:#ef4444;
+      --line:#ecd6e4;
+      --shadow:0 10px 30px rgba(124, 58, 237, 0.10);
       --radius:22px;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
       margin: 0;
       padding: 0;
       font-family: 'Kanit', sans-serif;
-      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 28%),
+        linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+      color: var(--ink);
       min-height: 100%;
     }
 
     body {
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,.35) 0, rgba(255,255,255,0) 22%),
-        radial-gradient(circle at 90% 15%, rgba(255,255,255,.35) 0, rgba(255,255,255,0) 20%),
-        radial-gradient(circle at 85% 80%, rgba(255,255,255,.25) 0, rgba(255,255,255,0) 20%),
-        linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
       overflow-x: hidden;
-      position: relative;
-    }
-
-    .bg-blob,
-    .bg-blob2,
-    .bg-blob3 {
-      position: fixed;
-      border-radius: 999px;
-      filter: blur(30px);
-      opacity: .25;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .bg-blob {
-      width: 280px;
-      height: 280px;
-      background: #ffffff;
-      top: -50px;
-      left: -60px;
-    }
-
-    .bg-blob2 {
-      width: 260px;
-      height: 260px;
-      background: #ffd0ec;
-      right: -40px;
-      top: 180px;
-    }
-
-    .bg-blob3 {
-      width: 260px;
-      height: 260px;
-      background: #c9f7ff;
-      left: 20%;
-      bottom: -80px;
     }
 
     .page {
-      position: relative;
-      z-index: 1;
       width: 100%;
-      padding: 28px 16px 50px;
-    }
-
-    .shell {
       max-width: 760px;
       margin: 0 auto;
+      padding: 16px 14px 32px;
     }
 
     .hero {
-      background: linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,255,255,.58));
-      border: 1px solid rgba(255,255,255,.55);
-      backdrop-filter: blur(12px);
-      border-radius: 28px;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 26px;
       box-shadow: var(--shadow);
-      padding: 24px 22px;
-      margin-bottom: 20px;
+      padding: 18px 16px;
+      margin-bottom: 14px;
       position: relative;
       overflow: hidden;
     }
@@ -118,342 +75,313 @@
     .hero::after{
       content:"";
       position:absolute;
-      right:-40px;
-      top:-40px;
-      width:170px;
-      height:170px;
+      top:-30px;
+      right:-30px;
+      width:120px;
+      height:120px;
       border-radius:50%;
-      background: radial-gradient(circle, rgba(236,72,153,.18), rgba(236,72,153,0));
+      background: radial-gradient(circle, rgba(236,72,153,.20), rgba(236,72,153,0));
+      pointer-events:none;
     }
 
     .hero-top {
-      display:flex;
-      align-items:center;
-      gap:16px;
-      flex-wrap:wrap;
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
 
-    .logo-wrap{
-      width:78px;
-      height:78px;
-      border-radius:22px;
-      background: rgba(255,255,255,.78);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.5);
-      flex-shrink:0;
+    .logo-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffffff, #fdf2f8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.9);
     }
 
-    .logo-wrap img{
-      width:58px;
-      height:58px;
-      object-fit:contain;
+    .logo-box img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
     }
 
-    .hero-text{
-      flex:1;
-      min-width:220px;
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:7px 12px;
-      border-radius:999px;
-      background: rgba(255,255,255,.78);
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff1f7;
       color: var(--primary);
-      font-size:.92rem;
-      font-weight:700;
-      margin-bottom:10px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
-    .hero h1{
-      margin:0;
-      font-size: clamp(1.5rem, 3vw, 2.15rem);
-      line-height:1.25;
-      color:#a21caf;
-      font-weight:800;
+    .hero h1 {
+      margin: 0;
+      font-size: 1.28rem;
+      line-height: 1.35;
+      color: #a21caf;
+      font-weight: 800;
     }
 
-    .hero p{
-      margin:8px 0 0;
+    .hero p {
+      margin: 8px 0 0;
       color: var(--muted);
-      line-height:1.65;
-      font-size:1rem;
+      line-height: 1.6;
+      font-size: 0.95rem;
     }
 
-    .hero-badges{
-      margin-top:18px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
     }
 
-    .badge{
-      padding:10px 12px;
-      border-radius:14px;
-      background: rgba(255,255,255,.72);
-      color:#5b4660;
-      font-size:.93rem;
-      font-weight:600;
-      border:1px solid rgba(255,255,255,.55);
+    .chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid #f6d9e9;
+      font-size: 0.82rem;
+      color: #7c4a6a;
+      font-weight: 600;
     }
 
-    .form-card{
-      background: var(--card);
-      border: 1px solid var(--border);
-      backdrop-filter: blur(16px);
-      border-radius: 28px;
+    form {
+      display: block;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 24px;
       box-shadow: var(--shadow);
-      padding: 24px;
+      padding: 14px;
+      margin-bottom: 12px;
     }
 
-    .section{
-      background: rgba(255,255,255,.55);
-      border:1px solid rgba(255,255,255,.5);
-      border-radius: 22px;
-      padding: 18px;
-      margin-bottom: 18px;
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 14px;
+      color: #9d174d;
+      font-weight: 800;
+      font-size: 1rem;
     }
 
-    .section-title{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin:0 0 14px;
-      color:#9d174d;
-      font-size:1.08rem;
-      font-weight:800;
+    .icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fce7f3, #dbeafe);
+      flex-shrink: 0;
     }
 
-    .section-title .icon{
-      width:36px;
-      height:36px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: linear-gradient(135deg, #fbcfe8, #dbeafe);
-      font-size:1rem;
-    }
-
-    .grid-2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:16px;
-    }
-
-    .field{
+    .field {
       margin-bottom: 14px;
     }
 
-    .field:last-child{
-      margin-bottom:0;
+    .field:last-child {
+      margin-bottom: 0;
     }
 
-    label{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+    label {
+      display: block;
       margin-bottom: 7px;
-      font-weight:700;
-      color:#6a1b9a;
-      font-size:.98rem;
-    }
-
-    .hint{
-      color: var(--muted);
-      font-size:.84rem;
-      font-weight:500;
-    }
-
-    input, select, textarea{
-      width:100%;
-      padding: 14px 15px;
-      border-radius: 16px;
-      border: 1.7px solid #ead2eb;
-      outline: none;
-      font-size: 1rem;
-      font-family: inherit;
-      background: #fffafc;
-      color: var(--text);
-      transition: .2s ease;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
-    }
-
-    input:focus, select:focus, textarea:focus{
-      border-color:#f472b6;
-      background:#fff;
-      box-shadow: 0 0 0 4px rgba(244,114,182,.13);
-    }
-
-    textarea{
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    .text-counter{
-      text-align:right;
-      margin-top:6px;
-      color: var(--muted);
-      font-size:.84rem;
-    }
-
-    .phone-chip{
-      margin-top:8px;
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding:7px 11px;
-      border-radius:999px;
-      background:#eef6ff;
-      color:#2563eb;
-      font-size:.86rem;
-      font-weight:700;
-    }
-
-    #map{
-      height: 290px;
-      border-radius: 18px;
-      margin-top: 6px;
-      border: 1px solid #f2d5eb;
-      overflow:hidden;
-    }
-
-    .map-actions{
-      display:flex;
-      gap:12px;
-      margin-top:12px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      width:100%;
-      border:none;
-      border-radius: 16px;
-      padding: 14px 18px;
-      font-size: 1rem;
-      font-family: inherit;
       font-weight: 700;
-      cursor:pointer;
-      transition:.18s ease;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
+      color: #6a1b9a;
+      font-size: 0.95rem;
     }
 
-    .btn:hover{ transform: translateY(-1px); }
-    .btn:active{ transform: translateY(0); }
-    .btn:disabled{
-      opacity:.72;
-      cursor:not-allowed;
-      transform:none;
+    .subhint {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
     }
 
-    .btn-blue{
-      background: linear-gradient(135deg, var(--blue), var(--blue-2));
-      color:#fff;
-      box-shadow: 0 10px 20px rgba(33,150,243,.24);
+    input, select, textarea {
+      width: 100%;
+      min-height: 50px;
+      padding: 13px 14px;
+      border: 1.7px solid #ebd3e3;
+      border-radius: 16px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--ink);
+      background: #fffafd;
+      outline: none;
+      transition: .18s ease;
     }
 
-    .btn-pink{
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color:#fff;
-      box-shadow: 0 10px 22px rgba(236,72,153,.24);
+    input:focus, select:focus, textarea:focus {
+      border-color: #f472b6;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(244,114,182,.12);
     }
 
-    .btn-green{
-      background: linear-gradient(135deg, #0ea5a4, #10b981);
-      color:#fff;
-      box-shadow: 0 10px 22px rgba(16,185,129,.24);
+    textarea {
+      resize: vertical;
+      min-height: 100px;
     }
 
-    .btn-danger{
+    .readonly-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    #map {
+      height: 240px;
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid #ebd3e3;
+      margin-top: 4px;
+    }
+
+    .map-status {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 600;
+    }
+
+    .map-status.ok {
+      color: #059669;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 52px;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn:disabled {
+      opacity: .72;
+      cursor: not-allowed;
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(37,99,235,.18);
+    }
+
+    .btn-pink {
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(219,39,119,.18);
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(16,185,129,.18);
+    }
+
+    .btn-red {
       background: linear-gradient(135deg, #ef4444, #dc2626);
-      color:#fff;
-      box-shadow: 0 10px 22px rgba(239,68,68,.22);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(239,68,68,.16);
     }
 
-    .file-box{
-      border:1.8px dashed #f0b8d4;
-      border-radius:18px;
+    .file-box {
+      border: 1.8px dashed #f0bfd8;
+      border-radius: 18px;
+      padding: 14px;
       background: linear-gradient(180deg, #fffafd, #fff6fb);
-      padding: 16px;
     }
 
-    .file-box input[type="file"]{
-      background:#fff;
+    .file-stats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
     }
 
-    .file-meta{
-      margin-top:10px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      align-items:center;
+    .pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid #f4d6e6;
+      font-size: 0.8rem;
+      color: #7a4b66;
+      font-weight: 600;
     }
 
-    .file-pill{
-      padding:8px 12px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f5d7e7;
-      font-size:.88rem;
-      color:#7c4a6a;
-      font-weight:600;
+    .counter-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
     }
 
-    .help{
-      margin-top:8px;
-      color:#7c6680;
-      font-size:.9rem;
-      line-height:1.55;
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
     }
 
-    .actions{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      margin-top: 18px;
+    .sticky-submit {
+      position: sticky;
+      bottom: 12px;
+      z-index: 20;
+      padding-top: 6px;
     }
 
-    .submit-wrap{
-      margin-top: 20px;
-      padding-top: 10px;
-      border-top:1px dashed rgba(214, 134, 180, .4);
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-top: 10px;
+      line-height: 1.5;
     }
 
-    .submit-main{
-      margin-top:0;
-      font-size:1.08rem;
-      padding:16px 18px;
-      border-radius:18px;
-    }
-
-    .footer-note{
-      text-align:center;
-      color:var(--muted);
-      margin-top:14px;
-      font-size:.92rem;
-    }
-
-    /* Loading */
     .loading-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(255,255,255,.82);
+      background: rgba(255,255,255,0.82);
       backdrop-filter: blur(6px);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      padding: 20px;
+      padding: 18px;
     }
 
     .loading-overlay.show {
@@ -461,18 +389,18 @@
     }
 
     .loading-card {
-      width: min(92vw, 430px);
+      width: min(92vw, 360px);
       background: #fff;
-      border-radius: 24px;
+      border-radius: 22px;
       box-shadow: 0 16px 35px rgba(0,0,0,.12);
-      padding: 28px 22px;
+      padding: 24px 18px;
       text-align: center;
       border: 1px solid #f3d1ea;
     }
 
     .spinner {
-      width: 66px;
-      height: 66px;
+      width: 62px;
+      height: 62px;
       margin: 0 auto 16px;
       border: 6px solid #f8cbe6;
       border-top: 6px solid #2196f3;
@@ -481,21 +409,21 @@
     }
 
     .loading-title {
-      font-size: 1.15rem;
+      font-size: 1.08rem;
       font-weight: 800;
       color: #c2185b;
       margin-bottom: 8px;
     }
 
     .loading-text {
-      font-size: .98rem;
+      font-size: .95rem;
       color: #6b4b5a;
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
     .loading-subtext {
       margin-top: 10px;
-      font-size: .9rem;
+      font-size: .86rem;
       color: #666;
     }
 
@@ -504,86 +432,51 @@
       100% { transform: rotate(360deg); }
     }
 
-    @media (max-width: 720px){
-      .grid-2,
-      .actions{
-        grid-template-columns: 1fr;
+    @media (min-width: 768px) {
+      .page {
+        padding: 24px 20px 40px;
       }
 
-      .hero{
-        padding:20px 18px;
+      .hero {
+        padding: 22px 22px;
       }
 
-      .form-card{
-        padding:18px;
+      .hero h1 {
+        font-size: 1.8rem;
       }
 
-      .section{
-        padding:15px;
+      .hero p {
+        font-size: 1rem;
       }
 
-      #map{
-        height:250px;
-      }
-    }
-
-    @media (max-width: 480px){
-      .page{
-        padding: 16px 12px 36px;
+      .cards-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
       }
 
-      .hero h1{
-        font-size:1.42rem;
+      .actions {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .hero p{
-        font-size:.95rem;
+      .sticky-submit {
+        position: static;
+        padding-top: 0;
       }
 
-      .logo-wrap{
-        width:66px;
-        height:66px;
-      }
-
-      .logo-wrap img{
-        width:48px;
-        height:48px;
-      }
-
-      input, select, textarea{
-        font-size:16px;
-      }
-
-      .btn{
-        font-size:.98rem;
-      }
-
-      .loading-card {
-        padding: 24px 18px;
-      }
-
-      .loading-title {
-        font-size: 1.04rem;
-      }
-
-      .loading-text {
-        font-size: 0.94rem;
+      #map {
+        height: 280px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="bg-blob"></div>
-  <div class="bg-blob2"></div>
-  <div class="bg-blob3"></div>
-
-  <!-- Loading -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-card">
       <div class="spinner"></div>
       <div class="loading-title">📩 กำลังส่งคำร้อง</div>
       <div class="loading-text">
-        กรุณารอสักครู่ ระบบกำลังอัปโหลดข้อมูล<br />
+        กรุณารอสักครู่ ระบบกำลังอัปโหลดข้อมูล<br>
         และไฟล์รูปภาพ/วิดีโอของคุณ
       </div>
       <div class="loading-subtext">
@@ -600,135 +493,127 @@
   </script>
 
   <div class="page">
-    <div class="shell">
-      <div class="hero">
-        <div class="hero-top">
-          <div class="logo-wrap">
-            <img src="your-logo.png" alt="โลโก้ อบต.ท่าช้าง" />
-          </div>
-
-          <div class="hero-text">
-            <div class="eyebrow">📍 ระบบรับแจ้งคำร้องออนไลน์</div>
-            <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
-            <p>
-              กรุณากรอกข้อมูลให้ครบถ้วน เลือกตำแหน่งบนแผนที่ และแนบไฟล์ประกอบได้หลายไฟล์
-              เพื่อให้เจ้าหน้าที่ตรวจสอบและดำเนินการได้รวดเร็วยิ่งขึ้น
-            </p>
-          </div>
+    <div class="hero">
+      <div class="hero-top">
+        <div class="logo-box">
+          <img src="your-logo.png" alt="โลโก้ อบต.ท่าช้าง" />
         </div>
-
-        <div class="hero-badges">
-          <div class="badge">🗺️ ปักหมุดตำแหน่งได้</div>
-          <div class="badge">🖼️ แนบรูปและวิดีโอได้</div>
-          <div class="badge">📋 มีหน้าติดตามคำร้อง</div>
+        <div>
+          <div class="eyebrow">📍 ระบบรับแจ้งคำร้องออนไลน์</div>
+          <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
+          <p>กรอกข้อมูลให้ครบ ปักหมุดตำแหน่ง และแนบไฟล์ประกอบได้ เพื่อให้เจ้าหน้าที่ตรวจสอบได้รวดเร็วขึ้น</p>
         </div>
       </div>
 
-      <div class="form-card">
-        <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data">
-          <div class="section">
-            <h2 class="section-title">
-              <span class="icon">🗺️</span>
-              ตำแหน่งที่เกิดเหตุ
-            </h2>
-
-            <div class="field">
-              <label>
-                ปักหมุดตำแหน่งบนแผนที่
-                <span class="hint">จำเป็นต้องระบุตำแหน่ง</span>
-              </label>
-              <div id="map"></div>
-
-              <div class="map-actions">
-                <button type="button" class="btn btn-blue" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
-              </div>
-
-              <input type="hidden" name="latitude" id="latitude" required>
-              <input type="hidden" name="longitude" id="longitude" required>
-            </div>
-          </div>
-
-          <div class="section">
-            <h2 class="section-title">
-              <span class="icon">🧾</span>
-              ข้อมูลผู้แจ้ง
-            </h2>
-
-            <div class="grid-2">
-              <div class="field">
-                <label>ชื่อผู้แจ้ง</label>
-                <input type="text" name="name" placeholder="กรอกชื่อของคุณ" required>
-              </div>
-
-              <div class="field">
-                <label>เบอร์โทรศัพท์</label>
-                <input type="tel" name="phone" placeholder="0xxxxxxxxx" required>
-                <div class="phone-chip">📱 ระบบจะเติมเบอร์จากข้อมูลที่ล็อกอินไว้ให้อัตโนมัติ</div>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="category">แจ้งเรื่องอะไร</label>
-              <select name="category" id="category" required>
-                <option value="" disabled selected>-- เลือกประเภทเรื่อง --</option>
-                <option value="ขยะ">🗑️ ขยะ</option>
-                <option value="ไฟฟ้า">💡 ไฟฟ้า</option>
-                <option value="ถนน/เสาไฟชำรุด">🛣️ ถนน/เสาไฟชำรุด</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>กรุณาใส่เลขที่บ้าน และ หมู่</label>
-              <textarea name="address" rows="2" placeholder="เช่น 99/9 หมู่ 4" required></textarea>
-            </div>
-          </div>
-
-          <div class="section">
-            <h2 class="section-title">
-              <span class="icon">✍️</span>
-              รายละเอียดคำร้อง
-            </h2>
-
-            <div class="field">
-              <label>
-                ข้อความรายละเอียด
-                <span class="hint">อธิบายปัญหาให้ชัดเจน</span>
-              </label>
-              <textarea id="message" name="message" rows="5" placeholder="อธิบายสิ่งที่พบ เช่น สถานที่ ลักษณะปัญหา และรายละเอียดเพิ่มเติม" required></textarea>
-              <div class="text-counter"><span id="messageCount">0</span> ตัวอักษร</div>
-            </div>
-
-            <div class="field">
-              <label>แนบรูปภาพหรือวิดีโอ (หลายไฟล์ได้)</label>
-
-              <div class="file-box">
-                <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*">
-                <div class="file-meta">
-                  <div class="file-pill">สูงสุด 10 ไฟล์</div>
-                  <div class="file-pill">รูปไม่เกิน 10MB/ไฟล์</div>
-                  <div class="file-pill">วิดีโอไม่เกิน 50MB/ไฟล์</div>
-                  <div class="file-pill">รวมไม่เกิน 100MB</div>
-                </div>
-                <div class="help" id="fileSummary">ยังไม่ได้เลือกไฟล์</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="submit-wrap">
-            <button type="submit" class="btn btn-pink submit-main" id="submitBtn">📩 ส่งคำร้อง</button>
-
-            <div class="actions">
-              <button type="button" class="btn btn-danger" onclick="logout()">🚪 ออกจากระบบ</button>
-              <a href="/track.html" class="btn btn-green">📋 ติดตามคำร้อง</a>
-            </div>
-
-            <div class="footer-note">
-              เมื่อส่งคำร้องแล้ว ระบบจะพาไปยังหน้าสรุปและผูก LINE เพื่อรับแจ้งเตือน
-            </div>
-          </div>
-        </form>
+      <div class="chips">
+        <div class="chip">🗺️ ปักหมุดได้</div>
+        <div class="chip">🖼️ แนบหลายไฟล์ได้</div>
+        <div class="chip">📋 ติดตามสถานะได้</div>
       </div>
     </div>
+
+    <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data">
+      <div class="cards-2">
+        <div class="card">
+          <h2 class="section-title">
+            <span class="icon-badge">🧾</span>
+            ข้อมูลผู้แจ้ง
+          </h2>
+
+          <div class="field">
+            <label>ชื่อ</label>
+            <input type="text" name="name" placeholder="กรอกชื่อของคุณ" required>
+          </div>
+
+          <div class="field">
+            <label>เบอร์โทรศัพท์</label>
+            <input type="tel" name="phone" placeholder="0xxxxxxxxx" required>
+            <div class="readonly-chip">📱 ระบบจะเติมเบอร์จากการเข้าสู่ระบบให้อัตโนมัติ</div>
+          </div>
+
+          <div class="field">
+            <label for="category">แจ้งเรื่องอะไร</label>
+            <select name="category" id="category" required>
+              <option value="" disabled selected>-- เลือกประเภทเรื่อง --</option>
+              <option value="ขยะ">🗑️ ขยะ</option>
+              <option value="ไฟฟ้า">💡 ไฟฟ้า</option>
+              <option value="ถนน/เสาไฟชำรุด">🛣️ ถนน/เสาไฟชำรุด</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">
+            <span class="icon-badge">🏠</span>
+            รายละเอียดสถานที่
+          </h2>
+
+          <div class="field">
+            <label>เลขที่บ้าน และ หมู่</label>
+            <textarea name="address" rows="3" placeholder="เช่น 99/9 หมู่ 4" required></textarea>
+          </div>
+
+          <div class="field">
+            <label>ข้อความ</label>
+            <textarea id="message" name="message" rows="5" placeholder="อธิบายปัญหาที่พบให้ชัดเจน" required></textarea>
+            <div class="counter-row"><span id="messageCount">0</span>&nbsp;ตัวอักษร</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">
+          <span class="icon-badge">🗺️</span>
+          ตำแหน่งที่เกิดเหตุ
+        </h2>
+
+        <div class="field">
+          <label>ปักหมุดบนแผนที่</label>
+          <div id="map"></div>
+          <div id="mapStatus" class="map-status">ยังไม่ได้เลือกตำแหน่ง</div>
+        </div>
+
+        <button type="button" class="btn btn-blue" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
+
+        <input type="hidden" name="latitude" id="latitude" required>
+        <input type="hidden" name="longitude" id="longitude" required>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">
+          <span class="icon-badge">📎</span>
+          แนบรูปภาพหรือวิดีโอ
+        </h2>
+
+        <div class="file-box">
+          <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*">
+
+          <div class="file-stats">
+            <div class="pill">สูงสุด 10 ไฟล์</div>
+            <div class="pill">รูปไม่เกิน 10MB</div>
+            <div class="pill">วิดีโอไม่เกิน 50MB</div>
+            <div class="pill">รวมไม่เกิน 100MB</div>
+          </div>
+
+          <div class="subhint" id="fileSummary">ยังไม่ได้เลือกไฟล์</div>
+        </div>
+      </div>
+
+      <div class="sticky-submit">
+        <div class="card">
+          <button type="submit" class="btn btn-pink" id="submitBtn">📩 ส่งคำร้อง</button>
+
+          <div class="actions">
+            <a href="/track.html" class="btn btn-green">📋 ติดตามคำร้อง</a>
+            <button type="button" class="btn btn-red" onclick="logout()">🚪 ออกจากระบบ</button>
+          </div>
+
+          <div class="footer-note">
+            เมื่อส่งคำร้องแล้ว ระบบจะพาไปยังหน้าสรุปและเชื่อมต่อ LINE เพื่อรับแจ้งเตือน
+          </div>
+        </div>
+      </div>
+    </form>
   </div>
 
   <script>
@@ -745,6 +630,7 @@
 
   <script>
     const map = L.map('map').setView([12.616, 102.104], 12);
+    const mapStatus = document.getElementById('mapStatus');
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -759,8 +645,12 @@
       } else {
         marker = L.marker(latlng).addTo(map);
       }
+
       document.getElementById('latitude').value = latlng.lat.toFixed(6);
       document.getElementById('longitude').value = latlng.lng.toFixed(6);
+
+      mapStatus.textContent = `เลือกตำแหน่งแล้ว: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+      mapStatus.classList.add('ok');
     }
 
     function useMyLocation() {
