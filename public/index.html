@@ -2,388 +2,436 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>ส่งคำร้อง - อบต.ท่าช้าง</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ส่งคำร้อง - อบต.ท่าช้าง จ.จันทบุรี</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      window.location.href = "/login.html";
+    }
+  </script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
 
-    :root {
-      --primary: #0ea5e9;
-      --primary-dark: #0284c7;
-      --secondary: #6366f1;
-      --accent: #f43f5e;
-      --success: #10b981;
-      --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --radius-lg: 24px;
-      --radius-md: 16px;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    * {
+      box-sizing: border-box;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     body {
-      margin: 0;
       font-family: 'Kanit', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
-      line-height: 1.6;
+      color: #3d2a2a;
+      background: linear-gradient(135deg, #a3d8f4 0%, #f8a4d8 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ✅ ลายน้ำพื้นหลัง */
+    .background-logo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.1;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .background-logo img {
+      width: 90vmin;
+      height: auto;
     }
 
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px 16px 100px;
-    }
-
-    /* --- Header Section --- */
-    .app-header {
-      text-align: center;
-      margin-bottom: 24px;
-      padding: 20px 0;
-    }
-
-    .logo-wrapper {
-      width: 80px;
-      height: 80px;
-      background: white;
-      border-radius: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .logo-wrapper img { width: 55px; }
-
-    .app-header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin: 0;
-      color: var(--primary-dark);
-    }
-
-    .app-header p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-top: 4px;
-    }
-
-    /* --- Card Style --- */
-    .form-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .section-head i {
-      width: 40px;
-      height: 40px;
-      background: #e0f2fe;
-      color: var(--primary);
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem 3rem;
       border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+      max-width: 600px;
+      width: 90%;
+      margin: 3rem auto;
+      position: relative;
+      z-index: 1;
     }
 
-    .section-head h2 {
-      font-size: 1.1rem;
-      margin: 0;
-      font-weight: 600;
+    h1 {
+      text-align: center;
+      color: #c2185b;
+      margin-bottom: 2rem;
     }
-
-    /* --- Inputs --- */
-    .input-group { margin-bottom: 18px; }
 
     label {
       display: block;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 6px;
-      color: var(--text-main);
+      margin-top: 1.2rem;
+      font-weight: 600;
+      color: #6a1b9a;
     }
 
     input, select, textarea {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: var(--radius-md);
-      border: 1.5px solid #e2e8f0;
-      font-family: inherit;
+      padding: 0.7rem 1rem;
+      margin-top: 0.3rem;
+      border: 1.8px solid #ce93d8;
+      border-radius: 8px;
       font-size: 1rem;
-      transition: all 0.2s;
-      background: #f8fafc;
+      background-color: #fdf5fb;
     }
 
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
-    }
-
-    /* --- Special UI Elements --- */
-    #map {
-      height: 200px;
-      border-radius: var(--radius-md);
-      margin-bottom: 12px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .file-upload-zone {
-      border: 2px dashed #cbd5e1;
-      border-radius: var(--radius-md);
-      padding: 30px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #f8fafc;
-    }
-
-    .file-upload-zone:active { background: #f1f5f9; border-color: var(--primary); }
-
-    .file-upload-zone i {
-      font-size: 2rem;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    /* --- Floating Navigation / Actions --- */
-    .bottom-actions {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
-      box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      z-index: 1000;
-    }
-
-    .btn {
-      border-radius: var(--radius-md);
-      padding: 16px;
-      font-weight: 600;
-      font-size: 1rem;
+    button {
+      margin-top: 1.2rem;
+      width: 100%;
+      padding: 1rem;
+      background-color: #2196f3;
+      color: white;
+      font-size: 1.15rem;
       border: none;
-      display: flex;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.95;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    #map {
+      height: 250px;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .use-location-btn {
+      margin-bottom: 1rem;
+      background-color: #64b5f6;
+    }
+
+    /* ✅ Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(4px);
+      display: none;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: transform 0.1s;
+      z-index: 9999;
+      padding: 20px;
     }
 
-    .btn:active { transform: scale(0.98); }
-
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-outline { background: white; border: 1.5px solid #e2e8f0; color: var(--text-main); }
-    .btn-location { background: var(--secondary); color: white; margin-bottom: 10px; width: 100%; }
-
-    /* --- Status Badge --- */
-    .status-badge {
-      font-size: 0.8rem;
-      padding: 4px 12px;
-      border-radius: 99px;
-      background: #f1f5f9;
-      color: var(--text-muted);
-      display: inline-block;
-      margin-top: 5px;
+    .loading-overlay.show {
+      display: flex;
     }
-    .status-badge.ok { background: #dcfce7; color: #166534; }
 
+    .loading-card {
+      width: min(92vw, 420px);
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+      padding: 28px 22px;
+      text-align: center;
+      border: 1px solid #f3d1ea;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border: 6px solid #f8cbe6;
+      border-top: 6px solid #2196f3;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .loading-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #c2185b;
+      margin-bottom: 8px;
+    }
+
+    .loading-text {
+      font-size: 0.98rem;
+      color: #6b4b5a;
+      line-height: 1.6;
+    }
+
+    .loading-subtext {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem 1.2rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+
+      .loading-card {
+        padding: 24px 18px;
+      }
+
+      .loading-title {
+        font-size: 1.08rem;
+      }
+
+      .loading-text {
+        font-size: 0.94rem;
+      }
+    }
   </style>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 
-  <div class="container">
-    <header class="app-header">
-      <div class="logo-wrapper">
-        <img src="your-logo.png" alt="Logo">
+  <!-- ✅ Loading ระหว่างส่งข้อมูล -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-title">📩 กำลังส่งคำร้อง</div>
+      <div class="loading-text">
+        กรุณารอสักครู่ ระบบกำลังอัปโหลดข้อมูล<br />
+        และไฟล์รูปภาพ/วิดีโอของคุณ
       </div>
-      <h1>อบต.ท่าช้าง</h1>
-      <p>แจ้งเรื่องร้องทุกข์เพื่อพัฒนาชุมชน</p>
-    </header>
-
-    <form id="complaintForm">
-      <div class="form-card">
-        <div class="section-head">
-          <i class="fa-solid fa-user-pen"></i>
-          <h2>ข้อมูลผู้แจ้ง</h2>
-        </div>
-        
-        <div class="input-group">
-          <label>ชื่อ-นามสกุล</label>
-          <input type="text" name="name" placeholder="ระบุชื่อของคุณ" required>
-        </div>
-
-        <div class="input-group">
-          <label>เบอร์โทรศัพท์ติดต่อ</label>
-          <input type="tel" name="phone" id="userPhoneDisplay" readonly style="background: #f1f5f9; color: #64748b;">
-          <span class="status-badge">✓ ยืนยันตัวตนแล้ว</span>
-        </div>
-
-        <div class="input-group">
-          <label>หมวดหมู่ที่ต้องการแจ้ง</label>
-          <select name="category" required>
-            <option value="" disabled selected>กรุณาเลือกประเภท</option>
-            <option value="ขยะ">🗑️ จัดการขยะ / สิ่งปฏิกูล</option>
-            <option value="ไฟฟ้า">💡 ไฟฟ้าสาธารณะดับ/ชำรุด</option>
-            <option value="ถนน/เสาไฟชำรุด">🛣️ ถนน / ทางเท้าชำรุด</option>
-            <option value="อื่นๆ">❓ อื่นๆ</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-card">
-        <div class="section-head">
-          <i class="fa-solid fa-file-text"></i>
-          <h2>รายละเอียดเหตุการณ์</h2>
-        </div>
-
-        <div class="input-group">
-          <label>สถานที่เกิดเหตุ / จุดสังเกต</label>
-          <textarea name="address" rows="2" placeholder="เช่น ใกล้ร้านค้าหมู่ 4..." required></textarea>
-        </div>
-
-        <div class="input-group">
-          <label>รายละเอียดปัญหา</label>
-          <textarea name="message" rows="4" placeholder="อธิบายเหตุการณ์ที่เกิดขึ้น..." required></textarea>
-        </div>
-      </div>
-
-      <div class="form-card">
-        <div class="section-head">
-          <i class="fa-solid fa-map-location-dot"></i>
-          <h2>ระบุตำแหน่ง</h2>
-        </div>
-        
-        <div id="map"></div>
-        <button type="button" class="btn btn-location" onclick="useMyLocation()">
-          <i class="fa-solid fa-crosshairs"></i> ใช้ตำแหน่งปัจจุบันของฉัน
-        </button>
-        <div id="mapStatus" class="status-badge">ยังไม่ได้ระบุตำแหน่ง (กรุณากดที่แผนที่)</div>
-
-        <input type="hidden" name="latitude" id="latitude" required>
-        <input type="hidden" name="longitude" id="longitude" required>
-      </div>
-
-      <div class="form-card">
-        <div class="section-head">
-          <i class="fa-solid fa-camera"></i>
-          <h2>แนบรูปภาพ / วิดีโอ</h2>
-        </div>
-
-        <label for="mediaFiles" class="file-upload-zone">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <div style="font-weight: 600;">กดเพื่อเลือกรูปภาพ หรือ วิดีโอ</div>
-          <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">(สูงสุด 10 ไฟล์, รวมไม่เกิน 100MB)</div>
-          <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*" style="display: none;">
-        </label>
-        <div id="fileSummary" class="status-badge" style="margin-top: 10px; display: block;">ยังไม่ได้เลือกไฟล์</div>
-      </div>
-    </form>
-
-    <div class="bottom-actions">
-      <button type="submit" form="complaintForm" class="btn btn-primary" id="submitBtn">
-        <i class="fa-solid fa-paper-plane"></i> ส่งคำร้องขอความช่วยเหลือ
-      </button>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button type="button" class="btn btn-outline" onclick="location.href='/track.html'">
-          <i class="fa-solid fa-list-check"></i> ติดตามผล
-        </button>
-        <button type="button" class="btn btn-outline" onclick="logout()" style="color: var(--accent);">
-          <i class="fa-solid fa-door-open"></i> ออก
-        </button>
+      <div class="loading-subtext">
+        โปรดอย่าปิดหน้านี้ระหว่างการส่งข้อมูล
       </div>
     </div>
   </div>
 
-  <div id="loadingOverlay" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.9); z-index:2000; flex-direction:column; align-items:center; justify-content:center;">
-    <div class="logo-wrapper" style="animation: pulse 1.5s infinite;">
-      <img src="your-logo.png" alt="Logo">
-    </div>
-    <p style="font-weight: 600; color: var(--primary-dark); margin-top: 15px;">กำลังนำส่งข้อมูลเข้าสู่ระบบ...</p>
-  </div>
-
-  <style>
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.7; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-  </style>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // --- รักษา Logic เดิมที่คุณเขียนไว้ แต่ปรับแต่งการแสดงผลเล็กน้อย ---
-    document.addEventListener("DOMContentLoaded", () => {
-      const phone = localStorage.getItem('userPhone') || '08x-xxx-xxxx';
-      document.getElementById('userPhoneDisplay').value = phone;
-    });
+    function logout() {
+      localStorage.removeItem('userPhone');
+      window.location.href = "/login.html";
+    }
+  </script>
 
-    const map = L.map('map').setView([12.616, 102.104], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    
+  <div class="container">
+    <!-- ✅ โลโก้ด้านบนสุดของแบบฟอร์ม -->
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <img src="your-logo.png" alt="โลโก้ อบต.ท่าช้าง" style="width: 100px;" />
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const phone = localStorage.getItem('userPhone');
+        if (phone) {
+          const phoneInput = document.querySelector('input[name="phone"]');
+          if (phoneInput) phoneInput.value = phone;
+        }
+      });
+    </script>
+
+    <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
+
+    <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data">
+      <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
+      <div id="map"></div>
+
+      <button type="button" class="use-location-btn" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
+
+      <input type="hidden" name="latitude" id="latitude" required>
+      <input type="hidden" name="longitude" id="longitude" required>
+
+      <label>ชื่อ:</label>
+      <input type="text" name="name" required>
+
+      <label>เบอร์โทรศัพท์:</label>
+      <input type="tel" name="phone" required>
+
+      <label for="category">แจ้งเรื่องอะไร:</label>
+      <select name="category" id="category" required>
+        <option value="" disabled selected>-- เลือกประเภทเรื่อง --</option>
+        <option value="ขยะ">🗑️ ขยะ</option>
+        <option value="ไฟฟ้า">💡 ไฟฟ้า</option>
+        <option value="ถนน/เสาไฟชำรุด">🛣️ ถนน/เสาไฟชำรุด</option>
+      </select>
+
+      <label>กรุณาใส่เลขที่บ้าน เเละ หมู่:</label>
+      <textarea name="address" rows="2" required></textarea>
+
+      <label>ข้อความ:</label>
+      <textarea name="message" rows="5" required></textarea>
+
+      <label>แนบรูปภาพหรือวิดีโอ (หลายไฟล์ได้):</label>
+      <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*">
+      <small style="color:#666; display:block; margin-top:6px;">
+        อัปโหลดได้สูงสุด 10 ไฟล์ | รูปไม่เกิน 10MB/ไฟล์ | วิดีโอไม่เกิน 50MB/ไฟล์ | รวมไม่เกิน 100MB
+      </small>
+
+      <button type="submit" id="submitBtn">📩 ส่งคำร้อง</button>
+
+      <button type="button" onclick="logout()" style="margin-top: 20px; background: #e53935;">🚪 ออกจากระบบ</button>
+
+      <a href="/track.html" style="
+        display: block;
+        margin-top: 20px;
+        padding: 1rem;
+        background-color: #10b981;
+        color: white;
+        font-size: 1.15rem;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: bold;
+      ">📋 ติดตามคำร้อง</a>
+    </form>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([12.616, 102.104], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
     let marker = null;
+
     function setMarker(latlng) {
-      if (marker) marker.setLatLng(latlng);
-      else marker = L.marker(latlng).addTo(map);
-      
+      if (marker) {
+        marker.setLatLng(latlng);
+      } else {
+        marker = L.marker(latlng).addTo(map);
+      }
       document.getElementById('latitude').value = latlng.lat.toFixed(6);
       document.getElementById('longitude').value = latlng.lng.toFixed(6);
-      const status = document.getElementById('mapStatus');
-      status.textContent = `📍 ปักหมุดแล้ว: ${latlng.lat.toFixed(4)}, ${latlng.lng.toFixed(4)}`;
-      status.classList.add('ok');
     }
-
-    map.on('click', (e) => setMarker(e.latlng));
 
     function useMyLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((p) => {
-          const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-          map.setView(loc, 16);
-          setMarker(loc);
-        });
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLatLng = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            map.setView(userLatLng, 15);
+            setMarker(userLatLng);
+          },
+          (error) => {
+            alert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message);
+          }
+        );
+      } else {
+        alert("เบราว์เซอร์ไม่รองรับ Geolocation");
       }
     }
 
-    // ส่วนการจัดการไฟล์และส่งฟอร์ม (คง Logic เดิมของคุณไว้ทั้งหมด)
+    map.on('click', function(e) {
+      setMarker(e.latlng);
+    });
+  </script>
+
+  <script>
+    const complaintForm = document.getElementById('complaintForm');
     const mediaInput = document.getElementById('mediaFiles');
-    mediaInput.addEventListener('change', () => {
-      const files = mediaInput.files;
-      const summary = document.getElementById('fileSummary');
-      if(files.length > 0) {
-        summary.textContent = `📎 เลือกแล้ว ${files.length} ไฟล์`;
-        summary.classList.add('ok');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    function showLoading() {
+      loadingOverlay.classList.add('show');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.remove('show');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '📩 ส่งคำร้อง';
+    }
+
+    // ✅ ตรวจไฟล์ก่อน submit (ฝั่งหน้าเว็บ)
+    complaintForm.addEventListener('submit', function (e) {
+      const files = Array.from(mediaInput.files || []);
+
+      const MAX_FILES = 10;
+      const MAX_IMAGE_SIZE = 10 * 1024 * 1024;   // 10MB
+      const MAX_VIDEO_SIZE = 50 * 1024 * 1024;   // 50MB
+      const MAX_TOTAL_SIZE = 100 * 1024 * 1024;  // 100MB
+
+      // 1) จำนวนไฟล์
+      if (files.length > MAX_FILES) {
+        e.preventDefault();
+        hideLoading();
+        alert(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
+        return;
       }
+
+      // 2) ชนิด/ขนาดไฟล์ + รวมทั้งหมด
+      let totalSize = 0;
+
+      for (const f of files) {
+        totalSize += f.size || 0;
+
+        const isImage = f.type.startsWith('image/');
+        const isVideo = f.type.startsWith('video/');
+
+        if (!isImage && !isVideo) {
+          e.preventDefault();
+          hideLoading();
+          alert(`ไฟล์ "${f.name}" ไม่ใช่รูปภาพหรือวิดีโอ`);
+          return;
+        }
+
+        if (isImage && f.size > MAX_IMAGE_SIZE) {
+          e.preventDefault();
+          hideLoading();
+          alert(`ไฟล์รูป "${f.name}" มีขนาดเกิน 10MB`);
+          return;
+        }
+
+        if (isVideo && f.size > MAX_VIDEO_SIZE) {
+          e.preventDefault();
+          hideLoading();
+          alert(`ไฟล์วิดีโอ "${f.name}" มีขนาดเกิน 50MB`);
+          return;
+        }
+      }
+
+      if (totalSize > MAX_TOTAL_SIZE) {
+        e.preventDefault();
+        hideLoading();
+        alert('ขนาดไฟล์รวมเกิน 100MB กรุณาลดจำนวนหรือขนาดไฟล์');
+        return;
+      }
+
+      // ✅ ถ้าผ่านทุกอย่าง ค่อยโชว์ loading
+      showLoading();
     });
 
-    // ... (ฟังก์ชัน logout, submit, validation อื่นๆ ใช้ตัวเดิมที่คุณมีได้เลย) ...
+    // ✅ กันกรณีกด back แล้วปุ่มยัง disabled / loading ยังโชว์
+    window.addEventListener('pageshow', function () {
+      hideLoading();
+    });
   </script>
+
 </body>
 </html>
