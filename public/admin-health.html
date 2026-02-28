@@ -356,10 +356,9 @@
     th:nth-child(1), td:nth-child(1){ width: 110px; }
     th:nth-child(2), td:nth-child(2){ width: 120px; }
     th:nth-child(3), td:nth-child(3){ width: 210px; }
-    th:nth-child(4), td:nth-child(4){ width: 210px; }
+    th:nth-child(4), td:nth-child(4){ width: 220px; }
     th:nth-child(5), td:nth-child(5){ width: 110px; }
     th:nth-child(6), td:nth-child(6){ width: 170px; }
-    th:nth-child(7), td:nth-child(7){ width: 150px; }
 
     td{ font-size:15px; }
     tbody tr:nth-child(even){background:#fbfdff}
@@ -373,7 +372,11 @@
       gap:8px;
       padding:6px 0
     }
-
+    .media-container .tiny{
+      font-size:13px;
+      color:#64748b;
+      font-weight:800;
+    }
     #pagination{
       padding:12px;
       display:flex;
@@ -701,7 +704,7 @@
         <div class="card" style="margin-top:12px;">
           <div class="card-h">
             <h2>รายการคำร้อง</h2>
-            <div class="tiny">กด “รายละเอียด” เพื่อดูข้อความเต็ม • รูปภาพจะแสดงเมื่อกดปุ่มดูรูปภาพเท่านั้น</div>
+            <div class="tiny">กด “รายละเอียด” เพื่อดูข้อความเต็ม • รูปภาพจะแสดงเมื่อกด “ดูรูปภาพ” เท่านั้น</div>
           </div>
 
           <div class="table-wrap">
@@ -713,7 +716,6 @@
                   <th class="th-message">ข้อความ</th>
                   <th>สถานะ/จัดการ</th>
                   <th>แผนที่</th>
-                  <th>วันที่-เวลา</th>
                   <th>ไฟล์(เสร็จสิ้น)</th>
                 </tr>
               </thead>
@@ -1034,6 +1036,8 @@
           return it.from === 'completed' || it.tag === 'completed';
         });
 
+        const completedImageFiles = completedFiles.filter(isImageFile);
+
         let completedLinks = "-";
         if (completedFiles.length > 0) {
           const cf = completedFiles[0];
@@ -1043,7 +1047,11 @@
 
           completedLinks = `
             <div class="media-container">
-              <button class="btn mini" onclick='showImages(${JSON.stringify(completedFiles)}, 0)'>ดูทั้งหมด</button>
+              ${
+                completedImageFiles.length > 0
+                  ? `<button class="btn mini link-btn" onclick='showImageViewer(${JSON.stringify(completedImageFiles)}, 0)'>ดูรูปภาพ</button>`
+                  : `<span class="tiny">ไม่มีรูปภาพ</span>`
+              }
               <button class="btn mini danger" onclick="deleteCompletedFile(${row.id}, '${cfUrl}')">🗑 ลบไฟล์นี้</button>
             </div>
           `;
@@ -1092,20 +1100,19 @@
             </td>
             <td>${statusCellHtml}</td>
             <td>${mapLink}</td>
-            <td>${formatDate(row.completed_at || row.created_at)}</td>
             <td>${completedLinks || '-'}</td>
           </tr>
         `;
       });
 
       if (!data.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" style="padding:22px; color:#64748b; font-weight:900;">
-              ไม่มีข้อมูลในโหมดนี้
-            </td>
-          </tr>
-        `;
+       tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">
+            ไม่มีข้อมูลในโหมดนี้
+          </td>
+        </tr>
+      `;
       }
     }
 
