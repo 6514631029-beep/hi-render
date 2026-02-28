@@ -901,8 +901,13 @@
         const inProgress = Array.isArray(iAll) ? iAll.length : 0;
         const completed  = Array.isArray(cAll) ? cAll.length : 0;
 
+        const workCount = Array.isArray(allData) ? allData.length : 0;
+
         const leftInbox = document.getElementById('count-inbox-left');
         if (leftInbox) leftInbox.textContent = String(inboxCount);
+
+        const leftWork = document.getElementById('count-work-left');
+        if (leftWork) leftWork.textContent = String(workCount);
 
         const sInbox = document.getElementById('kpi-inbox-side');
         const sP = document.getElementById('kpi-pending-side');

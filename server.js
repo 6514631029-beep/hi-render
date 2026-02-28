@@ -1369,21 +1369,45 @@ if (targetItem.public_id) {
 });
 
 app.get('/data-engineer-all', (req, res) => {
-  db.query('SELECT * FROM requests WHERE department = ? ORDER BY id DESC', ['กองช่าง'], (err, results) => {
+  const sql = `
+    SELECT * FROM requests
+    WHERE department = ?
+      AND dept_accept = 1
+      AND status <> 'รอแผนกรับเรื่อง'
+    ORDER BY id DESC
+  `;
+
+  db.query(sql, ['กองช่าง'], (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(results);
   });
 });
 
 app.get('/data-health-all', (req, res) => {
-  db.query('SELECT * FROM requests WHERE department = ? ORDER BY id DESC', ['สาธารณสุข'], (err, results) => {
+  const sql = `
+    SELECT * FROM requests
+    WHERE department = ?
+      AND dept_accept = 1
+      AND status <> 'รอแผนกรับเรื่อง'
+    ORDER BY id DESC
+  `;
+
+  db.query(sql, ['สาธารณสุข'], (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(results);
   });
 });
 
 app.get('/data-electric-all', (req, res) => {
-  db.query('SELECT * FROM requests WHERE department = ? ORDER BY id DESC', ['ไฟฟ้า'], (err, results) => {
+  const sql = `
+    SELECT * FROM requests
+    WHERE department = ?
+      AND dept_accept = 1
+      AND status <> 'รอแผนกรับเรื่อง'
+    ORDER BY id DESC
+  `;
+
+  db.query(sql, ['ไฟฟ้า'], (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(results);
   });
