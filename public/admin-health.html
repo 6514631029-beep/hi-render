@@ -151,7 +151,6 @@
       margin: 10px 6px;
     }
 
-    /* KPI in sidebar (small) */
     .side-kpis{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -181,7 +180,6 @@
     .side-kpi .v.info{color:#93c5fd}
     .side-kpi .v.gold{color: var(--gold-2)}
 
-    /* Gmail-like view switch */
     .view-link{
       position:relative;
     }
@@ -316,7 +314,6 @@
       color:#1d4ed8;
     }
 
-    /* Table */
     .table-wrap{
       overflow:auto;
       background:#fff;
@@ -336,7 +333,6 @@
       vertical-align:middle;
     }
 
-    /* ===== Light Table Header ===== */
     th{
       position:sticky;
       top:0;
@@ -352,7 +348,6 @@
     }
     th.th-message{ text-align:left; padding-left:14px; }
 
-    /* กำหนดความกว้างคอลัมน์ให้กระชับขึ้น */
     th:nth-child(1), td:nth-child(1){ width: 110px; }
     th:nth-child(2), td:nth-child(2){ width: 120px; }
     th:nth-child(3), td:nth-child(3){ width: 210px; }
@@ -370,13 +365,14 @@
       flex-direction:column;
       align-items:center;
       gap:8px;
-      padding:6px 0
+      padding:6px 0;
     }
     .media-container .tiny{
       font-size:13px;
       color:#64748b;
       font-weight:800;
     }
+
     #pagination{
       padding:12px;
       display:flex;
@@ -402,37 +398,28 @@
       table{min-width:980px}
     }
 
-    /* =========================================================
-       ✅ STATUS SELECT (Minimal + หดพอดีกับตัวหนังสือ)
-       ========================================================= */
     .status-select{
       appearance:none;
       -webkit-appearance:none;
       -moz-appearance:none;
-
       background:#fff !important;
       border:none !important;
       box-shadow:none !important;
       outline:none !important;
-
       height: 44px !important;
       line-height: 44px !important;
       padding: 0 46px 0 18px !important;
-
       border-radius: 16px !important;
       font-size: 16px !important;
       font-weight: 900 !important;
       color:#0f172a !important;
-
       cursor:pointer;
       white-space:nowrap;
       box-sizing:border-box;
-
       width: fit-content !important;
       display: inline-block !important;
       max-width: 100%;
       min-width: 0 !important;
-
       background-image:
         linear-gradient(45deg, transparent 50%, #0f172a 50%),
         linear-gradient(135deg, #0f172a 50%, transparent 50%);
@@ -446,14 +433,12 @@
       .status-select{ width: auto !important; }
     }
 
-    /* ===== KPI ซ้ายให้มีสีแบบการ์ด ===== */
     .side-kpis .side-kpi{ background: rgba(255,255,255,.06); }
     .side-kpis .side-kpi:nth-child(1){ background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.35); }
     .side-kpis .side-kpi:nth-child(2){ background: rgba(245,158,11,.18); border-color: rgba(245,158,11,.35); }
     .side-kpis .side-kpi:nth-child(3){ background: rgba(16,185,129,.18); border-color: rgba(16,185,129,.35); }
     .side-kpis .side-kpi:nth-child(4){ background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.35); }
 
-    /* Message cell */
     .msg-cell{
       min-width: 0;
       max-width: 210px;
@@ -486,7 +471,6 @@
     }
     .msg-actions .btn{ min-width:0; }
 
-    /* Detail Modal */
     .detail-overlay{
       display:none;
       position:fixed;
@@ -602,7 +586,6 @@
 <body>
   <div class="app">
 
-    <!-- ===== Sidebar ===== -->
     <aside class="sidebar">
       <div class="brand">
         <div class="logo">🏥</div>
@@ -672,7 +655,6 @@
       </div>
     </aside>
 
-    <!-- ===== Main ===== -->
     <main class="main">
 
       <header class="topbar">
@@ -688,7 +670,6 @@
 
       <div class="content">
 
-        <!-- Search card -->
         <div class="card">
           <div class="card-h">
             <h2>ค้นหา</h2>
@@ -700,7 +681,6 @@
           </div>
         </div>
 
-        <!-- Table -->
         <div class="card" style="margin-top:12px;">
           <div class="card-h">
             <h2>รายการคำร้อง</h2>
@@ -710,15 +690,6 @@
           <div class="table-wrap">
             <table>
               <thead id="table-head"></thead>
-                <tr>
-                  <th>ชื่อ</th>
-                  <th>เบอร์</th>
-                  <th class="th-message">ข้อความ</th>
-                  <th>สถานะ/จัดการ</th>
-                  <th>แผนที่</th>
-                  <th>ไฟล์(เสร็จสิ้น)</th>
-                </tr>
-              </thead>
               <tbody id="data-body"></tbody>
             </table>
           </div>
@@ -734,9 +705,6 @@
     </main>
   </div>
 
-  <!-- =========================
-       ✅ Detail Modal
-       ========================= -->
   <div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
     <div class="detail-modal" onclick="event.stopPropagation()">
       <div class="detail-head">
@@ -769,19 +737,18 @@
           <div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>
         </div>
 
-        <div style="height:14px;"></div>
+        <div id="detailCompletedWrap">
+          <div style="height:14px;"></div>
 
-        <div class="detail-label" style="margin-bottom:8px;">รูปภาพ(เสร็จสิ้น)</div>
-        <div id="detailCompletedFilesBox">
-          <div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>
+          <div class="detail-label" style="margin-bottom:8px;">รูปภาพ(เสร็จสิ้น)</div>
+          <div id="detailCompletedFilesBox">
+            <div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- =========================
-       ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น"
-       ========================= -->
   <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
       <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
@@ -803,11 +770,13 @@
     const DEPT = 'สาธารณสุข';
 
     let VIEW_MODE = 'inbox';
-
     let allHealthData = [];
     let filteredData = [];
     let currentPage = 1;
     const pageSize = 20;
+    let isLoading = false;
+    let typingTimer = null;
+    let pendingCompleteId = null;
 
     function syncLeftViewActive(){
       const inboxBtn = document.getElementById('btn-inbox');
@@ -883,9 +852,6 @@
       renderCurrentPage();
     }
 
-    let isLoading = false;
-    let typingTimer = null;
-
     function filterByName() {
       clearTimeout(typingTimer);
       typingTimer = setTimeout(() => {}, 300);
@@ -945,6 +911,12 @@
       document.getElementById('detailDate').textContent =
         formatDate(row?.completed_at || row?.created_at);
       document.getElementById('detailMessage').textContent = row?.message || '-';
+
+      const completedWrap = document.getElementById('detailCompletedWrap');
+      if (completedWrap) {
+        completedWrap.style.display = VIEW_MODE === 'inbox' ? 'none' : 'block';
+      }
+
       document.getElementById('detailModal').style.display = 'flex';
     }
 
@@ -984,7 +956,9 @@
       try {
         if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
         else if (Array.isArray(row.photo)) files = row.photo;
-      } catch (e) { files = []; }
+      } catch (e) {
+        files = [];
+      }
 
       const completedFiles = files.filter(it => {
         if (!it || typeof it !== 'object') return false;
@@ -1015,11 +989,16 @@
       if (e && e.target && e.target.id !== 'detailModal') return;
 
       document.getElementById('detailModal').style.display = 'none';
+
       const box1 = document.getElementById('detailFilesBox');
       const box2 = document.getElementById('detailCompletedFilesBox');
+      const completedWrap = document.getElementById('detailCompletedWrap');
+
       if (box1) box1.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>`;
       if (box2) box2.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>`;
+      if (completedWrap) completedWrap.style.display = 'block';
     }
+
     function renderTableHead() {
       const thead = document.getElementById('table-head');
       if (!thead) return;
@@ -1047,6 +1026,7 @@
         `;
       }
     }
+
     function renderTable(data) {
       const tbody = document.getElementById('data-body');
       tbody.innerHTML = '';
@@ -1056,7 +1036,9 @@
         try {
           if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
           else if (Array.isArray(row.photo)) files = row.photo;
-        } catch (e) { files = []; }
+        } catch (e) {
+          files = [];
+        }
 
         const completedFiles = files.filter(it => {
           if (!it || typeof it !== 'object') return false;
@@ -1152,13 +1134,13 @@
       });
 
       if (!data.length) {
-       tbody.innerHTML = `
-        <tr>
-          <td colspan="${VIEW_MODE === 'inbox' ? 5 : 6}" style="padding:22px; color:#64748b; font-weight:900;">
-            ไม่มีข้อมูลในโหมดนี้
-          </td>
-        </tr>
-      `;
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="${VIEW_MODE === 'inbox' ? 5 : 6}" style="padding:22px; color:#64748b; font-weight:900;">
+              ไม่มีข้อมูลในโหมดนี้
+            </td>
+          </tr>
+        `;
       }
     }
 
@@ -1174,7 +1156,6 @@
       });
     }
 
-    // viewer เดิม (ยังคงไว้สำหรับจุดอื่นที่ยังต้องดูทั้งรูป/วิดีโอ)
     function showImages(images, startIndex = 0) {
       const items = Array.isArray(images) ? images : [];
       if (!items.length) return;
@@ -1292,257 +1273,257 @@
       win.document.close();
     }
 
-   function showImageViewer(images, startIndex = 0) {
-  const safeImages = (Array.isArray(images) ? images : []).filter(isImageFile);
+    function showImageViewer(images, startIndex = 0) {
+      const safeImages = (Array.isArray(images) ? images : []).filter(isImageFile);
 
-  if (!safeImages.length) {
-    alert('ไม่มีรูปภาพให้แสดง');
-    return;
-  }
+      if (!safeImages.length) {
+        alert('ไม่มีรูปภาพให้แสดง');
+        return;
+      }
 
-  const itemsHtml = safeImages.map((img, index) => {
-    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-    const url = encodeURI(rawUrl);
+      const itemsHtml = safeImages.map((img, index) => {
+        const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+        const url = encodeURI(rawUrl);
 
-    return `
-      <div class="media-card">
-        <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})' title="เปิดรูปเต็ม">
-          <img src="${url}" loading="lazy" class="preview-media" alt="รูปภาพ ${index + 1}" />
-        </div>
+        return `
+          <div class="media-card">
+            <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})' title="เปิดรูปเต็ม">
+              <img src="${url}" loading="lazy" class="preview-media" alt="รูปภาพ ${index + 1}" />
+            </div>
 
-        <div class="media-meta">
-          <span class="media-index">รูปภาพ ${index + 1}</span>
-          <div class="media-actions">
-            <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})'>
-              เปิดเต็ม
-            </button>
+            <div class="media-meta">
+              <span class="media-index">รูปภาพ ${index + 1}</span>
+              <div class="media-actions">
+                <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})'>
+                  เปิดเต็ม
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+        `;
+      }).join('');
 
-  const win = window.open('', '_blank', 'width=1200,height=850');
+      const win = window.open('', '_blank', 'width=1200,height=850');
 
-  if (!win) {
-    alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
-    return;
-  }
+      if (!win) {
+        alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+        return;
+      }
 
-  win.document.open();
-  win.document.write(`
-    <!DOCTYPE html>
-    <html lang="th">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>ดูรูปภาพ</title>
-      <style>
-        * { box-sizing: border-box; }
-        body {
-          margin: 0;
-          font-family: 'Kanit', sans-serif;
-          background: #f1f5f9;
-          color: #0f172a;
-        }
-        .topbar {
-          position: sticky;
-          top: 0;
-          z-index: 10;
-          background: #ffffff;
-          border-bottom: 1px solid #e2e8f0;
-          padding: 12px 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .title {
-          font-size: 18px;
-          font-weight: 700;
-          margin: 0;
-        }
-        .count-badge {
-          background: #2563eb;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 999px;
-          font-size: 13px;
-          font-weight: 700;
-        }
-        .container {
-          padding: 16px;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 16px;
-          align-items: start;
-        }
-        .media-card {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .media-link {
-          display: block;
-          text-decoration: none;
-          background: #f8fafc;
-          cursor: pointer;
-        }
-        .preview-media {
-          display: block;
-          width: 100%;
-          height: 220px;
-          object-fit: cover;
-          background: #e2e8f0;
-        }
-        .media-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 12px;
-        }
-        .media-index {
-          font-size: 13px;
-          color: #475569;
-          font-weight: 600;
-        }
-        .open-btn {
-          border: none;
-          background: #2563eb;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-        .media-actions {
-          display: flex;
-          gap: 6px;
-          align-items: center;
-          flex-wrap: wrap;
-          justify-content: flex-end;
-        }
-        .empty {
-          text-align: center;
-          padding: 40px 20px;
-          color: #64748b;
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-        }
-        @media (max-width: 640px) {
-          .container { padding: 12px; }
-          .grid { grid-template-columns: 1fr; gap: 12px; }
-          .preview-media { height: 220px; }
-          .title { font-size: 16px; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="topbar">
-        <h1 class="title">🖼️ ดูรูปภาพทั้งหมด</h1>
-        <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
-      </div>
+      win.document.open();
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>ดูรูปภาพ</title>
+          <style>
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              font-family: 'Kanit', sans-serif;
+              background: #f1f5f9;
+              color: #0f172a;
+            }
+            .topbar {
+              position: sticky;
+              top: 0;
+              z-index: 10;
+              background: #ffffff;
+              border-bottom: 1px solid #e2e8f0;
+              padding: 12px 16px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 10px;
+              flex-wrap: wrap;
+            }
+            .title {
+              font-size: 18px;
+              font-weight: 700;
+              margin: 0;
+            }
+            .count-badge {
+              background: #2563eb;
+              color: #fff;
+              padding: 6px 10px;
+              border-radius: 999px;
+              font-size: 13px;
+              font-weight: 700;
+            }
+            .container {
+              padding: 16px;
+              max-width: 1400px;
+              margin: 0 auto;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+              gap: 16px;
+              align-items: start;
+            }
+            .media-card {
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            .media-link {
+              display: block;
+              text-decoration: none;
+              background: #f8fafc;
+              cursor: pointer;
+            }
+            .preview-media {
+              display: block;
+              width: 100%;
+              height: 220px;
+              object-fit: cover;
+              background: #e2e8f0;
+            }
+            .media-meta {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 8px;
+              padding: 10px 12px;
+            }
+            .media-index {
+              font-size: 13px;
+              color: #475569;
+              font-weight: 600;
+            }
+            .open-btn {
+              border: none;
+              background: #2563eb;
+              color: #fff;
+              padding: 6px 10px;
+              border-radius: 8px;
+              font-size: 12px;
+              font-weight: 700;
+              cursor: pointer;
+            }
+            .media-actions {
+              display: flex;
+              gap: 6px;
+              align-items: center;
+              flex-wrap: wrap;
+              justify-content: flex-end;
+            }
+            .empty {
+              text-align: center;
+              padding: 40px 20px;
+              color: #64748b;
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+            }
+            @media (max-width: 640px) {
+              .container { padding: 12px; }
+              .grid { grid-template-columns: 1fr; gap: 12px; }
+              .preview-media { height: 220px; }
+              .title { font-size: 16px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <h1 class="title">🖼️ ดูรูปภาพทั้งหมด</h1>
+            <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+          </div>
 
-      <div class="container">
-        ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีรูปภาพให้แสดง</div>`}
-      </div>
+          <div class="container">
+            ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีรูปภาพให้แสดง</div>`}
+          </div>
 
-      <script>
-        function openMediaViewer(payload) {
-          const { url, index } = payload || {};
-          if (!url) return;
+          <script>
+            function openMediaViewer(payload) {
+              const { url, index } = payload || {};
+              if (!url) return;
 
-          const viewer = window.open('', '_blank', 'width=1200,height=800');
-          if (!viewer) {
-            alert('กรุณาอนุญาต popup');
-            return;
-          }
+              const viewer = window.open('', '_blank', 'width=1200,height=800');
+              if (!viewer) {
+                alert('กรุณาอนุญาต popup');
+                return;
+              }
 
-          viewer.document.open();
-          viewer.document.write(\`
-            <!DOCTYPE html>
-            <html lang="th">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>รูปภาพไฟล์ที่ \${index}</title>
-              <style>
-                body {
-                  margin:0;
-                  background:#0f172a;
-                  color:#fff;
-                  font-family:sans-serif;
-                  display:flex;
-                  flex-direction:column;
-                  min-height:100vh;
-                }
-                .top {
-                  padding:12px 16px;
-                  background:rgba(15,23,42,.95);
-                  border-bottom:1px solid rgba(255,255,255,.1);
-                  display:flex;
-                  justify-content:space-between;
-                  align-items:center;
-                  gap:10px;
-                  flex-wrap:wrap;
-                }
-                .btn {
-                  color:#fff;
-                  background:#334155;
-                  text-decoration:none;
-                  padding:8px 12px;
-                  border-radius:8px;
-                  font-weight:700;
-                  font-size:13px;
-                }
-                .wrap {
-                  flex:1;
-                  display:flex;
-                  align-items:center;
-                  justify-content:center;
-                  padding:16px;
-                }
-                img {
-                  max-width:100%;
-                  max-height:calc(100vh - 90px);
-                  object-fit:contain;
-                  border-radius:12px;
-                  box-shadow:0 8px 30px rgba(0,0,0,.35);
-                  background:#fff;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="top">
-                <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
-                <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                  <a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
-                </div>
-              </div>
-              <div class="wrap">
-                <img src="\${url}" alt="ไฟล์ที่ \${index}" />
-              </div>
-            </body>
-            </html>
-          \`);
-          viewer.document.close();
-        }
-      <\/script>
-    </body>
-    </html>
-  `);
-  win.document.close();
-}
+              viewer.document.open();
+              viewer.document.write(\`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  <title>รูปภาพไฟล์ที่ \${index}</title>
+                  <style>
+                    body {
+                      margin:0;
+                      background:#0f172a;
+                      color:#fff;
+                      font-family:sans-serif;
+                      display:flex;
+                      flex-direction:column;
+                      min-height:100vh;
+                    }
+                    .top {
+                      padding:12px 16px;
+                      background:rgba(15,23,42,.95);
+                      border-bottom:1px solid rgba(255,255,255,.1);
+                      display:flex;
+                      justify-content:space-between;
+                      align-items:center;
+                      gap:10px;
+                      flex-wrap:wrap;
+                    }
+                    .btn {
+                      color:#fff;
+                      background:#334155;
+                      text-decoration:none;
+                      padding:8px 12px;
+                      border-radius:8px;
+                      font-weight:700;
+                      font-size:13px;
+                    }
+                    .wrap {
+                      flex:1;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      padding:16px;
+                    }
+                    img {
+                      max-width:100%;
+                      max-height:calc(100vh - 90px);
+                      object-fit:contain;
+                      border-radius:12px;
+                      box-shadow:0 8px 30px rgba(0,0,0,.35);
+                      background:#fff;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="top">
+                    <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                    </div>
+                  </div>
+                  <div class="wrap">
+                    <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+                  </div>
+                </body>
+                </html>
+              \`);
+              viewer.document.close();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+      win.document.close();
+    }
 
     async function acceptDept(id) {
       if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
@@ -1593,9 +1574,6 @@
       }
     }
 
-    // ===== Complete modal flow =====
-    let pendingCompleteId = null;
-
     function onStatusChange(id, value) {
       if (value === 'เสร็จสิ้น') {
         pendingCompleteId = id;
@@ -1608,6 +1586,7 @@
     function openCompleteModal() {
       document.getElementById('completeModal').style.display = 'flex';
     }
+
     function closeCompleteModal() {
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
@@ -1726,17 +1705,16 @@
       }
     }
 
-    // init
     syncLeftViewActive();
     setView('inbox');
     updateCounters();
     setInterval(updateCounters, 60000);
 
-    // Escape close
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const modal = document.getElementById('detailModal');
         if (modal && modal.style.display === 'flex') closeDetailModal();
+
         const c = document.getElementById('completeModal');
         if (c && c.style.display === 'flex') closeCompleteModal();
       }
