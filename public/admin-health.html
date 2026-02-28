@@ -325,7 +325,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width: 980px;
+      min-width: 820px;
       background:#fff;
       table-layout: fixed;
     }
@@ -709,7 +709,7 @@
 
           <div class="table-wrap">
             <table>
-              <thead>
+              <thead id="table-head"></thead>
                 <tr>
                   <th>ชื่อ</th>
                   <th>เบอร์</th>
@@ -866,6 +866,7 @@
       const end = start + pageSize;
       const pageData = filteredData.slice(start, end);
 
+      renderTableHead();
       renderTable(pageData);
 
       const info = document.getElementById('pageInfo');
@@ -1019,7 +1020,33 @@
       if (box1) box1.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>`;
       if (box2) box2.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>`;
     }
+    function renderTableHead() {
+      const thead = document.getElementById('table-head');
+      if (!thead) return;
 
+      if (VIEW_MODE === 'inbox') {
+        thead.innerHTML = `
+          <tr>
+            <th>ชื่อ</th>
+            <th>เบอร์</th>
+            <th class="th-message">ข้อความ</th>
+            <th>สถานะ/จัดการ</th>
+            <th>แผนที่</th>
+          </tr>
+        `;
+      } else {
+        thead.innerHTML = `
+          <tr>
+            <th>ชื่อ</th>
+            <th>เบอร์</th>
+            <th class="th-message">ข้อความ</th>
+            <th>สถานะ/จัดการ</th>
+            <th>แผนที่</th>
+            <th>ไฟล์(เสร็จสิ้น)</th>
+          </tr>
+        `;
+      }
+    }
     function renderTable(data) {
       const tbody = document.getElementById('data-body');
       tbody.innerHTML = '';
@@ -1086,29 +1113,48 @@
 
         const previewMessage = getShortMessage(row.message || '-', 52);
 
-        tbody.innerHTML += `
-          <tr id="row-${row.id}">
-            <td>${row.name || '-'}</td>
-            <td>${row.phone || '-'}</td>
-            <td class="msg-cell">
-              <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
-                ${escapeHtml(previewMessage)}
-              </div>
-              <div class="msg-actions">
-                <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
-              </div>
-            </td>
-            <td>${statusCellHtml}</td>
-            <td>${mapLink}</td>
-            <td>${completedLinks || '-'}</td>
-          </tr>
-        `;
+        if (VIEW_MODE === 'inbox') {
+          tbody.innerHTML += `
+            <tr id="row-${row.id}">
+              <td>${row.name || '-'}</td>
+              <td>${row.phone || '-'}</td>
+              <td class="msg-cell">
+                <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
+                  ${escapeHtml(previewMessage)}
+                </div>
+                <div class="msg-actions">
+                  <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+                </div>
+              </td>
+              <td>${statusCellHtml}</td>
+              <td>${mapLink}</td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML += `
+            <tr id="row-${row.id}">
+              <td>${row.name || '-'}</td>
+              <td>${row.phone || '-'}</td>
+              <td class="msg-cell">
+                <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
+                  ${escapeHtml(previewMessage)}
+                </div>
+                <div class="msg-actions">
+                  <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+                </div>
+              </td>
+              <td>${statusCellHtml}</td>
+              <td>${mapLink}</td>
+              <td>${completedLinks || '-'}</td>
+            </tr>
+          `;
+        }
       });
 
       if (!data.length) {
        tbody.innerHTML = `
         <tr>
-          <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">
+          <td colspan="${VIEW_MODE === 'inbox' ? 5 : 6}" style="padding:22px; color:#64748b; font-weight:900;">
             ไม่มีข้อมูลในโหมดนี้
           </td>
         </tr>
