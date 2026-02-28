@@ -1183,53 +1183,44 @@ app.post('/complete-with-media/:id', (req, res) => {
       const id = req.params.id;
       const files = req.files || [];
 
-      // ✅ ถ้าต้องการบังคับให้ต้องแนบไฟล์อย่างน้อย 1 ไฟล์
-      if (!files.length) {
-        return res.status(400).json({ success: false, message: '❌ กรุณาเลือกไฟล์อย่างน้อย 1 ไฟล์' });
+      // ✅ ถ้าไม่มีไฟล์ ก็ยังผ่านได้
+      if (files.length > 0) {
+        validateFiles(files, {
+          maxTotalSize: MAX_TOTAL_SIZE_COMPLETE,
+          maxImageSize: MAX_IMAGE_SIZE,
+          maxVideoSize: MAX_VIDEO_SIZE
+        });
       }
 
-      // ✅ ตรวจขนาดรวม + แยกรูป/วิดีโอ
-      validateFiles(files, {
-        maxTotalSize: MAX_TOTAL_SIZE_COMPLETE,
-        maxImageSize: MAX_IMAGE_SIZE,
-        maxVideoSize: MAX_VIDEO_SIZE
-      });
-
-      // 1) ดึงแถวเดิม
       const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
       if (!rows || rows.length === 0) {
         return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
       }
       const r = rows[0];
 
-      // 2) แปลง photo เดิม -> array
       let list = [];
       try { list = Array.isArray(r.photo) ? r.photo : JSON.parse(r.photo || '[]'); } catch { list = []; }
 
-      // 3) อัปโหลดไฟล์ใหม่ขึ้น Cloudinary
       const uploadedExtra = await Promise.all(
         files.map(async (f) => {
           const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
           return {
-          url: result.secure_url,
-          public_id: result.public_id,
-          type: detectFileType(f),
-          from: 'completed',
-          tag: 'completed'
-        };
+            url: result.secure_url,
+            public_id: result.public_id,
+            type: detectFileType(f),
+            from: 'completed',
+            tag: 'completed'
+          };
         })
       );
 
-      // 4) รวมของเดิม + ของใหม่
       const merged = [...list, ...uploadedExtra];
 
-      // 5) อัปเดตตารางหลัก
       await db.promise().query(
         `UPDATE requests SET status='เสร็จสิ้น', photo=?, completed_at=NOW() WHERE id=?`,
         [JSON.stringify(merged), id]
       );
 
-      // 6) ดึงข้อมูลล่าสุด แล้ว upsert ไป completed + ลบจาก bucket อื่น
       const [rows2] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
       if (rows2 && rows2.length > 0) {
         const r2 = rows2[0];
@@ -1240,8 +1231,7 @@ app.post('/complete-with-media/:id', (req, res) => {
 
         await new Promise((resolve) => removeFromOtherBuckets(r2.id, 'completed', resolve));
       }
-      
-      // ✅ 7) ส่งแจ้งเตือน LINE (กันส่งซ้ำด้วย notified_completed_at)
+
       try {
         const [rqRows] = await db.promise().query(
           'SELECT id, phone, notified_completed_at FROM requests WHERE id = ?',
@@ -1269,19 +1259,19 @@ app.post('/complete-with-media/:id', (req, res) => {
                 `คำร้องของคุณดำเนินการเสร็จเรียบร้อยแล้ว\nขอบคุณที่แจ้งเรื่องครับ`;
 
               await pushLineMessage(lineUserId, msg);
-              // ส่งรูปทั้งหมดที่แนบตอนเสร็จสิ้น (เฉพาะ type=image)
+
               for (const f of uploadedExtra) {
                 if (f.type === 'image') {
                   await pushLineImage(lineUserId, f.url);
                 }
               }
 
-              // วิดีโอ: แนะนำส่งเป็นลิงก์ข้อความก่อน (ง่ายสุด)
               const videos = uploadedExtra.filter(x => x.type === 'video');
               if (videos.length) {
                 const list = videos.map((v,i)=>`${i+1}) ${v.url}`).join('\n');
                 await pushLineMessage(lineUserId, `🎥 ไฟล์วิดีโอแนบตอนเสร็จสิ้น:\n${list}`);
               }
+
               await db.promise().query(
                 'UPDATE requests SET notified_completed_at = NOW() WHERE id = ?',
                 [rq.id]
@@ -1292,7 +1282,13 @@ app.post('/complete-with-media/:id', (req, res) => {
       } catch (e) {
         console.error('LINE notify error:', e);
       }
-      return res.json({ success: true, message: '✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย' });
+
+      return res.json({
+        success: true,
+        message: files.length > 0
+          ? '✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย'
+          : '✅ อัปเดตเป็น "เสร็จสิ้น" เรียบร้อย'
+      });
 
     } catch (error) {
       console.error('❌ complete-with-media error:', error);
