@@ -108,6 +108,7 @@
       border-radius: 8px;
       margin-top: 0.5rem;
       margin-bottom: 0.8rem;
+      border: 2px solid transparent;
     }
 
     .use-location-btn {
@@ -175,7 +176,77 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    /* ✅ กล่องแจ้งเตือนสวย ๆ */
+      .form-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 1rem;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid #f5c2c7;
+        background: linear-gradient(135deg, #fff5f5 0%, #fff0f6 100%);
+        box-shadow: 0 8px 20px rgba(194, 24, 91, 0.08);
+      }
 
+      .form-alert.success {
+        border-color: #b7ebc6;
+        background: linear-gradient(135deg, #f3fff6 0%, #ecfff3 100%);
+      }
+
+      .form-alert-icon {
+        font-size: 1.3rem;
+        line-height: 1;
+        margin-top: 2px;
+      }
+
+      .form-alert-content {
+        flex: 1;
+      }
+
+      .form-alert-title {
+        font-weight: 700;
+        color: #ad1457;
+        margin-bottom: 4px;
+        font-size: 1rem;
+      }
+
+      .form-alert.success .form-alert-title {
+        color: #1b5e20;
+      }
+
+      .form-alert-text {
+        color: #6b4b5a;
+        line-height: 1.55;
+        font-size: 0.95rem;
+      }
+
+      .form-alert-close {
+        width: auto;
+        margin: 0;
+        padding: 6px 10px;
+        background: transparent;
+        color: #8a5a6b;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      .form-alert-close:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .input-error {
+        border-color: #e53935 !important;
+        box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.12);
+      }
+
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #ab47bc;
+        box-shadow: 0 0 0 3px rgba(171, 71, 188, 0.15);
+      }
     @media (max-width: 480px) {
       .container {
         padding: 1.5rem 1.2rem;
@@ -247,7 +318,14 @@
     </script>
 
     <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
-
+    <div id="formAlert" class="form-alert" style="display:none;">
+      <div class="form-alert-icon" id="formAlertIcon">⚠️</div>
+      <div class="form-alert-content">
+        <div class="form-alert-title" id="formAlertTitle">กรุณาตรวจสอบข้อมูล</div>
+        <div class="form-alert-text" id="formAlertText">ข้อความแจ้งเตือน</div>
+      </div>
+      <button type="button" class="form-alert-close" onclick="hideFormAlert()">✕</button>
+    </div>
     <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data">
       <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
       <div id="map"></div>
@@ -316,14 +394,18 @@
     let marker = null;
 
     function setMarker(latlng) {
-      if (marker) {
-        marker.setLatLng(latlng);
-      } else {
-        marker = L.marker(latlng).addTo(map);
-      }
-      document.getElementById('latitude').value = latlng.lat.toFixed(6);
-      document.getElementById('longitude').value = latlng.lng.toFixed(6);
+    if (marker) {
+      marker.setLatLng(latlng);
+    } else {
+      marker = L.marker(latlng).addTo(map);
     }
+
+    document.getElementById('latitude').value = latlng.lat.toFixed(6);
+    document.getElementById('longitude').value = latlng.lng.toFixed(6);
+
+    if (window.clearMapError) window.clearMapError();
+    if (window.hideFormAlert) window.hideFormAlert();
+  }
 
     function useMyLocation() {
       if (navigator.geolocation) {
@@ -337,11 +419,11 @@
             setMarker(userLatLng);
           },
           (error) => {
-            alert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message);
+            showFormAlert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message, "ไม่สามารถดึงตำแหน่งได้");
           }
         );
       } else {
-        alert("เบราว์เซอร์ไม่รองรับ Geolocation");
+        showFormAlert("เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง", "ไม่รองรับตำแหน่ง");
       }
     }
 
@@ -350,88 +432,221 @@
     });
   </script>
 
-  <script>
-    const complaintForm = document.getElementById('complaintForm');
-    const mediaInput = document.getElementById('mediaFiles');
-    const submitBtn = document.getElementById('submitBtn');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+ <script>
+  const complaintForm = document.getElementById('complaintForm');
+  const mediaInput = document.getElementById('mediaFiles');
+  const submitBtn = document.getElementById('submitBtn');
+  const loadingOverlay = document.getElementById('loadingOverlay');
 
-    function showLoading() {
-      loadingOverlay.classList.add('show');
-      submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
+  const nameInput = document.querySelector('input[name="name"]');
+  const phoneInput = document.querySelector('input[name="phone"]');
+  const categoryInput = document.getElementById('category');
+  const addressInput = document.querySelector('textarea[name="address"]');
+  const messageInput = document.querySelector('textarea[name="message"]');
+  const latitudeInput = document.getElementById('latitude');
+  const longitudeInput = document.getElementById('longitude');
+  const mapEl = document.getElementById('map');
+
+  const formAlert = document.getElementById('formAlert');
+  const formAlertIcon = document.getElementById('formAlertIcon');
+  const formAlertTitle = document.getElementById('formAlertTitle');
+  const formAlertText = document.getElementById('formAlertText');
+
+  function showLoading() {
+    loadingOverlay.classList.add('show');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
+  }
+
+  function hideLoading() {
+    loadingOverlay.classList.remove('show');
+    submitBtn.disabled = false;
+    submitBtn.textContent = '📩 ส่งคำร้อง';
+  }
+  function hideFormAlert() {
+    formAlert.style.display = 'none';
+    formAlert.classList.remove('success');
+    clearInputErrors();
+  }
+
+  function showFormAlert(message, title = 'กรุณาตรวจสอบข้อมูล', type = 'error') {
+    formAlert.style.display = 'flex';
+    formAlertTitle.textContent = title;
+    formAlertText.textContent = message;
+
+    if (type === 'success') {
+      formAlert.classList.add('success');
+      formAlertIcon.textContent = '✅';
+    } else {
+      formAlert.classList.remove('success');
+      formAlertIcon.textContent = '⚠️';
     }
 
-    function hideLoading() {
-      loadingOverlay.classList.remove('show');
-      submitBtn.disabled = false;
-      submitBtn.textContent = '📩 ส่งคำร้อง';
+    formAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function clearInputErrors() {
+    [nameInput, phoneInput, categoryInput, addressInput, messageInput].forEach(el => {
+      if (el) el.classList.remove('input-error');
+    });
+    if (mapEl) mapEl.classList.remove('input-error');
+  }
+
+  function markError(el) {
+    if (!el) return;
+    el.classList.add('input-error');
+  }
+
+  function focusField(el) {
+    if (!el) return;
+    if (typeof el.focus === 'function') el.focus();
+    if (typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  complaintForm.addEventListener('submit', function (e) {
+    const files = Array.from(mediaInput.files || []);
+
+    const MAX_FILES = 10;
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+    const MAX_TOTAL_SIZE = 100 * 1024 * 1024;
+
+    hideLoading();
+    hideFormAlert();
+    clearInputErrors();
+
+    const name = (nameInput.value || '').trim();
+    const phone = (phoneInput.value || '').trim();
+    const category = (categoryInput.value || '').trim();
+    const address = (addressInput.value || '').trim();
+    const message = (messageInput.value || '').trim();
+    const latitude = (latitudeInput.value || '').trim();
+    const longitude = (longitudeInput.value || '').trim();
+
+    // 1) ตรวจข้อมูลจำเป็น
+    if (!latitude || !longitude) {
+      e.preventDefault();
+      markError(mapEl);
+      showFormAlert('กรุณากด "ใช้ตำแหน่งของฉัน" หรือปักหมุดบนแผนที่ก่อนส่งคำร้อง');
+      focusField(mapEl);
+      return;
     }
 
-    // ✅ ตรวจไฟล์ก่อน submit (ฝั่งหน้าเว็บ)
-    complaintForm.addEventListener('submit', function (e) {
-      const files = Array.from(mediaInput.files || []);
+    if (!name) {
+      e.preventDefault();
+      markError(nameInput);
+      showFormAlert('กรุณากรอกชื่อ');
+      focusField(nameInput);
+      return;
+    }
 
-      const MAX_FILES = 10;
-      const MAX_IMAGE_SIZE = 10 * 1024 * 1024;   // 10MB
-      const MAX_VIDEO_SIZE = 50 * 1024 * 1024;   // 50MB
-      const MAX_TOTAL_SIZE = 100 * 1024 * 1024;  // 100MB
+    if (!phone) {
+      e.preventDefault();
+      markError(phoneInput);
+      showFormAlert('กรุณากรอกเบอร์โทรศัพท์');
+      focusField(phoneInput);
+      return;
+    }
 
-      // 1) จำนวนไฟล์
-      if (files.length > MAX_FILES) {
+    const normalizedPhone = phone.replace(/\D/g, '');
+    if (!/^0\d{9}$/.test(normalizedPhone)) {
+      e.preventDefault();
+      markError(phoneInput);
+      showFormAlert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)');
+      focusField(phoneInput);
+      return;
+    }
+
+    if (!category) {
+      e.preventDefault();
+      markError(categoryInput);
+      showFormAlert('กรุณาเลือกประเภทเรื่อง');
+      focusField(categoryInput);
+      return;
+    }
+
+    if (!address) {
+      e.preventDefault();
+      markError(addressInput);
+      showFormAlert('กรุณากรอกเลขที่บ้าน และหมู่');
+      focusField(addressInput);
+      return;
+    }
+
+    if (!message) {
+      e.preventDefault();
+      markError(messageInput);
+      showFormAlert('กรุณากรอกข้อความหรือรายละเอียดคำร้อง');
+      focusField(messageInput);
+      return;
+    }
+
+    // 2) ตรวจไฟล์
+    if (files.length > MAX_FILES) {
+      e.preventDefault();
+      showFormAlert(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
+      return;
+    }
+
+    let totalSize = 0;
+
+    for (const f of files) {
+      totalSize += f.size || 0;
+
+      const isImage = f.type.startsWith('image/');
+      const isVideo = f.type.startsWith('video/');
+
+      if (!isImage && !isVideo) {
         e.preventDefault();
-        hideLoading();
-        alert(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
+        showFormAlert(`ไฟล์ "${f.name}" ไม่ใช่รูปภาพหรือวิดีโอ`);
         return;
       }
 
-      // 2) ชนิด/ขนาดไฟล์ + รวมทั้งหมด
-      let totalSize = 0;
-
-      for (const f of files) {
-        totalSize += f.size || 0;
-
-        const isImage = f.type.startsWith('image/');
-        const isVideo = f.type.startsWith('video/');
-
-        if (!isImage && !isVideo) {
-          e.preventDefault();
-          hideLoading();
-          alert(`ไฟล์ "${f.name}" ไม่ใช่รูปภาพหรือวิดีโอ`);
-          return;
-        }
-
-        if (isImage && f.size > MAX_IMAGE_SIZE) {
-          e.preventDefault();
-          hideLoading();
-          alert(`ไฟล์รูป "${f.name}" มีขนาดเกิน 10MB`);
-          return;
-        }
-
-        if (isVideo && f.size > MAX_VIDEO_SIZE) {
-          e.preventDefault();
-          hideLoading();
-          alert(`ไฟล์วิดีโอ "${f.name}" มีขนาดเกิน 50MB`);
-          return;
-        }
-      }
-
-      if (totalSize > MAX_TOTAL_SIZE) {
+      if (isImage && f.size > MAX_IMAGE_SIZE) {
         e.preventDefault();
-        hideLoading();
-        alert('ขนาดไฟล์รวมเกิน 100MB กรุณาลดจำนวนหรือขนาดไฟล์');
+        showFormAlert(`ไฟล์รูป "${f.name}" มีขนาดเกิน 10MB`);
         return;
       }
 
-      // ✅ ถ้าผ่านทุกอย่าง ค่อยโชว์ loading
-      showLoading();
-    });
+      if (isVideo && f.size > MAX_VIDEO_SIZE) {
+        e.preventDefault();
+        showFormAlert(`ไฟล์วิดีโอ "${f.name}" มีขนาดเกิน 50MB`);
+        return;
+      }
+    }
 
-    // ✅ กันกรณีกด back แล้วปุ่มยัง disabled / loading ยังโชว์
-    window.addEventListener('pageshow', function () {
-      hideLoading();
-    });
-  </script>
+    if (totalSize > MAX_TOTAL_SIZE) {
+      e.preventDefault();
+      showFormAlert('ขนาดไฟล์รวมเกิน 100MB กรุณาลดจำนวนหรือขนาดไฟล์');
+      return;
+    }
+
+    // 3) ผ่านทุกอย่าง
+    showLoading();
+  });
+
+  // ลบกรอบแดงเมื่อผู้ใช้เริ่มแก้
+  [nameInput, phoneInput, categoryInput, addressInput, messageInput].forEach(el => {
+    if (!el) return;
+    el.addEventListener('input', () => el.classList.remove('input-error'));
+    el.addEventListener('change', () => el.classList.remove('input-error'));
+  });
+
+  // ถ้ามีการปักหมุดแล้ว เอากรอบ error ของแผนที่ออก
+  function clearMapError() {
+    if (mapEl) mapEl.classList.remove('input-error');
+  }
+
+  window.addEventListener('pageshow', function () {
+    hideLoading();
+  });
+
+  // เปิดให้ฟังก์ชันปิดแจ้งเตือนจากปุ่ม X ใช้ได้
+  window.hideFormAlert = hideFormAlert;
+  window.clearMapError = clearMapError;
+</script>
 
 </body>
 </html>
