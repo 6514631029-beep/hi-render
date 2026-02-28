@@ -384,7 +384,19 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
           [token]
         );
 
-        await replyLineMessage(replyToken, `✅ ผูก LINE สำเร็จ\nเบอร์: ${maskPhone(phone)}\nเลขคำร้อง: ${t.request_id}`);
+        const [reqRows] = await db.promise().query(
+          'SELECT id, status FROM requests WHERE id = ? LIMIT 1',
+          [t.request_id]
+        );
+
+        const latestStatus = reqRows.length
+          ? reqRows[0].status
+          : 'รอหน่วยงานรับเรื่อง';
+
+        await replyLineMessage(
+          replyToken,
+          `✅ ผูก LINE สำเร็จ\nเลขคำร้อง: ${t.request_id}\nสถานะล่าสุด: ${latestStatus}\n\nเมื่อมีการอัปเดตสถานะ ระบบจะแจ้งให้ทราบทาง LINE`
+        );
         continue;
       }
 
@@ -397,6 +409,59 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
     return res.status(500).send('Server error');
   }
 });
+async function getLineUserIdByPhone(phone) {
+  const normalizedPhone = normalizeThaiPhone(phone || '');
+  if (!normalizedPhone) return null;
+
+  const [rows] = await db.promise().query(
+    'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+    [normalizedPhone]
+  );
+
+  return rows.length ? rows[0].line_user_id : null;
+}
+
+async function notifyRequestStatusLine(requestId, status, extraText = '') {
+  try {
+    const [rows] = await db.promise().query(
+      `SELECT id, phone, department, status, category
+       FROM requests
+       WHERE id = ?
+       LIMIT 1`,
+      [requestId]
+    );
+
+    if (!rows.length) return false;
+
+    const rq = rows[0];
+    const lineUserId = await getLineUserIdByPhone(rq.phone);
+
+    if (!lineUserId) {
+      console.log(`ℹ️ ไม่พบ LINE ที่ผูกกับเบอร์คำร้อง #${requestId}`);
+      return false;
+    }
+
+    let msg =
+      `📌 อัปเดตคำร้องของคุณ\n` +
+      `เลขคำร้อง: ${rq.id}\n` +
+      `ประเภท: ${rq.category || '-'}\n` +
+      `หน่วยงาน: ${rq.department || '-'}\n` +
+      `สถานะ: ${status}`;
+
+    if (extraText && String(extraText).trim()) {
+      msg += `\n${String(extraText).trim()}`;
+    }
+
+    await pushLineMessage(lineUserId, msg);
+    console.log(`✅ ส่ง LINE แจ้งสถานะสำเร็จ #${requestId} -> ${status}`);
+    return true;
+  } catch (err) {
+    console.error('notifyRequestStatusLine error:', err);
+    return false;
+  }
+}
+
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -755,6 +820,13 @@ app.post('/dept-accept/:id', async (req, res) => {
       [id]
     );
 
+    // ✅ แจ้ง LINE เมื่อหน่วยงานรับเรื่อง
+    await notifyRequestStatusLine(
+      id,
+      'รอดำเนินการ',
+      'หน่วยงานรับเรื่องของคุณแล้ว และกำลังเข้าสู่ขั้นตอนดำเนินการ'
+    );
+
     return res.json({ ok: true });
   } catch (e) {
     console.error('dept-accept error:', e);
@@ -770,6 +842,13 @@ app.post('/dept-reject/:id', async (req, res) => {
     await db.promise().query(
       "UPDATE requests SET dept_accept = 0, dept_reason = ?, status = 'รอแอดมินหลัก', department = NULL WHERE id = ?",
       [reason, id]
+    );
+
+    // ✅ แจ้ง LINE เมื่อหน่วยงานไม่รับเรื่องและส่งกลับแอดมินหลัก
+    await notifyRequestStatusLine(
+      id,
+      'รอแอดมินหลัก',
+      reason ? `เหตุผล: ${reason}` : 'คำร้องถูกส่งกลับให้แอดมินหลักพิจารณาอีกครั้ง'
     );
 
     return res.json({ ok: true });
@@ -1040,6 +1119,16 @@ app.post('/set-status/:id', async (req, res) => {
       await new Promise((resolve) => removeFromOtherBuckets(r.id, bucket, resolve));
     }
 
+    // ✅ 5) แจ้ง LINE เมื่อเปลี่ยนสถานะ
+    let extraText = '';
+    if (status === 'รอดำเนินการ') {
+      extraText = 'คำร้องของคุณอยู่ระหว่างรอการดำเนินงานจากหน่วยงาน';
+    } else if (status === 'กำลังดำเนินการ') {
+      extraText = 'ขณะนี้หน่วยงานกำลังดำเนินการตามคำร้องของคุณ';
+    }
+
+    await notifyRequestStatusLine(id, status, extraText);
+
     return res.json({ success: true, message: '✅ อัปเดตสถานะเรียบร้อย' });
   } catch (err) {
     console.error('❌ set-status error:', err);
@@ -1129,7 +1218,7 @@ app.post('/complete-with-media/:id', (req, res) => {
           if (!rq.notified_completed_at) {
             const [linkRows] = await db.promise().query(
               'SELECT line_user_id FROM line_links WHERE phone = ? LIMIT 1',
-              [rq.phone]
+              [normalizeThaiPhone(rq.phone)]
             );
 
             if (linkRows?.length) {
