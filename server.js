@@ -420,7 +420,41 @@ async function getLineUserIdByPhone(phone) {
 
   return rows.length ? rows[0].line_user_id : null;
 }
+function getStatusMeta(status = '') {
+  const s = String(status || '').trim();
 
+  const map = {
+    'รอแผนกรับเรื่อง': {
+      titleIcon: '📬',
+      statusIcon: '📬'
+    },
+    'รอแอดมินหลัก': {
+      titleIcon: '👤',
+      statusIcon: '👤'
+    },
+    'รอดำเนินการ': {
+      titleIcon: '🟡',
+      statusIcon: '🟡'
+    },
+    'กำลังดำเนินการ': {
+      titleIcon: '🟠',
+      statusIcon: '🟠'
+    },
+    'เสร็จสิ้น': {
+      titleIcon: '🟢',
+      statusIcon: '🟢'
+    },
+    'ไม่อนุมัติ': {
+      titleIcon: '🔴',
+      statusIcon: '🔴'
+    }
+  };
+
+  return map[s] || {
+    titleIcon: '📢',
+    statusIcon: '📍'
+  };
+}
 async function notifyRequestStatusLine(requestId, status, extraText = '') {
   try {
     const [rows] = await db.promise().query(
@@ -441,15 +475,17 @@ async function notifyRequestStatusLine(requestId, status, extraText = '') {
       return false;
     }
 
+    const meta = getStatusMeta(status);
+
     let msg =
-      `📌 อัปเดตคำร้องของคุณ\n` +
+      `${meta.titleIcon} อัปเดตคำร้องของคุณ\n` +
       `เลขคำร้อง: ${rq.id}\n` +
       `ประเภท: ${rq.category || '-'}\n` +
       `หน่วยงาน: ${rq.department || '-'}\n` +
-      `สถานะ: ${status}`;
+      `สถานะ: ${meta.statusIcon} ${status}`;
 
     if (extraText && String(extraText).trim()) {
-      msg += `\n${String(extraText).trim()}`;
+      msg += `\n\n${String(extraText).trim()}`;
     }
 
     await pushLineMessage(lineUserId, msg);
@@ -1224,9 +1260,13 @@ app.post('/complete-with-media/:id', (req, res) => {
             if (linkRows?.length) {
               const lineUserId = linkRows[0].line_user_id;
 
+              const doneMeta = getStatusMeta('เสร็จสิ้น');
+
               const msg =
-                `✅ คำร้องเลขที่ ${rq.id} ดำเนินการ "เสร็จสิ้น" แล้ว\n` +
-                `ขอบคุณที่แจ้งเรื่องครับ`;
+                `${doneMeta.titleIcon} อัปเดตคำร้องของคุณ\n` +
+                `เลขคำร้อง: ${rq.id}\n` +
+                `สถานะ: ${doneMeta.statusIcon} เสร็จสิ้น\n\n` +
+                `คำร้องของคุณดำเนินการเสร็จเรียบร้อยแล้ว\nขอบคุณที่แจ้งเรื่องครับ`;
 
               await pushLineMessage(lineUserId, msg);
               // ส่งรูปทั้งหมดที่แนบตอนเสร็จสิ้น (เฉพาะ type=image)
@@ -1588,3 +1628,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
 });
+
