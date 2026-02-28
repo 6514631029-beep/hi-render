@@ -310,6 +310,11 @@
       background:#fee2e2;border-color:#fecaca;color:#991b1b;
     }
     .btn.mini{padding:8px 10px;border-radius:10px;font-size:15px}
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
 
     /* Table */
     .table-wrap{
@@ -342,7 +347,9 @@
       box-shadow: none !important;
       border-bottom: 1px solid #e5e7eb !important;
       font-size:13px;
+      white-space:nowrap;
     }
+    th.th-message{ text-align:left; padding-left:14px; }
 
     td{ font-size:15px; }
     tbody tr:nth-child(even){background:#fbfdff}
@@ -408,13 +415,11 @@
       white-space:nowrap;
       box-sizing:border-box;
 
-      /* ✅ หดตามข้อความ */
       width: fit-content !important;
       display: inline-block !important;
       max-width: 100%;
       min-width: 0 !important;
 
-      /* ลูกศร dropdown */
       background-image:
         linear-gradient(45deg, transparent 50%, #0f172a 50%),
         linear-gradient(135deg, #0f172a 50%, transparent 50%);
@@ -424,22 +429,8 @@
       background-size: 6px 6px, 6px 6px;
       background-repeat: no-repeat;
     }
-
-    /* fallback ถ้า browser ไม่รองรับ fit-content */
     @supports not (width: fit-content){
-      .status-select{
-        width: auto !important;
-      }
-    }
-
-    /* ปิดสีสถานะทั้งหมด (ถึง JS จะใส่ class ก็ไม่เปลี่ยนสี) */
-    .status-unset,
-    .status-pending,
-    .status-inprogress,
-    .status-completed{
-      background:#fff !important;
-      border:none !important;
-      color:#0f172a !important;
+      .status-select{ width: auto !important; }
     }
 
     /* ===== KPI ซ้ายให้มีสีแบบการ์ด ===== */
@@ -448,10 +439,15 @@
     .side-kpis .side-kpi:nth-child(2){ background: rgba(245,158,11,.18); border-color: rgba(245,158,11,.35); }
     .side-kpis .side-kpi:nth-child(3){ background: rgba(16,185,129,.18); border-color: rgba(16,185,129,.35); }
     .side-kpis .side-kpi:nth-child(4){ background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.35); }
+
+    /* Message cell */
     .msg-cell{
-  max-width: 320px;
-  text-align:left;
-}
+      min-width: 260px;
+      max-width: 360px;
+      text-align:left;
+      vertical-align:top;
+      padding-left:14px;
+    }
 
     .msg-preview{
       display:-webkit-box;
@@ -470,14 +466,11 @@
     .msg-actions{
       display:flex;
       justify-content:flex-start;
+      margin-top:6px;
     }
+    .msg-actions .btn{ min-width:0; }
 
-    .btn.link-btn{
-      background:#eff6ff;
-      border-color:#bfdbfe;
-      color:#1d4ed8;
-    }
-
+    /* Detail Modal */
     .detail-overlay{
       display:none;
       position:fixed;
@@ -490,7 +483,7 @@
     }
 
     .detail-modal{
-      width:min(760px, 100%);
+      width:min(860px, 100%);
       max-height:85vh;
       overflow:auto;
       background:#fff;
@@ -509,6 +502,7 @@
       background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
       position:sticky;
       top:0;
+      z-index:5;
     }
 
     .detail-head h3{
@@ -530,9 +524,7 @@
       cursor:pointer;
     }
 
-    .detail-body{
-      padding:18px;
-    }
+    .detail-body{ padding:18px; }
 
     .detail-grid{
       display:grid;
@@ -541,16 +533,8 @@
       margin-bottom:16px;
     }
 
-    .detail-label{
-      color:#475569;
-      font-weight:900;
-    }
-
-    .detail-value{
-      color:#0f172a;
-      font-weight:800;
-      word-break:break-word;
-    }
+    .detail-label{ color:#475569; font-weight:900; }
+    .detail-value{ color:#0f172a; font-weight:800; word-break:break-word; }
 
     .detail-message-box{
       margin-top:8px;
@@ -565,15 +549,59 @@
       font-weight:700;
     }
 
-    @media (max-width: 700px){
-      .detail-grid{
-        grid-template-columns: 1fr;
-        gap:6px;
-      }
+    /* File cards inside detail */
+    .detail-media-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:12px;
+      margin-top:10px;
+    }
 
-      .msg-cell{
-        max-width: 260px;
-      }
+    .detail-media-card{
+      border:1px solid #dbeafe;
+      background:#fff;
+      border-radius:16px;
+      padding:8px;
+      cursor:pointer;
+      text-align:left;
+      transition:.15s ease;
+    }
+
+    .detail-media-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px rgba(37,99,235,.12);
+      border-color:#93c5fd;
+    }
+
+    .detail-media-thumb{
+      width:100%;
+      height:120px;
+      object-fit:cover;
+      border-radius:12px;
+      display:block;
+      background:#e2e8f0;
+    }
+
+    .video-thumb{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+      font-weight:900;
+      color:#0f172a;
+      background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+    }
+
+    .detail-media-meta{
+      margin-top:8px;
+      font-size:13px;
+      font-weight:800;
+      color:#334155;
+    }
+
+    @media (max-width: 700px){
+      .detail-grid{ grid-template-columns: 1fr; gap:6px; }
+      .msg-cell{ max-width: 260px; }
     }
   </style>
 </head>
@@ -683,7 +711,7 @@
         <div class="card" style="margin-top:12px;">
           <div class="card-h">
             <h2>รายการคำร้อง</h2>
-            <div class="tiny">โหมด Inbox จะมีปุ่มรับ/ไม่รับ • โหมดงานแผนกจะเลือกสถานะได้</div>
+            <div class="tiny">ดูไฟล์แนบผู้ใช้ใน “รายละเอียด” • ไฟล์(เสร็จสิ้น) ยังอยู่ในตาราง</div>
           </div>
 
           <div class="table-wrap">
@@ -692,8 +720,7 @@
                 <tr>
                   <th>ชื่อ</th>
                   <th>เบอร์</th>
-                  <th>ข้อความ</th>
-                  <th>ไฟล์</th>
+                  <th class="th-message">ข้อความ</th>
                   <th>สถานะ/จัดการ</th>
                   <th>แผนที่</th>
                   <th>วันที่-เวลา</th>
@@ -713,6 +740,71 @@
 
       </div>
     </main>
+  </div>
+
+  <!-- =========================
+       ✅ Detail Modal
+       ========================= -->
+  <div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
+    <div class="detail-modal" onclick="event.stopPropagation()">
+      <div class="detail-head">
+        <h3>รายละเอียดคำร้อง</h3>
+        <button class="detail-close" onclick="closeDetailModal()">×</button>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-grid">
+          <div class="detail-label">ชื่อ</div>
+          <div class="detail-value" id="detailName">-</div>
+
+          <div class="detail-label">เบอร์โทร</div>
+          <div class="detail-value" id="detailPhone">-</div>
+
+          <div class="detail-label">สถานะ</div>
+          <div class="detail-value" id="detailStatus">-</div>
+
+          <div class="detail-label">วันที่-เวลา</div>
+          <div class="detail-value" id="detailDate">-</div>
+        </div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
+        <div class="detail-message-box" id="detailMessage">-</div>
+
+        <div style="height:14px;"></div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ไฟล์แนบจากผู้ใช้</div>
+        <div id="detailFilesBox">
+          <div class="detail-message-box">ไม่มีไฟล์แนบ</div>
+        </div>
+
+        <div style="height:14px;"></div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ไฟล์(เสร็จสิ้น)</div>
+        <div id="detailCompletedFilesBox">
+          <div class="detail-message-box">ไม่มีไฟล์(เสร็จสิ้น)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น"
+       ========================= -->
+  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
+      <p style="margin:0 0 12px; color:#555">
+        คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?
+        <br><b>หมายเหตุ:</b> ถ้าเซิร์ฟเวอร์ของคุณ “บังคับต้องแนบไฟล์” จะต้องเลือกอย่างน้อย 1 ไฟล์ก่อนกดยืนยัน
+      </p>
+
+      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
+
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
+        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn primary">ยืนยัน</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -799,13 +891,11 @@
     }
 
     let isLoading = false;
-    let isTyping = false;
     let typingTimer = null;
 
     function filterByName() {
-      isTyping = true;
       clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => { isTyping = false; }, 800);
+      typingTimer = setTimeout(() => {}, 300);
 
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
@@ -818,10 +908,6 @@
       renderCurrentPage();
     }
 
-    function setStatusColor(selectEl){
-      if(!selectEl) return;
-      // ไม่ต้องทำอะไร เพราะเราเอาสีออกหมดแล้ว
-    }
     function escapeHtml(value = '') {
       return String(value)
         .replace(/&/g, '&amp;')
@@ -837,147 +923,205 @@
       return s.slice(0, maxLen) + '...';
     }
 
+    function normalizeFileUrl(item) {
+      if (typeof item === 'string') return item.startsWith('uploads/') ? `/${item}` : item;
+      const raw = item?.url || '';
+      return raw.startsWith('uploads/') ? `/${raw}` : raw;
+    }
+
+    function getFileType(item) {
+      if (typeof item === 'string') {
+        const url = item.toLowerCase();
+        return url.match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/) ? 'video' : 'image';
+      }
+      return item?.type || '';
+    }
+
     function openDetailModal(row) {
       document.getElementById('detailName').textContent = row?.name || '-';
       document.getElementById('detailPhone').textContent = row?.phone || '-';
-      document.getElementById('detailStatus').textContent = row?.status || (VIEW_MODE === 'inbox' ? 'รอแผนกรับเรื่อง' : '-');
-      document.getElementById('detailDate').textContent = formatDate(row?.completed_at || row?.created_at);
+      document.getElementById('detailStatus').textContent =
+        row?.status || (VIEW_MODE === 'inbox' ? 'รอแผนกรับเรื่อง' : '-');
+      document.getElementById('detailDate').textContent =
+        formatDate(row?.completed_at || row?.created_at);
       document.getElementById('detailMessage').textContent = row?.message || '-';
       document.getElementById('detailModal').style.display = 'flex';
     }
-    function openDetailById(id) {
-    const row = allHealthData.find(x => String(x.id) === String(id));
-    if (!row) return;
 
-    openDetailModal({
-      id: row.id,
-      name: row.name || '-',
-      phone: row.phone || '-',
-      message: row.message || '-',
-      status: row.status || '',
-      created_at: row.created_at || '',
-      completed_at: row.completed_at || ''
-    });
-  }
+    function renderDetailFiles(boxId, files = [], emptyText = 'ไม่มีไฟล์แนบ') {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+
+      if (!Array.isArray(files) || files.length === 0) {
+        box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
+        return;
+      }
+
+      const itemsHtml = files.map((file, index) => {
+        const url = normalizeFileUrl(file);
+        const type = getFileType(file);
+
+        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/)) {
+          return `
+            <button type="button" class="detail-media-card" onclick='showImages(${JSON.stringify(files)}, ${index})'>
+              <div class="detail-media-thumb video-thumb">🎬 วิดีโอ</div>
+              <div class="detail-media-meta">ไฟล์วิดีโอ ${index + 1}</div>
+            </button>
+          `;
+        }
+
+        return `
+          <button type="button" class="detail-media-card" onclick='showImages(${JSON.stringify(files)}, ${index})'>
+            <img src="${url}" class="detail-media-thumb" alt="ไฟล์แนบ ${index + 1}">
+            <div class="detail-media-meta">รูปภาพ ${index + 1}</div>
+          </button>
+        `;
+      }).join('');
+
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div class="tiny">จำนวน ${files.length} ไฟล์</div>
+          <button class="btn mini" onclick='showImages(${JSON.stringify(files)}, 0)'>ดูทั้งหมด</button>
+        </div>
+        <div class="detail-media-grid">${itemsHtml}</div>
+      `;
+    }
+
+    function openDetailById(id) {
+      const row = allHealthData.find(x => String(x.id) === String(id));
+      if (!row) return;
+
+      let files = [];
+      try {
+        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+        else if (Array.isArray(row.photo)) files = row.photo;
+      } catch (e) { files = []; }
+
+      const completedFiles = files.filter(it => {
+        if (!it || typeof it !== 'object') return false;
+        return it.from === 'completed' || it.tag === 'completed';
+      });
+
+      const mainFiles = files.filter(it => {
+        if (!it) return false;
+        if (typeof it !== 'object') return true;
+        return !(it.from === 'completed' || it.tag === 'completed');
+      });
+
+      openDetailModal({
+        id: row.id,
+        name: row.name || '-',
+        phone: row.phone || '-',
+        message: row.message || '-',
+        status: row.status || '',
+        created_at: row.created_at || '',
+        completed_at: row.completed_at || ''
+      });
+
+      renderDetailFiles('detailFilesBox', mainFiles, 'ไม่มีไฟล์แนบจากผู้ใช้');
+      renderDetailFiles('detailCompletedFilesBox', completedFiles, 'ไม่มีไฟล์(เสร็จสิ้น)');
+    }
+
     function closeDetailModal(e) {
       if (e && e.target && e.target.id !== 'detailModal') return;
+
       document.getElementById('detailModal').style.display = 'none';
+      const box1 = document.getElementById('detailFilesBox');
+      const box2 = document.getElementById('detailCompletedFilesBox');
+      if (box1) box1.innerHTML = `<div class="detail-message-box">ไม่มีไฟล์แนบ</div>`;
+      if (box2) box2.innerHTML = `<div class="detail-message-box">ไม่มีไฟล์(เสร็จสิ้น)</div>`;
     }
+
     function renderTable(data) {
-  const tbody = document.getElementById('data-body');
-  tbody.innerHTML = '';
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
 
-  data.forEach(row => {
-    let files = [];
-    try {
-      if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
-      else if (Array.isArray(row.photo)) files = row.photo;
-    } catch (e) { files = []; }
+      data.forEach(row => {
+        let files = [];
+        try {
+          if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+          else if (Array.isArray(row.photo)) files = row.photo;
+        } catch (e) { files = []; }
 
-    const completedFiles = files.filter(it => {
-      if (!it || typeof it !== 'object') return false;
-      return it.from === 'completed' || it.tag === 'completed';
-    });
+        const completedFiles = files.filter(it => {
+          if (!it || typeof it !== 'object') return false;
+          return it.from === 'completed' || it.tag === 'completed';
+        });
 
-    const mainFiles = files.filter(it => {
-      if (!it) return false;
-      if (typeof it !== 'object') return true;
-      return !(it.from === 'completed' || it.tag === 'completed');
-    });
+        let completedLinks = "-";
+        if (completedFiles.length > 0) {
+          const cf = completedFiles[0];
+          const cfUrl = typeof cf === 'string'
+            ? (cf.startsWith('uploads/') ? `/${cf}` : cf)
+            : ((cf.url || '').startsWith('uploads/') ? `/${cf.url}` : (cf.url || ''));
 
-    let completedLinks = "-";
-    if (completedFiles.length > 0) {
-      const cf = completedFiles[0];
-      const cfUrl = typeof cf === 'string'
-        ? (cf.startsWith('uploads/') ? `/${cf}` : cf)
-        : ((cf.url || '').startsWith('uploads/') ? `/${cf.url}` : (cf.url || ''));
+          completedLinks = `
+            <div class="media-container">
+              <button class="btn mini" onclick='showImages(${JSON.stringify(completedFiles)}, 0)'>ดูทั้งหมด</button>
+              <button class="btn mini danger" onclick="deleteCompletedFile(${row.id}, '${cfUrl}')">🗑 ลบไฟล์นี้</button>
+            </div>
+          `;
+        }
 
-      const cfBtn = `
-        <button class="btn mini" onclick='showImages(${JSON.stringify(completedFiles)})'>
-          ดูทั้งหมด
-        </button>`;
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
 
-      completedLinks = `
-        <div class="media-container">
-          ${cfBtn}
-          <button class="btn mini danger" onclick="deleteCompletedFile(${row.id}, '${cfUrl}')">
-            🗑 ลบไฟล์นี้
-          </button>
-        </div>
-      `;
+        let statusCellHtml = '-';
+        if (VIEW_MODE === 'inbox') {
+          statusCellHtml = `
+            <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div style="font-weight:1000; color:#075985;">รอแผนกรับเรื่อง</div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+                <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
+                <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
+              </div>
+              <div class="tiny">ถ้ารับเรื่อง ระบบจะย้ายไป “งานของแผนก”</div>
+            </div>
+          `;
+        } else {
+          statusCellHtml = `
+            <select class="status-select" onchange="onStatusChange(${row.id}, this.value)">
+              <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+              <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
+              <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
+              <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
+            </select>
+          `;
+        }
+
+        const previewMessage = getShortMessage(row.message || '-', 80);
+
+        tbody.innerHTML += `
+          <tr id="row-${row.id}">
+            <td>${row.name || '-'}</td>
+            <td>${row.phone || '-'}</td>
+            <td class="msg-cell">
+              <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
+                ${escapeHtml(previewMessage)}
+              </div>
+              <div class="msg-actions">
+                <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+              </div>
+            </td>
+            <td>${statusCellHtml}</td>
+            <td>${mapLink}</td>
+            <td>${formatDate(row.completed_at || row.created_at)}</td>
+            <td>${completedLinks || '-'}</td>
+          </tr>
+        `;
+      });
+
+      if (!data.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="padding:22px; color:#64748b; font-weight:900;">
+              ไม่มีข้อมูลในโหมดนี้
+            </td>
+          </tr>
+        `;
+      }
     }
-
-    let fileLinks = "-";
-    if (mainFiles.length > 0) {
-      const buttonHtml =
-        `<button class="btn mini" onclick='showImages(${JSON.stringify(mainFiles)})'>ดูทั้งหมด</button>`;
-      fileLinks = `<div class="media-container">${buttonHtml}</div>`;
-    }
-
-    const mapLink = (row.latitude && row.longitude)
-      ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
-      : '-';
-
-    let statusCellHtml = '-';
-
-    if (VIEW_MODE === 'inbox') {
-      statusCellHtml = `
-        <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
-          <div style="font-weight:1000; color:#075985;">รอแผนกรับเรื่อง</div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
-            <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
-            <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
-          </div>
-          <div class="tiny">ถ้ารับเรื่อง ระบบจะย้ายไป “งานของแผนก”</div>
-        </div>
-      `;
-    } else {
-      const statusSelect = `
-        <select class="status-select" onchange="onStatusChange(${row.id}, this.value); setStatusColor(this);">
-          <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
-          <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
-          <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
-          <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
-        </select>
-      `;
-      statusCellHtml = statusSelect;
-    }
-
-    const previewMessage = getShortMessage(row.message || '-', 80);
-
-    tbody.innerHTML += `
-      <tr id="row-${row.id}">
-        <td>${row.name || '-'}</td>
-        <td>${row.phone || '-'}</td>
-        <td class="msg-cell">
-          <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
-            ${escapeHtml(previewMessage)}
-          </div>
-          <div class="msg-actions">
-            <button class="btn mini link-btn" onclick="openDetailById(${row.id})">
-              📄 รายละเอียด
-            </button>
-          </div>
-        </td>
-        <td>${fileLinks || '-'}</td>
-        <td>${statusCellHtml}</td>
-        <td>${mapLink}</td>
-        <td>${formatDate(row.completed_at || row.created_at)}</td>
-        <td>${completedLinks || '-'}</td>
-      </tr>
-    `;
-  });
-
-  if (!data.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8" style="padding:22px; color:#64748b; font-weight:900;">
-          ไม่มีข้อมูลในโหมดนี้
-        </td>
-      </tr>
-    `;
-  }
-}
 
     function formatDate(dateString) {
       if (!dateString) return 'ไม่ทราบเวลา';
@@ -991,20 +1135,122 @@
       });
     }
 
-    function showImages(images) {
-      const html = (images || []).map(img => {
-        const url = typeof img === 'string'
-          ? (img.startsWith('uploads/') ? `/${img}` : img)
-          : ((img.url || '').startsWith('uploads/') ? `/${img.url}` : (img.url || ''));
-        const type = (typeof img === 'string') ? "" : (img.type || "");
-        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/)) {
-          return `<video controls style="width:auto;max-width:900px;max-height:520px;margin-bottom:20px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.25);"><source src="${url}"></video>`;
-        }
-        return `<img src="${url}" style="width:auto;max-width:900px;max-height:520px;margin-bottom:20px;border-radius:12px;object-fit:contain;box-shadow:0 10px 24px rgba(0,0,0,.25);" />`;
-      }).join('');
+    // ✅ Viewer แบบ “เหมือน admin มากขึ้น” (ภาพใหญ่ + thumbs + next/prev)
+    function showImages(images, startIndex = 0) {
+      const items = Array.isArray(images) ? images : [];
+      if (!items.length) return;
 
-      const win = window.open('', '_blank', 'width=1000,height=700');
-      win.document.write(`<body style="font-family:'THSarabunNew','Sarabun',Tahoma,Arial,sans-serif; padding:28px; text-align:center; background:#f1f5f9">${html}</body>`);
+      const viewerHtml = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <title>ดูไฟล์แนบ</title>
+          <style>
+            body{ margin:0; font-family:Arial,sans-serif; background:#0f172a; color:#fff; }
+            .topbar{
+              position:sticky; top:0; z-index:10;
+              display:flex; justify-content:space-between; align-items:center; gap:12px;
+              padding:14px 18px; background:rgba(15,23,42,.92);
+              backdrop-filter: blur(8px);
+              border-bottom:1px solid rgba(255,255,255,.08);
+            }
+            .title{ font-size:18px; font-weight:700; }
+            .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+            .btn{ border:none; border-radius:10px; padding:10px 14px; font-size:14px; font-weight:700; cursor:pointer; }
+            .btn.dark{ background:#1e293b; color:#fff; }
+            .wrap{ padding:20px; display:flex; flex-direction:column; gap:18px; }
+            .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+            .thumb{ background:#111827; border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden; cursor:pointer; }
+            .thumb img,.thumb video{ width:100%; height:180px; object-fit:cover; display:block; background:#000; }
+            .thumb .meta{ padding:10px 12px; font-size:13px; color:#cbd5e1; }
+            .viewer{
+              display:flex; justify-content:center; align-items:center;
+              min-height:60vh; background:#020617; border-radius:18px;
+              overflow:hidden; padding:18px;
+            }
+            .viewer img,.viewer video{
+              max-width:100%; max-height:72vh; border-radius:14px;
+              object-fit:contain; background:#000;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <div class="title">ไฟล์แนบ</div>
+            <div class="actions">
+              <button class="btn dark" onclick="prevItem()">ก่อนหน้า</button>
+              <button class="btn dark" onclick="nextItem()">ถัดไป</button>
+            </div>
+          </div>
+
+          <div class="wrap">
+            <div class="viewer" id="viewer"></div>
+            <div class="grid" id="thumbGrid"></div>
+          </div>
+
+          <script>
+            const items = ${JSON.stringify(items)};
+            let currentIndex = ${Number(startIndex) || 0};
+
+            function normalizeFileUrl(item) {
+              if (typeof item === 'string') return item.startsWith('uploads/') ? '/' + item : item;
+              const raw = item?.url || '';
+              return raw.startsWith('uploads/') ? '/' + raw : raw;
+            }
+
+            function getFileType(item) {
+              if (typeof item === 'string') {
+                const url = item.toLowerCase();
+                return url.match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/) ? 'video' : 'image';
+              }
+              return item?.type || '';
+            }
+
+            function renderViewer() {
+              const item = items[currentIndex];
+              const url = normalizeFileUrl(item);
+              const type = getFileType(item);
+              const viewer = document.getElementById('viewer');
+
+              if (type === 'video' || url.toLowerCase().match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/)) {
+                viewer.innerHTML = '<video controls autoplay><source src="' + url + '"></video>';
+              } else {
+                viewer.innerHTML = '<img src="' + url + '" alt="preview">';
+              }
+            }
+
+            function renderThumbs() {
+              const grid = document.getElementById('thumbGrid');
+              grid.innerHTML = items.map((item, index) => {
+                const url = normalizeFileUrl(item);
+                const type = getFileType(item);
+                const media = (type === 'video' || url.toLowerCase().match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/))
+                  ? '<video muted><source src="' + url + '"></video>'
+                  : '<img src="' + url + '" alt="thumb">';
+
+                return '<div class="thumb" onclick="goTo(' + index + ')">' +
+                        media +
+                        '<div class="meta">ไฟล์ ' + (index + 1) + '</div>' +
+                      '</div>';
+              }).join('');
+            }
+
+            function goTo(index){ currentIndex = index; renderViewer(); }
+            function prevItem(){ currentIndex = (currentIndex - 1 + items.length) % items.length; renderViewer(); }
+            function nextItem(){ currentIndex = (currentIndex + 1) % items.length; renderViewer(); }
+
+            renderViewer();
+            renderThumbs();
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const win = window.open('', '_blank', 'width=1200,height=850');
+      win.document.open();
+      win.document.write(viewerHtml);
+      win.document.close();
     }
 
     async function acceptDept(id) {
@@ -1047,130 +1293,16 @@
       });
 
       if (res.ok) {
-        alert('อัปเดตสถานะเรียบร้อย');
+        alert('✅ อัปเดตสถานะเรียบร้อย');
         await safeLoadData();
-        if (typeof updateCounters === 'function') updateCounters();
+        await updateCounters();
       } else {
-        alert('เกิดข้อผิดพลาดในการอัปเดต');
+        const txt = await res.text().catch(()=> '');
+        alert(txt || 'เกิดข้อผิดพลาดในการอัปเดต');
       }
     }
 
-    async function updateCounters() {
-      try {
-        const [inboxRes, allRes, pRes, iRes, cRes] = await Promise.all([
-          fetch('/data-health-inbox?_=' + Date.now()),
-          fetch('/data-health-all?_=' + Date.now()),
-          fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
-          fetch('/data-in-progress?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
-          fetch('/data-completed?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
-        ]);
-
-        const [inboxData, allData, pAll, iAll, cAll] = await Promise.all([
-          inboxRes.json(), allRes.json(), pRes.json(), iRes.json(), cRes.json()
-        ]);
-
-        const inboxCount = Array.isArray(inboxData) ? inboxData.length : 0;
-
-        const byDept = (r) => ((r.department || '').trim() === DEPT);
-        const unset      = (Array.isArray(allData) ? allData : []).filter(r => byDept(r) && (!r.status || String(r.status).trim()==='')).length;
-        const pending    = Array.isArray(pAll) ? pAll.length : 0;
-        const inProgress = Array.isArray(iAll) ? iAll.length : 0;
-        const completed  = Array.isArray(cAll) ? cAll.length : 0;
-
-        const workCount = Array.isArray(allData) ? allData.length : 0;
-
-        const leftInbox = document.getElementById('count-inbox-left');
-        if (leftInbox) leftInbox.textContent = String(inboxCount);
-
-        const leftWork = document.getElementById('count-work-left');
-        if (leftWork) leftWork.textContent = String(workCount);
-
-        const sInbox = document.getElementById('kpi-inbox-side');
-        const sP = document.getElementById('kpi-pending-side');
-        const sI = document.getElementById('kpi-inprogress-side');
-        const sC = document.getElementById('kpi-completed-side');
-        if (sInbox) sInbox.textContent = String(inboxCount);
-        if (sP) sP.textContent = String(pending);
-        if (sI) sI.textContent = String(inProgress);
-        if (sC) sC.textContent = String(completed);
-
-        const cUnset = document.getElementById('count-unset');
-        const cP = document.getElementById('count-pending');
-        const cI = document.getElementById('count-inprogress');
-        const cC = document.getElementById('count-completed');
-        if (cUnset) cUnset.textContent = String(unset);
-        if (cP) cP.textContent = String(pending);
-        if (cI) cI.textContent = String(inProgress);
-        if (cC) cC.textContent = String(completed);
-
-      } catch (err) {
-        console.error('Error updating counters:', err);
-      }
-    }
-
-    async function safeLoadData() {
-      if (isLoading) return;
-      isLoading = true;
-      try {
-        await loadData();
-      } catch (e) {
-        console.error('Load error:', e);
-      } finally {
-        isLoading = false;
-      }
-    }
-
-    // init
-    syncLeftViewActive();
-    setView('inbox');
-    updateCounters();
-    setInterval(updateCounters, 60000);
-  </script>
-  <div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
-  <div class="detail-modal" onclick="event.stopPropagation()">
-    <div class="detail-head">
-      <h3>รายละเอียดคำร้อง</h3>
-      <button class="detail-close" onclick="closeDetailModal()">×</button>
-    </div>
-
-    <div class="detail-body">
-      <div class="detail-grid">
-        <div class="detail-label">ชื่อ</div>
-        <div class="detail-value" id="detailName">-</div>
-
-        <div class="detail-label">เบอร์โทร</div>
-        <div class="detail-value" id="detailPhone">-</div>
-
-        <div class="detail-label">สถานะ</div>
-        <div class="detail-value" id="detailStatus">-</div>
-
-        <div class="detail-label">วันที่-เวลา</div>
-        <div class="detail-value" id="detailDate">-</div>
-      </div>
-
-      <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
-      <div class="detail-message-box" id="detailMessage">-</div>
-    </div>
-  </div>
-</div>
-  <!-- ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น" -->
-  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
-    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
-      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
-      <p style="margin:0 0 12px; color:#555">
-        คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?
-      </p>
-
-      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
-
-      <div style="display:flex; gap:8px; justify-content:flex-end">
-        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
-        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn primary">ยืนยัน</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
+    // ===== Complete modal flow =====
     let pendingCompleteId = null;
 
     function onStatusChange(id, value) {
@@ -1212,7 +1344,7 @@
         if (!res.ok || data.success === false) {
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
-          alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
+          alert(data.message || '✅ บันทึกสำเร็จ');
           await safeLoadData();
           await updateCounters();
         }
@@ -1235,20 +1367,87 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fileUrl })
         });
-        const data = await res.json();
-        alert(data.message);
+        const data = await res.json().catch(()=>({}));
+        alert(data.message || 'เสร็จสิ้น');
         if (data.success) await safeLoadData();
       } catch (err) {
         console.error(err);
         alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
       }
     }
+
+    async function updateCounters() {
+      try {
+        const [inboxRes, allRes, pRes, iRes, cRes] = await Promise.all([
+          fetch('/data-health-inbox?_=' + Date.now()),
+          fetch('/data-health-all?_=' + Date.now()),
+          fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+          fetch('/data-in-progress?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+          fetch('/data-completed?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+        ]);
+
+        const [inboxData, allData, pAll, iAll, cAll] = await Promise.all([
+          inboxRes.json(), allRes.json(), pRes.json(), iRes.json(), cRes.json()
+        ]);
+
+        const inboxCount = Array.isArray(inboxData) ? inboxData.length : 0;
+        const workCount  = Array.isArray(allData) ? allData.length : 0;
+
+        const pending    = Array.isArray(pAll) ? pAll.length : 0;
+        const inProgress = Array.isArray(iAll) ? iAll.length : 0;
+        const completed  = Array.isArray(cAll) ? cAll.length : 0;
+
+        const leftInbox = document.getElementById('count-inbox-left');
+        if (leftInbox) leftInbox.textContent = String(inboxCount);
+
+        const leftWork = document.getElementById('count-work-left');
+        if (leftWork) leftWork.textContent = String(workCount);
+
+        const sInbox = document.getElementById('kpi-inbox-side');
+        const sP = document.getElementById('kpi-pending-side');
+        const sI = document.getElementById('kpi-inprogress-side');
+        const sC = document.getElementById('kpi-completed-side');
+        if (sInbox) sInbox.textContent = String(inboxCount);
+        if (sP) sP.textContent = String(pending);
+        if (sI) sI.textContent = String(inProgress);
+        if (sC) sC.textContent = String(completed);
+
+        const cP = document.getElementById('count-pending');
+        const cI = document.getElementById('count-inprogress');
+        const cC = document.getElementById('count-completed');
+        if (cP) cP.textContent = String(pending);
+        if (cI) cI.textContent = String(inProgress);
+        if (cC) cC.textContent = String(completed);
+      } catch (err) {
+        console.error('Error updating counters:', err);
+      }
+    }
+
+    async function safeLoadData() {
+      if (isLoading) return;
+      isLoading = true;
+      try {
+        await loadData();
+      } catch (e) {
+        console.error('Load error:', e);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    // init
+    syncLeftViewActive();
+    setView('inbox');
+    updateCounters();
+    setInterval(updateCounters, 60000);
+
+    // Escape close
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const modal = document.getElementById('detailModal');
-        if (modal && modal.style.display === 'flex') {
-          modal.style.display = 'none';
-        }
+        if (modal && modal.style.display === 'flex') closeDetailModal();
+        const c = document.getElementById('completeModal');
+        if (c && c.style.display === 'flex') closeCompleteModal();
       }
     });
   </script>
