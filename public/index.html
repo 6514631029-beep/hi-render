@@ -30,7 +30,6 @@
       overflow-x: hidden;
     }
 
-    /* ✅ ลายน้ำพื้นหลัง */
     .background-logo {
       position: fixed;
       top: 50%;
@@ -81,6 +80,12 @@
       background-color: #fdf5fb;
     }
 
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #ab47bc;
+      box-shadow: 0 0 0 3px rgba(171, 71, 188, 0.15);
+    }
+
     button {
       margin-top: 1.2rem;
       width: 100%;
@@ -114,6 +119,11 @@
     .use-location-btn {
       margin-bottom: 1rem;
       background-color: #64b5f6;
+    }
+
+    .input-error {
+      border-color: #e53935 !important;
+      box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.12) !important;
     }
 
     /* ✅ Loading Overlay */
@@ -172,81 +182,87 @@
       color: #666;
     }
 
+    /* ✅ Popup แจ้งเตือนกลางจอ */
+    .alert-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(3px);
+      z-index: 10000;
+    }
+
+    .alert-modal.show {
+      display: flex;
+    }
+
+    .alert-box {
+      width: min(92vw, 360px);
+      background: #fff;
+      border-radius: 20px;
+      padding: 22px 18px 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      text-align: center;
+      border: 1px solid #f3d1ea;
+      animation: popupIn 0.18s ease;
+    }
+
+    .alert-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .alert-title {
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: #ad1457;
+      margin-bottom: 8px;
+    }
+
+    .alert-message {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #6b4b5a;
+      margin-bottom: 16px;
+      white-space: pre-line;
+    }
+
+    .alert-ok-btn {
+      width: 100%;
+      margin-top: 0;
+      padding: 0.9rem 1rem;
+      background: linear-gradient(135deg, #ec4899 0%, #c2185b 100%);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .alert-ok-btn:hover {
+      opacity: 0.96;
+    }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* ✅ กล่องแจ้งเตือนสวย ๆ */
-      .form-alert {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 1rem;
-        padding: 14px 16px;
-        border-radius: 12px;
-        border: 1px solid #f5c2c7;
-        background: linear-gradient(135deg, #fff5f5 0%, #fff0f6 100%);
-        box-shadow: 0 8px 20px rgba(194, 24, 91, 0.08);
-      }
 
-      .form-alert.success {
-        border-color: #b7ebc6;
-        background: linear-gradient(135deg, #f3fff6 0%, #ecfff3 100%);
+    @keyframes popupIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
       }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
 
-      .form-alert-icon {
-        font-size: 1.3rem;
-        line-height: 1;
-        margin-top: 2px;
-      }
-
-      .form-alert-content {
-        flex: 1;
-      }
-
-      .form-alert-title {
-        font-weight: 700;
-        color: #ad1457;
-        margin-bottom: 4px;
-        font-size: 1rem;
-      }
-
-      .form-alert.success .form-alert-title {
-        color: #1b5e20;
-      }
-
-      .form-alert-text {
-        color: #6b4b5a;
-        line-height: 1.55;
-        font-size: 0.95rem;
-      }
-
-      .form-alert-close {
-        width: auto;
-        margin: 0;
-        padding: 6px 10px;
-        background: transparent;
-        color: #8a5a6b;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        cursor: pointer;
-      }
-
-      .form-alert-close:hover {
-        background: rgba(0, 0, 0, 0.05);
-      }
-
-      .input-error {
-        border-color: #e53935 !important;
-        box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.12);
-      }
-
-      input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: #ab47bc;
-        box-shadow: 0 0 0 3px rgba(171, 71, 188, 0.15);
-      }
     @media (max-width: 480px) {
       .container {
         padding: 1.5rem 1.2rem;
@@ -271,10 +287,23 @@
       .loading-text {
         font-size: 0.94rem;
       }
+
+      .alert-box {
+        width: min(92vw, 340px);
+        border-radius: 18px;
+        padding: 20px 16px 16px;
+      }
+
+      .alert-title {
+        font-size: 1.1rem;
+      }
+
+      .alert-message {
+        font-size: 0.96rem;
+      }
     }
   </style>
 
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
@@ -294,6 +323,16 @@
     </div>
   </div>
 
+  <!-- ✅ Popup แจ้งเตือน -->
+  <div id="alertModal" class="alert-modal">
+    <div class="alert-box">
+      <div class="alert-icon" id="alertModalIcon">⚠️</div>
+      <div class="alert-title" id="alertModalTitle">กรุณาตรวจสอบข้อมูล</div>
+      <div class="alert-message" id="alertModalMessage">ข้อความแจ้งเตือน</div>
+      <button type="button" class="alert-ok-btn" onclick="hideAlertModal()">ตกลง</button>
+    </div>
+  </div>
+
   <script>
     function logout() {
       localStorage.removeItem('userPhone');
@@ -302,7 +341,6 @@
   </script>
 
   <div class="container">
-    <!-- ✅ โลโก้ด้านบนสุดของแบบฟอร์ม -->
     <div style="text-align: center; margin-bottom: 1rem;">
       <img src="your-logo.png" alt="โลโก้ อบต.ท่าช้าง" style="width: 100px;" />
     </div>
@@ -318,14 +356,7 @@
     </script>
 
     <h1>ส่งคำร้อง อบต.ท่าช้าง จ.จันทบุรี</h1>
-    <div id="formAlert" class="form-alert" style="display:none;">
-      <div class="form-alert-icon" id="formAlertIcon">⚠️</div>
-      <div class="form-alert-content">
-        <div class="form-alert-title" id="formAlertTitle">กรุณาตรวจสอบข้อมูล</div>
-        <div class="form-alert-text" id="formAlertText">ข้อความแจ้งเตือน</div>
-      </div>
-      <button type="button" class="form-alert-close" onclick="hideFormAlert()">✕</button>
-    </div>
+
     <form id="complaintForm" action="/submit" method="post" enctype="multipart/form-data" novalidate>
       <label>ปักหมุดตำแหน่งที่เกิดเหตุ:</label>
       <div id="map"></div>
@@ -380,7 +411,6 @@
     </form>
   </div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
@@ -394,18 +424,18 @@
     let marker = null;
 
     function setMarker(latlng) {
-    if (marker) {
-      marker.setLatLng(latlng);
-    } else {
-      marker = L.marker(latlng).addTo(map);
+      if (marker) {
+        marker.setLatLng(latlng);
+      } else {
+        marker = L.marker(latlng).addTo(map);
+      }
+
+      document.getElementById('latitude').value = latlng.lat.toFixed(6);
+      document.getElementById('longitude').value = latlng.lng.toFixed(6);
+
+      if (window.clearMapError) window.clearMapError();
+      if (window.hideAlertModal) window.hideAlertModal();
     }
-
-    document.getElementById('latitude').value = latlng.lat.toFixed(6);
-    document.getElementById('longitude').value = latlng.lng.toFixed(6);
-
-    if (window.clearMapError) window.clearMapError();
-    if (window.hideFormAlert) window.hideFormAlert();
-  }
 
     function useMyLocation() {
       if (navigator.geolocation) {
@@ -419,11 +449,21 @@
             setMarker(userLatLng);
           },
           (error) => {
-            showFormAlert("ไม่สามารถเข้าถึงตำแหน่งของคุณได้: " + error.message, "ไม่สามารถดึงตำแหน่งได้");
+            if (window.showAlertModal) {
+              window.showAlertModal(
+                "ไม่สามารถเข้าถึงตำแหน่งของคุณได้:\n" + error.message,
+                "ไม่สามารถดึงตำแหน่งได้"
+              );
+            }
           }
         );
       } else {
-        showFormAlert("เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง", "ไม่รองรับตำแหน่ง");
+        if (window.showAlertModal) {
+          window.showAlertModal(
+            "เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง",
+            "ไม่รองรับตำแหน่ง"
+          );
+        }
       }
     }
 
@@ -432,221 +472,207 @@
     });
   </script>
 
- <script>
-  const complaintForm = document.getElementById('complaintForm');
-  const mediaInput = document.getElementById('mediaFiles');
-  const submitBtn = document.getElementById('submitBtn');
-  const loadingOverlay = document.getElementById('loadingOverlay');
+  <script>
+    const complaintForm = document.getElementById('complaintForm');
+    const mediaInput = document.getElementById('mediaFiles');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-  const nameInput = document.querySelector('input[name="name"]');
-  const phoneInput = document.querySelector('input[name="phone"]');
-  const categoryInput = document.getElementById('category');
-  const addressInput = document.querySelector('textarea[name="address"]');
-  const messageInput = document.querySelector('textarea[name="message"]');
-  const latitudeInput = document.getElementById('latitude');
-  const longitudeInput = document.getElementById('longitude');
-  const mapEl = document.getElementById('map');
+    const nameInput = document.querySelector('input[name="name"]');
+    const phoneInput = document.querySelector('input[name="phone"]');
+    const categoryInput = document.getElementById('category');
+    const addressInput = document.querySelector('textarea[name="address"]');
+    const messageInput = document.querySelector('textarea[name="message"]');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const mapEl = document.getElementById('map');
 
-  const formAlert = document.getElementById('formAlert');
-  const formAlertIcon = document.getElementById('formAlertIcon');
-  const formAlertTitle = document.getElementById('formAlertTitle');
-  const formAlertText = document.getElementById('formAlertText');
+    const alertModal = document.getElementById('alertModal');
+    const alertModalTitle = document.getElementById('alertModalTitle');
+    const alertModalMessage = document.getElementById('alertModalMessage');
+    const alertModalIcon = document.getElementById('alertModalIcon');
 
-  function showLoading() {
-    loadingOverlay.classList.add('show');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
-  }
-
-  function hideLoading() {
-    loadingOverlay.classList.remove('show');
-    submitBtn.disabled = false;
-    submitBtn.textContent = '📩 ส่งคำร้อง';
-  }
-  function hideFormAlert() {
-    formAlert.style.display = 'none';
-    formAlert.classList.remove('success');
-    clearInputErrors();
-  }
-
-  function showFormAlert(message, title = 'กรุณาตรวจสอบข้อมูล', type = 'error') {
-    formAlert.style.display = 'flex';
-    formAlertTitle.textContent = title;
-    formAlertText.textContent = message;
-
-    if (type === 'success') {
-      formAlert.classList.add('success');
-      formAlertIcon.textContent = '✅';
-    } else {
-      formAlert.classList.remove('success');
-      formAlertIcon.textContent = '⚠️';
+    function showLoading() {
+      loadingOverlay.classList.add('show');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
     }
 
-    formAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+    function hideLoading() {
+      loadingOverlay.classList.remove('show');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '📩 ส่งคำร้อง';
+    }
 
-  function clearInputErrors() {
-    [nameInput, phoneInput, categoryInput, addressInput, messageInput].forEach(el => {
-      if (el) el.classList.remove('input-error');
+    function clearInputErrors() {
+      [nameInput, phoneInput, categoryInput, addressInput, messageInput].forEach(el => {
+        if (el) el.classList.remove('input-error');
+      });
+      if (mapEl) mapEl.classList.remove('input-error');
+    }
+
+    function markError(el) {
+      if (!el) return;
+      el.classList.add('input-error');
+    }
+
+    function focusField(el) {
+      if (!el) return;
+      if (typeof el.focus === 'function') el.focus();
+      if (typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function showAlertModal(message, title = 'กรุณาตรวจสอบข้อมูล', icon = '⚠️') {
+      alertModalTitle.textContent = title;
+      alertModalMessage.textContent = message;
+      alertModalIcon.textContent = icon;
+      alertModal.classList.add('show');
+    }
+
+    function hideAlertModal() {
+      alertModal.classList.remove('show');
+    }
+
+    complaintForm.addEventListener('submit', function (e) {
+      const files = Array.from(mediaInput.files || []);
+
+      const MAX_FILES = 10;
+      const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+      const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+      const MAX_TOTAL_SIZE = 100 * 1024 * 1024;
+
+      hideLoading();
+      hideAlertModal();
+      clearInputErrors();
+
+      const name = (nameInput.value || '').trim();
+      const phone = (phoneInput.value || '').trim();
+      const category = (categoryInput.value || '').trim();
+      const address = (addressInput.value || '').trim();
+      const message = (messageInput.value || '').trim();
+      const latitude = (latitudeInput.value || '').trim();
+      const longitude = (longitudeInput.value || '').trim();
+
+      if (!latitude || !longitude) {
+        e.preventDefault();
+        markError(mapEl);
+        showAlertModal('กรุณากด "ใช้ตำแหน่งของฉัน"\nหรือปักหมุดบนแผนที่ก่อนส่งคำร้อง');
+        focusField(mapEl);
+        return;
+      }
+
+      if (!name) {
+        e.preventDefault();
+        markError(nameInput);
+        showAlertModal('กรุณากรอกชื่อ');
+        focusField(nameInput);
+        return;
+      }
+
+      if (!phone) {
+        e.preventDefault();
+        markError(phoneInput);
+        showAlertModal('กรุณากรอกเบอร์โทรศัพท์');
+        focusField(phoneInput);
+        return;
+      }
+
+      const normalizedPhone = phone.replace(/\D/g, '');
+      if (!/^0\d{9}$/.test(normalizedPhone)) {
+        e.preventDefault();
+        markError(phoneInput);
+        showAlertModal('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง\n(10 หลัก)');
+        focusField(phoneInput);
+        return;
+      }
+
+      if (!category) {
+        e.preventDefault();
+        markError(categoryInput);
+        showAlertModal('กรุณาเลือกประเภทเรื่อง');
+        focusField(categoryInput);
+        return;
+      }
+
+      if (!address) {
+        e.preventDefault();
+        markError(addressInput);
+        showAlertModal('กรุณากรอกเลขที่บ้าน และหมู่');
+        focusField(addressInput);
+        return;
+      }
+
+      if (!message) {
+        e.preventDefault();
+        markError(messageInput);
+        showAlertModal('กรุณากรอกข้อความหรือรายละเอียดคำร้อง');
+        focusField(messageInput);
+        return;
+      }
+
+      if (files.length > MAX_FILES) {
+        e.preventDefault();
+        showAlertModal(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
+        return;
+      }
+
+      let totalSize = 0;
+
+      for (const f of files) {
+        totalSize += f.size || 0;
+
+        const isImage = f.type.startsWith('image/');
+        const isVideo = f.type.startsWith('video/');
+
+        if (!isImage && !isVideo) {
+          e.preventDefault();
+          showAlertModal(`ไฟล์ "${f.name}"\nไม่ใช่รูปภาพหรือวิดีโอ`);
+          return;
+        }
+
+        if (isImage && f.size > MAX_IMAGE_SIZE) {
+          e.preventDefault();
+          showAlertModal(`ไฟล์รูป "${f.name}"\nมีขนาดเกิน 10MB`);
+          return;
+        }
+
+        if (isVideo && f.size > MAX_VIDEO_SIZE) {
+          e.preventDefault();
+          showAlertModal(`ไฟล์วิดีโอ "${f.name}"\nมีขนาดเกิน 50MB`);
+          return;
+        }
+      }
+
+      if (totalSize > MAX_TOTAL_SIZE) {
+        e.preventDefault();
+        showAlertModal('ขนาดไฟล์รวมเกิน 100MB\nกรุณาลดจำนวนหรือขนาดไฟล์');
+        return;
+      }
+
+      showLoading();
     });
-    if (mapEl) mapEl.classList.remove('input-error');
-  }
 
-  function markError(el) {
-    if (!el) return;
-    el.classList.add('input-error');
-  }
+    [nameInput, phoneInput, categoryInput, addressInput, messageInput].forEach(el => {
+      if (!el) return;
+      el.addEventListener('input', () => el.classList.remove('input-error'));
+      el.addEventListener('change', () => el.classList.remove('input-error'));
+    });
 
-  function focusField(el) {
-    if (!el) return;
-    if (typeof el.focus === 'function') el.focus();
-    if (typeof el.scrollIntoView === 'function') {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }
-
-  complaintForm.addEventListener('submit', function (e) {
-    const files = Array.from(mediaInput.files || []);
-
-    const MAX_FILES = 10;
-    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-    const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
-    const MAX_TOTAL_SIZE = 100 * 1024 * 1024;
-
-    hideLoading();
-    hideFormAlert();
-    clearInputErrors();
-
-    const name = (nameInput.value || '').trim();
-    const phone = (phoneInput.value || '').trim();
-    const category = (categoryInput.value || '').trim();
-    const address = (addressInput.value || '').trim();
-    const message = (messageInput.value || '').trim();
-    const latitude = (latitudeInput.value || '').trim();
-    const longitude = (longitudeInput.value || '').trim();
-
-    // 1) ตรวจข้อมูลจำเป็น
-    if (!latitude || !longitude) {
-      e.preventDefault();
-      markError(mapEl);
-      showFormAlert('กรุณากด "ใช้ตำแหน่งของฉัน" หรือปักหมุดบนแผนที่ก่อนส่งคำร้อง');
-      focusField(mapEl);
-      return;
+    function clearMapError() {
+      if (mapEl) mapEl.classList.remove('input-error');
     }
 
-    if (!name) {
-      e.preventDefault();
-      markError(nameInput);
-      showFormAlert('กรุณากรอกชื่อ');
-      focusField(nameInput);
-      return;
-    }
+    window.addEventListener('pageshow', function () {
+      hideLoading();
+      hideAlertModal();
+    });
 
-    if (!phone) {
-      e.preventDefault();
-      markError(phoneInput);
-      showFormAlert('กรุณากรอกเบอร์โทรศัพท์');
-      focusField(phoneInput);
-      return;
-    }
-
-    const normalizedPhone = phone.replace(/\D/g, '');
-    if (!/^0\d{9}$/.test(normalizedPhone)) {
-      e.preventDefault();
-      markError(phoneInput);
-      showFormAlert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)');
-      focusField(phoneInput);
-      return;
-    }
-
-    if (!category) {
-      e.preventDefault();
-      markError(categoryInput);
-      showFormAlert('กรุณาเลือกประเภทเรื่อง');
-      focusField(categoryInput);
-      return;
-    }
-
-    if (!address) {
-      e.preventDefault();
-      markError(addressInput);
-      showFormAlert('กรุณากรอกเลขที่บ้าน และหมู่');
-      focusField(addressInput);
-      return;
-    }
-
-    if (!message) {
-      e.preventDefault();
-      markError(messageInput);
-      showFormAlert('กรุณากรอกข้อความหรือรายละเอียดคำร้อง');
-      focusField(messageInput);
-      return;
-    }
-
-    // 2) ตรวจไฟล์
-    if (files.length > MAX_FILES) {
-      e.preventDefault();
-      showFormAlert(`อัปโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
-      return;
-    }
-
-    let totalSize = 0;
-
-    for (const f of files) {
-      totalSize += f.size || 0;
-
-      const isImage = f.type.startsWith('image/');
-      const isVideo = f.type.startsWith('video/');
-
-      if (!isImage && !isVideo) {
-        e.preventDefault();
-        showFormAlert(`ไฟล์ "${f.name}" ไม่ใช่รูปภาพหรือวิดีโอ`);
-        return;
-      }
-
-      if (isImage && f.size > MAX_IMAGE_SIZE) {
-        e.preventDefault();
-        showFormAlert(`ไฟล์รูป "${f.name}" มีขนาดเกิน 10MB`);
-        return;
-      }
-
-      if (isVideo && f.size > MAX_VIDEO_SIZE) {
-        e.preventDefault();
-        showFormAlert(`ไฟล์วิดีโอ "${f.name}" มีขนาดเกิน 50MB`);
-        return;
-      }
-    }
-
-    if (totalSize > MAX_TOTAL_SIZE) {
-      e.preventDefault();
-      showFormAlert('ขนาดไฟล์รวมเกิน 100MB กรุณาลดจำนวนหรือขนาดไฟล์');
-      return;
-    }
-
-    // 3) ผ่านทุกอย่าง
-    showLoading();
-  });
-
-  // ลบกรอบแดงเมื่อผู้ใช้เริ่มแก้
-  [nameInput, phoneInput, categoryInput, addressInput, messageInput].forEach(el => {
-    if (!el) return;
-    el.addEventListener('input', () => el.classList.remove('input-error'));
-    el.addEventListener('change', () => el.classList.remove('input-error'));
-  });
-
-  // ถ้ามีการปักหมุดแล้ว เอากรอบ error ของแผนที่ออก
-  function clearMapError() {
-    if (mapEl) mapEl.classList.remove('input-error');
-  }
-
-  window.addEventListener('pageshow', function () {
-    hideLoading();
-  });
-
-  // เปิดให้ฟังก์ชันปิดแจ้งเตือนจากปุ่ม X ใช้ได้
-  window.hideFormAlert = hideFormAlert;
-  window.clearMapError = clearMapError;
-</script>
+    window.showAlertModal = showAlertModal;
+    window.hideAlertModal = hideAlertModal;
+    window.clearMapError = clearMapError;
+  </script>
 
 </body>
 </html>
