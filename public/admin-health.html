@@ -355,8 +355,8 @@
     /* กำหนดความกว้างคอลัมน์ให้กระชับขึ้น */
     th:nth-child(1), td:nth-child(1){ width: 110px; }
     th:nth-child(2), td:nth-child(2){ width: 120px; }
-    th:nth-child(3), td:nth-child(3){ width: 230px; }
-    th:nth-child(4), td:nth-child(4){ width: 220px; }
+    th:nth-child(3), td:nth-child(3){ width: 210px; }
+    th:nth-child(4), td:nth-child(4){ width: 210px; }
     th:nth-child(5), td:nth-child(5){ width: 110px; }
     th:nth-child(6), td:nth-child(6){ width: 170px; }
     th:nth-child(7), td:nth-child(7){ width: 150px; }
@@ -453,8 +453,8 @@
     /* Message cell */
     .msg-cell{
       min-width: 0;
-      max-width: 230px;
-      width: 230px;
+      max-width: 210px;
+      width: 210px;
       text-align:left;
       vertical-align:top;
       padding-left:14px;
@@ -959,8 +959,15 @@
       box.innerHTML = `
         <div class="detail-file-box">
           <div class="detail-file-row">
-            <div class="detail-file-meta">จำนวนรูปภาพ ${imageFiles.length} ไฟล์</div>
-            <button class="btn mini link-btn" onclick='showImageViewer(${JSON.stringify(imageFiles)}, 0)'>🖼️ ดูรูปภาพ</button>
+            <div class="detail-file-meta">จำนวน ${imageFiles.length} รูปภาพ</div>
+            <button
+              type="button"
+              class="btn mini"
+              style="background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; font-weight:900;"
+              onclick='showImageViewer(${JSON.stringify(imageFiles)}, 0)'
+            >
+              ดูรูปภาพ
+            </button>
           </div>
         </div>
       `;
@@ -1232,163 +1239,257 @@
       win.document.close();
     }
 
-    // viewer ใหม่สำหรับ "ดูรูปภาพ" อย่างเดียว
-    function showImageViewer(images, startIndex = 0) {
-      const items = (Array.isArray(images) ? images : []).filter(isImageFile);
-      if (!items.length) return;
+   function showImageViewer(images, startIndex = 0) {
+  const safeImages = (Array.isArray(images) ? images : []).filter(isImageFile);
 
-      const viewerHtml = `
-        <!DOCTYPE html>
-        <html lang="th">
-        <head>
-          <meta charset="UTF-8" />
-          <title>ดูรูปภาพ</title>
-          <style>
-            body{
-              margin:0;
-              font-family:Arial,sans-serif;
-              background:#0f172a;
-              color:#fff;
-            }
-            .topbar{
-              position:sticky;
-              top:0;
-              z-index:10;
-              display:flex;
-              justify-content:space-between;
-              align-items:center;
-              gap:12px;
-              padding:14px 18px;
-              background:rgba(15,23,42,.92);
-              backdrop-filter: blur(8px);
-              border-bottom:1px solid rgba(255,255,255,.08);
-            }
-            .title{
-              font-size:18px;
-              font-weight:700;
-            }
-            .actions{
-              display:flex;
-              gap:8px;
-              flex-wrap:wrap;
-            }
-            .btn{
-              border:none;
-              border-radius:10px;
-              padding:10px 14px;
-              font-size:14px;
-              font-weight:700;
-              cursor:pointer;
-              background:#1e293b;
-              color:#fff;
-            }
-            .wrap{
-              padding:20px;
-              display:flex;
-              flex-direction:column;
-              gap:18px;
-            }
-            .viewer{
-              display:flex;
-              justify-content:center;
-              align-items:center;
-              min-height:68vh;
-              background:#020617;
-              border-radius:18px;
-              overflow:hidden;
-              padding:18px;
-            }
-            .viewer img{
-              max-width:100%;
-              max-height:78vh;
-              border-radius:14px;
-              object-fit:contain;
-              background:#000;
-            }
-            .grid{
-              display:grid;
-              grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-              gap:14px;
-            }
-            .thumb{
-              background:#111827;
-              border:1px solid rgba(255,255,255,.08);
-              border-radius:16px;
-              overflow:hidden;
-              cursor:pointer;
-            }
-            .thumb img{
-              width:100%;
-              height:160px;
-              object-fit:cover;
-              display:block;
-              background:#000;
-            }
-            .thumb .meta{
-              padding:10px 12px;
-              font-size:13px;
-              color:#cbd5e1;
-              font-weight:700;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="topbar">
-            <div class="title">รูปภาพแนบ</div>
-            <div class="actions">
-              <button class="btn" onclick="prevItem()">ก่อนหน้า</button>
-              <button class="btn" onclick="nextItem()">ถัดไป</button>
-            </div>
+  if (!safeImages.length) {
+    alert('ไม่มีรูปภาพให้แสดง');
+    return;
+  }
+
+  const itemsHtml = safeImages.map((img, index) => {
+    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+    const url = encodeURI(rawUrl);
+
+    return `
+      <div class="media-card">
+        <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})' title="เปิดรูปเต็ม">
+          <img src="${url}" loading="lazy" class="preview-media" alt="รูปภาพ ${index + 1}" />
+        </div>
+
+        <div class="media-meta">
+          <span class="media-index">รูปภาพ ${index + 1}</span>
+          <div class="media-actions">
+            <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})'>
+              เปิดเต็ม
+            </button>
           </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 
-          <div class="wrap">
-            <div class="viewer" id="viewer"></div>
-            <div class="grid" id="thumbGrid"></div>
-          </div>
+  const win = window.open('', '_blank', 'width=1200,height=850');
 
-          <script>
-            const items = ${JSON.stringify(items)};
-            let currentIndex = ${Number(startIndex) || 0};
+  if (!win) {
+    alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+    return;
+  }
 
-            function normalizeFileUrl(item) {
-              if (typeof item === 'string') return item.startsWith('uploads/') ? '/' + item : item;
-              const raw = item?.url || '';
-              return raw.startsWith('uploads/') ? '/' + raw : raw;
-            }
+  win.document.open();
+  win.document.write(`
+    <!DOCTYPE html>
+    <html lang="th">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>ดูรูปภาพ</title>
+      <style>
+        * { box-sizing: border-box; }
+        body {
+          margin: 0;
+          font-family: 'Kanit', sans-serif;
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background: #ffffff;
+          border-bottom: 1px solid #e2e8f0;
+          padding: 12px 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .title {
+          font-size: 18px;
+          font-weight: 700;
+          margin: 0;
+        }
+        .count-badge {
+          background: #2563eb;
+          color: #fff;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .container {
+          padding: 16px;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 16px;
+          align-items: start;
+        }
+        .media-card {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .media-link {
+          display: block;
+          text-decoration: none;
+          background: #f8fafc;
+          cursor: pointer;
+        }
+        .preview-media {
+          display: block;
+          width: 100%;
+          height: 220px;
+          object-fit: cover;
+          background: #e2e8f0;
+        }
+        .media-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 12px;
+        }
+        .media-index {
+          font-size: 13px;
+          color: #475569;
+          font-weight: 600;
+        }
+        .open-btn {
+          border: none;
+          background: #2563eb;
+          color: #fff;
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .media-actions {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+        .empty {
+          text-align: center;
+          padding: 40px 20px;
+          color: #64748b;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+        }
+        @media (max-width: 640px) {
+          .container { padding: 12px; }
+          .grid { grid-template-columns: 1fr; gap: 12px; }
+          .preview-media { height: 220px; }
+          .title { font-size: 16px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="topbar">
+        <h1 class="title">🖼️ ดูรูปภาพทั้งหมด</h1>
+        <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+      </div>
 
-            function renderViewer() {
-              const item = items[currentIndex];
-              const url = normalizeFileUrl(item);
-              document.getElementById('viewer').innerHTML = '<img src="' + url + '" alt="preview">';
-            }
+      <div class="container">
+        ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีรูปภาพให้แสดง</div>`}
+      </div>
 
-            function renderThumbs() {
-              const grid = document.getElementById('thumbGrid');
-              grid.innerHTML = items.map((item, index) => {
-                const url = normalizeFileUrl(item);
-                return '<div class="thumb" onclick="goTo(' + index + ')">' +
-                        '<img src="' + url + '" alt="thumb">' +
-                        '<div class="meta">รูปภาพ ' + (index + 1) + '</div>' +
-                      '</div>';
-              }).join('');
-            }
+      <script>
+        function openMediaViewer(payload) {
+          const { url, index } = payload || {};
+          if (!url) return;
 
-            function goTo(index){ currentIndex = index; renderViewer(); }
-            function prevItem(){ currentIndex = (currentIndex - 1 + items.length) % items.length; renderViewer(); }
-            function nextItem(){ currentIndex = (currentIndex + 1) % items.length; renderViewer(); }
+          const viewer = window.open('', '_blank', 'width=1200,height=800');
+          if (!viewer) {
+            alert('กรุณาอนุญาต popup');
+            return;
+          }
 
-            renderViewer();
-            renderThumbs();
-          <\/script>
-        </body>
-        </html>
-      `;
-
-      const win = window.open('', '_blank', 'width=1200,height=850');
-      win.document.open();
-      win.document.write(viewerHtml);
-      win.document.close();
-    }
+          viewer.document.open();
+          viewer.document.write(\`
+            <!DOCTYPE html>
+            <html lang="th">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>รูปภาพไฟล์ที่ \${index}</title>
+              <style>
+                body {
+                  margin:0;
+                  background:#0f172a;
+                  color:#fff;
+                  font-family:sans-serif;
+                  display:flex;
+                  flex-direction:column;
+                  min-height:100vh;
+                }
+                .top {
+                  padding:12px 16px;
+                  background:rgba(15,23,42,.95);
+                  border-bottom:1px solid rgba(255,255,255,.1);
+                  display:flex;
+                  justify-content:space-between;
+                  align-items:center;
+                  gap:10px;
+                  flex-wrap:wrap;
+                }
+                .btn {
+                  color:#fff;
+                  background:#334155;
+                  text-decoration:none;
+                  padding:8px 12px;
+                  border-radius:8px;
+                  font-weight:700;
+                  font-size:13px;
+                }
+                .wrap {
+                  flex:1;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  padding:16px;
+                }
+                img {
+                  max-width:100%;
+                  max-height:calc(100vh - 90px);
+                  object-fit:contain;
+                  border-radius:12px;
+                  box-shadow:0 8px 30px rgba(0,0,0,.35);
+                  background:#fff;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="top">
+                <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                </div>
+              </div>
+              <div class="wrap">
+                <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+              </div>
+            </body>
+            </html>
+          \`);
+          viewer.document.close();
+        }
+      <\/script>
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
 
     async function acceptDept(id) {
       if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
