@@ -7,142 +7,458 @@
 
   <style>
     :root{
-      --bg:#dff7ee;
+      --bg1:#dff7ee;
+      --bg2:#eefbf5;
       --card:#ffffff;
       --ink:#0f172a;
       --muted:#64748b;
       --green:#16a34a;
       --green2:#22c55e;
+      --green3:#14532d;
       --line:#06c755;
-      --border:#e2e8f0;
-      --shadow: 0 20px 50px rgba(2, 6, 23, .10);
-      --radius: 18px;
+      --line-dark:#05a948;
+      --border:#dbe7e1;
+      --shadow:0 20px 50px rgba(2, 6, 23, .10);
+      --shadow-soft:0 12px 30px rgba(2, 6, 23, .08);
+      --radius:24px;
+      --danger:#dc2626;
+      --grayBtn:#e2e8f0;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Kanit", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
+      color:var(--ink);
       min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(6,199,85,.12), transparent 22%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 24px 12px;
-    }
-    .wrap{
-      width: min(520px, 100%);
-    }
-    .card{
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-      border: 1px solid rgba(226,232,240,.8);
-    }
-    .title{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      justify-content:center;
-      margin: 6px 0 10px;
-      color: #166534;
-      font-weight: 900;
-      font-size: 26px;
-    }
-    .subtitle{
-      text-align:center;
-      color: var(--muted);
-      line-height:1.5;
-      margin:0 0 14px;
-      font-size: 15px;
-    }
-    .pill{
-      margin: 10px auto 14px;
-      display:flex;
-      justify-content:center;
-    }
-    .pill span{
-      background:#e8f7ee;
-      border:1px solid #bfead0;
-      color:#166534;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 14px;
+      padding:24px 12px;
     }
 
-    .section{
-      margin-top: 14px;
-      border: 1px solid #bfead0;
-      background: #eefcf5;
-      border-radius: 16px;
-      padding: 14px;
+    .wrap{
+      width:min(760px, 100%);
+      animation:fadeUp .45s ease;
     }
-    .section h2{
-      margin:0 0 8px;
-      font-size: 16px;
-      font-weight: 900;
+
+    .card{
+      background:rgba(255,255,255,.94);
+      backdrop-filter: blur(6px);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px;
+      border:1px solid rgba(226,232,240,.8);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:7px;
+      background:linear-gradient(90deg, var(--green2), var(--line));
+    }
+
+    .hero{
+      text-align:center;
+      padding:8px 6px 4px;
+    }
+
+    .check-badge{
+      width:82px;
+      height:82px;
+      margin:0 auto 14px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-size:42px;
+      background:linear-gradient(180deg, #effdf4, #dcfce7);
+      box-shadow: inset 0 0 0 1px #bbf7d0, 0 10px 25px rgba(34,197,94,.18);
+      animation:pop .35s ease;
+    }
+
+    .title{
+      margin:0;
+      color:var(--green3);
+      font-weight:900;
+      line-height:1.15;
+      font-size:clamp(28px, 4vw, 42px);
+      letter-spacing:-.02em;
+    }
+
+    .subtitle{
+      text-align:center;
+      color:var(--muted);
+      line-height:1.7;
+      margin:12px auto 0;
+      font-size:16px;
+      max-width:520px;
+    }
+
+    .status-row{
+      margin-top:18px;
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 14px;
+      border-radius:999px;
+      background:#edfdf4;
+      border:1px solid #c7f1d5;
+      color:#166534;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .grid{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+    }
+
+    .panel{
+      border:1px solid var(--border);
+      border-radius:20px;
+      background:#fff;
+      box-shadow:var(--shadow-soft);
+      padding:18px;
+    }
+
+    .panel.soft-green{
+      background:linear-gradient(180deg, #f0fdf4, #ebfbf3);
+      border-color:#cfe9d7;
+    }
+
+    .panel-title{
+      margin:0 0 10px;
+      font-size:18px;
+      font-weight:900;
       color:#14532d;
       display:flex;
       align-items:center;
       gap:8px;
     }
-    .muted{ color: var(--muted); font-size: 14px; line-height:1.45; }
+
+    .muted{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .rid-card{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px;
+      border-radius:18px;
+      background:linear-gradient(180deg, #ecfdf3, #f8fffb);
+      border:1px solid #c7f1d5;
+      margin-top:10px;
+    }
+
+    .rid-label{
+      color:#166534;
+      font-size:13px;
+      font-weight:700;
+      opacity:.9;
+    }
+
+    .rid-value{
+      font-size:30px;
+      line-height:1;
+      font-weight:900;
+      color:#166534;
+      letter-spacing:-.03em;
+      margin-top:4px;
+    }
+
+    .copy-btn{
+      border:none;
+      background:#fff;
+      color:#166534;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(22,101,52,.08);
+      border:1px solid #d7efe0;
+      min-width:88px;
+    }
+
+    .copy-btn:active{
+      transform:scale(.98);
+    }
+
+    .hint-list{
+      margin:12px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:8px;
+    }
+
+    .hint-list li{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      font-size:14px;
+      color:#475569;
+      line-height:1.5;
+    }
+
+    .section{
+      margin-top:12px;
+      border:1px solid #bfead0;
+      background:#eefcf5;
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .line-status{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      font-size:14px;
+      line-height:1.55;
+      color:#475569;
+    }
+
+    .line-status.ok{
+      background:linear-gradient(180deg, #effdf4, #f6fff8);
+      border-color:#b7ebc6;
+      color:#166534;
+      font-weight:700;
+    }
+
     .btn{
       width:100%;
       border:none;
-      border-radius: 14px;
-      padding: 14px 14px;
-      font-weight: 900;
+      border-radius:16px;
+      padding:15px 16px;
+      font-weight:900;
       cursor:pointer;
-      font-size: 16px;
-      margin-top: 10px;
-      transition: transform .06s ease;
+      font-size:17px;
+      margin-top:10px;
+      transition: transform .06s ease, box-shadow .15s ease, opacity .15s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
     }
-    .btn:active{ transform: scale(.99); }
-    .btn-line{ background: var(--line); color: #fff; }
-    .btn-green{ background: var(--green); color:#fff; }
-    .btn-gray{ background:#e2e8f0; color:#0f172a; }
+
+    .btn:hover{
+      opacity:.98;
+    }
+
+    .btn:active{
+      transform:scale(.99);
+    }
+
+    .btn-line{
+      background:linear-gradient(135deg, var(--line), var(--line-dark));
+      color:#fff;
+      box-shadow:0 12px 24px rgba(6,199,85,.22);
+    }
+
+    .btn-green{
+      background:linear-gradient(135deg, var(--green2), var(--green));
+      color:#fff;
+      box-shadow:0 12px 24px rgba(34,197,94,.18);
+    }
+
+    .btn-gray{
+      background:var(--grayBtn);
+      color:#0f172a;
+    }
+
+    .btn-white{
+      background:#fff;
+      color:#166534;
+      border:1px solid #d7efe0;
+    }
+
+    .btn-row{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
 
     .editBox{
       display:none;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed #bfead0;
-    }
-    .input{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
-      font-size: 16px;
-      outline:none;
-      background:#fff;
+      margin-top:10px;
+      padding-top:12px;
+      border-top:1px dashed #bfead0;
     }
 
-    .footer{
-      margin-top: 14px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    .input{
+      width:100%;
+      padding:13px 14px;
+      border-radius:14px;
+      border:1px solid #cbd5e1;
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      margin-top:6px;
     }
-    .footer .btn{
-      margin-top:0;
-      flex:1;
-      min-width: 180px;
+
+    .input:focus{
+      border-color:#86efac;
+      box-shadow:0 0 0 4px rgba(34,197,94,.10);
     }
 
     .warn{
       margin-top:10px;
-      padding:10px 12px;
-      border-radius: 12px;
+      padding:11px 12px;
+      border-radius:14px;
       background:#fff7ed;
       border:1px solid #fed7aa;
       color:#9a3412;
-      font-size: 13px;
-      line-height:1.45;
+      font-size:13px;
+      line-height:1.5;
       display:none;
+    }
+
+    .footer-actions{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+
+    .helper{
+      margin-top:12px;
+      font-size:13px;
+      color:#64748b;
+      line-height:1.6;
+    }
+
+    /* modal */
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.38);
+      backdrop-filter:blur(3px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:9999;
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .modal-box{
+      width:min(92vw, 360px);
+      background:#fff;
+      border-radius:20px;
+      padding:22px 18px 18px;
+      box-shadow:0 20px 45px rgba(0,0,0,.18);
+      text-align:center;
+      border:1px solid #f1f5f9;
+      animation:pop .18s ease;
+    }
+
+    .modal-icon{
+      font-size:34px;
+      margin-bottom:8px;
+    }
+
+    .modal-title{
+      font-size:20px;
+      font-weight:900;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+
+    .modal-message{
+      color:#64748b;
+      line-height:1.6;
+      font-size:15px;
+      margin-bottom:14px;
+      white-space:pre-line;
+    }
+
+    .modal-ok{
+      width:100%;
+      border:none;
+      border-radius:14px;
+      padding:13px 14px;
+      background:linear-gradient(135deg, var(--green2), var(--green));
+      color:#fff;
+      font-weight:900;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    @keyframes pop{
+      from{ opacity:0; transform:scale(.97) translateY(8px); }
+      to{ opacity:1; transform:scale(1) translateY(0); }
+    }
+
+    @keyframes fadeUp{
+      from{ opacity:0; transform:translateY(12px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    @media (max-width: 760px){
+      body{
+        display:block;
+        padding:18px 10px 26px;
+      }
+
+      .wrap{
+        width:100%;
+      }
+
+      .card{
+        padding:18px 14px;
+        border-radius:22px;
+      }
+
+      .grid{
+        grid-template-columns: 1fr;
+      }
+
+      .footer-actions{
+        grid-template-columns: 1fr;
+      }
+
+      .rid-value{
+        font-size:26px;
+      }
+
+      .copy-btn{
+        min-width:76px;
+        padding:10px 12px;
+      }
+
+      .subtitle{
+        font-size:15px;
+      }
     }
   </style>
 </head>
@@ -150,47 +466,100 @@
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="title">✅ ส่งคำร้องสำเร็จ</div>
-      <p class="subtitle">
-        ขอบคุณสำหรับการแจ้งเรื่อง<br/>
-        เจ้าหน้าที่จะดำเนินการโดยเร็ว
-      </p>
+      <section class="hero">
+        <div class="check-badge">✅</div>
+        <h1 class="title">ส่งคำร้องสำเร็จ</h1>
+        <p class="subtitle">
+          ขอบคุณสำหรับการแจ้งเรื่อง ระบบได้รับข้อมูลของคุณเรียบร้อยแล้ว
+          เจ้าหน้าที่จะดำเนินการโดยเร็วที่สุด
+        </p>
 
-      <div class="pill" id="ridWrap" style="display:none;">
-        <span>เลขคำร้อง: <b id="rid">-</b></span>
-      </div>
+        <div class="status-row">
+          <div class="mini-badge">📨 ส่งข้อมูลแล้ว</div>
+          <div class="mini-badge">🔎 ติดตามสถานะได้</div>
+          <div class="mini-badge">🔔 รับแจ้งเตือนผ่าน LINE</div>
+        </div>
+      </section>
 
-      <!-- LINE Section -->
+      <section class="grid">
+        <div class="panel soft-green">
+          <h2 class="panel-title">🎫 รายละเอียดคำร้อง</h2>
+          <div class="muted">เก็บเลขคำร้องนี้ไว้สำหรับติดตามสถานะภายหลัง</div>
+
+          <div class="rid-card" id="ridWrap" style="display:none;">
+            <div>
+              <div class="rid-label">เลขคำร้องของคุณ</div>
+              <div class="rid-value" id="rid">-</div>
+            </div>
+            <button class="copy-btn" id="copyRidBtn" type="button">คัดลอก</button>
+          </div>
+
+          <ul class="hint-list">
+            <li><span>•</span><span>คุณสามารถใช้เลขคำร้องนี้เพื่อติดตามความคืบหน้าได้ตลอดเวลา</span></li>
+            <li><span>•</span><span>หากผูก LINE ไว้ ระบบจะส่งการแจ้งเตือนเมื่อสถานะคำร้องมีการเปลี่ยนแปลง</span></li>
+            <li><span>•</span><span>หากกรอกเบอร์ผิด สามารถแก้เบอร์สำหรับแจ้งเตือนได้ด้านขวา</span></li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">📌 ขั้นตอนถัดไป</h2>
+          <div class="muted">
+            แนะนำให้ผูก LINE ไว้ตอนนี้ เพื่อรับการแจ้งเตือนสะดวกที่สุด
+          </div>
+
+          <div class="btn-row">
+            <a class="btn btn-white" href="/track.html">📋 ติดตามคำร้อง</a>
+            <button class="btn btn-green" type="button" onclick="location.href='/'">⬅️ กลับไปเมนูหลัก</button>
+          </div>
+        </div>
+      </section>
+
       <div class="section" id="lineSection">
-        <h2>🔔 รับแจ้งเตือนผ่าน LINE</h2>
+        <h2 class="panel-title" style="margin-bottom:8px;">🔔 รับแจ้งเตือนผ่าน LINE</h2>
+
         <div class="muted">
           ยืนยันเบอร์สำหรับรับแจ้งเตือน: <b id="phoneMasked">-</b>
         </div>
 
-        <button class="btn btn-line" id="btnBindNow">✅ ใช่ — ผูก LINE ด้วยเบอร์นี้</button>
-        <button class="btn btn-gray" id="btnEditPhone">✏️ แก้เบอร์</button>
-
-        <div class="editBox" id="editPhoneBox">
-          <div class="muted" style="margin-bottom:6px;">กรอกเบอร์ใหม่ (10 หลัก)</div>
-          <input class="input" id="newPhone" inputmode="numeric" maxlength="10" placeholder="0xxxxxxxxx" />
-          <button class="btn btn-green" id="btnSavePhone">บันทึกเบอร์ใหม่</button>
+        <div class="line-status" id="lineStatusBox">
+          กดปุ่มด้านล่างเพื่อเปิด LINE OA พร้อมข้อความผูกบัญชีอัตโนมัติ จากนั้นกดส่งใน LINE เพียงครั้งเดียว
         </div>
 
-        <div class="muted" style="margin-top:10px; opacity:.9;">
-          * กด “ผูก LINE” ระบบจะเปิดแชท LINE OA พร้อมข้อความให้แล้ว (กดส่งครั้งเดียว)
+        <button class="btn btn-line" id="btnBindNow" type="button">✅ ผูก LINE ด้วยเบอร์นี้</button>
+        <button class="btn btn-gray" id="btnEditPhone" type="button">✏️ แก้เบอร์</button>
+
+        <div class="editBox" id="editPhoneBox">
+          <div class="muted">กรอกเบอร์ใหม่ (10 หลัก)</div>
+          <input class="input" id="newPhone" inputmode="numeric" maxlength="10" placeholder="0xxxxxxxxx" />
+          <button class="btn btn-green" id="btnSavePhone" type="button">บันทึกเบอร์ใหม่</button>
+        </div>
+
+        <div class="helper">
+          * เมื่อกด “ผูก LINE” ระบบจะเปิดแชท LINE OA พร้อมข้อความให้แล้ว กดส่งครั้งเดียวก็พร้อมรับแจ้งเตือน
         </div>
 
         <div class="warn" id="warnBox"></div>
       </div>
 
-      <div class="footer">
-        <button class="btn btn-green" onclick="location.href='/'">⬅️ กลับไปเมนูหลัก</button>
+      <div class="footer-actions">
+        <a class="btn btn-white" href="/track.html">📋 ไปหน้าติดตามคำร้อง</a>
+        <button class="btn btn-green" type="button" onclick="location.href='/'">🏠 กลับไปหน้าแรก</button>
       </div>
     </div>
   </div>
 
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <div class="modal-icon" id="modalIcon">✅</div>
+      <div class="modal-title" id="modalTitle">สำเร็จ</div>
+      <div class="modal-message" id="modalMessage">ข้อความ</div>
+      <button class="modal-ok" type="button" onclick="hideModal()">ตกลง</button>
+    </div>
+  </div>
+
   <script>
-    // ✅ OA Basic ID ของคุณ (ต้องตรงกับ OA จริง)
+    // ✅ OA Basic ID ของคุณ
     const OA_BASIC_ID = "@300ifqgu";
     const OA_ADD_LINK = "https://line.me/R/ti/p/@300ifqgu";
 
@@ -200,10 +569,36 @@
 
     const ridWrap = document.getElementById('ridWrap');
     const ridEl = document.getElementById('rid');
+    const copyRidBtn = document.getElementById('copyRidBtn');
+
     const phoneMaskedEl = document.getElementById('phoneMasked');
     const lineSection = document.getElementById('lineSection');
     const editBox = document.getElementById('editPhoneBox');
     const warnBox = document.getElementById('warnBox');
+    const lineStatusBox = document.getElementById('lineStatusBox');
+
+    const btnBindNow = document.getElementById('btnBindNow');
+    const btnEditPhone = document.getElementById('btnEditPhone');
+    const btnSavePhone = document.getElementById('btnSavePhone');
+    const newPhoneInput = document.getElementById('newPhone');
+
+    const modal = document.getElementById('modal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    function showModal(message, title = 'แจ้งเตือน', icon = 'ℹ️') {
+      modalIcon.textContent = icon;
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      modal.classList.add('show');
+    }
+
+    function hideModal() {
+      modal.classList.remove('show');
+    }
+
+    window.hideModal = hideModal;
 
     if (rid) {
       ridWrap.style.display = 'flex';
@@ -213,6 +608,21 @@
     function showWarn(msg){
       warnBox.style.display = 'block';
       warnBox.textContent = msg;
+    }
+
+    function hideWarn(){
+      warnBox.style.display = 'none';
+      warnBox.textContent = '';
+    }
+
+    async function copyRid() {
+      if (!rid) return;
+      try {
+        await navigator.clipboard.writeText(String(rid));
+        showModal(`คัดลอกเลขคำร้อง ${rid} แล้ว`, 'คัดลอกสำเร็จ', '📋');
+      } catch (e) {
+        showModal('ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกด้วยตนเอง', 'คัดลอกไม่สำเร็จ', '⚠️');
+      }
     }
 
     async function loadBindInfo(){
@@ -227,17 +637,23 @@
         const data = await r.json();
 
         if (!data.ok){
-          if (r.status === 410) showWarn('โค้ดหมดอายุแล้ว กรุณาส่งคำร้องใหม่หรือกลับไปหน้าเดิมเพื่อสร้างใหม่');
-          else showWarn('ไม่พบโค้ดผูก LINE กรุณาส่งคำร้องใหม่อีกครั้ง');
+          if (r.status === 410) {
+            showWarn('โค้ดหมดอายุแล้ว กรุณาส่งคำร้องใหม่หรือกลับไปหน้าเดิมเพื่อสร้างใหม่');
+          } else {
+            showWarn('ไม่พบโค้ดผูก LINE กรุณาส่งคำร้องใหม่อีกครั้ง');
+          }
           phoneMaskedEl.textContent = '-';
           return;
         }
 
         phoneMaskedEl.textContent = data.phoneMasked || '-';
 
-        // ถ้าผูกแล้ว ซ่อนกล่องนี้ไปเลย
         if (data.linked) {
-          lineSection.style.display = 'none';
+          lineStatusBox.classList.add('ok');
+          lineStatusBox.textContent = '✅ เบอร์นี้ผูก LINE เรียบร้อยแล้ว ระบบจะส่งแจ้งเตือนเมื่อสถานะคำร้องมีการเปลี่ยนแปลง';
+          btnBindNow.classList.add('hidden');
+          btnEditPhone.classList.add('hidden');
+          editBox.style.display = 'none';
         }
       }catch(e){
         console.error(e);
@@ -246,29 +662,34 @@
     }
 
     function openLineWithBindToken(){
+      hideWarn();
+
       if (!token) {
         window.open(OA_ADD_LINK, '_blank');
         return;
       }
+
       const msg = `BIND ${token}`;
       const deeplink = `https://line.me/R/oaMessage/${encodeURIComponent(OA_BASIC_ID)}/?${encodeURIComponent(msg)}`;
       window.open(deeplink, '_blank');
     }
 
-    document.getElementById('btnBindNow').addEventListener('click', openLineWithBindToken);
-
-    const btnEditPhone = document.getElementById('btnEditPhone');
+    btnBindNow.addEventListener('click', openLineWithBindToken);
+    copyRidBtn.addEventListener('click', copyRid);
 
     btnEditPhone.addEventListener('click', () => {
       const isHidden = window.getComputedStyle(editBox).display === 'none';
       editBox.style.display = isHidden ? 'block' : 'none';
       btnEditPhone.textContent = isHidden ? '❌ ยกเลิกการแก้ไข' : '✏️ แก้เบอร์';
+      if (isHidden) newPhoneInput.focus();
     });
 
-    document.getElementById('btnSavePhone').addEventListener('click', async () => {
-      const p = (document.getElementById('newPhone').value || '').replace(/\D/g,'').trim();
+    btnSavePhone.addEventListener('click', async () => {
+      hideWarn();
+      const p = (newPhoneInput.value || '').replace(/\D/g,'').trim();
+
       if (!/^0\d{9}$/.test(p)) {
-        alert('❌ กรุณากรอกเบอร์ 10 หลัก (ขึ้นต้นด้วย 0)');
+        showModal('กรุณากรอกเบอร์ 10 หลัก และต้องขึ้นต้นด้วย 0', 'ข้อมูลไม่ถูกต้อง', '⚠️');
         return;
       }
 
@@ -278,18 +699,24 @@
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ t: token, phone: p })
         });
+
         const data = await r.json();
+
         if (!data.ok) {
-          alert('❌ บันทึกไม่สำเร็จ');
+          showModal('บันทึกเบอร์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'บันทึกไม่สำเร็จ', '⚠️');
           return;
         }
+
         localStorage.setItem('userPhone', p);
         phoneMaskedEl.textContent = data.phoneMasked || '-';
         editBox.style.display = 'none';
-        alert('✅ อัปเดตเบอร์แล้ว');
+        btnEditPhone.textContent = '✏️ แก้เบอร์';
+        newPhoneInput.value = '';
+
+        showModal('อัปเดตเบอร์สำหรับรับแจ้งเตือนเรียบร้อยแล้ว', 'สำเร็จ', '✅');
       }catch(e){
         console.error(e);
-        alert('❌ เกิดข้อผิดพลาด');
+        showModal('เกิดข้อผิดพลาดระหว่างบันทึกเบอร์', 'เกิดข้อผิดพลาด', '⚠️');
       }
     });
 
