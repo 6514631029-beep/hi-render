@@ -313,7 +313,18 @@
       border-color:#bfdbfe;
       color:#1d4ed8;
     }
+    .inbox-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
 
+    .inbox-actions .btn{
+      padding:7px 10px;
+      font-size:13px;
+      border-radius:10px;
+    }
     .table-wrap{
       overflow:auto;
       background:#fff;
@@ -322,7 +333,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width: 820px;
+      min-width: 700px;
       background:#fff;
       table-layout: fixed;
     }
@@ -348,12 +359,12 @@
     }
     th.th-message{ text-align:left; padding-left:14px; }
 
-    th:nth-child(1), td:nth-child(1){ width: 110px; }
-    th:nth-child(2), td:nth-child(2){ width: 120px; }
-    th:nth-child(3), td:nth-child(3){ width: 210px; }
-    th:nth-child(4), td:nth-child(4){ width: 220px; }
-    th:nth-child(5), td:nth-child(5){ width: 110px; }
-    th:nth-child(6), td:nth-child(6){ width: 170px; }
+    th:nth-child(1), td:nth-child(1){ width: 100px; }
+    th:nth-child(2), td:nth-child(2){ width: 110px; }
+    th:nth-child(3), td:nth-child(3){ width: 190px; }
+    th:nth-child(4), td:nth-child(4){ width: 160px; }
+    th:nth-child(5), td:nth-child(5){ width: 90px; }
+    th:nth-child(6), td:nth-child(6){ width: 150px; }
 
     td{ font-size:15px; }
     tbody tr:nth-child(even){background:#fbfdff}
@@ -395,7 +406,7 @@
       }
       .app{display:block}
       .content{padding:14px}
-      table{min-width:980px}
+      table{min-width:700px}
     }
 
     .status-select{
@@ -403,30 +414,29 @@
       -webkit-appearance:none;
       -moz-appearance:none;
       background:#fff !important;
-      border:none !important;
+      border:1px solid #dbe2ea !important;
       box-shadow:none !important;
       outline:none !important;
-      height: 44px !important;
-      line-height: 44px !important;
-      padding: 0 46px 0 18px !important;
-      border-radius: 16px !important;
-      font-size: 16px !important;
+      height: 38px !important;
+      line-height: 38px !important;
+      padding: 0 34px 0 12px !important;
+      border-radius: 12px !important;
+      font-size: 14px !important;
       font-weight: 900 !important;
       color:#0f172a !important;
       cursor:pointer;
       white-space:nowrap;
       box-sizing:border-box;
-      width: fit-content !important;
-      display: inline-block !important;
-      max-width: 100%;
+      width: 100% !important;
+      max-width: 170px;
       min-width: 0 !important;
       background-image:
         linear-gradient(45deg, transparent 50%, #0f172a 50%),
         linear-gradient(135deg, #0f172a 50%, transparent 50%);
       background-position:
-        calc(100% - 18px) 50%,
-        calc(100% - 12px) 50%;
-      background-size: 6px 6px, 6px 6px;
+        calc(100% - 14px) 50%,
+        calc(100% - 9px) 50%;
+      background-size: 5px 5px, 5px 5px;
       background-repeat: no-repeat;
     }
     @supports not (width: fit-content){
@@ -441,8 +451,8 @@
 
     .msg-cell{
       min-width: 0;
-      max-width: 210px;
-      width: 210px;
+      max-width: 190px;
+      width: 190px;
       text-align:left;
       vertical-align:top;
       padding-left:14px;
@@ -684,7 +694,6 @@
         <div class="card" style="margin-top:12px;">
           <div class="card-h">
             <h2>รายการคำร้อง</h2>
-            <div class="tiny">กด “รายละเอียด” เพื่อดูข้อความเต็ม • รูปภาพจะแสดงเมื่อกด “ดูรูปภาพ” เท่านั้น</div>
           </div>
 
           <div class="table-wrap">
@@ -1073,13 +1082,12 @@
         let statusCellHtml = '-';
         if (VIEW_MODE === 'inbox') {
           statusCellHtml = `
-            <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
-              <div style="font-weight:1000; color:#075985;">รอแผนกรับเรื่อง</div>
-              <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+              <div style="font-weight:1000; color:#075985; font-size:14px;">รอแผนกรับเรื่อง</div>
+              <div class="inbox-actions">
                 <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
                 <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
               </div>
-              <div class="tiny">ถ้ารับเรื่อง ระบบจะย้ายไป “งานของแผนก”</div>
             </div>
           `;
         } else {
