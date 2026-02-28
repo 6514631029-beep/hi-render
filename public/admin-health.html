@@ -567,7 +567,6 @@
                   <th>เบอร์</th>
                   <th>ข้อความ</th>
                   <th>ไฟล์</th>
-                  <th>แผนก</th>
                   <th>สถานะ/จัดการ</th>
                   <th>แผนที่</th>
                   <th>วันที่-เวลา</th>
@@ -783,7 +782,6 @@
             <td>${row.phone || '-'}</td>
             <td style="max-width:360px; text-align:left; white-space:pre-wrap;">${row.message || '-'}</td>
             <td>${fileLinks || '-'}</td>
-            <td>${row.department || '-'}</td>
             <td>${statusCellHtml}</td>
             <td>${mapLink}</td>
             <td>${formatDate(row.completed_at || row.created_at)}</td>
@@ -795,7 +793,7 @@
       if (!data.length) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" style="padding:22px; color:#64748b; font-weight:900;">
+            <td colspan="8" style="padding:22px; color:#64748b; font-weight:900;">
               ไม่มีข้อมูลในโหมดนี้
             </td>
           </tr>
