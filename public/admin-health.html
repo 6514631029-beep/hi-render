@@ -325,8 +325,9 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1100px;
+      min-width: 980px;
       background:#fff;
+      table-layout: fixed;
     }
     th,td{
       padding:12px 10px;
@@ -350,6 +351,15 @@
       white-space:nowrap;
     }
     th.th-message{ text-align:left; padding-left:14px; }
+
+    /* กำหนดความกว้างคอลัมน์ให้กระชับขึ้น */
+    th:nth-child(1), td:nth-child(1){ width: 110px; }
+    th:nth-child(2), td:nth-child(2){ width: 120px; }
+    th:nth-child(3), td:nth-child(3){ width: 230px; }
+    th:nth-child(4), td:nth-child(4){ width: 220px; }
+    th:nth-child(5), td:nth-child(5){ width: 110px; }
+    th:nth-child(6), td:nth-child(6){ width: 170px; }
+    th:nth-child(7), td:nth-child(7){ width: 150px; }
 
     td{ font-size:15px; }
     tbody tr:nth-child(even){background:#fbfdff}
@@ -442,11 +452,13 @@
 
     /* Message cell */
     .msg-cell{
-      min-width: 260px;
-      max-width: 360px;
+      min-width: 0;
+      max-width: 230px;
+      width: 230px;
       text-align:left;
       vertical-align:top;
       padding-left:14px;
+      padding-right:8px;
     }
 
     .msg-preview{
@@ -461,6 +473,7 @@
       font-weight:700;
       word-break:break-word;
       margin-bottom:8px;
+      max-width: 100%;
     }
 
     .msg-actions{
@@ -549,59 +562,36 @@
       font-weight:700;
     }
 
-    /* File cards inside detail */
-    .detail-media-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-      gap:12px;
-      margin-top:10px;
-    }
-
-    .detail-media-card{
-      border:1px solid #dbeafe;
-      background:#fff;
-      border-radius:16px;
-      padding:8px;
-      cursor:pointer;
-      text-align:left;
-      transition:.15s ease;
-    }
-
-    .detail-media-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 10px 24px rgba(37,99,235,.12);
-      border-color:#93c5fd;
-    }
-
-    .detail-media-thumb{
-      width:100%;
-      height:120px;
-      object-fit:cover;
-      border-radius:12px;
-      display:block;
-      background:#e2e8f0;
-    }
-
-    .video-thumb{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:26px;
-      font-weight:900;
-      color:#0f172a;
-      background:linear-gradient(135deg,#dbeafe,#bfdbfe);
-    }
-
-    .detail-media-meta{
+    .detail-file-box{
       margin-top:8px;
-      font-size:13px;
-      font-weight:800;
+      background:#ffffff;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .detail-file-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .detail-file-meta{
       color:#334155;
+      font-weight:800;
+      font-size:14px;
     }
 
     @media (max-width: 700px){
       .detail-grid{ grid-template-columns: 1fr; gap:6px; }
-      .msg-cell{ max-width: 260px; }
+      .msg-cell{
+        width: 200px;
+        max-width: 200px;
+      }
+      th:nth-child(3), td:nth-child(3){ width: 200px; }
+      th:nth-child(4), td:nth-child(4){ width: 210px; }
     }
   </style>
 </head>
@@ -711,7 +701,7 @@
         <div class="card" style="margin-top:12px;">
           <div class="card-h">
             <h2>รายการคำร้อง</h2>
-            <div class="tiny">ดูไฟล์แนบผู้ใช้ใน “รายละเอียด” • ไฟล์(เสร็จสิ้น) ยังอยู่ในตาราง</div>
+            <div class="tiny">กด “รายละเอียด” เพื่อดูข้อความเต็ม • รูปภาพจะแสดงเมื่อกดปุ่มดูรูปภาพเท่านั้น</div>
           </div>
 
           <div class="table-wrap">
@@ -772,16 +762,16 @@
 
         <div style="height:14px;"></div>
 
-        <div class="detail-label" style="margin-bottom:8px;">ไฟล์แนบจากผู้ใช้</div>
+        <div class="detail-label" style="margin-bottom:8px;">รูปภาพจากผู้ใช้</div>
         <div id="detailFilesBox">
-          <div class="detail-message-box">ไม่มีไฟล์แนบ</div>
+          <div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>
         </div>
 
         <div style="height:14px;"></div>
 
-        <div class="detail-label" style="margin-bottom:8px;">ไฟล์(เสร็จสิ้น)</div>
+        <div class="detail-label" style="margin-bottom:8px;">รูปภาพ(เสร็จสิ้น)</div>
         <div id="detailCompletedFilesBox">
-          <div class="detail-message-box">ไม่มีไฟล์(เสร็จสิ้น)</div>
+          <div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>
         </div>
       </div>
     </div>
@@ -917,7 +907,7 @@
         .replace(/'/g, '&#39;');
     }
 
-    function getShortMessage(text = '', maxLen = 80) {
+    function getShortMessage(text = '', maxLen = 52) {
       const s = String(text || '').trim();
       if (s.length <= maxLen) return s || '-';
       return s.slice(0, maxLen) + '...';
@@ -937,6 +927,13 @@
       return item?.type || '';
     }
 
+    function isImageFile(item) {
+      const type = getFileType(item);
+      const url = normalizeFileUrl(item).toLowerCase();
+      if (type === 'image') return true;
+      return /\.(jpg|jpeg|png|gif|webp|bmp|svg|heic|heif)(\?|$)/.test(url);
+    }
+
     function openDetailModal(row) {
       document.getElementById('detailName').textContent = row?.name || '-';
       document.getElementById('detailPhone').textContent = row?.phone || '-';
@@ -948,42 +945,24 @@
       document.getElementById('detailModal').style.display = 'flex';
     }
 
-    function renderDetailFiles(boxId, files = [], emptyText = 'ไม่มีไฟล์แนบ') {
+    function renderDetailImageButtons(boxId, files = [], emptyText = 'ไม่มีรูปภาพ') {
       const box = document.getElementById(boxId);
       if (!box) return;
 
-      if (!Array.isArray(files) || files.length === 0) {
+      const imageFiles = (Array.isArray(files) ? files : []).filter(isImageFile);
+
+      if (!imageFiles.length) {
         box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
         return;
       }
 
-      const itemsHtml = files.map((file, index) => {
-        const url = normalizeFileUrl(file);
-        const type = getFileType(file);
-
-        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/)) {
-          return `
-            <button type="button" class="detail-media-card" onclick='showImages(${JSON.stringify(files)}, ${index})'>
-              <div class="detail-media-thumb video-thumb">🎬 วิดีโอ</div>
-              <div class="detail-media-meta">ไฟล์วิดีโอ ${index + 1}</div>
-            </button>
-          `;
-        }
-
-        return `
-          <button type="button" class="detail-media-card" onclick='showImages(${JSON.stringify(files)}, ${index})'>
-            <img src="${url}" class="detail-media-thumb" alt="ไฟล์แนบ ${index + 1}">
-            <div class="detail-media-meta">รูปภาพ ${index + 1}</div>
-          </button>
-        `;
-      }).join('');
-
       box.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-          <div class="tiny">จำนวน ${files.length} ไฟล์</div>
-          <button class="btn mini" onclick='showImages(${JSON.stringify(files)}, 0)'>ดูทั้งหมด</button>
+        <div class="detail-file-box">
+          <div class="detail-file-row">
+            <div class="detail-file-meta">จำนวนรูปภาพ ${imageFiles.length} ไฟล์</div>
+            <button class="btn mini link-btn" onclick='showImageViewer(${JSON.stringify(imageFiles)}, 0)'>🖼️ ดูรูปภาพ</button>
+          </div>
         </div>
-        <div class="detail-media-grid">${itemsHtml}</div>
       `;
     }
 
@@ -1018,8 +997,8 @@
         completed_at: row.completed_at || ''
       });
 
-      renderDetailFiles('detailFilesBox', mainFiles, 'ไม่มีไฟล์แนบจากผู้ใช้');
-      renderDetailFiles('detailCompletedFilesBox', completedFiles, 'ไม่มีไฟล์(เสร็จสิ้น)');
+      renderDetailImageButtons('detailFilesBox', mainFiles, 'ไม่มีรูปภาพจากผู้ใช้');
+      renderDetailImageButtons('detailCompletedFilesBox', completedFiles, 'ไม่มีรูปภาพ(เสร็จสิ้น)');
     }
 
     function closeDetailModal(e) {
@@ -1028,8 +1007,8 @@
       document.getElementById('detailModal').style.display = 'none';
       const box1 = document.getElementById('detailFilesBox');
       const box2 = document.getElementById('detailCompletedFilesBox');
-      if (box1) box1.innerHTML = `<div class="detail-message-box">ไม่มีไฟล์แนบ</div>`;
-      if (box2) box2.innerHTML = `<div class="detail-message-box">ไม่มีไฟล์(เสร็จสิ้น)</div>`;
+      if (box1) box1.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>`;
+      if (box2) box2.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>`;
     }
 
     function renderTable(data) {
@@ -1090,7 +1069,7 @@
           `;
         }
 
-        const previewMessage = getShortMessage(row.message || '-', 80);
+        const previewMessage = getShortMessage(row.message || '-', 52);
 
         tbody.innerHTML += `
           <tr id="row-${row.id}">
@@ -1135,7 +1114,7 @@
       });
     }
 
-    // ✅ Viewer แบบ “เหมือน admin มากขึ้น” (ภาพใหญ่ + thumbs + next/prev)
+    // viewer เดิม (ยังคงไว้สำหรับจุดอื่นที่ยังต้องดูทั้งรูป/วิดีโอ)
     function showImages(images, startIndex = 0) {
       const items = Array.isArray(images) ? images : [];
       if (!items.length) return;
@@ -1232,6 +1211,164 @@
                 return '<div class="thumb" onclick="goTo(' + index + ')">' +
                         media +
                         '<div class="meta">ไฟล์ ' + (index + 1) + '</div>' +
+                      '</div>';
+              }).join('');
+            }
+
+            function goTo(index){ currentIndex = index; renderViewer(); }
+            function prevItem(){ currentIndex = (currentIndex - 1 + items.length) % items.length; renderViewer(); }
+            function nextItem(){ currentIndex = (currentIndex + 1) % items.length; renderViewer(); }
+
+            renderViewer();
+            renderThumbs();
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const win = window.open('', '_blank', 'width=1200,height=850');
+      win.document.open();
+      win.document.write(viewerHtml);
+      win.document.close();
+    }
+
+    // viewer ใหม่สำหรับ "ดูรูปภาพ" อย่างเดียว
+    function showImageViewer(images, startIndex = 0) {
+      const items = (Array.isArray(images) ? images : []).filter(isImageFile);
+      if (!items.length) return;
+
+      const viewerHtml = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <title>ดูรูปภาพ</title>
+          <style>
+            body{
+              margin:0;
+              font-family:Arial,sans-serif;
+              background:#0f172a;
+              color:#fff;
+            }
+            .topbar{
+              position:sticky;
+              top:0;
+              z-index:10;
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              gap:12px;
+              padding:14px 18px;
+              background:rgba(15,23,42,.92);
+              backdrop-filter: blur(8px);
+              border-bottom:1px solid rgba(255,255,255,.08);
+            }
+            .title{
+              font-size:18px;
+              font-weight:700;
+            }
+            .actions{
+              display:flex;
+              gap:8px;
+              flex-wrap:wrap;
+            }
+            .btn{
+              border:none;
+              border-radius:10px;
+              padding:10px 14px;
+              font-size:14px;
+              font-weight:700;
+              cursor:pointer;
+              background:#1e293b;
+              color:#fff;
+            }
+            .wrap{
+              padding:20px;
+              display:flex;
+              flex-direction:column;
+              gap:18px;
+            }
+            .viewer{
+              display:flex;
+              justify-content:center;
+              align-items:center;
+              min-height:68vh;
+              background:#020617;
+              border-radius:18px;
+              overflow:hidden;
+              padding:18px;
+            }
+            .viewer img{
+              max-width:100%;
+              max-height:78vh;
+              border-radius:14px;
+              object-fit:contain;
+              background:#000;
+            }
+            .grid{
+              display:grid;
+              grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+              gap:14px;
+            }
+            .thumb{
+              background:#111827;
+              border:1px solid rgba(255,255,255,.08);
+              border-radius:16px;
+              overflow:hidden;
+              cursor:pointer;
+            }
+            .thumb img{
+              width:100%;
+              height:160px;
+              object-fit:cover;
+              display:block;
+              background:#000;
+            }
+            .thumb .meta{
+              padding:10px 12px;
+              font-size:13px;
+              color:#cbd5e1;
+              font-weight:700;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <div class="title">รูปภาพแนบ</div>
+            <div class="actions">
+              <button class="btn" onclick="prevItem()">ก่อนหน้า</button>
+              <button class="btn" onclick="nextItem()">ถัดไป</button>
+            </div>
+          </div>
+
+          <div class="wrap">
+            <div class="viewer" id="viewer"></div>
+            <div class="grid" id="thumbGrid"></div>
+          </div>
+
+          <script>
+            const items = ${JSON.stringify(items)};
+            let currentIndex = ${Number(startIndex) || 0};
+
+            function normalizeFileUrl(item) {
+              if (typeof item === 'string') return item.startsWith('uploads/') ? '/' + item : item;
+              const raw = item?.url || '';
+              return raw.startsWith('uploads/') ? '/' + raw : raw;
+            }
+
+            function renderViewer() {
+              const item = items[currentIndex];
+              const url = normalizeFileUrl(item);
+              document.getElementById('viewer').innerHTML = '<img src="' + url + '" alt="preview">';
+            }
+
+            function renderThumbs() {
+              const grid = document.getElementById('thumbGrid');
+              grid.innerHTML = items.map((item, index) => {
+                const url = normalizeFileUrl(item);
+                return '<div class="thumb" onclick="goTo(' + index + ')">' +
+                        '<img src="' + url + '" alt="thumb">' +
+                        '<div class="meta">รูปภาพ ' + (index + 1) + '</div>' +
                       '</div>';
               }).join('');
             }
