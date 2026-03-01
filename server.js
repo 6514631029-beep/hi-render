@@ -783,6 +783,23 @@ function buildTrackingFlexCarousel(rows = []) {
         spacing: 'md',
         contents: [
           {
+            type: 'box',
+            layout: 'vertical',
+            backgroundColor: getStatusColor(r.status),
+            cornerRadius: '8px',
+            paddingAll: '8px',
+            contents: [
+              {
+                type: 'text',
+                text: r.status || '-',
+                color: '#FFFFFF',
+                weight: 'bold',
+                size: 'sm',
+                align: 'center'
+              }
+            ]
+          },
+          {
             type: 'text',
             text: `คำร้อง #${r.id}`,
             weight: 'bold',
