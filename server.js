@@ -484,7 +484,12 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
           continue;
         }
 
-        const rows = await getLatestRequestsByLineUserId(userId, 5);
+        const page = 1;
+        const limit = 5;
+        const offset = 0;
+
+        const total = await countRequestsByLineUserId(userId);
+        const rows = await getLatestRequestsByLineUserId(userId, limit, offset);
 
         if (!rows.length) {
           await replyLineMessage(
@@ -494,7 +499,9 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
           continue;
         }
 
-        const flexContents = buildTrackingFlexCarousel(rows);
+        const hasNextPage = total > rows.length;
+        const flexContents = buildTrackingFlexCarousel(rows, page, hasNextPage);
+
         await replyLineFlex(replyToken, 'คำร้องล่าสุดของคุณ', flexContents);
         continue;
       }
@@ -526,7 +533,7 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
       // 4) รายละเอียด <id>
       // =========================
       const detailMatch = text.match(/^รายละเอียด\s+(\d+)$/i);
-
+      const moreMatch = text.match(/^เพิ่มเติม\s*(\d+)$/i);
       if (detailMatch) {
         if (!userId) {
           await replyLineMessage(replyToken, '❌ ไม่พบ LINE user');
@@ -547,7 +554,30 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         await replyLineMessage(replyToken, buildTrackingDetailMessage(detail));
         continue;
       }
+      if (moreMatch) {
+        if (!userId) {
+          await replyLineMessage(replyToken, '❌ ไม่พบ LINE user');
+          continue;
+        }
 
+        const page = Math.max(1, Number(moreMatch[1] || 1));
+        const limit = 5;
+        const offset = (page - 1) * limit;
+
+        const total = await countRequestsByLineUserId(userId);
+        const rows = await getLatestRequestsByLineUserId(userId, limit, offset);
+
+        if (!rows.length) {
+          await replyLineMessage(replyToken, '📭 ไม่พบคำร้องเพิ่มเติมแล้ว');
+          continue;
+        }
+
+        const hasNextPage = total > offset + rows.length;
+        const flexContents = buildTrackingFlexCarousel(rows, page, hasNextPage);
+
+        await replyLineFlex(replyToken, `คำร้องของคุณ หน้า ${page}`, flexContents);
+        continue;
+      }
       // =========================
       // 5) วิธีผูกบัญชี
       // =========================
@@ -578,7 +608,6 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         );
         continue;
       }
-
       // =========================
       // 7) fallback
       // =========================
@@ -590,6 +619,7 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         '- คำร้องล่าสุด\n' +
         '- คำร้องของฉัน\n' +
         '- รายละเอียด <เลขคำร้อง>\n' +
+        '- เพิ่มเติม <เลขหน้า>\n' +
         '- วิธีผูกบัญชี\n' +
         '- ติดต่อเจ้าหน้าที่'
       );
@@ -664,7 +694,7 @@ function shortText(text = '', max = 120) {
   return s.length > max ? s.slice(0, max) + '...' : s;
 }
 
-async function getLatestRequestsByLineUserId(lineUserId, limit = 5) {
+async function getLatestRequestsByLineUserId(lineUserId, limit = 5, offset = 0) {
   const phones = await getPhonesByLineUserId(lineUserId);
   if (!phones.length) return [];
 
@@ -677,13 +707,27 @@ async function getLatestRequestsByLineUserId(lineUserId, limit = 5) {
      FROM requests
      WHERE phone IN (${placeholders})
      ORDER BY id DESC
-     LIMIT ?`,
-    [...phones, Number(limit)]
+     LIMIT ? OFFSET ?`,
+    [...phones, Number(limit), Number(offset)]
   );
 
   return rows;
 }
+async function countRequestsByLineUserId(lineUserId) {
+  const phones = await getPhonesByLineUserId(lineUserId);
+  if (!phones.length) return 0;
 
+  const placeholders = phones.map(() => '?').join(',');
+
+  const [rows] = await db.promise().query(
+    `SELECT COUNT(*) AS total
+     FROM requests
+     WHERE phone IN (${placeholders})`,
+    [...phones]
+  );
+
+  return rows.length ? Number(rows[0].total || 0) : 0;
+}
 async function getLatestSingleRequestByLineUserId(lineUserId) {
   const rows = await getLatestRequestsByLineUserId(lineUserId, 1);
   return rows.length ? rows[0] : null;
@@ -769,146 +813,197 @@ function buildTrackingDetailMessage(r) {
 
   return msg;
 }
-function buildTrackingFlexCarousel(rows = []) {
-  const safeRows = (rows || []).slice(0, 5);
+function buildTrackingFlexCarousel(rows = [], currentPage = 1, hasNextPage = false) {
+  const bubbles = (rows || []).map((r) => ({
+    type: 'bubble',
+    size: 'mega',
+    body: {
+      type: 'box',
+      layout: 'vertical',
+      spacing: 'md',
+      contents: [
+        {
+          type: 'box',
+          layout: 'vertical',
+          backgroundColor: getStatusColor(r.status),
+          cornerRadius: '8px',
+          paddingAll: '8px',
+          contents: [
+            {
+              type: 'text',
+              text: r.status || '-',
+              color: '#FFFFFF',
+              weight: 'bold',
+              size: 'sm',
+              align: 'center'
+            }
+          ]
+        },
+        {
+          type: 'text',
+          text: `คำร้อง #${r.id}`,
+          weight: 'bold',
+          size: 'xl',
+          color: '#111827'
+        },
+        {
+          type: 'box',
+          layout: 'baseline',
+          spacing: 'sm',
+          contents: [
+            {
+              type: 'text',
+              text: 'ประเภท',
+              size: 'sm',
+              color: '#6B7280',
+              flex: 2
+            },
+            {
+              type: 'text',
+              text: r.category || '-',
+              size: 'sm',
+              color: '#111827',
+              flex: 5,
+              wrap: true
+            }
+          ]
+        },
+        {
+          type: 'box',
+          layout: 'baseline',
+          spacing: 'sm',
+          contents: [
+            {
+              type: 'text',
+              text: 'สถานะ',
+              size: 'sm',
+              color: '#6B7280',
+              flex: 2
+            },
+            {
+              type: 'text',
+              text: r.status || '-',
+              size: 'sm',
+              color: getStatusColor(r.status),
+              weight: 'bold',
+              flex: 5,
+              wrap: true
+            }
+          ]
+        },
+        {
+          type: 'box',
+          layout: 'baseline',
+          spacing: 'sm',
+          contents: [
+            {
+              type: 'text',
+              text: 'หน่วยงาน',
+              size: 'sm',
+              color: '#6B7280',
+              flex: 2
+            },
+            {
+              type: 'text',
+              text: r.department || '-',
+              size: 'sm',
+              color: '#111827',
+              flex: 5,
+              wrap: true
+            }
+          ]
+        },
+        {
+          type: 'separator',
+          margin: 'md'
+        },
+        {
+          type: 'text',
+          text: `แจ้งเมื่อ ${formatThaiDateTime(r.created_at)}`,
+          size: 'xs',
+          color: '#6B7280',
+          wrap: true
+        }
+      ],
+      paddingAll: '20px'
+    },
+    footer: {
+      type: 'box',
+      layout: 'vertical',
+      spacing: 'sm',
+      contents: [
+        {
+          type: 'button',
+          style: 'primary',
+          height: 'md',
+          color: '#155263',
+          action: {
+            type: 'message',
+            label: 'ดูรายละเอียด',
+            text: `รายละเอียด ${r.id}`
+          }
+        }
+      ],
+      paddingAll: '16px'
+    }
+  }));
 
-  return {
-    type: 'carousel',
-    contents: safeRows.map((r) => ({
+  if (hasNextPage) {
+    bubbles.push({
       type: 'bubble',
       size: 'mega',
       body: {
         type: 'box',
         layout: 'vertical',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingAll: '24px',
         spacing: 'md',
         contents: [
           {
-            type: 'box',
-            layout: 'vertical',
-            backgroundColor: getStatusColor(r.status),
-            cornerRadius: '8px',
-            paddingAll: '8px',
-            contents: [
-              {
-                type: 'text',
-                text: r.status || '-',
-                color: '#FFFFFF',
-                weight: 'bold',
-                size: 'sm',
-                align: 'center'
-              }
-            ]
-          },
-          {
             type: 'text',
-            text: `คำร้อง #${r.id}`,
+            text: 'มีคำร้องเพิ่มเติม',
             weight: 'bold',
             size: 'xl',
-            color: '#111827'
-          },
-          {
-            type: 'box',
-            layout: 'baseline',
-            spacing: 'sm',
-            contents: [
-              {
-                type: 'text',
-                text: 'ประเภท',
-                size: 'sm',
-                color: '#6B7280',
-                flex: 2
-              },
-              {
-                type: 'text',
-                text: r.category || '-',
-                size: 'sm',
-                color: '#111827',
-                flex: 5,
-                wrap: true
-              }
-            ]
-          },
-          {
-            type: 'box',
-            layout: 'baseline',
-            spacing: 'sm',
-            contents: [
-              {
-                type: 'text',
-                text: 'สถานะ',
-                size: 'sm',
-                color: '#6B7280',
-                flex: 2
-              },
-              {
-                type: 'text',
-                text: r.status || '-',
-                size: 'sm',
-                color: getStatusColor(r.status),
-                weight: 'bold',
-                flex: 5,
-                wrap: true
-              }
-            ]
-          },
-          {
-            type: 'box',
-            layout: 'baseline',
-            spacing: 'sm',
-            contents: [
-              {
-                type: 'text',
-                text: 'หน่วยงาน',
-                size: 'sm',
-                color: '#6B7280',
-                flex: 2
-              },
-              {
-                type: 'text',
-                text: r.department || '-',
-                size: 'sm',
-                color: '#111827',
-                flex: 5,
-                wrap: true
-              }
-            ]
-          },
-          {
-            type: 'separator',
-            margin: 'md'
+            color: '#111827',
+            align: 'center'
           },
           {
             type: 'text',
-            text: `แจ้งเมื่อ ${formatThaiDateTime(r.created_at)}`,
-            size: 'xs',
+            text: `กดเพื่อดูหน้าถัดไป (หน้า ${currentPage + 1})`,
+            size: 'sm',
             color: '#6B7280',
-            wrap: true
+            wrap: true,
+            align: 'center'
           }
-        ],
-        paddingAll: '20px'
+        ]
       },
       footer: {
         type: 'box',
         layout: 'vertical',
-        spacing: 'sm',
         contents: [
           {
             type: 'button',
             style: 'primary',
-            height: 'md',
-            color: '#155263',
+            color: '#0F766E',
             action: {
               type: 'message',
-              label: 'ดูรายละเอียด',
-              text: `รายละเอียด ${r.id}`
+              label: 'ดูเพิ่มเติม',
+              text: `เพิ่มเติม ${currentPage + 1}`
             }
           }
         ],
         paddingAll: '16px'
       }
-    }))
+    });
+  }
+
+  return {
+    type: 'carousel',
+    contents: bubbles
   };
 }
+
 
 
 function getStatusMeta(status = '') {
