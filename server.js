@@ -790,25 +790,89 @@ function buildLatestRequestMessage(r) {
 
   return msg;
 }
+function getCategoryEmoji(category = '') {
+  const c = String(category).trim();
 
+  if (c.includes('ขยะ')) return '🗑️';
+  if (c.includes('ไฟ')) return '💡';
+  if (c.includes('ไฟฟ้า')) return '⚡';
+  if (c.includes('ถนน')) return '🛣️';
+  if (c.includes('ก่อสร้าง')) return '🏗️';
+  if (c.includes('น้ำ')) return '💧';
+  if (c.includes('ท่อ')) return '🚰';
+  if (c.includes('ต้นไม้')) return '🌳';
+  if (c.includes('หญ้า')) return '🌿';
+  if (c.includes('สุนัข')) return '🐕';
+  if (c.includes('แมว')) return '🐈';
+  if (c.includes('ควัน') || c.includes('กลิ่น')) return '💨';
+  if (c.includes('ความสะอาด')) return '🧹';
+  if (c.includes('สุขภาพ') || c.includes('สาธารณสุข')) return '🏥';
+
+  return '📂';
+}
+
+function getDepartmentEmoji(department = '') {
+  const d = String(department).trim();
+
+  if (d.includes('สาธารณสุข')) return '🏥';
+  if (d.includes('ไฟฟ้า')) return '⚡';
+  if (d.includes('กองช่าง')) return '🏗️';
+  if (d.includes('สำนักงานปลัด')) return '🏛️';
+  if (d.includes('อื่น')) return '📁';
+
+  return '🏢';
+}
+
+function getStatusEmoji(status = '') {
+  const s = String(status).trim();
+
+  if (s.includes('รอแผนก')) return '🟠';
+  if (s.includes('รอดำเนินการ')) return '🟡';
+  if (s.includes('กำลังดำเนินการ')) return '🔧';
+  if (s.includes('เสร็จสิ้น')) return '✅';
+  if (s.includes('ไม่อนุมัติ') || s.includes('ไม่รับเรื่อง')) return '❌';
+
+  return '📌';
+}
 function buildTrackingDetailMessage(r) {
   if (!r) return '❌ ไม่พบรายละเอียดคำร้อง';
 
+  const category = r.category || '-';
+  const status = r.status || '-';
+  const department = r.department || '-';
+  const createdAt = formatThaiDateTime(r.created_at);
+  const completedAt = formatThaiDateTime(r.completed_at);
+  const messageText = shortText(r.message, 250) || '-';
+
+  const categoryEmoji = getCategoryEmoji(category);
+  const statusEmoji = getStatusEmoji(status);
+  const departmentEmoji = getDepartmentEmoji(department);
+
   let msg =
-    `📄 รายละเอียดคำร้อง #${r.id}\n` +
-    `ประเภท: ${r.category || '-'}\n` +
-    `สถานะ: ${r.status || '-'}\n` +
-    `หน่วยงาน: ${r.department || '-'}\n` +
-    `วันที่แจ้ง: ${formatThaiDateTime(r.created_at)}\n` +
-    `วันที่เสร็จสิ้น: ${formatThaiDateTime(r.completed_at)}\n` +
-    `ข้อความ: ${shortText(r.message, 250)}`;
+    `📄 รายละเอียดคำร้อง #${r.id}\n\n` +
+    `${categoryEmoji} ประเภท: ${category}\n` +
+    `${statusEmoji} สถานะ: ${status}\n` +
+    `${departmentEmoji} หน่วยงาน: ${department}\n` +
+    `🕒 วันที่แจ้ง: ${createdAt}\n` +
+    `🏁 วันที่เสร็จสิ้น: ${completedAt}\n\n` +
+    `📝 ข้อความคำร้อง\n${messageText}`;
 
   if (r.dept_reason) {
-    msg += `\nเหตุผลจากหน่วยงาน: ${r.dept_reason}`;
+    msg += `\n\n🏬 เหตุผลจากหน่วยงาน\n${r.dept_reason}`;
   }
 
   if (r.reject_reason) {
-    msg += `\nเหตุผลไม่อนุมัติ: ${r.reject_reason}`;
+    msg += `\n\n🚫 เหตุผลไม่อนุมัติ\n${r.reject_reason}`;
+  }
+
+  if (status.includes('เสร็จสิ้น')) {
+    msg += `\n\n🙏 ขอบคุณที่แจ้งคำร้องเข้ามา`;
+  } else if (status.includes('กำลังดำเนินการ')) {
+    msg += `\n\n🔧 คำร้องของคุณกำลังอยู่ระหว่างดำเนินการ`;
+  } else if (status.includes('รอดำเนินการ') || status.includes('รอแผนก')) {
+    msg += `\n\n⏳ กรุณารอสักครู่ ระบบจะแจ้งเตือนเมื่อมีการอัปเดต`;
+  } else if (status.includes('ไม่รับเรื่อง') || status.includes('ไม่อนุมัติ')) {
+    msg += `\n\n📞 หากต้องการข้อมูลเพิ่มเติม กรุณาติดต่อเจ้าหน้าที่`;
   }
 
   return msg;
