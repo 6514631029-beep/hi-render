@@ -321,8 +321,7 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
     const secret = process.env.LINE_CHANNEL_SECRET;
     const signature = req.headers['x-line-signature'];
 
-    // ✅ req.body ต้องเป็น Buffer
-    const rawBody = req.body; // Buffer
+    const rawBody = req.body;
     const bodyText = rawBody.toString('utf8');
 
     // Verify signature
@@ -342,6 +341,9 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
       const replyToken = ev.replyToken;
       const userId = ev.source?.userId;
 
+      // =========================
+      // 1) BIND / ผูก LINE
+      // =========================
       const mToken = text.match(/^(?:BIND|ผูก)\s+([A-Za-z0-9\-_]{10,80})$/i);
 
       if (mToken && userId) {
@@ -349,7 +351,9 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
 
         const [rows] = await db.promise().query(
           `SELECT request_id, phone, used, expires_at
-          FROM line_bind_tokens WHERE token=? LIMIT 1`,
+           FROM line_bind_tokens
+           WHERE token = ?
+           LIMIT 1`,
           [token]
         );
 
@@ -359,6 +363,7 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         }
 
         const t = rows[0];
+
         if (t.used) {
           await replyLineMessage(replyToken, '⚠️ โค้ดนี้ถูกใช้ไปแล้ว');
           continue;
@@ -374,24 +379,26 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
 
         await db.promise().query(
           `INSERT INTO line_links (phone, line_user_id)
-          VALUES (?, ?)
-          ON DUPLICATE KEY UPDATE line_user_id=VALUES(line_user_id), updated_at=NOW()`,
+           VALUES (?, ?)
+           ON DUPLICATE KEY UPDATE
+             line_user_id = VALUES(line_user_id),
+             updated_at = NOW()`,
           [phone, userId]
         );
 
         await db.promise().query(
-          `UPDATE line_bind_tokens SET used=1 WHERE token=?`,
+          `UPDATE line_bind_tokens SET used = 1 WHERE token = ?`,
           [token]
         );
 
         const [reqRows] = await db.promise().query(
-          'SELECT id, status FROM requests WHERE id = ? LIMIT 1',
+          `SELECT id, status FROM requests WHERE id = ? LIMIT 1`,
           [t.request_id]
         );
 
         const latestStatus = reqRows.length
           ? reqRows[0].status
-          : 'รอหน่วยงานรับเรื่อง';
+          : 'รอแผนกรับเรื่อง';
 
         await replyLineMessage(
           replyToken,
@@ -400,7 +407,125 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         continue;
       }
 
-      await replyLineMessage(replyToken, 'พิมพ์: BIND <โค้ด> เพื่อผูก LINE');
+      // =========================
+      // 2) ติดตามหลายคำร้อง
+      // =========================
+      const isTrackCommand = ['ติดตาม', 'สถานะ', 'คำร้องของฉัน'].includes(text);
+      if (isTrackCommand) {
+        if (!userId) {
+          await replyLineMessage(replyToken, '❌ ไม่พบ LINE user');
+          continue;
+        }
+
+        const rows = await getLatestRequestsByLineUserId(userId, 5);
+
+        if (!rows.length) {
+          await replyLineMessage(
+            replyToken,
+            '📭 ยังไม่พบคำร้องที่ผูกกับ LINE นี้\n\nหากคุณเพิ่งส่งคำร้อง กรุณากลับไปหน้าส่งคำร้องสำเร็จ แล้วกดผูก LINE ก่อน'
+          );
+          continue;
+        }
+
+        const msg = buildTrackingListMessage(rows);
+        await replyLineMessage(replyToken, msg);
+        continue;
+      }
+
+      // =========================
+      // 3) คำร้องล่าสุด
+      // =========================
+      if (text === 'คำร้องล่าสุด') {
+        if (!userId) {
+          await replyLineMessage(replyToken, '❌ ไม่พบ LINE user');
+          continue;
+        }
+
+        const latest = await getLatestSingleRequestByLineUserId(userId);
+
+        if (!latest) {
+          await replyLineMessage(
+            replyToken,
+            '📭 ยังไม่พบคำร้องล่าสุดของคุณ\n\nหากคุณเพิ่งส่งคำร้อง กรุณาผูก LINE ก่อน'
+          );
+          continue;
+        }
+
+        await replyLineMessage(replyToken, buildLatestRequestMessage(latest));
+        continue;
+      }
+
+      // =========================
+      // 4) รายละเอียด <id>
+      // =========================
+      const detailMatch = text.match(/^รายละเอียด\s+(\d+)$/i);
+
+      if (detailMatch) {
+        if (!userId) {
+          await replyLineMessage(replyToken, '❌ ไม่พบ LINE user');
+          continue;
+        }
+
+        const requestId = Number(detailMatch[1]);
+        const detail = await getRequestDetailForLineUser(userId, requestId);
+
+        if (!detail) {
+          await replyLineMessage(
+            replyToken,
+            `❌ ไม่พบคำร้องเลข #${requestId}\nหรือคำร้องนี้ไม่ได้ผูกกับ LINE ของคุณ`
+          );
+          continue;
+        }
+
+        await replyLineMessage(replyToken, buildTrackingDetailMessage(detail));
+        continue;
+      }
+
+      // =========================
+      // 5) วิธีผูกบัญชี
+      // =========================
+      if (text === 'วิธีผูกบัญชี') {
+        await replyLineMessage(
+          replyToken,
+          '🔗 วิธีผูก LINE กับคำร้อง\n\n' +
+          '1) ส่งคำร้องผ่านเว็บไซต์\n' +
+          '2) ไปที่หน้าส่งคำร้องสำเร็จ\n' +
+          '3) คัดลอกข้อความ BIND <โค้ด>\n' +
+          '4) ส่งข้อความนั้นมาที่แชต LINE นี้\n\n' +
+          'ตัวอย่าง:\nBIND abc123xyz'
+        );
+        continue;
+      }
+
+      // =========================
+      // 6) ติดต่อเจ้าหน้าที่
+      // =========================
+      if (text === 'ติดต่อเจ้าหน้าที่') {
+        await replyLineMessage(
+          replyToken,
+          '☎️ ติดต่อเจ้าหน้าที่\n' +
+          'อบต.ท่าช้าง จ.จันทบุรี\n' +
+          'เวลาทำการ: จันทร์-ศุกร์ 08:30-16:30 น.\n' +
+          'โทร: 0xx-xxx-xxxx\n\n' +
+          'หากเป็นเหตุด่วน กรุณาติดต่อทางโทรศัพท์'
+        );
+        continue;
+      }
+
+      // =========================
+      // 7) fallback
+      // =========================
+      await replyLineMessage(
+        replyToken,
+        'คำสั่งที่ใช้ได้:\n' +
+        '- BIND <โค้ด>\n' +
+        '- ติดตาม\n' +
+        '- คำร้องล่าสุด\n' +
+        '- คำร้องของฉัน\n' +
+        '- รายละเอียด <เลขคำร้อง>\n' +
+        '- วิธีผูกบัญชี\n' +
+        '- ติดต่อเจ้าหน้าที่'
+      );
     }
 
     return res.status(200).send('OK');
@@ -420,6 +545,156 @@ async function getLineUserIdByPhone(phone) {
 
   return rows.length ? rows[0].line_user_id : null;
 }
+async function getPhonesByLineUserId(lineUserId) {
+  if (!lineUserId) return [];
+
+  const [rows] = await db.promise().query(
+    `SELECT phone
+     FROM line_links
+     WHERE line_user_id = ?
+     ORDER BY updated_at DESC, created_at DESC`,
+    [lineUserId]
+  );
+
+  // กันเบอร์ซ้ำ
+  const phones = rows
+    .map(r => normalizeThaiPhone(r.phone))
+    .filter(Boolean);
+
+  return [...new Set(phones)];
+}
+
+function formatThaiDateTime(dateValue) {
+  if (!dateValue) return '-';
+
+  const d = new Date(dateValue);
+  if (Number.isNaN(d.getTime())) return String(dateValue);
+
+  return d.toLocaleString('th-TH', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function shortText(text = '', max = 120) {
+  const s = String(text || '').trim().replace(/\s+/g, ' ');
+  if (!s) return '-';
+  return s.length > max ? s.slice(0, max) + '...' : s;
+}
+
+async function getLatestRequestsByLineUserId(lineUserId, limit = 5) {
+  const phones = await getPhonesByLineUserId(lineUserId);
+  if (!phones.length) return [];
+
+  const placeholders = phones.map(() => '?').join(',');
+
+  const [rows] = await db.promise().query(
+    `SELECT
+      id, phone, category, message, department, status,
+      created_at, completed_at, reject_reason, dept_reason
+     FROM requests
+     WHERE phone IN (${placeholders})
+     ORDER BY id DESC
+     LIMIT ?`,
+    [...phones, Number(limit)]
+  );
+
+  return rows;
+}
+
+async function getLatestSingleRequestByLineUserId(lineUserId) {
+  const rows = await getLatestRequestsByLineUserId(lineUserId, 1);
+  return rows.length ? rows[0] : null;
+}
+
+async function getRequestDetailForLineUser(lineUserId, requestId) {
+  const phones = await getPhonesByLineUserId(lineUserId);
+  if (!phones.length) return null;
+
+  const placeholders = phones.map(() => '?').join(',');
+
+  const [rows] = await db.promise().query(
+    `SELECT
+      id, name, phone, address, category, message,
+      department, status, reject_reason, dept_reason,
+      dept_accept, created_at, completed_at, photo
+     FROM requests
+     WHERE id = ?
+       AND phone IN (${placeholders})
+     LIMIT 1`,
+    [requestId, ...phones]
+  );
+
+  return rows.length ? rows[0] : null;
+}
+
+function buildTrackingListMessage(rows = []) {
+  if (!rows.length) {
+    return '📭 ยังไม่พบคำร้องของคุณในระบบ';
+  }
+
+  let msg = '📋 คำร้องล่าสุดของคุณ\n\n';
+
+  msg += rows.map((r, index) => {
+    return (
+      `${index + 1}) #${r.id}\n` +
+      `ประเภท: ${r.category || '-'}\n` +
+      `สถานะ: ${r.status || '-'}\n` +
+      `หน่วยงาน: ${r.department || '-'}\n` +
+      `วันที่แจ้ง: ${formatThaiDateTime(r.created_at)}`
+    );
+  }).join('\n\n');
+
+  msg += '\n\nพิมพ์ "รายละเอียด <เลขคำร้อง>"\nตัวอย่าง: รายละเอียด 130';
+
+  return msg;
+}
+
+function buildLatestRequestMessage(r) {
+  if (!r) return '📭 ยังไม่พบคำร้องล่าสุดของคุณ';
+
+  let msg =
+    `📌 คำร้องล่าสุดของคุณ\n\n` +
+    `เลขคำร้อง: #${r.id}\n` +
+    `ประเภท: ${r.category || '-'}\n` +
+    `สถานะ: ${r.status || '-'}\n` +
+    `หน่วยงาน: ${r.department || '-'}\n` +
+    `วันที่แจ้ง: ${formatThaiDateTime(r.created_at)}\n` +
+    `ข้อความ: ${shortText(r.message, 100)}\n\n` +
+    `หากต้องการดูเพิ่ม พิมพ์: รายละเอียด ${r.id}`;
+
+  return msg;
+}
+
+function buildTrackingDetailMessage(r) {
+  if (!r) return '❌ ไม่พบรายละเอียดคำร้อง';
+
+  let msg =
+    `📄 รายละเอียดคำร้อง #${r.id}\n` +
+    `ประเภท: ${r.category || '-'}\n` +
+    `สถานะ: ${r.status || '-'}\n` +
+    `หน่วยงาน: ${r.department || '-'}\n` +
+    `วันที่แจ้ง: ${formatThaiDateTime(r.created_at)}\n` +
+    `วันที่เสร็จสิ้น: ${formatThaiDateTime(r.completed_at)}\n` +
+    `ข้อความ: ${shortText(r.message, 250)}`;
+
+  if (r.dept_reason) {
+    msg += `\nเหตุผลจากหน่วยงาน: ${r.dept_reason}`;
+  }
+
+  if (r.reject_reason) {
+    msg += `\nเหตุผลไม่อนุมัติ: ${r.reject_reason}`;
+  }
+
+  return msg;
+}
+
+
+
 function getStatusMeta(status = '') {
   const s = String(status || '').trim();
 
