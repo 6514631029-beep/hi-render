@@ -286,6 +286,30 @@ async function pushLineImage(to, imageUrl) {
 
   if (!res.ok) console.error('LINE push image failed:', await res.text());
 }
+async function linkRichMenuToUser(lineUserId, richMenuId) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+
+  if (!token || !lineUserId || !richMenuId) {
+    console.log('[LINE richmenu skip]', { lineUserId, richMenuId, hasToken: !!token });
+    return false;
+  }
+
+  const res = await fetch(`https://api.line.me/v2/bot/user/${encodeURIComponent(lineUserId)}/richmenu/${encodeURIComponent(richMenuId)}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('LINE richmenu link failed:', text);
+    return false;
+  }
+
+  return true;
+}
+
 async function replyLineMessage(replyToken, text) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
@@ -1270,6 +1294,15 @@ app.post('/api/line/bind-phone', async (req, res) => {
       phoneLinked.line_user_id === lineUserId &&
       normalizeThaiPhone(userLinked.phone) === cleanPhone
     ) {
+      try {
+        await linkRichMenuToUser(
+          lineUserId,
+          process.env.LINE_RICHMENU_LINKED_ID
+        );
+      } catch (e) {
+        console.error('link rich menu (already linked) error:', e);
+      }
+
       await pushLineMessage(
         lineUserId,
         `ℹ️ บัญชีนี้ผูกกับระบบไว้แล้ว\n\n` +
@@ -1308,6 +1341,15 @@ app.post('/api/line/bind-phone', async (req, res) => {
       `,
       [cleanPhone, lineUserId]
     );
+
+    try {
+      await linkRichMenuToUser(
+        lineUserId,
+        process.env.LINE_RICHMENU_LINKED_ID
+      );
+    } catch (e) {
+      console.error('link rich menu after bind error:', e);
+    }
 
     const wasPhoneLinkedToAnother =
       phoneLinked && phoneLinked.line_user_id !== lineUserId;

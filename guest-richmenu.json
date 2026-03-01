@@ -1,0 +1,24 @@
+{
+  "size": {
+    "width": 2500,
+    "height": 1686
+  },
+  "selected": true,
+  "name": "เมนูก่อนผูกบัญชี API",
+  "chatBarText": "ผูกบัญชี",
+  "areas": [
+    {
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 2500,
+        "height": 1686
+      },
+      "action": {
+        "type": "uri",
+        "label": "กดเพื่อผูกบัญชี",
+        "uri": "https://hi-render.onrender.com/line-bind.html"
+      }
+    }
+  ]
+}
