@@ -307,6 +307,44 @@ async function replyLineMessage(replyToken, text) {
 
   if (!res.ok) console.error('LINE reply failed:', await res.text());
 }
+async function replyLineQuickReply(replyToken, text, items = []) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.log('[LINE MOCK quick reply]', text, items);
+    return;
+  }
+
+  const safeItems = Array.isArray(items) ? items.slice(0, 13) : [];
+
+  const body = {
+    replyToken,
+    messages: [
+      {
+        type: 'text',
+        text,
+        quickReply: {
+          items: safeItems
+        }
+      }
+    ]
+  };
+
+  const res = await fetch('https://api.line.me/v2/bot/message/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    console.error('LINE quick reply failed:', await res.text());
+  }
+}
+
+
+
 function mapCategoryToDept(category) {
   const map = {
     'ขยะ': 'สาธารณสุข',
@@ -428,7 +466,9 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         }
 
         const msg = buildTrackingListMessage(rows);
-        await replyLineMessage(replyToken, msg);
+        const quickReplyItems = buildRequestQuickReplyItems(rows);
+
+        await replyLineQuickReply(replyToken, msg, quickReplyItems);
         continue;
       }
 
@@ -644,12 +684,11 @@ function buildTrackingListMessage(rows = []) {
       `${index + 1}) #${r.id}\n` +
       `ประเภท: ${r.category || '-'}\n` +
       `สถานะ: ${r.status || '-'}\n` +
-      `หน่วยงาน: ${r.department || '-'}\n` +
-      `วันที่แจ้ง: ${formatThaiDateTime(r.created_at)}`
+      `หน่วยงาน: ${r.department || '-'}`
     );
   }).join('\n\n');
 
-  msg += '\n\nพิมพ์ "รายละเอียด <เลขคำร้อง>"\nตัวอย่าง: รายละเอียด 130';
+  msg += '\n\n👇 กดปุ่มด้านล่างเพื่อดูรายละเอียด';
 
   return msg;
 }
@@ -692,7 +731,16 @@ function buildTrackingDetailMessage(r) {
 
   return msg;
 }
-
+function buildRequestQuickReplyItems(rows = []) {
+  return (rows || []).slice(0, 13).map((r) => ({
+    type: 'action',
+    action: {
+      type: 'message',
+      label: `ดู #${r.id}`,
+      text: `รายละเอียด ${r.id}`
+    }
+  }));
+}
 
 
 function getStatusMeta(status = '') {
