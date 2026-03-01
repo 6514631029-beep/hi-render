@@ -8,14 +8,6 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
-    /* =========================
-       TH Sarabun New (Local)
-       ต้องมีไฟล์ใน public/fonts/
-       - THSarabunNew.woff2
-       - THSarabunNew Bold.woff2
-       - THSarabunNew Italic.woff2
-       - THSarabunNew BoldItalic.woff2
-       ========================= */
     @font-face{
       font-family:"THSarabunNew";
       src:url("/fonts/THSarabunNew.woff2") format("woff2");
@@ -51,15 +43,18 @@
       --ink:#0f172a;
       --muted:#64748b;
       --line:#06c755;
-      --line-dark:#059669;
       --border:#dbe4ea;
       --shadow:0 18px 42px rgba(2, 6, 23, .10);
       --radius:24px;
+      --ok-bg:#ecfdf3;
+      --ok-text:#15803d;
+      --warn-bg:#fffbeb;
+      --warn-text:#b45309;
+      --err-bg:#fef2f2;
+      --err-text:#b91c1c;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{ box-sizing:border-box; }
 
     html, body{
       margin:0;
@@ -109,7 +104,6 @@
       font-size:30px;
       font-family:"THSarabunNew", system-ui, sans-serif;
       margin-top:12px;
-      box-sizing:border-box;
       outline:none;
       transition:border-color .15s ease, box-shadow .15s ease;
       background:#fff;
@@ -149,22 +143,25 @@
       margin-top:16px;
       padding:14px 16px;
       border-radius:16px;
-      background:#eef6ff;
-      color:#1d4ed8;
       display:none;
       white-space:pre-line;
       font-size:26px;
       line-height:1.35;
     }
 
-    .ok{
-      background:#ecfdf3;
-      color:#15803d;
+    .status.ok{
+      background:var(--ok-bg);
+      color:var(--ok-text);
     }
 
-    .err{
-      background:#fef2f2;
-      color:#b91c1c;
+    .status.warn{
+      background:var(--warn-bg);
+      color:var(--warn-text);
+    }
+
+    .status.err{
+      background:var(--err-bg);
+      color:var(--err-text);
     }
 
     .muted{
@@ -175,7 +172,6 @@
       line-height:1.4;
     }
 
-    /* Popup */
     .success-modal{
       position:fixed;
       inset:0;
@@ -192,7 +188,7 @@
     }
 
     .success-box{
-      width:min(440px, 100%);
+      width:min(460px, 100%);
       background:#ffffff;
       border-radius:26px;
       padding:28px 22px 22px;
@@ -220,6 +216,7 @@
       line-height:1.4;
       font-size:28px;
       margin-bottom:18px;
+      white-space:pre-line;
     }
 
     .success-btn{
@@ -253,29 +250,47 @@
     <h1>🔗 ผูกบัญชี LINE</h1>
     <p>กรอกเบอร์โทรที่ใช้ส่งคำร้อง แล้วกดปุ่มด้านล่างเพื่อผูกบัญชี LINE ของคุณกับระบบ</p>
 
-    <input id="phone" type="tel" placeholder="เช่น 0812345678" />
+    <input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" />
+
+    <div style="margin-top:8px; text-align:right;">
+    <button
+        type="button"
+        onclick="clearSavedPhone()"
+        style="width:auto; margin-top:0; padding:8px 14px; font-size:24px; background:#e2e8f0; color:#0f172a;"
+    >
+        ล้างเบอร์ที่จำไว้
+    </button>
+    </div>
+
     <button id="bindBtn" onclick="bindAccount()">ยืนยันผูกบัญชี</button>
 
     <div id="status" class="status"></div>
     <div class="muted" id="liffInfo">กำลังเชื่อมต่อ LINE...</div>
   </div>
 
-  <!-- Popup -->
   <div id="successModal" class="success-modal">
     <div class="success-box">
-      <div class="success-icon">✅</div>
-      <div class="success-title">ผูกบัญชีสำเร็จ</div>
-      <div class="success-text">
-        จากนี้คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE
-      </div>
+      <div class="success-icon" id="modalIcon">✅</div>
+      <div class="success-title" id="modalTitle">ผูกบัญชีสำเร็จ</div>
+      <div class="success-text" id="modalText">จากนี้คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE</div>
       <button class="success-btn" onclick="closeSuccessModal()">ตกลง</button>
     </div>
   </div>
 
   <script>
     const LIFF_ID = "2009275648-vSO7porW";
+    const PHONE_STORAGE_KEY = "userPhone";
     let lineUserId = null;
+    let shouldCloseAfterModal = false;
 
+function normalizePhoneInput(value = "") {
+  return String(value).replace(/\D/g, "").slice(0, 10);
+}
+function clearSavedPhone() {
+  localStorage.removeItem(PHONE_STORAGE_KEY);
+  document.getElementById("phone").value = "";
+  setStatus("🧹 ล้างเบอร์ที่จำไว้แล้ว", "warn");
+}
     function setStatus(message, type = "") {
       const box = document.getElementById("status");
       box.style.display = "block";
@@ -283,21 +298,35 @@
       box.textContent = message;
     }
 
-    function showSuccessModal() {
-      const modal = document.getElementById('successModal');
-      if (modal) modal.classList.add('show');
+    function clearStatus() {
+      const box = document.getElementById("status");
+      box.style.display = "none";
+      box.className = "status";
+      box.textContent = "";
+    }
+
+    function showSuccessModal({ icon = "✅", title = "สำเร็จ", text = "", closeAfter = false } = {}) {
+      document.getElementById("modalIcon").textContent = icon;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalText").textContent = text;
+      shouldCloseAfterModal = closeAfter;
+
+      const modal = document.getElementById("successModal");
+      if (modal) modal.classList.add("show");
     }
 
     function closeSuccessModal() {
-      const modal = document.getElementById('successModal');
-      if (modal) modal.classList.remove('show');
+      const modal = document.getElementById("successModal");
+      if (modal) modal.classList.remove("show");
+
+      if (!shouldCloseAfterModal) return;
 
       try {
         if (window.liff && liff.isInClient()) {
           liff.closeWindow();
         }
       } catch (e) {
-        console.error('closeWindow error:', e);
+        console.error("closeWindow error:", e);
       }
     }
 
@@ -313,6 +342,11 @@
         const profile = await liff.getProfile();
         lineUserId = profile.userId;
 
+        const savedPhone = localStorage.getItem(PHONE_STORAGE_KEY) || "";
+        if (savedPhone) {
+        document.getElementById("phone").value = normalizePhoneInput(savedPhone);
+        }
+
         document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE สำเร็จแล้ว";
       } catch (err) {
         console.error(err);
@@ -322,16 +356,19 @@
     }
 
     async function bindAccount() {
-      const phone = document.getElementById("phone").value.trim();
+      const phoneInput = document.getElementById("phone");
+      const phone = (phoneInput.value || "").replace(/\D/g, "").trim();
       const btn = document.getElementById("bindBtn");
 
-      if (!phone) {
-        setStatus("กรุณากรอกเบอร์โทรก่อน", "err");
+      clearStatus();
+
+      if (!/^0\d{9}$/.test(phone)) {
+        setStatus("❌ กรุณากรอกเบอร์โทร 10 หลัก และขึ้นต้นด้วย 0", "err");
         return;
       }
 
       if (!lineUserId) {
-        setStatus("ยังไม่พบ LINE user กรุณาลองเปิดหน้านี้จากใน LINE อีกครั้ง", "err");
+        setStatus("❌ ยังไม่พบ LINE user กรุณาลองเปิดหน้านี้จากใน LINE อีกครั้ง", "err");
         return;
       }
 
@@ -350,7 +387,37 @@
           throw new Error(data.message || "ผูกบัญชีไม่สำเร็จ");
         }
 
-        showSuccessModal();
+        // เคยผูกแล้ว
+        localStorage.setItem(PHONE_STORAGE_KEY, phone);
+        if (data.code === "ALREADY_LINKED") {
+          showSuccessModal({
+            icon: "ℹ️",
+            title: "เคยผูกบัญชีแล้ว",
+            text: data.message || "บัญชีนี้ผูกกับเบอร์นี้อยู่แล้ว",
+            closeAfter: true
+          });
+          return;
+        }
+
+        // อัปเดตการผูก
+        if (data.code === "LINK_UPDATED") {
+          showSuccessModal({
+            icon: "🔄",
+            title: "อัปเดตการผูกบัญชีสำเร็จ",
+            text: data.message || "ระบบอัปเดตการผูกบัญชี LINE ให้เรียบร้อยแล้ว",
+            closeAfter: true
+          });
+          return;
+        }
+
+        // ผูกครั้งแรก
+        showSuccessModal({
+          icon: "✅",
+          title: "ผูกบัญชีสำเร็จ",
+          text: data.message || "จากนี้คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE",
+          closeAfter: true
+        });
+
       } catch (err) {
         console.error(err);
         setStatus("❌ " + (err.message || "ผูกบัญชีไม่สำเร็จ"), "err");

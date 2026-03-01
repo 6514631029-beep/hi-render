@@ -584,12 +584,13 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
       if (text === 'วิธีผูกบัญชี') {
         await replyLineMessage(
           replyToken,
-          '🔗 วิธีผูก LINE กับคำร้อง\n\n' +
+          '🔗 วิธีผูกบัญชี LINE กับคำร้อง\n\n' +
           '1) ส่งคำร้องผ่านเว็บไซต์\n' +
-          '2) ไปที่หน้าส่งคำร้องสำเร็จ\n' +
-          '3) คัดลอกข้อความ BIND <โค้ด>\n' +
-          '4) ส่งข้อความนั้นมาที่แชต LINE นี้\n\n' +
-          'ตัวอย่าง:\nBIND abc123xyz'
+          '2) เข้า LINE OA ของระบบรับคำร้อง\n' +
+          '3) กดเมนู "ผูกบัญชีไลน์" ที่ Rich Menu\n' +
+          '4) กรอกเบอร์โทรที่ใช้ส่งคำร้อง\n' +
+          '5) กดยืนยัน เพื่อเชื่อมบัญชีให้เรียบร้อย\n\n' +
+          '✅ หลังผูกสำเร็จ คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE อัตโนมัติ'
         );
         continue;
       }
@@ -614,7 +615,6 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
       await replyLineMessage(
         replyToken,
         'คำสั่งที่ใช้ได้:\n' +
-        '- BIND <โค้ด>\n' +
         '- ติดตาม\n' +
         '- คำร้องล่าสุด\n' +
         '- คำร้องของฉัน\n' +
@@ -1140,47 +1140,152 @@ app.get('/line/bind-info', async (req, res) => {
     return res.status(500).json({ ok:false });
   }
 });
-app.post('/api/line/bind-phone', (req, res) => {
-  const { phone, lineUserId } = req.body;
+app.post('/api/line/bind-phone', async (req, res) => {
+  try {
+    const { phone, lineUserId } = req.body;
 
-  if (!phone || !lineUserId) {
-    return res.status(400).json({ message: 'ข้อมูลไม่ครบ' });
-  }
+    if (!phone || !lineUserId) {
+      return res.status(400).json({
+        ok: false,
+        code: 'INVALID_INPUT',
+        message: 'ข้อมูลไม่ครบ'
+      });
+    }
 
-  const cleanPhone = String(phone).trim();
+    const cleanPhone = normalizeThaiPhone(phone);
 
-  db.query(
-    'SELECT id, phone FROM requests WHERE phone = ? ORDER BY id DESC LIMIT 1',
-    [cleanPhone],
-    (findErr, rows) => {
-      if (findErr) {
-        console.error('❌ find request error:', findErr);
-        return res.status(500).json({ message: 'ตรวจสอบเบอร์ไม่สำเร็จ' });
-      }
+    if (!/^0\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({
+        ok: false,
+        code: 'INVALID_PHONE',
+        message: 'รูปแบบเบอร์โทรไม่ถูกต้อง'
+      });
+    }
 
-      if (!rows.length) {
-        return res.status(404).json({ message: 'ไม่พบเบอร์นี้ในระบบคำร้อง' });
-      }
+    // 1) เช็กว่าเบอร์นี้มีอยู่ใน requests จริงไหม
+    const [requestRows] = await db.promise().query(
+      'SELECT id, phone FROM requests WHERE phone = ? ORDER BY id DESC LIMIT 1',
+      [cleanPhone]
+    );
 
-      db.query(
-        `
-        INSERT INTO line_links (phone, line_user_id)
-        VALUES (?, ?)
-        ON DUPLICATE KEY UPDATE
-          line_user_id = VALUES(line_user_id)
-        `,
-        [cleanPhone, lineUserId],
-        (saveErr) => {
-          if (saveErr) {
-            console.error('❌ bind save error:', saveErr);
-            return res.status(500).json({ message: 'บันทึกการผูกบัญชีไม่สำเร็จ' });
-          }
+    if (!requestRows.length) {
+      return res.status(404).json({
+        ok: false,
+        code: 'PHONE_NOT_FOUND',
+        message: 'ไม่พบเบอร์นี้ในระบบคำร้อง'
+      });
+    }
 
-          return res.json({ ok: true, message: 'ผูกบัญชีสำเร็จ' });
-        }
+    // 2) เช็กว่า "เบอร์นี้" เคยผูกกับใครอยู่ไหม
+    const [phoneLinkRows] = await db.promise().query(
+      'SELECT phone, line_user_id FROM line_links WHERE phone = ? LIMIT 1',
+      [cleanPhone]
+    );
+
+    // 3) เช็กว่า "LINE user นี้" เคยผูกกับเบอร์อะไรไหม
+    const [userLinkRows] = await db.promise().query(
+      'SELECT phone, line_user_id FROM line_links WHERE line_user_id = ? LIMIT 1',
+      [lineUserId]
+    );
+
+    const phoneLinked = phoneLinkRows.length ? phoneLinkRows[0] : null;
+    const userLinked = userLinkRows.length ? userLinkRows[0] : null;
+
+    // =========================
+    // CASE A: LINE เดิม + เบอร์เดิม
+    // =========================
+    if (
+      phoneLinked &&
+      userLinked &&
+      phoneLinked.line_user_id === lineUserId &&
+      normalizeThaiPhone(userLinked.phone) === cleanPhone
+    ) {
+      await pushLineMessage(
+        lineUserId,
+        `ℹ️ บัญชีนี้ผูกกับระบบไว้แล้ว\n\n` +
+        `📱 เบอร์ที่ผูก: ${maskPhone(cleanPhone)}\n` +
+        `✅ คุณยังคงได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE ตามปกติ`
+      );
+
+      return res.json({
+        ok: true,
+        code: 'ALREADY_LINKED',
+        message: `บัญชีนี้ผูกกับเบอร์ ${maskPhone(cleanPhone)} อยู่แล้ว`
+      });
+    }
+
+    // =========================
+    // CASE B: LINE นี้เคยผูกเบอร์อื่น -> ลบของเก่าของ LINE นี้ก่อน
+    // =========================
+    if (userLinked && normalizeThaiPhone(userLinked.phone) !== cleanPhone) {
+      await db.promise().query(
+        'DELETE FROM line_links WHERE line_user_id = ?',
+        [lineUserId]
       );
     }
-  );
+
+    // =========================
+    // CASE C: เบอร์นี้เคยผูกกับ LINE คนอื่น -> update ทับเป็นคนปัจจุบัน
+    // CASE D: ยังไม่เคยผูก -> insert ใหม่
+    // =========================
+    await db.promise().query(
+      `
+      INSERT INTO line_links (phone, line_user_id)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE
+        line_user_id = VALUES(line_user_id),
+        updated_at = NOW()
+      `,
+      [cleanPhone, lineUserId]
+    );
+
+    const wasPhoneLinkedToAnother =
+      phoneLinked && phoneLinked.line_user_id !== lineUserId;
+
+    const wasUserLinkedToAnotherPhone =
+      userLinked && normalizeThaiPhone(userLinked.phone) !== cleanPhone;
+
+    let responseCode = 'LINKED_SUCCESS';
+    let responseMessage = `ผูกบัญชีสำเร็จ (${maskPhone(cleanPhone)})`;
+    let pushText =
+      `🎉 ผูกบัญชี LINE สำเร็จแล้ว\n\n` +
+      `📱 เบอร์ที่ผูก: ${maskPhone(cleanPhone)}\n` +
+      `🔔 จากนี้คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE อัตโนมัติ\n\n` +
+      `คุณสามารถใช้เมนูด้านล่างเพื่อ:\n` +
+      `• ติดตามคำร้อง\n` +
+      `• ดูคำร้องล่าสุด\n` +
+      `• ติดต่อเจ้าหน้าที่`;
+
+    if (wasPhoneLinkedToAnother || wasUserLinkedToAnotherPhone) {
+      responseCode = 'LINK_UPDATED';
+      responseMessage = `อัปเดตการผูกบัญชีสำเร็จ (${maskPhone(cleanPhone)})`;
+      pushText =
+        `🔄 อัปเดตการผูกบัญชี LINE สำเร็จ\n\n` +
+        `📱 เบอร์ที่ผูกล่าสุด: ${maskPhone(cleanPhone)}\n` +
+        `🔔 จากนี้ระบบจะส่งการแจ้งเตือนไปยัง LINE บัญชีนี้\n\n` +
+        `คุณสามารถใช้เมนูด้านล่างเพื่อ:\n` +
+        `• ติดตามคำร้อง\n` +
+        `• ดูคำร้องล่าสุด\n` +
+        `• ติดต่อเจ้าหน้าที่`;
+    }
+
+    // 4) ส่งข้อความแจ้งกลับเข้า LINE chat
+    await pushLineMessage(lineUserId, pushText);
+
+    return res.json({
+      ok: true,
+      code: responseCode,
+      message: responseMessage
+    });
+
+  } catch (err) {
+    console.error('❌ bind-phone error:', err);
+    return res.status(500).json({
+      ok: false,
+      code: 'SERVER_ERROR',
+      message: 'บันทึกการผูกบัญชีไม่สำเร็จ'
+    });
+  }
 });
 app.post('/line/update-phone', async (req, res) => {
   try {
@@ -2307,4 +2412,3 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
 });
-
