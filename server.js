@@ -307,6 +307,35 @@ async function replyLineMessage(replyToken, text) {
 
   if (!res.ok) console.error('LINE reply failed:', await res.text());
 }
+async function replyLineFlex(replyToken, altText, contents) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.log('[LINE MOCK flex]', altText, JSON.stringify(contents, null, 2));
+    return;
+  }
+
+  const res = await fetch('https://api.line.me/v2/bot/message/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      replyToken,
+      messages: [
+        {
+          type: 'flex',
+          altText,
+          contents
+        }
+      ]
+    })
+  });
+
+  if (!res.ok) {
+    console.error('LINE flex reply failed:', await res.text());
+  }
+}
 async function replyLineQuickReply(replyToken, text, items = []) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
@@ -465,10 +494,8 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
           continue;
         }
 
-        const msg = buildTrackingListMessage(rows);
-        const quickReplyItems = buildRequestQuickReplyItems(rows);
-
-        await replyLineQuickReply(replyToken, msg, quickReplyItems);
+        const flexContents = buildTrackingFlexCarousel(rows);
+        await replyLineFlex(replyToken, 'คำร้องล่าสุดของคุณ', flexContents);
         continue;
       }
 
@@ -619,7 +646,18 @@ function formatThaiDateTime(dateValue) {
     minute: '2-digit'
   });
 }
+function getStatusColor(status = '') {
+  const s = String(status || '').trim();
 
+  if (s === 'รอแผนกรับเรื่อง') return '#F59E0B';
+  if (s === 'รอแอดมินหลัก') return '#EF4444';
+  if (s === 'รอดำเนินการ') return '#F59E0B';
+  if (s === 'กำลังดำเนินการ') return '#2563EB';
+  if (s === 'เสร็จสิ้น') return '#16A34A';
+  if (s === 'ไม่อนุมัติ') return '#DC2626';
+
+  return '#64748B';
+}
 function shortText(text = '', max = 120) {
   const s = String(text || '').trim().replace(/\s+/g, ' ');
   if (!s) return '-';
@@ -731,15 +769,128 @@ function buildTrackingDetailMessage(r) {
 
   return msg;
 }
-function buildRequestQuickReplyItems(rows = []) {
-  return (rows || []).slice(0, 13).map((r) => ({
-    type: 'action',
-    action: {
-      type: 'message',
-      label: `ดู #${r.id}`,
-      text: `รายละเอียด ${r.id}`
-    }
-  }));
+function buildTrackingFlexCarousel(rows = []) {
+  const safeRows = (rows || []).slice(0, 5);
+
+  return {
+    type: 'carousel',
+    contents: safeRows.map((r) => ({
+      type: 'bubble',
+      size: 'mega',
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'md',
+        contents: [
+          {
+            type: 'text',
+            text: `คำร้อง #${r.id}`,
+            weight: 'bold',
+            size: 'xl',
+            color: '#111827'
+          },
+          {
+            type: 'box',
+            layout: 'baseline',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'text',
+                text: 'ประเภท',
+                size: 'sm',
+                color: '#6B7280',
+                flex: 2
+              },
+              {
+                type: 'text',
+                text: r.category || '-',
+                size: 'sm',
+                color: '#111827',
+                flex: 5,
+                wrap: true
+              }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'baseline',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'text',
+                text: 'สถานะ',
+                size: 'sm',
+                color: '#6B7280',
+                flex: 2
+              },
+              {
+                type: 'text',
+                text: r.status || '-',
+                size: 'sm',
+                color: getStatusColor(r.status),
+                weight: 'bold',
+                flex: 5,
+                wrap: true
+              }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'baseline',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'text',
+                text: 'หน่วยงาน',
+                size: 'sm',
+                color: '#6B7280',
+                flex: 2
+              },
+              {
+                type: 'text',
+                text: r.department || '-',
+                size: 'sm',
+                color: '#111827',
+                flex: 5,
+                wrap: true
+              }
+            ]
+          },
+          {
+            type: 'separator',
+            margin: 'md'
+          },
+          {
+            type: 'text',
+            text: `แจ้งเมื่อ ${formatThaiDateTime(r.created_at)}`,
+            size: 'xs',
+            color: '#6B7280',
+            wrap: true
+          }
+        ],
+        paddingAll: '20px'
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            height: 'md',
+            color: '#155263',
+            action: {
+              type: 'message',
+              label: 'ดูรายละเอียด',
+              text: `รายละเอียด ${r.id}`
+            }
+          }
+        ],
+        paddingAll: '16px'
+      }
+    }))
+  };
 }
 
 
