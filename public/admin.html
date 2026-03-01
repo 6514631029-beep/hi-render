@@ -573,7 +573,8 @@
           <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
         `
         : '-';
-
+      const blockedDepartment =
+        bounced && row.routed_to ? String(row.routed_to).trim() : '';
       // ✅ ปุ่มอนุมัติจะ disable ถ้ายังไม่เลือกแผนก
       const isDeptSelected = row.department && row.department !== "-";
 
@@ -603,11 +604,46 @@
 
           <select onchange="setDept(${row.id}, this.value)">
             <option value="">เลือกแผนก</option>
-            <option value="สำนักงานปลัด" ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}>สำนักงานปลัด</option>
-            <option value="สาธารณสุข" ${row.department === 'สาธารณสุข' ? 'selected' : ''}>สาธารณสุข</option>
-            <option value="กองช่าง" ${row.department === 'กองช่าง' ? 'selected' : ''}>กองช่าง</option>
-            <option value="ไฟฟ้า" ${row.department === 'ไฟฟ้า' ? 'selected' : ''}>ไฟฟ้า</option>
-            <option value="อื่นๆ" ${row.department === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
+
+            <option
+              value="สำนักงานปลัด"
+              ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}
+              ${blockedDepartment === 'สำนักงานปลัด' ? 'disabled' : ''}
+            >
+              สำนักงานปลัด${blockedDepartment === 'สำนักงานปลัด' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="สาธารณสุข"
+              ${row.department === 'สาธารณสุข' ? 'selected' : ''}
+              ${blockedDepartment === 'สาธารณสุข' ? 'disabled' : ''}
+            >
+              สาธารณสุข${blockedDepartment === 'สาธารณสุข' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="กองช่าง"
+              ${row.department === 'กองช่าง' ? 'selected' : ''}
+              ${blockedDepartment === 'กองช่าง' ? 'disabled' : ''}
+            >
+              กองช่าง${blockedDepartment === 'กองช่าง' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="ไฟฟ้า"
+              ${row.department === 'ไฟฟ้า' ? 'selected' : ''}
+              ${blockedDepartment === 'ไฟฟ้า' ? 'disabled' : ''}
+            >
+              ไฟฟ้า${blockedDepartment === 'ไฟฟ้า' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="อื่นๆ"
+              ${row.department === 'อื่นๆ' ? 'selected' : ''}
+              ${blockedDepartment === 'อื่นๆ' ? 'disabled' : ''}
+            >
+              อื่นๆ${blockedDepartment === 'อื่นๆ' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
           </select><br>
         </td>
       `;

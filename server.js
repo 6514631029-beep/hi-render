@@ -1629,19 +1629,51 @@ app.post('/set-department/:id', (req, res) => {
     return res.status(400).json({ message: '❌ ต้องระบุแผนก' });
   }
 
-  db.query('UPDATE requests SET department = ? WHERE id = ?', [department, id], (err, result) => {
-    if (err) {
-      console.error('❌ SQL error:', err);
-      return res.status(500).json({ message: '❌ เปลี่ยนแผนกไม่สำเร็จ' });
-    }
+  db.query(
+    'SELECT id, status, dept_accept, routed_to FROM requests WHERE id = ? LIMIT 1',
+    [id],
+    (findErr, rows) => {
+      if (findErr) {
+        console.error('❌ SQL find error:', findErr);
+        return res.status(500).json({ message: '❌ ตรวจสอบข้อมูลไม่สำเร็จ' });
+      }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: '❌ ไม่พบคำร้องนี้' });
-    }
+      if (!rows.length) {
+        return res.status(404).json({ message: '❌ ไม่พบคำร้องนี้' });
+      }
 
-    console.log(`✅ อัปเดตแผนก id=${id} -> ${department}`);
-    res.json({ message: '✅ เปลี่ยนแผนกแล้ว' });
-  });
+      const row = rows[0];
+
+      const isBouncedBack =
+        row.status === 'รอแอดมินหลัก' && Number(row.dept_accept) === 0;
+
+      const blockedDepartment = row.routed_to || '';
+
+      if (isBouncedBack && blockedDepartment && department === blockedDepartment) {
+        return res.status(400).json({
+          message: `❌ คำร้องนี้ถูก ${blockedDepartment} ตีกลับแล้ว จึงไม่สามารถส่งกลับไปแผนกเดิมได้`
+        });
+      }
+
+      db.query(
+        'UPDATE requests SET department = ? WHERE id = ?',
+        [department, id],
+        (err, result) => {
+          if (err) {
+            console.error('❌ SQL error:', err);
+            return res.status(500).json({ message: '❌ เปลี่ยนแผนกไม่สำเร็จ' });
+          }
+
+          if (result.affectedRows === 0) {
+            return res.status(404).json({ message: '❌ ไม่พบคำร้องนี้' });
+          }
+
+          console.log(`✅ อัปเดตแผนก id=${id} -> ${department}`);
+          res.json({ message: '✅ เปลี่ยนแผนกแล้ว' });
+        }
+      );
+    }
+  );
 });
 
 app.post('/disapprove/:id', (req, res) => {
