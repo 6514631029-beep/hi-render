@@ -4,78 +4,247 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ผูกบัญชี LINE</title>
+
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
   <style>
-    body{
-      font-family: system-ui, -apple-system, "Kanit", sans-serif;
-      background:#f3f7f6;
-      margin:0;
-      padding:24px;
-      color:#123;
+    /* =========================
+       TH Sarabun New (Local)
+       ต้องมีไฟล์ใน public/fonts/
+       - THSarabunNew.woff2
+       - THSarabunNew Bold.woff2
+       - THSarabunNew Italic.woff2
+       - THSarabunNew BoldItalic.woff2
+       ========================= */
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew.woff2") format("woff2");
+      font-weight:400;
+      font-style:normal;
+      font-display:swap;
     }
-    .card{
-      max-width:520px;
-      margin:30px auto;
-      background:#fff;
-      border-radius:18px;
-      padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew Bold.woff2") format("woff2");
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
     }
-    h1{
-      margin-top:0;
-      color:#0a7a42;
-      font-size:30px;
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew Italic.woff2") format("woff2");
+      font-weight:400;
+      font-style:italic;
+      font-display:swap;
     }
-    p{
-      color:#4b5563;
-      line-height:1.6;
+    @font-face{
+      font-family:"THSarabunNew";
+      src:url("/fonts/THSarabunNew BoldItalic.woff2") format("woff2");
+      font-weight:700;
+      font-style:italic;
+      font-display:swap;
     }
-    input{
-      width:100%;
-      padding:14px 16px;
-      border:1px solid #d1d5db;
-      border-radius:12px;
-      font-size:18px;
-      margin-top:12px;
+
+    :root{
+      --bg:#eef4f2;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#06c755;
+      --line-dark:#059669;
+      --border:#dbe4ea;
+      --shadow:0 18px 42px rgba(2, 6, 23, .10);
+      --radius:24px;
+    }
+
+    *{
       box-sizing:border-box;
     }
+
+    html, body{
+      margin:0;
+      min-height:100%;
+    }
+
+    body{
+      font-family:"THSarabunNew", system-ui, -apple-system, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      padding:24px 14px;
+    }
+
+    .card{
+      max-width:620px;
+      margin:30px auto;
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:28px 22px 24px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(219, 228, 234, .9);
+    }
+
+    h1{
+      margin:0 0 10px;
+      color:#15803d;
+      font-size:42px;
+      line-height:1.1;
+      font-weight:700;
+      letter-spacing:.2px;
+      text-align:center;
+    }
+
+    p{
+      color:#475569;
+      line-height:1.45;
+      font-size:28px;
+      margin:0 0 16px;
+      text-align:center;
+    }
+
+    input{
+      width:100%;
+      padding:16px 18px;
+      border:1px solid #cfd8df;
+      border-radius:18px;
+      font-size:30px;
+      font-family:"THSarabunNew", system-ui, sans-serif;
+      margin-top:12px;
+      box-sizing:border-box;
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
+      background:#fff;
+    }
+
+    input:focus{
+      border-color:#86efac;
+      box-shadow:0 0 0 4px rgba(34,197,94,.14);
+    }
+
     button{
       width:100%;
       margin-top:16px;
-      padding:14px 16px;
+      padding:16px 18px;
       border:none;
-      border-radius:12px;
-      background:#06c755;
+      border-radius:18px;
+      background:var(--line);
       color:#fff;
-      font-size:18px;
+      font-size:32px;
+      line-height:1.1;
       font-weight:700;
+      font-family:"THSarabunNew", system-ui, sans-serif;
       cursor:pointer;
+      transition:transform .06s ease, opacity .2s ease;
     }
+
+    button:active{
+      transform:scale(.99);
+    }
+
     button:disabled{
-      opacity:.6;
+      opacity:.65;
       cursor:not-allowed;
     }
+
     .status{
       margin-top:16px;
-      padding:12px 14px;
-      border-radius:12px;
+      padding:14px 16px;
+      border-radius:16px;
       background:#eef6ff;
       color:#1d4ed8;
       display:none;
       white-space:pre-line;
+      font-size:26px;
+      line-height:1.35;
     }
+
     .ok{
       background:#ecfdf3;
       color:#15803d;
     }
+
     .err{
       background:#fef2f2;
       color:#b91c1c;
     }
+
     .muted{
-      font-size:14px;
-      color:#6b7280;
-      margin-top:10px;
+      font-size:24px;
+      color:#64748b;
+      margin-top:12px;
+      text-align:center;
+      line-height:1.4;
+    }
+
+    /* Popup */
+    .success-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15, 23, 42, .45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      z-index:9999;
+    }
+
+    .success-modal.show{
+      display:flex;
+    }
+
+    .success-box{
+      width:min(440px, 100%);
+      background:#ffffff;
+      border-radius:26px;
+      padding:28px 22px 22px;
+      box-shadow:0 24px 60px rgba(2, 6, 23, .22);
+      text-align:center;
+      animation:popIn .18s ease-out;
+    }
+
+    .success-icon{
+      font-size:60px;
+      line-height:1;
+      margin-bottom:8px;
+    }
+
+    .success-title{
+      font-size:40px;
+      font-weight:700;
+      color:#15803d;
+      margin-bottom:8px;
+      line-height:1.1;
+    }
+
+    .success-text{
+      color:#475569;
+      line-height:1.4;
+      font-size:28px;
+      margin-bottom:18px;
+    }
+
+    .success-btn{
+      width:100%;
+      border:none;
+      border-radius:18px;
+      background:var(--line);
+      color:#fff;
+      font-size:30px;
+      font-weight:700;
+      font-family:"THSarabunNew", system-ui, sans-serif;
+      padding:14px 16px;
+      cursor:pointer;
+      margin-top:0;
+    }
+
+    @keyframes popIn{
+      from{
+        opacity:0;
+        transform:scale(.94);
+      }
+      to{
+        opacity:1;
+        transform:scale(1);
+      }
     }
   </style>
 </head>
@@ -91,6 +260,18 @@
     <div class="muted" id="liffInfo">กำลังเชื่อมต่อ LINE...</div>
   </div>
 
+  <!-- Popup -->
+  <div id="successModal" class="success-modal">
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <div class="success-title">ผูกบัญชีสำเร็จ</div>
+      <div class="success-text">
+        จากนี้คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE
+      </div>
+      <button class="success-btn" onclick="closeSuccessModal()">ตกลง</button>
+    </div>
+  </div>
+
   <script>
     const LIFF_ID = "2009275648-vSO7porW";
     let lineUserId = null;
@@ -100,6 +281,24 @@
       box.style.display = "block";
       box.className = "status " + type;
       box.textContent = message;
+    }
+
+    function showSuccessModal() {
+      const modal = document.getElementById('successModal');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeSuccessModal() {
+      const modal = document.getElementById('successModal');
+      if (modal) modal.classList.remove('show');
+
+      try {
+        if (window.liff && liff.isInClient()) {
+          liff.closeWindow();
+        }
+      } catch (e) {
+        console.error('closeWindow error:', e);
+      }
     }
 
     async function initLiff() {
@@ -114,13 +313,11 @@
         const profile = await liff.getProfile();
         lineUserId = profile.userId;
 
-        document.getElementById("liffInfo").textContent =
-          "เชื่อมต่อ LINE สำเร็จแล้ว";
+        document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE สำเร็จแล้ว";
       } catch (err) {
         console.error(err);
         setStatus("❌ เปิดหน้า LIFF ไม่สำเร็จ\n" + (err.message || err), "err");
-        document.getElementById("liffInfo").textContent =
-          "เชื่อมต่อ LINE ไม่สำเร็จ";
+        document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE ไม่สำเร็จ";
       }
     }
 
@@ -153,7 +350,7 @@
           throw new Error(data.message || "ผูกบัญชีไม่สำเร็จ");
         }
 
-        setStatus("✅ ผูกบัญชีสำเร็จ\nจากนี้คุณจะได้รับแจ้งเตือนผ่าน LINE", "ok");
+        showSuccessModal();
       } catch (err) {
         console.error(err);
         setStatus("❌ " + (err.message || "ผูกบัญชีไม่สำเร็จ"), "err");
