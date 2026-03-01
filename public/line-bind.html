@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ผูกบัญชี LINE</title>
+  <title>ผูก / เปลี่ยนเบอร์บัญชี LINE</title>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
@@ -52,6 +52,8 @@
       --warn-text:#b45309;
       --err-bg:#fef2f2;
       --err-text:#b91c1c;
+      --info-bg:#eff6ff;
+      --info-text:#1d4ed8;
     }
 
     *{ box-sizing:border-box; }
@@ -94,6 +96,18 @@
       font-size:28px;
       margin:0 0 16px;
       text-align:center;
+    }
+
+    .hint-box{
+      margin: 10px 0 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--info-bg);
+      color: var(--info-text);
+      font-size: 24px;
+      line-height: 1.35;
+      text-align: left;
+      white-space: pre-line;
     }
 
     input{
@@ -247,22 +261,38 @@
 </head>
 <body>
   <div class="card">
-    <h1>🔗 ผูกบัญชี LINE</h1>
-    <p>กรอกเบอร์โทรที่ใช้ส่งคำร้อง แล้วกดปุ่มด้านล่างเพื่อผูกบัญชี LINE ของคุณกับระบบ</p>
+    <h1>🔗 ผูก / เปลี่ยนเบอร์บัญชี LINE</h1>
+    <p>
+      กรอกเบอร์โทรที่ต้องการผูกกับ LINE นี้<br>
+      หากเคยผูกเบอร์เดิมไว้ ระบบจะอัปเดตเป็นเบอร์ใหม่ให้
+    </p>
 
-    <input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" />
+    <div class="hint-box">
+      • ใช้สำหรับผูกบัญชีครั้งแรกได้
+      • ใช้สำหรับเปลี่ยนเบอร์ที่ผูกกับ LINE เดิมได้
+      • กรุณากรอกเบอร์ที่เคยใช้ส่งคำร้องในระบบ
+    </div>
+
+    <input
+      id="phone"
+      type="tel"
+      inputmode="numeric"
+      maxlength="10"
+      placeholder="เช่น 0812345678"
+      oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)"
+    />
 
     <div style="margin-top:8px; text-align:right;">
-    <button
+      <button
         type="button"
         onclick="clearSavedPhone()"
         style="width:auto; margin-top:0; padding:8px 14px; font-size:24px; background:#e2e8f0; color:#0f172a;"
-    >
+      >
         ล้างเบอร์ที่จำไว้
-    </button>
+      </button>
     </div>
 
-    <button id="bindBtn" onclick="bindAccount()">ยืนยันผูกบัญชี</button>
+    <button id="bindBtn" onclick="bindAccount()">ยืนยันผูก / เปลี่ยนเบอร์</button>
 
     <div id="status" class="status"></div>
     <div class="muted" id="liffInfo">กำลังเชื่อมต่อ LINE...</div>
@@ -271,8 +301,8 @@
   <div id="successModal" class="success-modal">
     <div class="success-box">
       <div class="success-icon" id="modalIcon">✅</div>
-      <div class="success-title" id="modalTitle">ผูกบัญชีสำเร็จ</div>
-      <div class="success-text" id="modalText">จากนี้คุณจะได้รับแจ้งเตือนสถานะคำร้องผ่าน LINE</div>
+      <div class="success-title" id="modalTitle">สำเร็จ</div>
+      <div class="success-text" id="modalText">ระบบดำเนินการเรียบร้อยแล้ว</div>
       <button class="success-btn" onclick="closeSuccessModal()">ตกลง</button>
     </div>
   </div>
@@ -283,14 +313,16 @@
     let lineUserId = null;
     let shouldCloseAfterModal = false;
 
-function normalizePhoneInput(value = "") {
-  return String(value).replace(/\D/g, "").slice(0, 10);
-}
-function clearSavedPhone() {
-  localStorage.removeItem(PHONE_STORAGE_KEY);
-  document.getElementById("phone").value = "";
-  setStatus("🧹 ล้างเบอร์ที่จำไว้แล้ว", "warn");
-}
+    function normalizePhoneInput(value = "") {
+      return String(value).replace(/\D/g, "").slice(0, 10);
+    }
+
+    function clearSavedPhone() {
+      localStorage.removeItem(PHONE_STORAGE_KEY);
+      document.getElementById("phone").value = "";
+      setStatus("🧹 ล้างเบอร์ที่จำไว้แล้ว", "warn");
+    }
+
     function setStatus(message, type = "") {
       const box = document.getElementById("status");
       box.style.display = "block";
@@ -306,43 +338,48 @@ function clearSavedPhone() {
     }
 
     function showSuccessModal({ icon = "✅", title = "สำเร็จ", text = "", closeAfter = false } = {}) {
-        document.getElementById("modalIcon").textContent = icon;
-        document.getElementById("modalTitle").textContent = title;
-        document.getElementById("modalText").textContent = text;
-        shouldCloseAfterModal = closeAfter;
+      document.getElementById("modalIcon").textContent = icon;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalText").textContent = text;
+      shouldCloseAfterModal = closeAfter;
 
-        const modal = document.getElementById("successModal");
-        if (modal) modal.classList.add("show");
+      const modal = document.getElementById("successModal");
+      if (modal) modal.classList.add("show");
 
-        if (closeAfter) {
-            setTimeout(() => {
-            closeSuccessModal();
-            }, 1500);
-        }
-        }
+      if (closeAfter) {
+        setTimeout(() => {
+          closeSuccessModal();
+        }, 1500);
+      }
+    }
 
     function closeSuccessModal() {
-        const modal = document.getElementById("successModal");
-        if (modal) modal.classList.remove("show");
+      const modal = document.getElementById("successModal");
+      if (modal) modal.classList.remove("show");
 
-        if (!shouldCloseAfterModal) return;
+      if (!shouldCloseAfterModal) return;
 
-        try {
-            if (window.liff && liff.isInClient()) {
-            liff.closeWindow();
-            return;
-            }
-        } catch (e) {
-            console.error("closeWindow error:", e);
+      try {
+        if (window.liff && liff.isInClient()) {
+          liff.closeWindow();
+          return;
         }
+      } catch (e) {
+        console.error("closeWindow error:", e);
+      }
 
-        // fallback
-        window.location.href = "https://line.me/R/oaMessage/@300ifqgu";
-        }
+      window.location.href = "https://line.me/R/oaMessage/@300ifqgu";
+    }
 
     async function initLiff() {
       try {
         await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isInClient()) {
+          setStatus("❌ กรุณาเปิดหน้านี้จากในแอป LINE โดยกดจากเมนูในแชต OA เท่านั้น", "err");
+          document.getElementById("liffInfo").textContent = "กรุณาเปิดผ่านแอป LINE";
+          return;
+        }
 
         if (!liff.isLoggedIn()) {
           liff.login();
@@ -354,13 +391,13 @@ function clearSavedPhone() {
 
         const savedPhone = localStorage.getItem(PHONE_STORAGE_KEY) || "";
         if (savedPhone) {
-        document.getElementById("phone").value = normalizePhoneInput(savedPhone);
+          document.getElementById("phone").value = normalizePhoneInput(savedPhone);
         }
 
         document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE สำเร็จแล้ว";
       } catch (err) {
         console.error(err);
-        setStatus("❌ เปิดหน้า LIFF ไม่สำเร็จ\n" + (err.message || err), "err");
+        setStatus("❌ เปิดหน้า LIFF ไม่สำเร็จ\nกรุณาเปิดจากในแอป LINE แล้วลองอีกครั้ง", "err");
         document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE ไม่สำเร็จ";
       }
     }
@@ -394,33 +431,31 @@ function clearSavedPhone() {
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.message || "ผูกบัญชีไม่สำเร็จ");
+          throw new Error(data.message || "ดำเนินการไม่สำเร็จ");
         }
 
-        // เคยผูกแล้ว
         localStorage.setItem(PHONE_STORAGE_KEY, phone);
+
         if (data.code === "ALREADY_LINKED") {
           showSuccessModal({
             icon: "ℹ️",
-            title: "เคยผูกบัญชีแล้ว",
-            text: data.message || "บัญชีนี้ผูกกับเบอร์นี้อยู่แล้ว",
+            title: "บัญชีนี้ผูกไว้แล้ว",
+            text: data.message || "LINE นี้ผูกกับเบอร์นี้อยู่แล้ว",
             closeAfter: true
           });
           return;
         }
 
-        // อัปเดตการผูก
         if (data.code === "LINK_UPDATED") {
           showSuccessModal({
             icon: "🔄",
-            title: "อัปเดตการผูกบัญชีสำเร็จ",
-            text: data.message || "ระบบอัปเดตการผูกบัญชี LINE ให้เรียบร้อยแล้ว",
+            title: "อัปเดตเบอร์ที่ผูกสำเร็จ",
+            text: data.message || "ระบบอัปเดตการผูกบัญชี LINE เป็นเบอร์ล่าสุดให้เรียบร้อยแล้ว",
             closeAfter: true
           });
           return;
         }
 
-        // ผูกครั้งแรก
         showSuccessModal({
           icon: "✅",
           title: "ผูกบัญชีสำเร็จ",
@@ -430,7 +465,7 @@ function clearSavedPhone() {
 
       } catch (err) {
         console.error(err);
-        setStatus("❌ " + (err.message || "ผูกบัญชีไม่สำเร็จ"), "err");
+        setStatus("❌ " + (err.message || "ดำเนินการไม่สำเร็จ"), "err");
       } finally {
         btn.disabled = false;
       }
