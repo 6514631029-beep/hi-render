@@ -167,7 +167,7 @@
           ยืนยันเบอร์สำหรับรับแจ้งเตือน: <b id="phoneMasked">-</b>
         </div>
 
-        <button class="btn btn-line" id="btnBindNow">✅ ใช่ — ผูก LINE ด้วยเบอร์นี้</button>
+        <button class="btn btn-line" id="btnBindNow">✅ ผูกบัญชี LINE ด้วยเบอร์นี้</button>
         <button class="btn btn-gray" id="btnEditPhone">✏️ แก้เบอร์</button>
 
         <div class="editBox" id="editPhoneBox">
@@ -177,7 +177,7 @@
         </div>
 
         <div class="muted" style="margin-top:10px; opacity:.9;">
-          * กด “ผูก LINE” ระบบจะเปิดแชท LINE OA พร้อมข้อความให้แล้ว (กดส่งครั้งเดียว)
+          * กด “ผูกบัญชี LINE” ระบบจะเปิดหน้าผูกบัญชีให้ จากนั้นตรวจสอบเบอร์แล้วกดยืนยันได้เลย
         </div>
 
         <div class="warn" id="warnBox"></div>
@@ -190,8 +190,8 @@
   </div>
 
   <script>
-    // ✅ OA Basic ID ของคุณ (ต้องตรงกับ OA จริง)
-    const OA_BASIC_ID = "@300ifqgu";
+    // ✅ LIFF URL สำหรับผูกบัญชี LINE
+    const LIFF_BIND_URL = "https://liff.line.me/2009275648-vSO7porW";
     const OA_ADD_LINK = "https://line.me/R/ti/p/@300ifqgu";
 
     const params = new URLSearchParams(location.search);
@@ -245,17 +245,11 @@
       }
     }
 
-    function openLineWithBindToken(){
-      if (!token) {
-        window.open(OA_ADD_LINK, '_blank');
-        return;
-      }
-      const msg = `BIND ${token}`;
-      const deeplink = `https://line.me/R/oaMessage/${encodeURIComponent(OA_BASIC_ID)}/?${encodeURIComponent(msg)}`;
-      window.open(deeplink, '_blank');
+    function openLineBindPage(){
+      window.open(LIFF_BIND_URL, '_blank');
     }
 
-    document.getElementById('btnBindNow').addEventListener('click', openLineWithBindToken);
+    document.getElementById('btnBindNow').addEventListener('click', openLineBindPage);
 
     const btnEditPhone = document.getElementById('btnEditPhone');
 
