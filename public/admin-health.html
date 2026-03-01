@@ -581,6 +581,38 @@
       font-size:14px;
     }
 
+    .new-row{
+      background: #fff8c4 !important;
+      animation: newRowGlow 1.2s ease-in-out infinite alternate;
+    }
+
+    .new-row:hover{
+      background: #fff3a3 !important;
+    }
+
+    .new-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#facc15;
+      color:#78350f;
+      font-size:12px;
+      font-weight:1000;
+      box-shadow:0 4px 10px rgba(250, 204, 21, .28);
+      margin-top:6px;
+    }
+
+    @keyframes newRowGlow{
+      from{
+        box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .08);
+      }
+      to{
+        box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .18);
+      }
+    }
+
     @media (max-width: 700px){
       .detail-grid{ grid-template-columns: 1fr; gap:6px; }
       .msg-cell{
@@ -787,6 +819,13 @@
     let typingTimer = null;
     let pendingCompleteId = null;
 
+    const STORAGE_KEYS = {
+      inboxSeen: 'health_seen_ids_inbox',
+      workSeen: 'health_seen_ids_work',
+      inboxActiveNew: 'health_active_new_ids_inbox',
+      workActiveNew: 'health_active_new_ids_work'
+    };
+
     function syncLeftViewActive(){
       const inboxBtn = document.getElementById('btn-inbox');
       const workBtn  = document.getElementById('btn-work');
@@ -799,6 +838,98 @@
         workBtn.classList.add('active');
         inboxBtn.classList.remove('active');
       }
+    }
+
+    function getSeenKey() {
+      return VIEW_MODE === 'inbox'
+        ? STORAGE_KEYS.inboxSeen
+        : STORAGE_KEYS.workSeen;
+    }
+
+    function getActiveNewKey() {
+      return VIEW_MODE === 'inbox'
+        ? STORAGE_KEYS.inboxActiveNew
+        : STORAGE_KEYS.workActiveNew;
+    }
+
+    function readJsonArray(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function writeJsonArray(key, arr) {
+      localStorage.setItem(key, JSON.stringify(arr));
+    }
+
+    function normalizeRowId(row) {
+      return String(row?.original_id || row?.id || '');
+    }
+
+    function markRowsAsNew(rows = []) {
+      const seenKey = getSeenKey();
+      const activeNewKey = getActiveNewKey();
+
+      const seenIds = new Set(readJsonArray(seenKey));
+      const oldActiveNewIds = new Set(readJsonArray(activeNewKey));
+
+      const currentIds = rows
+        .map(row => normalizeRowId(row))
+        .filter(Boolean);
+
+      const freshIds = [];
+
+      for (const row of rows) {
+        const id = normalizeRowId(row);
+        if (!id) continue;
+
+        if (!seenIds.has(id)) {
+          freshIds.push(id);
+        }
+      }
+
+      const activeNewIds = Array.from(new Set([
+        ...oldActiveNewIds,
+        ...freshIds
+      ])).filter(id => currentIds.includes(id));
+
+      rows.forEach(row => {
+        const id = normalizeRowId(row);
+        row.__isNew = activeNewIds.includes(id);
+      });
+
+      writeJsonArray(activeNewKey, activeNewIds);
+      writeJsonArray(seenKey, currentIds);
+
+      return rows;
+    }
+
+    function clearNewById(id) {
+      const activeNewKey = getActiveNewKey();
+      const activeNewIds = readJsonArray(activeNewKey)
+        .filter(x => String(x) !== String(id));
+
+      writeJsonArray(activeNewKey, activeNewIds);
+
+      allHealthData = allHealthData.map(row => {
+        const rowId = normalizeRowId(row);
+        if (String(rowId) === String(id)) {
+          return { ...row, __isNew: false };
+        }
+        return row;
+      });
+
+      filteredData = filteredData.map(row => {
+        const rowId = normalizeRowId(row);
+        if (String(rowId) === String(id)) {
+          return { ...row, __isNew: false };
+        }
+        return row;
+      });
     }
 
     async function setView(mode) {
@@ -821,6 +952,12 @@
       const data = await res.json();
 
       allHealthData = Array.isArray(data) ? data : [];
+
+      if (VIEW_MODE === 'inbox') {
+        allHealthData = markRowsAsNew(allHealthData);
+      } else {
+        allHealthData = allHealthData.map(row => ({ ...row, __isNew: false }));
+      }
 
       if (keyword) {
         filteredData = allHealthData.filter(row =>
@@ -863,17 +1000,18 @@
 
     function filterByName() {
       clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => {}, 300);
 
-      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      typingTimer = setTimeout(() => {
+        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
-      filteredData = allHealthData.filter(row =>
-        (row.name && String(row.name).toLowerCase().includes(keyword)) ||
-        (row.phone && String(row.phone).toLowerCase().includes(keyword))
-      );
+        filteredData = allHealthData.filter(row =>
+          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
+          (row.phone && String(row.phone).toLowerCase().includes(keyword))
+        );
 
-      currentPage = 1;
-      renderCurrentPage();
+        currentPage = 1;
+        renderCurrentPage();
+      }, 150);
     }
 
     function escapeHtml(value = '') {
@@ -958,6 +1096,8 @@
     }
 
     function openDetailById(id) {
+      clearNewById(id);
+
       const row = allHealthData.find(x => String(x.id) === String(id));
       if (!row) return;
 
@@ -992,6 +1132,7 @@
 
       renderDetailImageButtons('detailFilesBox', mainFiles, 'ไม่มีรูปภาพจากผู้ใช้');
       renderDetailImageButtons('detailCompletedFilesBox', completedFiles, 'ไม่มีรูปภาพ(เสร็จสิ้น)');
+      renderCurrentPage();
     }
 
     function closeDetailModal(e) {
@@ -1103,10 +1244,19 @@
 
         const previewMessage = getShortMessage(row.message || '-', 52);
 
+        const isNew = VIEW_MODE === 'inbox' && !!row.__isNew;
+        const rowClass = isNew ? 'new-row' : '';
+        const newBadgeHtml = isNew ? `<div class="new-badge">🟡 ใหม่</div>` : '';
+
         if (VIEW_MODE === 'inbox') {
           tbody.innerHTML += `
-            <tr id="row-${row.id}">
-              <td>${row.name || '-'}</td>
+            <tr id="row-${row.id}" class="${rowClass}">
+              <td>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-weight:900;">${row.name || '-'}</div>
+                  ${newBadgeHtml}
+                </div>
+              </td>
               <td>${row.phone || '-'}</td>
               <td class="msg-cell">
                 <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
@@ -1122,8 +1272,13 @@
           `;
         } else {
           tbody.innerHTML += `
-            <tr id="row-${row.id}">
-              <td>${row.name || '-'}</td>
+            <tr id="row-${row.id}" class="${rowClass}">
+              <td>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-weight:900;">${row.name || '-'}</div>
+                  ${newBadgeHtml}
+                </div>
+              </td>
               <td>${row.phone || '-'}</td>
               <td class="msg-cell">
                 <div class="msg-preview" title="${escapeHtml(row.message || '-')}">
@@ -1538,6 +1693,7 @@
       const res = await fetch(`/dept-accept/${id}`, { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
+        clearNewById(id);
         alert('✅ รับเรื่องแล้ว (สถานะเป็น "รอดำเนินการ")');
         await setView('work');
         await updateCounters();
@@ -1557,6 +1713,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
+        clearNewById(id);
         alert('✅ ส่งกลับแอดมินหลักแล้ว');
         await safeLoadData();
         await updateCounters();
@@ -1716,7 +1873,11 @@
     syncLeftViewActive();
     setView('inbox');
     updateCounters();
+
     setInterval(updateCounters, 60000);
+    setInterval(() => {
+      safeLoadData();
+    }, 15000);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
