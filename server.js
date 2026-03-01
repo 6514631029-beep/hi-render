@@ -850,11 +850,17 @@ function buildTrackingDetailMessage(r) {
 
   let msg =
     `📄 รายละเอียดคำร้อง #${r.id}\n\n` +
-    `${categoryEmoji} ประเภท: ${category}\n` +
-    `${statusEmoji} สถานะ: ${status}\n` +
-    `${departmentEmoji} หน่วยงาน: ${department}\n` +
-    `🕒 วันที่แจ้ง: ${createdAt}\n` +
-    `🏁 วันที่เสร็จสิ้น: ${completedAt}\n\n` +
+
+    `${categoryEmoji} ประเภท\n${category}\n\n` +
+
+    `${statusEmoji} สถานะ\n${status}\n\n` +
+
+    `${departmentEmoji} หน่วยงาน\n${department}\n\n` +
+
+    `🕒 วันที่แจ้ง\n${createdAt}\n\n` +
+
+    `🏁 วันที่เสร็จสิ้น\n${completedAt}\n\n` +
+
     `📝 ข้อความคำร้อง\n${messageText}`;
 
   if (r.dept_reason) {
