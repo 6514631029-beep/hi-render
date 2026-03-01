@@ -253,6 +253,37 @@
       white-space:nowrap;
     }
 
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .sound-btn{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:14px;
+      backdrop-filter: blur(6px);
+    }
+    .sound-btn.on{
+      background: rgba(34,197,94,.18);
+      border-color: rgba(134,239,172,.32);
+      color:#dcfce7;
+    }
+    .sound-btn.off{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+      color:#fff;
+    }
+
     .content{
       padding: 16px 18px 26px;
       max-width: 1400px;
@@ -707,6 +738,12 @@
               <div class="sub">องค์การบริหารส่วนตำบล</div>
             </div>
           </div>
+
+          <div class="topbar-actions">
+            <button id="soundToggleBtn" class="sound-btn off" onclick="toggleSoundAlert()">
+              🔕 เสียงแจ้งเตือนปิด
+            </button>
+          </div>
         </div>
       </header>
 
@@ -819,6 +856,9 @@
     let typingTimer = null;
     let pendingCompleteId = null;
 
+    let soundEnabled = localStorage.getItem('health_sound_enabled') === 'true';
+    let lastNewCount = 0;
+
     const STORAGE_KEYS = {
       inboxSeen: 'health_seen_ids_inbox',
       workSeen: 'health_seen_ids_work',
@@ -838,6 +878,74 @@
         workBtn.classList.add('active');
         inboxBtn.classList.remove('active');
       }
+    }
+
+    function updateSoundButton() {
+      const btn = document.getElementById('soundToggleBtn');
+      if (!btn) return;
+
+      if (soundEnabled) {
+        btn.classList.remove('off');
+        btn.classList.add('on');
+        btn.textContent = '🔔 เสียงแจ้งเตือนเปิด';
+      } else {
+        btn.classList.remove('on');
+        btn.classList.add('off');
+        btn.textContent = '🔕 เสียงแจ้งเตือนปิด';
+      }
+    }
+
+    function toggleSoundAlert() {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('health_sound_enabled', String(soundEnabled));
+      updateSoundButton();
+
+      if (soundEnabled) {
+        playBeep();
+      }
+    }
+
+    function playBeep() {
+      if (!soundEnabled) return;
+
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        const ctx = new AudioContextClass();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+
+        gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.25);
+
+        oscillator.onended = () => {
+          if (ctx && typeof ctx.close === 'function') ctx.close();
+        };
+      } catch (err) {
+        console.log('เล่นเสียงไม่ได้:', err);
+      }
+    }
+
+    function checkAndPlayNewAlert() {
+      if (VIEW_MODE !== 'inbox') return;
+
+      const newCount = allHealthData.filter(row => row.__isNew).length;
+
+      if (newCount > lastNewCount) {
+        playBeep();
+      }
+
+      lastNewCount = newCount;
     }
 
     function getSeenKey() {
@@ -930,12 +1038,21 @@
         }
         return row;
       });
+
+      if (VIEW_MODE === 'inbox') {
+        lastNewCount = Math.max(0, allHealthData.filter(row => row.__isNew).length);
+      }
     }
 
     async function setView(mode) {
       VIEW_MODE = mode === 'work' ? 'work' : 'inbox';
       currentPage = 1;
       syncLeftViewActive();
+
+      if (VIEW_MODE !== 'inbox') {
+        lastNewCount = 0;
+      }
+
       await safeLoadData();
     }
 
@@ -955,6 +1072,7 @@
 
       if (VIEW_MODE === 'inbox') {
         allHealthData = markRowsAsNew(allHealthData);
+        checkAndPlayNewAlert();
       } else {
         allHealthData = allHealthData.map(row => ({ ...row, __isNew: false }));
       }
@@ -1870,6 +1988,7 @@
       }
     }
 
+    updateSoundButton();
     syncLeftViewActive();
     setView('inbox');
     updateCounters();
