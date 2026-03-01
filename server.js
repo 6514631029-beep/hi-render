@@ -741,8 +741,8 @@ function buildLatestRequestMessage(r) {
     `สถานะ: ${r.status || '-'}\n` +
     `หน่วยงาน: ${r.department || '-'}\n` +
     `วันที่แจ้ง: ${formatThaiDateTime(r.created_at)}\n` +
-    `ข้อความ: ${shortText(r.message, 100)}\n\n` +
-    `หากต้องการดูเพิ่ม พิมพ์: รายละเอียด ${r.id}`;
+    `วันที่เสร็จสิ้น: ${formatThaiDateTime(r.completed_at)}\n` +
+    `ข้อความ: ${shortText(r.message, 100)}`;
 
   return msg;
 }
