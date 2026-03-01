@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผูกบัญชี LINE</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{
+      font-family: system-ui, -apple-system, "Kanit", sans-serif;
+      background:#f3f7f6;
+      margin:0;
+      padding:24px;
+      color:#123;
+    }
+    .card{
+      max-width:520px;
+      margin:30px auto;
+      background:#fff;
+      border-radius:18px;
+      padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    h1{
+      margin-top:0;
+      color:#0a7a42;
+      font-size:30px;
+    }
+    p{
+      color:#4b5563;
+      line-height:1.6;
+    }
+    input{
+      width:100%;
+      padding:14px 16px;
+      border:1px solid #d1d5db;
+      border-radius:12px;
+      font-size:18px;
+      margin-top:12px;
+      box-sizing:border-box;
+    }
+    button{
+      width:100%;
+      margin-top:16px;
+      padding:14px 16px;
+      border:none;
+      border-radius:12px;
+      background:#06c755;
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+    .status{
+      margin-top:16px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#eef6ff;
+      color:#1d4ed8;
+      display:none;
+      white-space:pre-line;
+    }
+    .ok{
+      background:#ecfdf3;
+      color:#15803d;
+    }
+    .err{
+      background:#fef2f2;
+      color:#b91c1c;
+    }
+    .muted{
+      font-size:14px;
+      color:#6b7280;
+      margin-top:10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔗 ผูกบัญชี LINE</h1>
+    <p>กรอกเบอร์โทรที่ใช้ส่งคำร้อง แล้วกดปุ่มด้านล่างเพื่อผูกบัญชี LINE ของคุณกับระบบ</p>
+
+    <input id="phone" type="tel" placeholder="เช่น 0812345678" />
+    <button id="bindBtn" onclick="bindAccount()">ยืนยันผูกบัญชี</button>
+
+    <div id="status" class="status"></div>
+    <div class="muted" id="liffInfo">กำลังเชื่อมต่อ LINE...</div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2009275648-vSO7porW";
+    let lineUserId = null;
+
+    function setStatus(message, type = "") {
+      const box = document.getElementById("status");
+      box.style.display = "block";
+      box.className = "status " + type;
+      box.textContent = message;
+    }
+
+    async function initLiff() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        lineUserId = profile.userId;
+
+        document.getElementById("liffInfo").textContent =
+          "เชื่อมต่อ LINE สำเร็จแล้ว";
+      } catch (err) {
+        console.error(err);
+        setStatus("❌ เปิดหน้า LIFF ไม่สำเร็จ\n" + (err.message || err), "err");
+        document.getElementById("liffInfo").textContent =
+          "เชื่อมต่อ LINE ไม่สำเร็จ";
+      }
+    }
+
+    async function bindAccount() {
+      const phone = document.getElementById("phone").value.trim();
+      const btn = document.getElementById("bindBtn");
+
+      if (!phone) {
+        setStatus("กรุณากรอกเบอร์โทรก่อน", "err");
+        return;
+      }
+
+      if (!lineUserId) {
+        setStatus("ยังไม่พบ LINE user กรุณาลองเปิดหน้านี้จากใน LINE อีกครั้ง", "err");
+        return;
+      }
+
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/api/line/bind-phone", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, lineUserId })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "ผูกบัญชีไม่สำเร็จ");
+        }
+
+        setStatus("✅ ผูกบัญชีสำเร็จ\nจากนี้คุณจะได้รับแจ้งเตือนผ่าน LINE", "ok");
+      } catch (err) {
+        console.error(err);
+        setStatus("❌ " + (err.message || "ผูกบัญชีไม่สำเร็จ"), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    initLiff();
+  </script>
+</body>
+</html>

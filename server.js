@@ -1140,7 +1140,48 @@ app.get('/line/bind-info', async (req, res) => {
     return res.status(500).json({ ok:false });
   }
 });
+app.post('/api/line/bind-phone', (req, res) => {
+  const { phone, lineUserId } = req.body;
 
+  if (!phone || !lineUserId) {
+    return res.status(400).json({ message: 'ข้อมูลไม่ครบ' });
+  }
+
+  const cleanPhone = String(phone).trim();
+
+  db.query(
+    'SELECT id, phone FROM requests WHERE phone = ? ORDER BY id DESC LIMIT 1',
+    [cleanPhone],
+    (findErr, rows) => {
+      if (findErr) {
+        console.error('❌ find request error:', findErr);
+        return res.status(500).json({ message: 'ตรวจสอบเบอร์ไม่สำเร็จ' });
+      }
+
+      if (!rows.length) {
+        return res.status(404).json({ message: 'ไม่พบเบอร์นี้ในระบบคำร้อง' });
+      }
+
+      db.query(
+        `
+        INSERT INTO line_links (phone, line_user_id)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE
+          line_user_id = VALUES(line_user_id)
+        `,
+        [cleanPhone, lineUserId],
+        (saveErr) => {
+          if (saveErr) {
+            console.error('❌ bind save error:', saveErr);
+            return res.status(500).json({ message: 'บันทึกการผูกบัญชีไม่สำเร็จ' });
+          }
+
+          return res.json({ ok: true, message: 'ผูกบัญชีสำเร็จ' });
+        }
+      );
+    }
+  );
+});
 app.post('/line/update-phone', async (req, res) => {
   try {
     const token = String(req.body?.t || '').trim();
