@@ -167,7 +167,7 @@
           ยืนยันเบอร์สำหรับรับแจ้งเตือน: <b id="phoneMasked">-</b>
         </div>
 
-        <button class="btn btn-line" id="btnBindNow">✅ ผูกบัญชี LINE ด้วยเบอร์นี้</button>
+        <button class="btn btn-line" id="btnBindNow">💬 เข้า LINE เพื่อผูกบัญชี</button>
         <button class="btn btn-gray" id="btnEditPhone">✏️ แก้เบอร์</button>
 
         <div class="editBox" id="editPhoneBox">
@@ -177,7 +177,7 @@
         </div>
 
         <div class="muted" style="margin-top:10px; opacity:.9;">
-          * กด “ผูกบัญชี LINE” ระบบจะเปิดหน้าผูกบัญชีให้ จากนั้นตรวจสอบเบอร์แล้วกดยืนยันได้เลย
+          * กดปุ่มเพื่อเข้า LINE OA ก่อน จากนั้นกดเมนู “ผูกบัญชีไลน์” ใน Rich Menu แล้วกรอกเบอร์โทรเพื่อยืนยันการเชื่อมบัญชี
         </div>
 
         <div class="warn" id="warnBox"></div>
@@ -190,8 +190,7 @@
   </div>
 
   <script>
-    // ✅ LIFF URL สำหรับผูกบัญชี LINE
-    const LIFF_BIND_URL = "https://liff.line.me/2009275648-vSO7porW";
+    // ✅ ลิงก์เข้า LINE OA
     const OA_ADD_LINK = "https://line.me/R/ti/p/@300ifqgu";
 
     const params = new URLSearchParams(location.search);
@@ -217,18 +216,17 @@
 
     async function loadBindInfo(){
       if (!token) {
-        showWarn('ไม่พบโค้ดผูก LINE (token) กรุณาส่งคำร้องใหม่อีกครั้ง');
+        showWarn('ไม่พบข้อมูลคำร้องสำหรับตรวจสอบเบอร์ แต่คุณยังสามารถกดปุ่มเพื่อเข้า LINE OA แล้วผูกบัญชีผ่านเมนูได้');
         phoneMaskedEl.textContent = '-';
         return;
       }
-
       try{
         const r = await fetch(`/line/bind-info?t=${encodeURIComponent(token)}`);
         const data = await r.json();
 
         if (!data.ok){
-          if (r.status === 410) showWarn('โค้ดหมดอายุแล้ว กรุณาส่งคำร้องใหม่หรือกลับไปหน้าเดิมเพื่อสร้างใหม่');
-          else showWarn('ไม่พบโค้ดผูก LINE กรุณาส่งคำร้องใหม่อีกครั้ง');
+          if (r.status === 410) showWarn('ข้อมูลผูกบัญชีเดิมหมดอายุแล้ว แต่คุณยังสามารถกดปุ่มเพื่อเข้า LINE OA แล้วผูกบัญชีผ่านเมนูได้');
+          else showWarn('ไม่พบข้อมูลผูกบัญชีเดิม แต่คุณยังสามารถกดปุ่มเพื่อเข้า LINE OA แล้วผูกบัญชีผ่านเมนูได้');
           phoneMaskedEl.textContent = '-';
           return;
         }
@@ -245,11 +243,11 @@
       }
     }
 
-    function openLineBindPage(){
-      window.open(LIFF_BIND_URL, '_blank');
+    function openLineOA(){
+      window.open(OA_ADD_LINK, '_blank');
     }
 
-    document.getElementById('btnBindNow').addEventListener('click', openLineBindPage);
+    document.getElementById('btnBindNow').addEventListener('click', openLineOA);
 
     const btnEditPhone = document.getElementById('btnEditPhone');
 
