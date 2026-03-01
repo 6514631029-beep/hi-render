@@ -306,29 +306,39 @@ function clearSavedPhone() {
     }
 
     function showSuccessModal({ icon = "✅", title = "สำเร็จ", text = "", closeAfter = false } = {}) {
-      document.getElementById("modalIcon").textContent = icon;
-      document.getElementById("modalTitle").textContent = title;
-      document.getElementById("modalText").textContent = text;
-      shouldCloseAfterModal = closeAfter;
+        document.getElementById("modalIcon").textContent = icon;
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalText").textContent = text;
+        shouldCloseAfterModal = closeAfter;
 
-      const modal = document.getElementById("successModal");
-      if (modal) modal.classList.add("show");
-    }
+        const modal = document.getElementById("successModal");
+        if (modal) modal.classList.add("show");
+
+        if (closeAfter) {
+            setTimeout(() => {
+            closeSuccessModal();
+            }, 1500);
+        }
+        }
 
     function closeSuccessModal() {
-      const modal = document.getElementById("successModal");
-      if (modal) modal.classList.remove("show");
+        const modal = document.getElementById("successModal");
+        if (modal) modal.classList.remove("show");
 
-      if (!shouldCloseAfterModal) return;
+        if (!shouldCloseAfterModal) return;
 
-      try {
-        if (window.liff && liff.isInClient()) {
-          liff.closeWindow();
+        try {
+            if (window.liff && liff.isInClient()) {
+            liff.closeWindow();
+            return;
+            }
+        } catch (e) {
+            console.error("closeWindow error:", e);
         }
-      } catch (e) {
-        console.error("closeWindow error:", e);
-      }
-    }
+
+        // fallback
+        window.location.href = "https://line.me/R/oaMessage/@300ifqgu";
+        }
 
     async function initLiff() {
       try {

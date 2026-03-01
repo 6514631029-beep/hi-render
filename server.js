@@ -250,6 +250,40 @@ async function pushLineMessage(to, text) {
 
   if (!res.ok) console.error('LINE push failed:', await res.text());
 }
+async function linkRichMenuToUser(lineUserId, richMenuId) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+
+  if (!token || !lineUserId || !richMenuId) {
+    console.log('[LINE richmenu skip]', {
+      lineUserId,
+      richMenuId,
+      hasToken: !!token
+    });
+    return false;
+  }
+
+  console.log('[LINE richmenu link start]', { lineUserId, richMenuId });
+
+  const res = await fetch(
+    `https://api.line.me/v2/bot/user/${encodeURIComponent(lineUserId)}/richmenu/${encodeURIComponent(richMenuId)}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('LINE richmenu link failed:', text);
+    return false;
+  }
+
+  console.log('[LINE richmenu link success]', { lineUserId, richMenuId });
+  return true;
+}
+
 function toJpgCloudinary(url = '') {
   // แปลง Cloudinary URL ให้เป็น .jpg (แบบง่ายสุด)
   // ถ้า url ไม่ใช่ cloudinary ก็คืนเหมือนเดิม
@@ -285,29 +319,6 @@ async function pushLineImage(to, imageUrl) {
   });
 
   if (!res.ok) console.error('LINE push image failed:', await res.text());
-}
-async function linkRichMenuToUser(lineUserId, richMenuId) {
-  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-
-  if (!token || !lineUserId || !richMenuId) {
-    console.log('[LINE richmenu skip]', { lineUserId, richMenuId, hasToken: !!token });
-    return false;
-  }
-
-  const res = await fetch(`https://api.line.me/v2/bot/user/${encodeURIComponent(lineUserId)}/richmenu/${encodeURIComponent(richMenuId)}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error('LINE richmenu link failed:', text);
-    return false;
-  }
-
-  return true;
 }
 
 async function replyLineMessage(replyToken, text) {
@@ -476,7 +487,14 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
              updated_at = NOW()`,
           [phone, userId]
         );
-
+        try {
+          await linkRichMenuToUser(
+            userId,
+            process.env.LINE_RICHMENU_LINKED_ID
+          );
+        } catch (e) {
+          console.error('link rich menu from webhook bind error:', e);
+        }
         await db.promise().query(
           `UPDATE line_bind_tokens SET used = 1 WHERE token = ?`,
           [token]
