@@ -32,6 +32,22 @@
       --shadow2: 0 8px 24px rgba(2,6,23,.06);
 
       --sidebarW: 260px;
+
+      --status-empty-bg:#f8fafc;
+      --status-empty-bd:#cbd5e1;
+      --status-empty-tx:#475569;
+
+      --status-pending-bg:#fff7ed;
+      --status-pending-bd:#fdba74;
+      --status-pending-tx:#9a3412;
+
+      --status-progress-bg:#eff6ff;
+      --status-progress-bd:#93c5fd;
+      --status-progress-tx:#1d4ed8;
+
+      --status-done-bg:#ecfdf5;
+      --status-done-bd:#86efac;
+      --status-done-tx:#166534;
     }
 
     html{ font-size: 20px; }
@@ -58,13 +74,13 @@
     .sidebar{
       width: var(--sidebarW);
       background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
-      border-right: 1px solid rgba(255,255,255,.08);
+      border-right: 1px solid rgba(255,255,255,.10);
       position:sticky;
       top:0;
       height:100vh;
       overflow:auto;
-      padding: 18px 14px;
-      box-shadow: 10px 0 30px rgba(2,6,23,.08);
+      padding: 14px 12px;
+      box-shadow: 6px 0 22px rgba(2,6,23,.06);
     }
 
     .brand{
@@ -77,19 +93,22 @@
       color:#fff;
     }
     .brand .logo{
-      width:58px;height:58px;border-radius:18px;
-      background: linear-gradient(135deg, rgba(201,162,39,.98), rgba(244,227,161,.92));
+      width:38px;height:38px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
       display:flex;align-items:center;justify-content:center;
       color:#1f2937;
       font-weight:1000;
       flex:0 0 auto;
-      box-shadow: 0 14px 28px rgba(201,162,39,.18);
-      font-size:26px;
+      box-shadow: 0 12px 22px rgba(201,162,39,.25);
     }
     .brand .title{
-      font-weight:1000; line-height:1.15; font-size:28px; letter-spacing:-.2px;
+      font-weight:1000;
+      line-height:1.1;
+      font-size:15px;
     }
-    .brand .sub{display:none;}
+    .brand .sub{
+      display:none;
+    }
 
     .menu{
       display:flex;
@@ -121,8 +140,7 @@
       cursor:pointer;
       transition: .15s transform, .15s background, .15s border;
       text-align:left;
-      font-size:15px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+      font-size:16px;
     }
     .side-link:hover{
       background: rgba(255,255,255,.10);
@@ -289,17 +307,17 @@
     }
 
     .content{
-      padding: 20px 22px 30px;
-      max-width: 1440px;
+      padding: 16px 18px 26px;
+      max-width: 1400px;
       margin: 0 auto;
       width:100%;
     }
 
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, #ffffff 100%);
-      border:1px solid #dfe7f1;
-      border-radius: 20px;
-      box-shadow: 0 10px 26px rgba(15,23,42,.06);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
       overflow:hidden;
     }
     .card-h{
@@ -309,7 +327,7 @@
       background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
     .card-h h2{margin:0;font-size:18px;font-weight:1000}
-    .card-b{padding:18px}
+    .card-b{padding:12px 14px}
 
     .tiny{font-size:14px;color:#64748b;font-weight:800}
 
@@ -332,13 +350,7 @@
       cursor:pointer;
       font-weight:900;
       white-space:nowrap;
-      font-size:15px;
-      transition: transform .12s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
-      box-shadow: 0 1px 2px rgba(15,23,42,.04);
-    }
-    .btn:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(15,23,42,.08);
+      font-size:16px;
     }
     .btn.primary{
       background: linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
@@ -346,9 +358,9 @@
       color:#1f2937;
     }
     .btn.danger{
-      background:#fff5f5;border-color:#fecaca;color:#b91c1c;
+      background:#fee2e2;border-color:#fecaca;color:#991b1b;
     }
-    .btn.mini{padding:8px 12px;border-radius:12px;font-size:14px}
+    .btn.mini{padding:8px 10px;border-radius:10px;font-size:15px}
     .btn.link-btn{
       background:#eff6ff;
       border-color:#bfdbfe;
@@ -356,34 +368,31 @@
     }
     .inbox-actions{
       display:flex;
-      gap:8px;
+      gap:6px;
       flex-wrap:wrap;
       justify-content:center;
     }
 
     .inbox-actions .btn{
-      padding:8px 12px;
+      padding:7px 10px;
       font-size:13px;
-      border-radius:12px;
+      border-radius:10px;
     }
     .table-wrap{
       overflow:auto;
       background:#fff;
-      border-radius: 18px;
-      border:1px solid #e5edf6;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+      border-radius: 16px;
     }
     table{
       width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      min-width: 980px;
+      border-collapse:collapse;
+      min-width: 700px;
       background:#fff;
       table-layout: fixed;
     }
     th,td{
-      padding:15px 14px;
-      border-bottom:1px solid #edf2f7;
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
       text-align:center;
       vertical-align:middle;
     }
@@ -392,73 +401,35 @@
       position:sticky;
       top:0;
       z-index:5;
-      background: linear-gradient(180deg, #f8fbff 0%, #eef2f7 100%) !important;
-      color: #334155 !important;
+      background: #eef2f7 !important;
+      color: #0f172a !important;
       text-transform: none !important;
-      letter-spacing: .1px !important;
-      box-shadow: inset 0 -1px 0 #e5e7eb !important;
+      letter-spacing: 0 !important;
+      box-shadow: none !important;
       border-bottom: 1px solid #e5e7eb !important;
       font-size:13px;
-      font-weight:1000;
       white-space:nowrap;
     }
     th.th-message{ text-align:center; padding-left:0; }
 
-    th:nth-child(1), td:nth-child(1){ width: 150px; text-align:left; }
-    th:nth-child(2), td:nth-child(2){ width: 135px; text-align:left; }
-    th:nth-child(3), td:nth-child(3){ width: 180px; }
-    th:nth-child(4), td:nth-child(4){ width: 240px; }
-    th:nth-child(5), td:nth-child(5){ width: 110px; }
-    th:nth-child(6), td:nth-child(6){ width: 170px; }
+    th:nth-child(1), td:nth-child(1){ width: 100px; }
+    th:nth-child(2), td:nth-child(2){ width: 110px; }
+    th:nth-child(3), td:nth-child(3){ width: 190px; }
+    th:nth-child(4), td:nth-child(4){ width: 180px; }
+    th:nth-child(5), td:nth-child(5){ width: 90px; }
+    th:nth-child(6), td:nth-child(6){ width: 150px; }
 
-    td{
-      font-size:15px;
-      color:#0f172a;
-      background:#fff;
-    }
-    tbody tr:nth-child(even) td{background:#fcfdff}
-    tbody tr:hover td{background:#f6faff}
-
-    .row-name{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      justify-content:center;
-      gap:6px;
-      min-width:0;
-    }
-    .row-name .name{
-      font-weight:1000;
-      color:#0f172a;
-      word-break:break-word;
-      line-height:1.35;
-    }
-    .row-phone{
-      font-weight:900;
-      color:#334155;
-      letter-spacing:.2px;
-    }
-
-    a.map-link{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:9px 12px;
-      border-radius:999px;
-      border:1px solid #bfdbfe;
-      background:#eff6ff;
-      color:var(--info);
-      font-weight:1000;
-      text-decoration:none;
-      white-space:nowrap;
-    }
+    td{ font-size:15px; }
+    tbody tr:nth-child(even){background:#fbfdff}
+    tbody tr:hover{background:#f3f7ff}
+    a.map-link{color:var(--info);font-weight:1000;text-decoration:none;white-space:nowrap}
 
     .media-container{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:8px;
-      padding:4px 0;
+      padding:6px 0;
     }
     .media-container .tiny{
       font-size:13px;
@@ -466,54 +437,8 @@
       font-weight:800;
     }
 
-    .status-stack{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:8px;
-      width:100%;
-    }
-    .status-pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:32px;
-      padding:6px 12px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:1000;
-      line-height:1.2;
-      border:1px solid transparent;
-      white-space:nowrap;
-    }
-    .status-pill.pending{
-      color:#9a6700;
-      background:#fff7d6;
-      border-color:#fde68a;
-    }
-    .status-pill.inprogress{
-      color:#1d4ed8;
-      background:#eaf2ff;
-      border-color:#bfdbfe;
-    }
-    .status-pill.completed{
-      color:#166534;
-      background:#ecfdf3;
-      border-color:#bbf7d0;
-    }
-    .status-pill.inbox{
-      color:#0f766e;
-      background:#ecfeff;
-      border-color:#a5f3fc;
-    }
-    .status-pill.empty{
-      color:#475569;
-      background:#f8fafc;
-      border-color:#e2e8f0;
-    }
-
     #pagination{
-      padding:14px;
+      padding:12px;
       display:flex;
       justify-content:center;
       align-items:center;
@@ -534,46 +459,89 @@
       }
       .app{display:block}
       .content{padding:14px}
-      table{min-width:780px}
+      table{min-width:700px}
     }
 
     .status-select{
       appearance:none;
       -webkit-appearance:none;
       -moz-appearance:none;
-      background:#fff !important;
-      border:1px solid #dbe2ea !important;
+      border:1px solid var(--status-empty-bd) !important;
       box-shadow:none !important;
       outline:none !important;
       height: 40px !important;
       line-height: 40px !important;
-      padding: 0 36px 0 12px !important;
+      padding: 0 34px 0 12px !important;
       border-radius: 12px !important;
       font-size: 14px !important;
       font-weight: 900 !important;
-      color:#0f172a !important;
       cursor:pointer;
       white-space:nowrap;
       box-sizing:border-box;
       width: 100% !important;
-      max-width: 200px;
+      max-width: 150px !important;
       min-width: 0 !important;
+      text-align: left;
+      transition: .18s ease;
       background-image:
-        linear-gradient(45deg, transparent 50%, #0f172a 50%),
-        linear-gradient(135deg, #0f172a 50%, transparent 50%);
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
       background-position:
-        calc(100% - 16px) 50%,
-        calc(100% - 11px) 50%;
+        calc(100% - 14px) 50%,
+        calc(100% - 9px) 50%;
       background-size: 5px 5px, 5px 5px;
       background-repeat: no-repeat;
     }
-    .status-select:hover,
-    .status-select:focus{
-      border-color:#93c5fd !important;
-      box-shadow:0 0 0 4px rgba(59,130,246,.10) !important;
+
+    .status-select.status-empty{
+      background-color: var(--status-empty-bg) !important;
+      border-color: var(--status-empty-bd) !important;
+      color: var(--status-empty-tx) !important;
     }
-    @supports not (width: fit-content){
-      .status-select{ width: auto !important; }
+    .status-select.status-pending{
+      background-color: var(--status-pending-bg) !important;
+      border-color: var(--status-pending-bd) !important;
+      color: var(--status-pending-tx) !important;
+    }
+    .status-select.status-progress{
+      background-color: var(--status-progress-bg) !important;
+      border-color: var(--status-progress-bd) !important;
+      color: var(--status-progress-tx) !important;
+    }
+    .status-select.status-done{
+      background-color: var(--status-done-bg) !important;
+      border-color: var(--status-done-bd) !important;
+      color: var(--status-done-tx) !important;
+    }
+
+    .status-select:focus{
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.10) !important;
+    }
+
+    .status-box{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:140px;
+      padding:9px 12px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:1000;
+      border:1px solid transparent;
+      line-height:1.2;
+    }
+    .status-badge.waiting{
+      background:#e0f2fe;
+      color:#075985;
+      border-color:#7dd3fc;
     }
 
     .side-kpis .side-kpi{ background: rgba(255,255,255,.06); }
@@ -584,8 +552,8 @@
 
     .msg-cell{
       min-width: 0;
-      max-width: 180px;
-      width: 180px;
+      max-width: 190px;
+      width: 190px;
       text-align:center;
       vertical-align:middle;
       padding-left:10px;
@@ -597,7 +565,7 @@
       justify-content:center;
       margin-top:0;
     }
-    .msg-actions .btn{ min-width:122px; }
+    .msg-actions .btn{ min-width:110px; }
 
     .detail-overlay{
       display:none;
@@ -738,7 +706,7 @@
         max-width: 200px;
       }
       th:nth-child(3), td:nth-child(3){ width: 200px; }
-      th:nth-child(4), td:nth-child(4){ width: 220px; }
+      th:nth-child(4), td:nth-child(4){ width: 210px; }
     }
   </style>
 </head>
@@ -748,10 +716,10 @@
 
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo">🏥</div>
+        <div class="logo">สธ</div>
         <div>
           <div class="title">สาธารณสุข</div>
-                  </div>
+        </div>
       </div>
 
       <div class="menu">
@@ -821,7 +789,7 @@
           <div class="topbar-left">
             <div>
               <h1>🏛️ ระบบรับเรื่องร้องเรียน • งานสาธารณสุข</h1>
-              <div class="sub">แดชบอร์ดงานสาธารณสุข • สำหรับคอมพิวเตอร์</div>
+              <div class="sub">องค์การบริหารส่วนตำบล</div>
             </div>
           </div>
 
@@ -1195,6 +1163,8 @@
       const nextBtn = document.getElementById('nextPage');
       if (prevBtn) prevBtn.disabled = currentPage === 1;
       if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+
+      applyStatusSelectStyles();
     }
 
     function changePage(delta) {
@@ -1248,13 +1218,20 @@
       return /\.(jpg|jpeg|png|gif|webp|bmp|svg|heic|heif)(\?|$)/.test(url);
     }
 
-    function getStatusPill(status) {
-      const s = (status || '').trim();
-      if (s === 'รอดำเนินการ') return '<span class="status-pill pending">⏳ รอดำเนินการ</span>';
-      if (s === 'กำลังดำเนินการ') return '<span class="status-pill inprogress">⚙️ กำลังดำเนินการ</span>';
-      if (s === 'เสร็จสิ้น') return '<span class="status-pill completed">✅ เสร็จสิ้น</span>';
-      if (s === 'รอแผนกรับเรื่อง') return '<span class="status-pill inbox">📥 รอแผนกรับเรื่อง</span>';
-      return '<span class="status-pill empty">-</span>';
+    function getStatusClass(status) {
+      if (!status) return 'status-empty';
+      if (status === 'รอดำเนินการ') return 'status-pending';
+      if (status === 'กำลังดำเนินการ') return 'status-progress';
+      if (status === 'เสร็จสิ้น') return 'status-done';
+      return 'status-empty';
+    }
+
+    function applyStatusSelectStyles() {
+      const selects = document.querySelectorAll('.status-select');
+      selects.forEach(select => {
+        select.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        select.classList.add(getStatusClass(select.value));
+      });
     }
 
     function openDetailModal(row) {
@@ -1430,8 +1407,8 @@
         let statusCellHtml = '-';
         if (VIEW_MODE === 'inbox') {
           statusCellHtml = `
-            <div class="status-stack">
-              ${getStatusPill('รอแผนกรับเรื่อง')}
+            <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="status-badge waiting">รอแผนกรับเรื่อง</div>
               <div class="inbox-actions">
                 <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
                 <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
@@ -1440,9 +1417,8 @@
           `;
         } else {
           statusCellHtml = `
-            <div class="status-stack">
-              ${getStatusPill(row.status || '')}
-              <select class="status-select" onchange="onStatusChange(${row.id}, this.value)">
+            <div class="status-box">
+              <select class="status-select ${getStatusClass(row.status)}" onchange="onStatusChange(${row.id}, this.value)">
                 <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
                 <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
                 <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
@@ -1460,12 +1436,12 @@
           tbody.innerHTML += `
             <tr id="row-${row.id}" class="${rowClass}">
               <td>
-                <div class="row-name">
-                  <div class="name">${row.name || '-'}</div>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-weight:900;">${row.name || '-'}</div>
                   ${newBadgeHtml}
                 </div>
               </td>
-              <td><span class="row-phone">${row.phone || '-'}</span></td>
+              <td>${row.phone || '-'}</td>
               <td class="msg-cell">
                 <div class="msg-actions">
                   <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
@@ -1479,12 +1455,12 @@
           tbody.innerHTML += `
             <tr id="row-${row.id}" class="${rowClass}">
               <td>
-                <div class="row-name">
-                  <div class="name">${row.name || '-'}</div>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-weight:900;">${row.name || '-'}</div>
                   ${newBadgeHtml}
                 </div>
               </td>
-              <td><span class="row-phone">${row.phone || '-'}</span></td>
+              <td>${row.phone || '-'}</td>
               <td class="msg-cell">
                 <div class="msg-actions">
                   <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
@@ -1942,6 +1918,12 @@
     }
 
     function onStatusChange(id, value) {
+      const select = event?.target;
+      if (select) {
+        select.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        select.classList.add(getStatusClass(value));
+      }
+
       if (value === 'เสร็จสิ้น') {
         pendingCompleteId = id;
         openCompleteModal();
