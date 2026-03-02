@@ -70,7 +70,6 @@
       gap:0;
     }
 
-    /* ===== Sidebar ===== */
     .sidebar{
       width: var(--sidebarW);
       background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
@@ -105,9 +104,6 @@
       font-weight:1000;
       line-height:1.1;
       font-size:15px;
-    }
-    .brand .sub{
-      display:none;
     }
 
     .menu{
@@ -221,7 +217,6 @@
       box-shadow: 0 0 0 4px rgba(201,162,39,.12);
     }
 
-    /* ===== Main ===== */
     .main{
       flex:1;
       min-width:0;
@@ -366,6 +361,7 @@
       border-color:#bfdbfe;
       color:#1d4ed8;
     }
+
     .inbox-actions{
       display:flex;
       gap:6px;
@@ -378,11 +374,114 @@
       font-size:13px;
       border-radius:10px;
     }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .stat-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px;
+      box-shadow:var(--shadow2);
+    }
+
+    .stat-box .label{
+      font-size:13px;
+      font-weight:900;
+      color:#64748b;
+      margin-bottom:6px;
+    }
+
+    .stat-box .value{
+      font-size:26px;
+      line-height:1;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .stat-box .sub{
+      margin-top:6px;
+      font-size:12px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .stat-box.today{ border-color:#bfdbfe; background:#f8fbff; }
+    .stat-box.stale{ border-color:#fed7aa; background:#fff7ed; }
+    .stat-box.urgent{ border-color:#fecaca; background:#fff1f2; }
+    .stat-box.newbox{ border-color:#fde68a; background:#fffdf2; }
+
+    .toolbar-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .filter-chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      border:1px solid #dbe2ea;
+      background:#fff;
+      color:#334155;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .chip.active{
+      background:#0b2a4a;
+      color:#fff;
+      border-color:#0b2a4a;
+      box-shadow:0 8px 18px rgba(11,42,74,.16);
+    }
+
+    .alert-banner{
+      display:none;
+      margin-top:12px;
+      border-radius:16px;
+      padding:14px 16px;
+      border:1px solid #fecaca;
+      background:linear-gradient(180deg, #fff5f5 0%, #fff1f2 100%);
+      color:#7f1d1d;
+      box-shadow:var(--shadow2);
+    }
+
+    .alert-banner.warn{
+      border-color:#fed7aa;
+      background:linear-gradient(180deg, #fffaf3 0%, #fff7ed 100%);
+      color:#9a3412;
+    }
+
+    .alert-banner .title{
+      font-size:16px;
+      font-weight:1000;
+      margin-bottom:4px;
+    }
+
+    .alert-banner .desc{
+      font-size:14px;
+      font-weight:800;
+      line-height:1.5;
+    }
+
     .table-wrap{
       overflow:auto;
       background:#fff;
       border-radius: 16px;
     }
+
     table{
       width:100%;
       border-collapse:collapse;
@@ -412,9 +511,9 @@
     }
     th.th-message{ text-align:center; padding-left:0; }
 
-    th:nth-child(1), td:nth-child(1){ width: 100px; }
-    th:nth-child(2), td:nth-child(2){ width: 110px; }
-    th:nth-child(3), td:nth-child(3){ width: 190px; }
+    th:nth-child(1), td:nth-child(1){ width: 120px; }
+    th:nth-child(2), td:nth-child(2){ width: 120px; }
+    th:nth-child(3), td:nth-child(3){ width: 200px; }
     th:nth-child(4), td:nth-child(4){ width: 180px; }
     th:nth-child(5), td:nth-child(5){ width: 90px; }
     th:nth-child(6), td:nth-child(6){ width: 150px; }
@@ -448,19 +547,6 @@
       border-top:1px solid var(--line);
     }
     #pagination button:disabled{opacity:.5;cursor:not-allowed}
-
-    @media (max-width: 980px){
-      .sidebar{
-        position:relative;
-        width:100%;
-        height:auto;
-        border-right:0;
-        box-shadow:none;
-      }
-      .app{display:block}
-      .content{padding:14px}
-      table{min-width:700px}
-    }
 
     .status-select{
       appearance:none;
@@ -671,9 +757,20 @@
       background: #fff8c4 !important;
       animation: newRowGlow 1.2s ease-in-out infinite alternate;
     }
+    .new-row:hover{ background: #fff3a3 !important; }
 
-    .new-row:hover{
-      background: #fff3a3 !important;
+    .stale-row{
+      background:#fff4e8 !important;
+    }
+    .stale-row:hover{
+      background:#ffe9d2 !important;
+    }
+
+    .urgent-row{
+      background:#fff1f2 !important;
+    }
+    .urgent-row:hover{
+      background:#ffe2e8 !important;
     }
 
     .new-badge{
@@ -690,13 +787,58 @@
       margin-top:6px;
     }
 
+    .aging-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:1000;
+      margin-top:6px;
+      border:1px solid transparent;
+    }
+
+    .aging-badge.today{
+      background:#dbeafe;
+      color:#1d4ed8;
+      border-color:#93c5fd;
+    }
+
+    .aging-badge.stale{
+      background:#ffedd5;
+      color:#9a3412;
+      border-color:#fdba74;
+    }
+
+    .aging-badge.urgent{
+      background:#fee2e2;
+      color:#991b1b;
+      border-color:#fca5a5;
+    }
+
     @keyframes newRowGlow{
-      from{
-        box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .08);
+      from{ box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .08); }
+      to{ box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .18); }
+    }
+
+    @media (max-width: 1100px){
+      .stats-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
       }
-      to{
-        box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .18);
+    }
+
+    @media (max-width: 980px){
+      .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-right:0;
+        box-shadow:none;
       }
+      .app{display:block}
+      .content{padding:14px}
+      table{min-width:700px}
     }
 
     @media (max-width: 700px){
@@ -707,6 +849,9 @@
       }
       th:nth-child(3), td:nth-child(3){ width: 200px; }
       th:nth-child(4), td:nth-child(4){ width: 210px; }
+      .stats-grid{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -803,6 +948,32 @@
 
       <div class="content">
 
+        <div class="stats-grid" style="margin-bottom:12px;">
+          <div class="stat-box today">
+            <div class="label" id="statTodayLabel">คำร้องวันนี้</div>
+            <div class="value" id="statTodayValue">0</div>
+            <div class="sub" id="statTodaySub">รายการวันที่วันนี้</div>
+          </div>
+
+          <div class="stat-box newbox">
+            <div class="label" id="statNewLabel">รายการใหม่</div>
+            <div class="value" id="statNewValue">0</div>
+            <div class="sub" id="statNewSub">เฉพาะโหมดปัจจุบัน</div>
+          </div>
+
+          <div class="stat-box stale">
+            <div class="label" id="statStaleLabel">งานค้าง</div>
+            <div class="value" id="statStaleValue">0</div>
+            <div class="sub" id="statStaleSub">เกินเกณฑ์เตือน</div>
+          </div>
+
+          <div class="stat-box urgent">
+            <div class="label" id="statUrgentLabel">งานเร่งด่วน</div>
+            <div class="value" id="statUrgentValue">0</div>
+            <div class="sub" id="statUrgentSub">ค้างนานมาก</div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-h">
             <h2>ค้นหา</h2>
@@ -814,9 +985,22 @@
           </div>
         </div>
 
+        <div id="alertBanner" class="alert-banner" style="display:none;">
+          <div class="title" id="alertBannerTitle">แจ้งเตือนงานค้าง</div>
+          <div class="desc" id="alertBannerDesc">-</div>
+        </div>
+
         <div class="card" style="margin-top:12px;">
           <div class="card-h">
-            <h2>รายการคำร้อง</h2>
+            <div class="toolbar-row" style="width:100%;">
+              <h2>รายการคำร้อง</h2>
+
+              <div class="filter-chips">
+                <button class="chip active" id="chip-all" onclick="setFilterMode('all')">ทั้งหมด</button>
+                <button class="chip" id="chip-today" onclick="setFilterMode('today')">วันนี้</button>
+                <button class="chip" id="chip-stale" onclick="setFilterMode('stale')">ค้าง</button>
+              </div>
+            </div>
           </div>
 
           <div class="table-wrap">
@@ -902,6 +1086,7 @@
     const DEPT = 'สาธารณสุข';
 
     let VIEW_MODE = 'inbox';
+    let FILTER_MODE = 'all';
     let allHealthData = [];
     let filteredData = [];
     let currentPage = 1;
@@ -932,6 +1117,22 @@
         workBtn.classList.add('active');
         inboxBtn.classList.remove('active');
       }
+    }
+
+    function setFilterMode(mode){
+      FILTER_MODE = ['all', 'today', 'stale'].includes(mode) ? mode : 'all';
+      const allChip = document.getElementById('chip-all');
+      const todayChip = document.getElementById('chip-today');
+      const staleChip = document.getElementById('chip-stale');
+
+      [allChip, todayChip, staleChip].forEach(chip => chip && chip.classList.remove('active'));
+
+      if (FILTER_MODE === 'today' && todayChip) todayChip.classList.add('active');
+      else if (FILTER_MODE === 'stale' && staleChip) staleChip.classList.add('active');
+      else if (allChip) allChip.classList.add('active');
+
+      currentPage = 1;
+      applyCurrentFilters();
     }
 
     function updateSoundButton() {
@@ -1098,6 +1299,164 @@
       }
     }
 
+    function getBangkokDateParts(dateInput = new Date()) {
+      const d = new Date(dateInput);
+      const y = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric' }).format(d);
+      const m = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', month: '2-digit' }).format(d);
+      const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', day: '2-digit' }).format(d);
+      return { y, m, day, key: `${y}-${m}-${day}` };
+    }
+
+    function isTodayBangkok(dateString) {
+      if (!dateString) return false;
+      const dateParts = getBangkokDateParts(dateString);
+      const nowParts = getBangkokDateParts(new Date());
+      return dateParts.key === nowParts.key;
+    }
+
+    function getAgeDays(dateString) {
+      if (!dateString) return 0;
+      const d = new Date(dateString);
+      if (isNaN(d)) return 0;
+      const diffMs = Date.now() - d.getTime();
+      return Math.max(0, Math.floor(diffMs / 86400000));
+    }
+
+    function getAgingInfo(row) {
+      const ageDays = getAgeDays(row?.created_at);
+      const isToday = isTodayBangkok(row?.created_at);
+
+      if (VIEW_MODE === 'inbox') {
+        if (ageDays >= 3) return { level: 'urgent', ageDays, isToday };
+        if (ageDays >= 1) return { level: 'stale', ageDays, isToday };
+        return { level: 'normal', ageDays, isToday };
+      } else {
+        if (ageDays >= 7) return { level: 'urgent', ageDays, isToday };
+        if (ageDays >= 3) return { level: 'stale', ageDays, isToday };
+        return { level: 'normal', ageDays, isToday };
+      }
+    }
+
+    function getAgingBadgeHtml(row) {
+      const aging = getAgingInfo(row);
+
+      if (aging.level === 'urgent') {
+        return `<div class="aging-badge urgent">เร่งด่วน • ค้าง ${aging.ageDays} วัน</div>`;
+      }
+
+      if (aging.level === 'stale') {
+        return `<div class="aging-badge stale">ค้าง ${aging.ageDays} วัน</div>`;
+      }
+
+      if (aging.isToday) {
+        return `<div class="aging-badge today">วันนี้</div>`;
+      }
+
+      return '';
+    }
+
+    function getKeywordFilteredRows(rows) {
+      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+      return rows.filter(row =>
+        (!keyword) ||
+        (row.name && String(row.name).toLowerCase().includes(keyword)) ||
+        (row.phone && String(row.phone).toLowerCase().includes(keyword))
+      );
+    }
+
+    function applyCurrentFilters() {
+      let rows = [...allHealthData];
+
+      if (FILTER_MODE === 'today') {
+        rows = rows.filter(row => isTodayBangkok(row.created_at));
+      } else if (FILTER_MODE === 'stale') {
+        rows = rows.filter(row => {
+          const aging = getAgingInfo(row);
+          return aging.level === 'stale' || aging.level === 'urgent';
+        });
+      }
+
+      filteredData = getKeywordFilteredRows(rows);
+      updateInsights();
+      renderCurrentPage();
+    }
+
+    function updateInsights() {
+      const todayCount = allHealthData.filter(row => isTodayBangkok(row.created_at)).length;
+      const newCount = VIEW_MODE === 'inbox'
+        ? allHealthData.filter(row => row.__isNew).length
+        : 0;
+
+      const staleRows = allHealthData.filter(row => getAgingInfo(row).level === 'stale');
+      const urgentRows = allHealthData.filter(row => getAgingInfo(row).level === 'urgent');
+
+      const todayLabel = document.getElementById('statTodayLabel');
+      const todayValue = document.getElementById('statTodayValue');
+      const todaySub = document.getElementById('statTodaySub');
+
+      const newLabel = document.getElementById('statNewLabel');
+      const newValue = document.getElementById('statNewValue');
+      const newSub = document.getElementById('statNewSub');
+
+      const staleLabel = document.getElementById('statStaleLabel');
+      const staleValue = document.getElementById('statStaleValue');
+      const staleSub = document.getElementById('statStaleSub');
+
+      const urgentLabel = document.getElementById('statUrgentLabel');
+      const urgentValue = document.getElementById('statUrgentValue');
+      const urgentSub = document.getElementById('statUrgentSub');
+
+      if (todayLabel) todayLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox วันนี้' : 'งานวันนี้';
+      if (todayValue) todayValue.textContent = String(todayCount);
+      if (todaySub) todaySub.textContent = 'รายการที่เข้าวันนี้';
+
+      if (newLabel) newLabel.textContent = VIEW_MODE === 'inbox' ? 'ข้อความใหม่' : 'รายการใหม่วันนี้';
+      if (newValue) newValue.textContent = String(VIEW_MODE === 'inbox' ? newCount : todayCount);
+      if (newSub) newSub.textContent = VIEW_MODE === 'inbox' ? 'ยังไม่เคยเปิดดู' : 'ในโหมดงานของแผนก';
+
+      if (staleLabel) staleLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox ค้าง' : 'งานค้าง';
+      if (staleValue) staleValue.textContent = String(staleRows.length);
+      if (staleSub) staleSub.textContent = VIEW_MODE === 'inbox' ? 'เกิน 1 วัน' : 'เกิน 3 วัน';
+
+      if (urgentLabel) urgentLabel.textContent = 'งานเร่งด่วน';
+      if (urgentValue) urgentValue.textContent = String(urgentRows.length);
+      if (urgentSub) urgentSub.textContent = VIEW_MODE === 'inbox' ? 'Inbox เกิน 3 วัน' : 'งานเกิน 7 วัน';
+
+      updateAlertBanner(staleRows.length, urgentRows.length);
+    }
+
+    function updateAlertBanner(staleCount, urgentCount) {
+      const banner = document.getElementById('alertBanner');
+      const title = document.getElementById('alertBannerTitle');
+      const desc = document.getElementById('alertBannerDesc');
+      if (!banner || !title || !desc) return;
+
+      if (urgentCount > 0) {
+        banner.style.display = 'block';
+        banner.classList.remove('warn');
+        title.textContent = '🚨 พบงานเร่งด่วน';
+        desc.textContent = VIEW_MODE === 'inbox'
+          ? `มี Inbox ค้างเกิน 3 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 1 วันอีก ${staleCount} รายการ`
+          : `มีงานของแผนกค้างเกิน 7 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 3 วันอีก ${staleCount} รายการ`;
+        return;
+      }
+
+      if (staleCount > 0) {
+        banner.style.display = 'block';
+        banner.classList.add('warn');
+        title.textContent = '⚠️ พบงานค้าง';
+        desc.textContent = VIEW_MODE === 'inbox'
+          ? `มี Inbox ค้างเกิน 1 วัน จำนวน ${staleCount} รายการ`
+          : `มีงานของแผนกค้างเกิน 3 วัน จำนวน ${staleCount} รายการ`;
+        return;
+      }
+
+      banner.style.display = 'none';
+      title.textContent = '';
+      desc.textContent = '';
+    }
+
     async function setView(mode) {
       VIEW_MODE = mode === 'work' ? 'work' : 'inbox';
       currentPage = 1;
@@ -1115,9 +1474,6 @@
     }
 
     async function loadData() {
-      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-      const prevPage = currentPage;
-
       const endpoint = getEndpointForMode();
       const res = await fetch(endpoint + '?_=' + Date.now());
       const data = await res.json();
@@ -1131,17 +1487,7 @@
         allHealthData = allHealthData.map(row => ({ ...row, __isNew: false }));
       }
 
-      if (keyword) {
-        filteredData = allHealthData.filter(row =>
-          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
-          (row.phone && String(row.phone).toLowerCase().includes(keyword))
-        );
-      } else {
-        filteredData = allHealthData;
-      }
-
-      currentPage = prevPage;
-      renderCurrentPage();
+      applyCurrentFilters();
     }
 
     function renderCurrentPage() {
@@ -1176,25 +1522,9 @@
       clearTimeout(typingTimer);
 
       typingTimer = setTimeout(() => {
-        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-
-        filteredData = allHealthData.filter(row =>
-          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
-          (row.phone && String(row.phone).toLowerCase().includes(keyword))
-        );
-
         currentPage = 1;
-        renderCurrentPage();
+        applyCurrentFilters();
       }, 150);
-    }
-
-    function escapeHtml(value = '') {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
     }
 
     function normalizeFileUrl(item) {
@@ -1429,8 +1759,15 @@
         }
 
         const isNew = VIEW_MODE === 'inbox' && !!row.__isNew;
-        const rowClass = isNew ? 'new-row' : '';
+        const aging = getAgingInfo(row);
+
+        let rowClass = '';
+        if (aging.level === 'urgent') rowClass = 'urgent-row';
+        else if (aging.level === 'stale') rowClass = 'stale-row';
+        else if (isNew) rowClass = 'new-row';
+
         const newBadgeHtml = isNew ? `<div class="new-badge">🟡 ใหม่</div>` : '';
+        const agingBadgeHtml = getAgingBadgeHtml(row);
 
         if (VIEW_MODE === 'inbox') {
           tbody.innerHTML += `
@@ -1439,6 +1776,7 @@
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
                   <div style="font-weight:900;">${row.name || '-'}</div>
                   ${newBadgeHtml}
+                  ${agingBadgeHtml}
                 </div>
               </td>
               <td>${row.phone || '-'}</td>
@@ -1457,7 +1795,7 @@
               <td>
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
                   <div style="font-weight:900;">${row.name || '-'}</div>
-                  ${newBadgeHtml}
+                  ${agingBadgeHtml}
                 </div>
               </td>
               <td>${row.phone || '-'}</td>
@@ -1475,10 +1813,16 @@
       });
 
       if (!data.length) {
+        const emptyText = FILTER_MODE === 'today'
+          ? 'ไม่มีข้อมูลคำร้องของวันนี้'
+          : FILTER_MODE === 'stale'
+            ? 'ไม่มีงานค้างในโหมดนี้'
+            : 'ไม่มีข้อมูลในโหมดนี้';
+
         tbody.innerHTML = `
           <tr>
             <td colspan="${VIEW_MODE === 'inbox' ? 5 : 6}" style="padding:22px; color:#64748b; font-weight:900;">
-              ไม่มีข้อมูลในโหมดนี้
+              ${emptyText}
             </td>
           </tr>
         `;
@@ -2056,6 +2400,7 @@
 
     updateSoundButton();
     syncLeftViewActive();
+    setFilterMode('all');
     setView('inbox');
     updateCounters();
 
