@@ -373,13 +373,11 @@
     tbody tr:nth-child(even){ background:#fbfdff; }
     tbody tr:hover{ background:#f3f7ff; }
 
-    th:nth-child(1), td:nth-child(1){ width:120px; }
-    th:nth-child(2), td:nth-child(2){ width:130px; }
-    th:nth-child(3), td:nth-child(3){ width:180px; }
+    th:nth-child(1), td:nth-child(1){ width:140px; }
+    th:nth-child(2), td:nth-child(2){ width:140px; }
+    th:nth-child(3), td:nth-child(3){ width:200px; }
     th:nth-child(4), td:nth-child(4){ width:190px; }
-    th:nth-child(5), td:nth-child(5){ width:120px; }
-    th:nth-child(6), td:nth-child(6){ width:170px; }
-
+    th:nth-child(5), td:nth-child(5){ width:140px; }
     .name-cell{
       font-weight:900;
       color:#0f172a;
@@ -757,7 +755,6 @@
                   <th>รายละเอียด</th>
                   <th>สถานะ/จัดการ</th>
                   <th>แผนที่</th>
-                  <th>ไฟล์(เสร็จสิ้น)</th>
                 </tr>
               </thead>
               <tbody id="data-body"></tbody>
@@ -973,7 +970,7 @@
       if(!rows || rows.length === 0){
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="padding:35px;text-align:center;color:#555;font-size:18px;font-weight:900;">
+            <td colspan="5" style="padding:35px;text-align:center;color:#555;font-size:18px;font-weight:900;">
               📭 ยังไม่มีรายการคำร้องในสถานะ “รอดำเนินการ” สำหรับแผนกสาธารณสุข
             </td>
           </tr>
@@ -1001,18 +998,6 @@
           </div>
         `;
 
-        let completedLinks = '-';
-        if (completedFiles.length > 0) {
-          const firstCompleted = completedFiles[0];
-          const firstCompletedUrl = normalizeFileUrl(firstCompleted);
-
-          completedLinks = `
-            <div class="media-container">
-              <button class="btn mini link-btn" onclick='showImages(${JSON.stringify(completedFiles)}, 0)'>ดูรูปภาพ</button>
-              <button class="btn mini danger" onclick="deleteCompletedFile(${targetId}, '${firstCompletedUrl.replace(/'/g, "\\'")}')">🗑 ลบไฟล์นี้</button>
-            </div>
-          `;
-        }
 
         tbody.innerHTML += `
           <tr>
@@ -1025,7 +1010,6 @@
             </td>
             <td>${statusSelect}</td>
             <td>${mapLink}</td>
-            <td>${completedLinks}</td>
           </tr>
         `;
       });
