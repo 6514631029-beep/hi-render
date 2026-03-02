@@ -58,13 +58,13 @@
     .sidebar{
       width: var(--sidebarW);
       background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
-      border-right: 1px solid rgba(255,255,255,.10);
+      border-right: 1px solid rgba(255,255,255,.08);
       position:sticky;
       top:0;
       height:100vh;
       overflow:auto;
-      padding: 14px 12px;
-      box-shadow: 6px 0 22px rgba(2,6,23,.06);
+      padding: 18px 14px;
+      box-shadow: 10px 0 30px rgba(2,6,23,.08);
     }
 
     .brand{
@@ -77,16 +77,19 @@
       color:#fff;
     }
     .brand .logo{
-      width:38px;height:38px;border-radius:12px;
-      background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
+      width:58px;height:58px;border-radius:18px;
+      background: linear-gradient(135deg, rgba(201,162,39,.98), rgba(244,227,161,.92));
       display:flex;align-items:center;justify-content:center;
       color:#1f2937;
       font-weight:1000;
       flex:0 0 auto;
-      box-shadow: 0 12px 22px rgba(201,162,39,.25);
+      box-shadow: 0 14px 28px rgba(201,162,39,.18);
+      font-size:26px;
     }
-    .brand .title{font-weight:1000; line-height:1.1; font-size:15px;}
-    .brand .sub{font-size:13px; opacity:.85; font-weight:700;}
+    .brand .title{
+      font-weight:1000; line-height:1.15; font-size:28px; letter-spacing:-.2px;
+    }
+    .brand .sub{display:none;}
 
     .menu{
       display:flex;
@@ -118,7 +121,8 @@
       cursor:pointer;
       transition: .15s transform, .15s background, .15s border;
       text-align:left;
-      font-size:16px;
+      font-size:15px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
     }
     .side-link:hover{
       background: rgba(255,255,255,.10);
@@ -285,17 +289,17 @@
     }
 
     .content{
-      padding: 16px 18px 26px;
-      max-width: 1400px;
+      padding: 20px 22px 30px;
+      max-width: 1440px;
       margin: 0 auto;
       width:100%;
     }
 
     .card{
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow2);
+      background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, #ffffff 100%);
+      border:1px solid #dfe7f1;
+      border-radius: 20px;
+      box-shadow: 0 10px 26px rgba(15,23,42,.06);
       overflow:hidden;
     }
     .card-h{
@@ -305,7 +309,7 @@
       background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
     .card-h h2{margin:0;font-size:18px;font-weight:1000}
-    .card-b{padding:12px 14px}
+    .card-b{padding:18px}
 
     .tiny{font-size:14px;color:#64748b;font-weight:800}
 
@@ -328,7 +332,13 @@
       cursor:pointer;
       font-weight:900;
       white-space:nowrap;
-      font-size:16px;
+      font-size:15px;
+      transition: transform .12s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+      box-shadow: 0 1px 2px rgba(15,23,42,.04);
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15,23,42,.08);
     }
     .btn.primary{
       background: linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
@@ -336,9 +346,9 @@
       color:#1f2937;
     }
     .btn.danger{
-      background:#fee2e2;border-color:#fecaca;color:#991b1b;
+      background:#fff5f5;border-color:#fecaca;color:#b91c1c;
     }
-    .btn.mini{padding:8px 10px;border-radius:10px;font-size:15px}
+    .btn.mini{padding:8px 12px;border-radius:12px;font-size:14px}
     .btn.link-btn{
       background:#eff6ff;
       border-color:#bfdbfe;
@@ -346,31 +356,34 @@
     }
     .inbox-actions{
       display:flex;
-      gap:6px;
+      gap:8px;
       flex-wrap:wrap;
       justify-content:center;
     }
 
     .inbox-actions .btn{
-      padding:7px 10px;
+      padding:8px 12px;
       font-size:13px;
-      border-radius:10px;
+      border-radius:12px;
     }
     .table-wrap{
       overflow:auto;
       background:#fff;
-      border-radius: 16px;
+      border-radius: 18px;
+      border:1px solid #e5edf6;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
     table{
       width:100%;
-      border-collapse:collapse;
-      min-width: 700px;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width: 980px;
       background:#fff;
       table-layout: fixed;
     }
     th,td{
-      padding:12px 10px;
-      border-bottom:1px solid var(--line);
+      padding:15px 14px;
+      border-bottom:1px solid #edf2f7;
       text-align:center;
       vertical-align:middle;
     }
@@ -379,35 +392,73 @@
       position:sticky;
       top:0;
       z-index:5;
-      background: #eef2f7 !important;
-      color: #0f172a !important;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef2f7 100%) !important;
+      color: #334155 !important;
       text-transform: none !important;
-      letter-spacing: 0 !important;
-      box-shadow: none !important;
+      letter-spacing: .1px !important;
+      box-shadow: inset 0 -1px 0 #e5e7eb !important;
       border-bottom: 1px solid #e5e7eb !important;
       font-size:13px;
+      font-weight:1000;
       white-space:nowrap;
     }
     th.th-message{ text-align:center; padding-left:0; }
 
-    th:nth-child(1), td:nth-child(1){ width: 100px; }
-    th:nth-child(2), td:nth-child(2){ width: 110px; }
-    th:nth-child(3), td:nth-child(3){ width: 190px; }
-    th:nth-child(4), td:nth-child(4){ width: 160px; }
-    th:nth-child(5), td:nth-child(5){ width: 90px; }
-    th:nth-child(6), td:nth-child(6){ width: 150px; }
+    th:nth-child(1), td:nth-child(1){ width: 150px; text-align:left; }
+    th:nth-child(2), td:nth-child(2){ width: 135px; text-align:left; }
+    th:nth-child(3), td:nth-child(3){ width: 180px; }
+    th:nth-child(4), td:nth-child(4){ width: 240px; }
+    th:nth-child(5), td:nth-child(5){ width: 110px; }
+    th:nth-child(6), td:nth-child(6){ width: 170px; }
 
-    td{ font-size:15px; }
-    tbody tr:nth-child(even){background:#fbfdff}
-    tbody tr:hover{background:#f3f7ff}
-    a.map-link{color:var(--info);font-weight:1000;text-decoration:none;white-space:nowrap}
+    td{
+      font-size:15px;
+      color:#0f172a;
+      background:#fff;
+    }
+    tbody tr:nth-child(even) td{background:#fcfdff}
+    tbody tr:hover td{background:#f6faff}
+
+    .row-name{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      justify-content:center;
+      gap:6px;
+      min-width:0;
+    }
+    .row-name .name{
+      font-weight:1000;
+      color:#0f172a;
+      word-break:break-word;
+      line-height:1.35;
+    }
+    .row-phone{
+      font-weight:900;
+      color:#334155;
+      letter-spacing:.2px;
+    }
+
+    a.map-link{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:var(--info);
+      font-weight:1000;
+      text-decoration:none;
+      white-space:nowrap;
+    }
 
     .media-container{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:8px;
-      padding:6px 0;
+      padding:4px 0;
     }
     .media-container .tiny{
       font-size:13px;
@@ -415,8 +466,54 @@
       font-weight:800;
     }
 
+    .status-stack{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      width:100%;
+    }
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:32px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:1000;
+      line-height:1.2;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+    .status-pill.pending{
+      color:#9a6700;
+      background:#fff7d6;
+      border-color:#fde68a;
+    }
+    .status-pill.inprogress{
+      color:#1d4ed8;
+      background:#eaf2ff;
+      border-color:#bfdbfe;
+    }
+    .status-pill.completed{
+      color:#166534;
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .status-pill.inbox{
+      color:#0f766e;
+      background:#ecfeff;
+      border-color:#a5f3fc;
+    }
+    .status-pill.empty{
+      color:#475569;
+      background:#f8fafc;
+      border-color:#e2e8f0;
+    }
+
     #pagination{
-      padding:12px;
+      padding:14px;
       display:flex;
       justify-content:center;
       align-items:center;
@@ -437,7 +534,7 @@
       }
       .app{display:block}
       .content{padding:14px}
-      table{min-width:700px}
+      table{min-width:780px}
     }
 
     .status-select{
@@ -448,9 +545,9 @@
       border:1px solid #dbe2ea !important;
       box-shadow:none !important;
       outline:none !important;
-      height: 38px !important;
-      line-height: 38px !important;
-      padding: 0 34px 0 12px !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      padding: 0 36px 0 12px !important;
       border-radius: 12px !important;
       font-size: 14px !important;
       font-weight: 900 !important;
@@ -459,16 +556,21 @@
       white-space:nowrap;
       box-sizing:border-box;
       width: 100% !important;
-      max-width: 170px;
+      max-width: 200px;
       min-width: 0 !important;
       background-image:
         linear-gradient(45deg, transparent 50%, #0f172a 50%),
         linear-gradient(135deg, #0f172a 50%, transparent 50%);
       background-position:
-        calc(100% - 14px) 50%,
-        calc(100% - 9px) 50%;
+        calc(100% - 16px) 50%,
+        calc(100% - 11px) 50%;
       background-size: 5px 5px, 5px 5px;
       background-repeat: no-repeat;
+    }
+    .status-select:hover,
+    .status-select:focus{
+      border-color:#93c5fd !important;
+      box-shadow:0 0 0 4px rgba(59,130,246,.10) !important;
     }
     @supports not (width: fit-content){
       .status-select{ width: auto !important; }
@@ -482,8 +584,8 @@
 
     .msg-cell{
       min-width: 0;
-      max-width: 190px;
-      width: 190px;
+      max-width: 180px;
+      width: 180px;
       text-align:center;
       vertical-align:middle;
       padding-left:10px;
@@ -495,7 +597,7 @@
       justify-content:center;
       margin-top:0;
     }
-    .msg-actions .btn{ min-width:110px; }
+    .msg-actions .btn{ min-width:122px; }
 
     .detail-overlay{
       display:none;
@@ -636,7 +738,7 @@
         max-width: 200px;
       }
       th:nth-child(3), td:nth-child(3){ width: 200px; }
-      th:nth-child(4), td:nth-child(4){ width: 210px; }
+      th:nth-child(4), td:nth-child(4){ width: 220px; }
     }
   </style>
 </head>
@@ -649,8 +751,7 @@
         <div class="logo">🏥</div>
         <div>
           <div class="title">สาธารณสุข</div>
-          <div class="sub">Hi-Form หน่วยงาน</div>
-        </div>
+                  </div>
       </div>
 
       <div class="menu">
@@ -720,7 +821,7 @@
           <div class="topbar-left">
             <div>
               <h1>🏛️ ระบบรับเรื่องร้องเรียน • งานสาธารณสุข</h1>
-              <div class="sub">องค์การบริหารส่วนตำบล</div>
+              <div class="sub">แดชบอร์ดงานสาธารณสุข • สำหรับคอมพิวเตอร์</div>
             </div>
           </div>
 
@@ -1147,6 +1248,15 @@
       return /\.(jpg|jpeg|png|gif|webp|bmp|svg|heic|heif)(\?|$)/.test(url);
     }
 
+    function getStatusPill(status) {
+      const s = (status || '').trim();
+      if (s === 'รอดำเนินการ') return '<span class="status-pill pending">⏳ รอดำเนินการ</span>';
+      if (s === 'กำลังดำเนินการ') return '<span class="status-pill inprogress">⚙️ กำลังดำเนินการ</span>';
+      if (s === 'เสร็จสิ้น') return '<span class="status-pill completed">✅ เสร็จสิ้น</span>';
+      if (s === 'รอแผนกรับเรื่อง') return '<span class="status-pill inbox">📥 รอแผนกรับเรื่อง</span>';
+      return '<span class="status-pill empty">-</span>';
+    }
+
     function openDetailModal(row) {
       document.getElementById('detailName').textContent = row?.name || '-';
       document.getElementById('detailPhone').textContent = row?.phone || '-';
@@ -1320,8 +1430,8 @@
         let statusCellHtml = '-';
         if (VIEW_MODE === 'inbox') {
           statusCellHtml = `
-            <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
-              <div style="font-weight:1000; color:#075985; font-size:14px;">รอแผนกรับเรื่อง</div>
+            <div class="status-stack">
+              ${getStatusPill('รอแผนกรับเรื่อง')}
               <div class="inbox-actions">
                 <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
                 <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
@@ -1330,12 +1440,15 @@
           `;
         } else {
           statusCellHtml = `
-            <select class="status-select" onchange="onStatusChange(${row.id}, this.value)">
-              <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
-              <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
-              <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
-              <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
-            </select>
+            <div class="status-stack">
+              ${getStatusPill(row.status || '')}
+              <select class="status-select" onchange="onStatusChange(${row.id}, this.value)">
+                <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+                <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
+                <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
+                <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
+              </select>
+            </div>
           `;
         }
 
@@ -1347,12 +1460,12 @@
           tbody.innerHTML += `
             <tr id="row-${row.id}" class="${rowClass}">
               <td>
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                  <div style="font-weight:900;">${row.name || '-'}</div>
+                <div class="row-name">
+                  <div class="name">${row.name || '-'}</div>
                   ${newBadgeHtml}
                 </div>
               </td>
-              <td>${row.phone || '-'}</td>
+              <td><span class="row-phone">${row.phone || '-'}</span></td>
               <td class="msg-cell">
                 <div class="msg-actions">
                   <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
@@ -1366,12 +1479,12 @@
           tbody.innerHTML += `
             <tr id="row-${row.id}" class="${rowClass}">
               <td>
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                  <div style="font-weight:900;">${row.name || '-'}</div>
+                <div class="row-name">
+                  <div class="name">${row.name || '-'}</div>
                   ${newBadgeHtml}
                 </div>
               </td>
-              <td>${row.phone || '-'}</td>
+              <td><span class="row-phone">${row.phone || '-'}</span></td>
               <td class="msg-cell">
                 <div class="msg-actions">
                   <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
