@@ -1,412 +1,876 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+  <link rel="manifest" href="/manifest-health.json">
+  <meta name="theme-color" content="#155263">
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>⏳ รอดำเนินการ - สาธารณสุข</title>
 
-  <style>
-    body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap}
-    h2{margin:0}
+  <link rel="stylesheet" href="/admin-font.css" />
 
-    .btn{
-      padding:10px 14px;border-radius:8px;
-      border:1px solid #cbd5e1;background:#fff;
-      cursor:pointer;font-weight:600
+  <style>
+    :root{
+      --bg: #eef3fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+
+      --navy: #0b2a4a;
+      --navy-2:#133a63;
+      --gold: #c9a227;
+      --gold-2:#f4e3a1;
+
+      --line: #e2e8f0;
+      --ok: #16a34a;
+      --warn:#f59e0b;
+      --danger:#dc2626;
+      --info:#2563eb;
+
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(2,6,23,.08);
+      --shadow2: 0 8px 24px rgba(2,6,23,.06);
+
+      --sidebarW: 260px;
+
+      --status-empty-bg:#f8fafc;
+      --status-empty-bd:#cbd5e1;
+      --status-empty-tx:#475569;
+
+      --status-pending-bg:#fff7ed;
+      --status-pending-bd:#fdba74;
+      --status-pending-tx:#9a3412;
+
+      --status-progress-bg:#eff6ff;
+      --status-progress-bd:#93c5fd;
+      --status-progress-tx:#1d4ed8;
+
+      --status-done-bg:#ecfdf5;
+      --status-done-bd:#86efac;
+      --status-done-tx:#166534;
     }
-    .btn.link{color:#15563b;border-color:#15563b}
+
+    html{ font-size: 20px; }
+    body{ font-size: 18px; line-height: 1.5; }
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
+        var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .app{
+      display:flex;
+      min-height:100vh;
+      gap:0;
+    }
+
+    .sidebar{
+      width: var(--sidebarW);
+      background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
+      border-right: 1px solid rgba(255,255,255,.10);
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      padding: 14px 12px;
+      box-shadow: 6px 0 22px rgba(2,6,23,.06);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      margin-bottom: 10px;
+      color:#fff;
+    }
+    .brand .logo{
+      width:38px;height:38px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
+      display:flex;align-items:center;justify-content:center;
+      color:#1f2937;
+      font-weight:1000;
+      flex:0 0 auto;
+      box-shadow: 0 12px 22px rgba(201,162,39,.25);
+    }
+    .brand .title{
+      font-weight:1000;
+      line-height:1.1;
+      font-size:15px;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding: 10px 6px;
+    }
+
+    .menu-title{
+      font-size:13px;
+      color: rgba(255,255,255,.72);
+      font-weight:900;
+      margin: 6px 6px 2px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .side-link{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      transition: .15s transform, .15s background, .15s border;
+      text-align:left;
+      font-size:16px;
+    }
+    .side-link:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.18);
+    }
+    .side-link:active{ transform: translateY(1px); }
+
+    .side-link .label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+
+    .count{
+      min-width: 34px;
+      text-align:center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(201,162,39,.18);
+      border: 1px solid rgba(201,162,39,.35);
+      color: var(--gold);
+      font-weight:1000;
+      font-size:14px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.12);
+      margin: 10px 6px;
+    }
+
+    .view-link.active{
+      background: rgba(201,162,39,.16);
+      border-color: rgba(201,162,39,.38);
+      position:relative;
+    }
+    .view-link.active::before{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:10px;
+      bottom:10px;
+      width:4px;
+      border-radius:999px;
+      background: rgba(201,162,39,.95);
+      box-shadow: 0 0 0 4px rgba(201,162,39,.12);
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:60;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #0a2340 100%);
+      color:#fff;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+      overflow:hidden;
+    }
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.32), transparent 62%);
+      pointer-events:none;
+    }
+
+    .topbar-row{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .topbar-left h1{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .topbar-left .sub{
+      margin-top:2px;
+      font-size:14px;
+      opacity:.82;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .content{
+      padding: 16px 18px 26px;
+      max-width: 1450px;
+      margin: 0 auto;
+      width:100%;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .card-h h2{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+    }
+
+    .card-b{ padding:12px 14px; }
+
+    .tiny{
+      font-size:14px;
+      color:#64748b;
+      font-weight:800;
+    }
 
     .search{
-      padding:10px;width:300px;border-radius:8px;
-      border:1px solid #ccc;font-size:16px
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      font-weight:800;
+    }
+
+    .toolbar-links{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      font-size:15px;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
+      border-color: rgba(0,0,0,.06);
+      color:#1f2937;
+    }
+    .btn.danger{
+      background:#fee2e2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+    .btn.mini{
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:14px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      background:#fff;
+      border-radius:16px;
     }
 
     table{
-      width:100%;border-collapse:collapse;
+      width:100%;
+      border-collapse:collapse;
+      min-width:1080px;
       background:#fff;
-      box-shadow:0 0 8px rgba(0,0,0,.1)
+      table-layout: fixed;
     }
+
     th,td{
-      padding:10px;border:1px solid #ddd;
-      text-align:center;vertical-align:middle
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
     }
-    th{background:#15563b;color:#fff}
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background: #eef2f7 !important;
+      color: #0f172a !important;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+      box-shadow: none !important;
+      border-bottom: 1px solid #e5e7eb !important;
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    td{
+      font-size:15px;
+      word-break:break-word;
+    }
+
+    tbody tr:nth-child(even){ background:#fbfdff; }
+    tbody tr:hover{ background:#f3f7ff; }
+
+    th:nth-child(1), td:nth-child(1){ width: 110px; }
+    th:nth-child(2), td:nth-child(2){ width: 110px; }
+    th:nth-child(3), td:nth-child(3){ width: 260px; }
+    th:nth-child(4), td:nth-child(4){ width: 130px; }
+    th:nth-child(5), td:nth-child(5){ width: 110px; }
+    th:nth-child(6), td:nth-child(6){ width: 180px; }
+    th:nth-child(7), td:nth-child(7){ width: 110px; }
+    th:nth-child(8), td:nth-child(8){ width: 170px; }
+
+    .message-cell{
+      text-align:left;
+      line-height:1.55;
+      color:#0f172a;
+      font-weight:700;
+    }
+
+    .name-cell{
+      font-weight:900;
+      color:#0f172a;
+    }
 
     .media-container{
-      display:flex;flex-direction:column;
-      align-items:center;gap:8px;padding:6px 0
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      padding:6px 0;
     }
 
     a.map-link{
-      color:#2563eb;font-weight:bold;text-decoration:none
+      color:var(--info);
+      font-weight:1000;
+      text-decoration:none;
+      white-space:nowrap;
     }
 
-    .toolbar{
-      display:flex;gap:10px;
-      align-items:center;flex-wrap:wrap
+    .status-select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      border:1px solid var(--status-empty-bd) !important;
+      box-shadow:none !important;
+      outline:none !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      padding: 0 34px 0 12px !important;
+      border-radius: 12px !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      cursor:pointer;
+      white-space:nowrap;
+      box-sizing:border-box;
+      width: 100% !important;
+      max-width: 150px !important;
+      min-width: 0 !important;
+      text-align: left;
+      transition: .18s ease;
+      background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) 50%,
+        calc(100% - 9px) 50%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
     }
 
-    /* ---------- pagination ---------- */
+    .status-select.status-empty{
+      background-color: var(--status-empty-bg) !important;
+      border-color: var(--status-empty-bd) !important;
+      color: var(--status-empty-tx) !important;
+    }
+    .status-select.status-pending{
+      background-color: var(--status-pending-bg) !important;
+      border-color: var(--status-pending-bd) !important;
+      color: var(--status-pending-tx) !important;
+    }
+    .status-select.status-progress{
+      background-color: var(--status-progress-bg) !important;
+      border-color: var(--status-progress-bd) !important;
+      color: var(--status-progress-tx) !important;
+    }
+    .status-select.status-done{
+      background-color: var(--status-done-bg) !important;
+      border-color: var(--status-done-bd) !important;
+      color: var(--status-done-tx) !important;
+    }
+
+    .status-select:focus{
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.10) !important;
+    }
+
     #pagination{
-      margin-top:10px;
-      display:flex;justify-content:center;
-      align-items:center;gap:8px
+      padding:12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border-top:1px solid var(--line);
+    }
+    #pagination button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
     }
 
-    /* ---------- modal ---------- */
     .modal-backdrop{
-      position:fixed; inset:0;
+      position:fixed;
+      inset:0;
       background:rgba(0,0,0,.45);
       display:none;
       align-items:center;
       justify-content:center;
       z-index:9999;
+      padding:16px;
     }
+
     .modal{
       width:min(560px, 94vw);
       background:#fff;
-      border-radius:14px;
+      border-radius:18px;
       box-shadow:0 12px 30px rgba(0,0,0,.25);
       padding:18px;
+      border:1px solid #e2e8f0;
     }
-    .modal h3{ margin:0 0 10px; }
+    .modal h3{
+      margin:0 0 10px;
+      font-size:20px;
+      font-weight:1000;
+    }
     .modal .row{
-      display:flex; gap:10px;
-      flex-wrap:wrap; align-items:center;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
     }
     .modal .actions{
-      display:flex; gap:10px;
+      display:flex;
+      gap:10px;
       justify-content:flex-end;
       margin-top:12px;
-    }
-    .btn.primary{
-      background:#15563b;
-      color:#fff;
-      border-color:#15563b;
     }
     .hint{
       color:#666;
       font-size:13px;
       margin-top:6px;
+      font-weight:700;
+    }
+
+    @media (max-width: 980px){
+      .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-right:0;
+        box-shadow:none;
+      }
+      .app{ display:block; }
+      .content{ padding:14px; }
     }
   </style>
 </head>
 
 <body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">สธ</div>
+        <div>
+          <div class="title">สาธารณสุข</div>
+        </div>
+      </div>
 
-<header>
-  <h2>⏳ รายการคำร้อง — รอดำเนินการ (สาธารณสุข)</h2>
-  <div class="toolbar">
-    <input id="searchInput" class="search"
-      placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
-      oninput="applyFilters()" />
+      <div class="menu">
+        <div class="menu-title">หน้าหลัก</div>
 
-    <button class="btn link"
-      onclick="location.href='admin-health.html'">
-      ⬅️ กลับหน้า สาธารณสุข
-    </button>
+        <button class="side-link" onclick="location.href='admin-health.html'">
+          <span class="label">🏛️ Dashboard</span>
+        </button>
 
-    <button class="btn"
-      onclick="location.href='inprogress-health.html'">
-      ⚙️ กำลังดำเนินการ
-    </button>
+        <button class="side-link view-link active" onclick="location.href='pending-health.html'">
+          <span class="label">⏳ รอดำเนินการ</span>
+        </button>
 
-    <button class="btn"
-      onclick="location.href='completed-health.html'">
-      ✅ เสร็จสิ้น
-    </button>
+        <button class="side-link" onclick="location.href='inprogress-health.html'">
+          <span class="label">⚙️ กำลังดำเนินการ</span>
+        </button>
+
+        <button class="side-link" onclick="location.href='completed-health.html'">
+          <span class="label">✅ เสร็จสิ้น</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-row">
+          <div class="topbar-left">
+            <div>
+              <h1>⏳ รายการคำร้อง • รอดำเนินการ</h1>
+              <div class="sub">แผนกสาธารณสุข</div>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <div class="toolbar-links">
+              <button class="btn" onclick="location.href='admin-health.html'">⬅️ กลับหน้า สาธารณสุข</button>
+              <button class="btn" onclick="location.href='inprogress-health.html'">⚙️ กำลังดำเนินการ</button>
+              <button class="btn" onclick="location.href='completed-health.html'">✅ เสร็จสิ้น</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="card">
+          <div class="card-h">
+            <h2>ค้นหา</h2>
+            <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบแบ่งหน้า</div>
+          </div>
+          <div class="card-b">
+            <input id="searchInput" class="search"
+              placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+              oninput="applyFilters()" />
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-h">
+            <h2>รายการคำร้องสถานะรอดำเนินการ</h2>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อ</th>
+                  <th>เบอร์</th>
+                  <th>ข้อความ</th>
+                  <th>ไฟล์</th>
+                  <th>แผนก</th>
+                  <th>สถานะ</th>
+                  <th>แผนที่</th>
+                  <th>วันที่-เวลา</th>
+                </tr>
+              </thead>
+              <tbody id="data-body"></tbody>
+            </table>
+          </div>
+
+          <div id="pagination">
+            <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+            <span id="pageInfo" class="btn" style="cursor:default;">หน้า 1 จาก 1</span>
+            <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
-</header>
 
-<table>
-  <thead>
-    <tr>
-      <th>ชื่อ</th>
-      <th>เบอร์</th>
-      <th>ข้อความ</th>
-      <th>ไฟล์</th>
-      <th>แผนก</th>
-      <th>สถานะ</th>
-      <th>แผนที่</th>
-      <th>วันที่-เวลา</th>
-    </tr>
-  </thead>
-  <tbody id="data-body"></tbody>
-</table>
+  <div id="completeModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>✅ แนบไฟล์เพิ่มเติม (เสร็จสิ้น)</h3>
 
-<div id="pagination">
-  <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
-  <span id="pageInfo">หน้า 1 จาก 1</span>
-  <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
-</div>
+      <div class="row">
+        <input id="completeFiles" type="file" multiple accept="image/*,video/*">
+      </div>
 
-<script>
-  /* ===============================
-     CONFIG
-  =============================== */
-  const ENDPOINT = '/data-pending?department=สาธารณสุข';
-  const pageSize = 20;
+      <div class="hint">
+        * ไม่แนบไฟล์ก็ได้ กด “ยืนยันเสร็จสิ้น” ได้เลย
+      </div>
 
-  let allData = [];
-  let deptData = [];
-  let filteredRows = [];
-  let currentPage = 1;
+      <div class="actions">
+        <button class="btn" onclick="closeCompleteModal()">ยกเลิก</button>
+        <button class="btn primary" onclick="submitComplete()">ยืนยันเสร็จสิ้น</button>
+      </div>
+    </div>
+  </div>
 
-  /* ===============================
-     LOAD DATA
-  =============================== */
-  async function loadData(){
-    try{
-      const res = await fetch(`${ENDPOINT}&_=${Date.now()}`);
-      const data = await res.json();
-      allData = Array.isArray(data) ? data : [];
-    }catch{
-      allData = [];
-    }
+  <script>
+    const ENDPOINT = '/data-pending?department=สาธารณสุข';
+    const pageSize = 20;
 
-    // กันพลาด
-    deptData = allData.filter(r => (r.department || '') === 'สาธารณสุข');
-    applyFilters();
-  }
+    let allData = [];
+    let deptData = [];
+    let filteredRows = [];
+    let currentPage = 1;
+    let completeTargetId = null;
 
-  /* ===============================
-     SEARCH
-  =============================== */
-  function applyFilters(){
-    const kw = document.getElementById('searchInput')
-      .value.trim().toLowerCase();
-
-    filteredRows = deptData.filter(r=>{
-      const name = (r.name||'').toLowerCase();
-      const phone = (r.phone||'').toLowerCase();
-      return !kw || name.includes(kw) || phone.includes(kw);
-    });
-
-    currentPage = 1;
-    renderCurrentPage();
-  }
-
-  /* ===============================
-     PAGINATION
-  =============================== */
-  function renderCurrentPage(){
-    const totalItems = filteredRows.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    if(currentPage > totalPages) currentPage = totalPages;
-
-    const start = (currentPage-1) * pageSize;
-    const pageData = filteredRows.slice(start, start + pageSize);
-
-    renderTable(pageData);
-
-    document.getElementById('pageInfo').textContent =
-      `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
-
-    document.getElementById('prevPage').disabled = currentPage === 1;
-    document.getElementById('nextPage').disabled = currentPage === totalPages;
-  }
-
-  function changePage(delta){
-    currentPage += delta;
-    renderCurrentPage();
-  }
-
-  /* ===============================
-     TABLE
-  =============================== */
-  function renderTable(rows){
-    const tbody = document.getElementById('data-body');
-    tbody.innerHTML = '';
-
-    if(!rows || rows.length === 0){
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8"
-            style="padding:35px;text-align:center;
-                   color:#555;font-size:18px;">
-            📭 ยังไม่มีรายการคำร้องในสถานะ
-            “รอดำเนินการ” สำหรับแผนกสาธารณสุข
-          </td>
-        </tr>`;
-      return;
-    }
-
-    rows.forEach(row=>{
-      const id = row.original_id || row.id;
-
-      let files=[];
+    async function loadData(){
       try{
-        if(typeof row.photo === 'string') files = JSON.parse(row.photo);
-        else if(Array.isArray(row.photo)) files = row.photo;
-      }catch{ files=[] }
-
-      let fileCell = '-';
-      if(files.length>0){
-        fileCell = `
-          <div class="media-container">
-            <button class="btn"
-              onclick='showImages(${JSON.stringify(files)})'>
-              ดูทั้งหมด
-            </button>
-          </div>`;
+        const res = await fetch(`${ENDPOINT}&_=${Date.now()}`);
+        const data = await res.json();
+        allData = Array.isArray(data) ? data : [];
+      }catch{
+        allData = [];
       }
 
-      const mapLink = (row.latitude && row.longitude)
-        ? `<a class="map-link"
-            href="https://www.google.com/maps?q=${row.latitude},${row.longitude}"
-            target="_blank">📍 แผนที่</a>`
-        : '-';
-
-      const statusSelect = `
-        <select onchange="onStatusChange(${id}, this.value)">
-          <option disabled ${!row.status?'selected':''}>
-            โปรดเลือกสถานะ
-          </option>
-          <option value="รอดำเนินการ"
-            ${row.status==='รอดำเนินการ'?'selected':''}>
-            รอดำเนินการ
-          </option>
-          <option value="กำลังดำเนินการ"
-            ${row.status==='กำลังดำเนินการ'?'selected':''}>
-            กำลังดำเนินการ
-          </option>
-          <option value="เสร็จสิ้น"
-            ${row.status==='เสร็จสิ้น'?'selected':''}>
-            เสร็จสิ้น
-          </option>
-        </select>`;
-
-      tbody.innerHTML += `
-        <tr>
-          <td>${row.name||'-'}</td>
-          <td>${row.phone||'-'}</td>
-          <td>${row.message||'-'}</td>
-          <td>${fileCell}</td>
-          <td>${row.department||'-'}</td>
-          <td>${statusSelect}</td>
-          <td>${mapLink}</td>
-          <td>${formatDate(row.created_at)}</td>
-        </tr>`;
-    });
-  }
-
-  function formatDate(s){
-    if(!s) return 'ไม่ทราบเวลา';
-    const d = new Date(s);
-    if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
-    return d.toLocaleString('th-TH',{
-      year:'numeric',month:'2-digit',day:'2-digit',
-      hour:'2-digit',minute:'2-digit',second:'2-digit',
-      hour12:false
-    });
-  }
-
-  /* ===============================
-     IMAGE VIEW
-  =============================== */
-  function showImages(images){
-    const html = images.map(img=>{
-      const url = typeof img === 'string'
-        ? (img.startsWith('uploads/')?`/${img}`:img)
-        : (String(img.url||'').startsWith('uploads/')
-            ? `/${img.url}` : img.url);
-
-      const type = (typeof img === 'string') ? '' : (img.type||'');
-
-      if(type==='video' || url.match(/\.(mp4|mov|avi)(\?|$)/i)){
-        return `<video controls style="max-width:700px;
-          margin-bottom:20px;border-radius:8px;">
-          <source src="${url}" type="video/mp4"></video>`;
-      }
-      return `<img src="${url}"
-        style="max-width:700px;margin-bottom:20px;
-        border-radius:8px;object-fit:contain;" />`;
-    }).join('');
-
-    const win = window.open('','_blank','width=800,height=600');
-    win.document.write(
-      `<body style="font-family:Kanit;
-      padding:30px;text-align:center;background:#f9f9f9">
-      ${html}</body>`
-    );
-  }
-
-  /* ===============================
-     STATUS
-  =============================== */
-  function onStatusChange(id,status){
-    if(status === 'เสร็จสิ้น'){
-      openCompleteModal(id);
-      return;
+      deptData = allData.filter(r => (r.department || '') === 'สาธารณสุข');
+      applyFilters();
     }
-    setStatus(id,status);
-  }
 
-  function setStatus(id,status){
-    fetch(`/set-status/${id}`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({status})
-    })
-    .then(()=>loadData())
-    .catch(()=>alert('เกิดข้อผิดพลาด'));
-  }
+    function applyFilters(){
+      const kw = document.getElementById('searchInput')
+        .value.trim().toLowerCase();
 
-  /* ===============================
-     COMPLETE MODAL
-  =============================== */
-  let completeTargetId = null;
+      filteredRows = deptData.filter(r=>{
+        const name = (r.name||'').toLowerCase();
+        const phone = (r.phone||'').toLowerCase();
+        return !kw || name.includes(kw) || phone.includes(kw);
+      });
 
-  function openCompleteModal(id){
-    completeTargetId = id;
-    document.getElementById('completeFiles').value = '';
-    document.getElementById('completeModal').style.display = 'flex';
-  }
+      currentPage = 1;
+      renderCurrentPage();
+    }
 
-  function closeCompleteModal(){
-    completeTargetId = null;
-    document.getElementById('completeModal').style.display = 'none';
-  }
+    function renderCurrentPage(){
+      const totalItems = filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if(currentPage > totalPages) currentPage = totalPages;
 
-  async function submitComplete(){
-    if(!completeTargetId) return;
+      const start = (currentPage-1) * pageSize;
+      const pageData = filteredRows.slice(start, start + pageSize);
 
-    const fd = new FormData();
-    const files = document.getElementById('completeFiles').files;
-    for(const f of files) fd.append('extraFiles', f);
+      renderTable(pageData);
 
-    await fetch(`/complete-with-media/${completeTargetId}`,{
-      method:'POST',
-      body:fd
-    });
+      document.getElementById('pageInfo').textContent =
+        `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
 
-    closeCompleteModal();
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta){
+      currentPage += delta;
+      renderCurrentPage();
+    }
+
+    function getStatusClass(status) {
+      if (!status) return 'status-empty';
+      if (status === 'รอดำเนินการ') return 'status-pending';
+      if (status === 'กำลังดำเนินการ') return 'status-progress';
+      if (status === 'เสร็จสิ้น') return 'status-done';
+      return 'status-empty';
+    }
+
+    function renderTable(rows){
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      if(!rows || rows.length === 0){
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="padding:35px;text-align:center;color:#555;font-size:18px;font-weight:900;">
+              📭 ยังไม่มีรายการคำร้องในสถานะ “รอดำเนินการ” สำหรับแผนกสาธารณสุข
+            </td>
+          </tr>`;
+        return;
+      }
+
+      rows.forEach(row=>{
+        const id = row.original_id || row.id;
+
+        let files=[];
+        try{
+          if(typeof row.photo === 'string') files = JSON.parse(row.photo);
+          else if(Array.isArray(row.photo)) files = row.photo;
+        }catch{ files=[] }
+
+        let fileCell = '-';
+        if(files.length>0){
+          fileCell = `
+            <div class="media-container">
+              <button class="btn mini link-btn" onclick='showImages(${JSON.stringify(files)})'>
+                ดูทั้งหมด
+              </button>
+            </div>`;
+        }
+
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link"
+              href="https://www.google.com/maps?q=${row.latitude},${row.longitude}"
+              target="_blank">📍 แผนที่</a>`
+          : '-';
+
+        const statusSelect = `
+          <select class="status-select ${getStatusClass(row.status)}" onchange="onStatusChange(${id}, this.value, this)">
+            <option value="" disabled ${!row.status?'selected':''}>โปรดเลือกสถานะ</option>
+            <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
+            <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
+            <option value="เสร็จสิ้น" ${row.status==='เสร็จสิ้น'?'selected':''}>เสร็จสิ้น</option>
+          </select>`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td class="name-cell">${row.name||'-'}</td>
+            <td>${row.phone||'-'}</td>
+            <td class="message-cell">${row.message||'-'}</td>
+            <td>${fileCell}</td>
+            <td>${row.department||'-'}</td>
+            <td>${statusSelect}</td>
+            <td>${mapLink}</td>
+            <td>${formatDate(row.created_at)}</td>
+          </tr>`;
+      });
+    }
+
+    function formatDate(s){
+      if(!s) return 'ไม่ทราบเวลา';
+      const d = new Date(s);
+      if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+      return d.toLocaleString('th-TH',{
+        timeZone:'Asia/Bangkok',
+        year:'numeric',month:'2-digit',day:'2-digit',
+        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        hour12:false
+      });
+    }
+
+    function showImages(images){
+      const html = images.map(img=>{
+        const url = typeof img === 'string'
+          ? (img.startsWith('uploads/')?`/${img}`:img)
+          : (String(img.url||'').startsWith('uploads/')
+              ? `/${img.url}` : img.url);
+
+        const type = (typeof img === 'string') ? '' : (img.type||'');
+
+        if(type==='video' || url.match(/\.(mp4|mov|avi)(\?|$)/i)){
+          return `<video controls style="max-width:700px;margin-bottom:20px;border-radius:8px;">
+            <source src="${url}" type="video/mp4"></video>`;
+        }
+        return `<img src="${url}"
+          style="max-width:700px;margin-bottom:20px;border-radius:8px;object-fit:contain;" />`;
+      }).join('');
+
+      const win = window.open('','_blank','width=800,height=600');
+      win.document.write(
+        `<body style="font-family:Kanit;padding:30px;text-align:center;background:#f9f9f9">${html}</body>`
+      );
+    }
+
+    function onStatusChange(id, status, el){
+      if (el) {
+        el.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        el.classList.add(getStatusClass(status));
+      }
+
+      if(status === 'เสร็จสิ้น'){
+        openCompleteModal(id);
+        return;
+      }
+      setStatus(id,status);
+    }
+
+    function setStatus(id,status){
+      fetch(`/set-status/${id}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({status})
+      })
+      .then(()=>loadData())
+      .catch(()=>alert('เกิดข้อผิดพลาด'));
+    }
+
+    function openCompleteModal(id){
+      completeTargetId = id;
+      document.getElementById('completeFiles').value = '';
+      document.getElementById('completeModal').style.display = 'flex';
+    }
+
+    function closeCompleteModal(){
+      completeTargetId = null;
+      document.getElementById('completeModal').style.display = 'none';
+    }
+
+    async function submitComplete(){
+      if(!completeTargetId) return;
+
+      const fd = new FormData();
+      const files = document.getElementById('completeFiles').files;
+      for(const f of files) fd.append('extraFiles', f);
+
+      await fetch(`/complete-with-media/${completeTargetId}`,{
+        method:'POST',
+        body:fd
+      });
+
+      closeCompleteModal();
+      loadData();
+    }
+
     loadData();
-  }
-
-  loadData();
-</script>
-
-<div id="completeModal" class="modal-backdrop">
-  <div class="modal">
-    <h3>✅ แนบไฟล์เพิ่มเติม (เสร็จสิ้น)</h3>
-
-    <div class="row">
-      <input id="completeFiles"
-        type="file" multiple
-        accept="image/*,video/*">
-    </div>
-
-    <div class="hint">
-      * ไม่แนบไฟล์ก็ได้ กด “ยืนยันเสร็จสิ้น” ได้เลย
-    </div>
-
-    <div class="actions">
-      <button class="btn" onclick="closeCompleteModal()">ยกเลิก</button>
-      <button class="btn primary" onclick="submitComplete()">ยืนยันเสร็จสิ้น</button>
-    </div>
-  </div>
-</div>
-
+  </script>
 </body>
 </html>
