@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const mysql = require('mysql2');
-
+const ExcelJS = require('exceljs');
 const session = require('express-session');
 const path = require('path');
 
@@ -2518,7 +2518,93 @@ app.get('/data-completed', (req, res) => {
     res.json(results);
   });
 });
+app.get('/export-health-excel', async (req, res) => {
+  try {
+    const sql = `
+      SELECT id, name, phone, message, department, status, latitude, longitude, created_at
+      FROM requests
+      WHERE department = 'สาธารณสุข'
+      ORDER BY created_at DESC
+    `;
 
+    db.query(sql, async (err, results) => {
+      if (err) {
+        console.error('Export health excel error:', err);
+        return res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('สาธารณสุข');
+
+      worksheet.columns = [
+        { header: 'รหัสคำร้อง', key: 'id', width: 12 },
+        { header: 'ชื่อผู้แจ้ง', key: 'name', width: 22 },
+        { header: 'เบอร์โทร', key: 'phone', width: 18 },
+        { header: 'รายละเอียด', key: 'message', width: 40 },
+        { header: 'แผนก', key: 'department', width: 18 },
+        { header: 'สถานะ', key: 'status', width: 20 },
+        { header: 'ละติจูด', key: 'latitude', width: 15 },
+        { header: 'ลองจิจูด', key: 'longitude', width: 15 },
+        { header: 'วันที่แจ้ง', key: 'created_at', width: 24 }
+      ];
+
+      // ทำหัวตารางให้เด่น
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // ใส่ข้อมูลทีละแถว
+      results.forEach((row) => {
+        worksheet.addRow({
+          id: row.id || '',
+          name: row.name || '',
+          phone: row.phone || '',
+          message: row.message || '',
+          department: row.department || '',
+          status: row.status || '',
+          latitude: row.latitude || '',
+          longitude: row.longitude || '',
+          created_at: row.created_at
+            ? new Date(row.created_at).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+            : ''
+        });
+      });
+
+      // จัดข้อความในคอลัมน์
+      worksheet.eachRow((row, rowNumber) => {
+        row.eachCell((cell) => {
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: rowNumber === 1 ? 'center' : 'left',
+            wrapText: true
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+      });
+
+      const fileName = `health-requests-${Date.now()}.xlsx`;
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${fileName}"`
+      );
+
+      await workbook.xlsx.write(res);
+      res.end();
+    });
+  } catch (error) {
+    console.error('Export health excel fatal error:', error);
+    res.status(500).send('เกิดข้อผิดพลาดในการสร้างไฟล์ Excel');
+  }
+});
 
 
 app.get('/completed', (req, res) => {

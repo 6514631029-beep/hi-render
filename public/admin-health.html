@@ -853,6 +853,31 @@
         grid-template-columns:1fr;
       }
     }
+  
+    .side-export-btn{
+      width:100%;
+      margin-top:14px;
+      padding:14px 16px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#14532d,#16a34a);
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(22,163,74,.22);
+      transition:transform .15s ease, opacity .2s ease, box-shadow .2s ease;
+    }
+
+    .side-export-btn:hover{
+      opacity:.96;
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(22,163,74,.28);
+    }
+
+    .side-export-btn:active{
+      transform:translateY(0);
+    }
   </style>
 </head>
 
@@ -924,6 +949,11 @@
           <span class="label">✅ เสร็จสิ้น</span>
           <span class="count" id="count-completed">0</span>
         </button>
+      
+        <button class="side-export-btn" onclick="exportHealthExcel()">
+          📥 ดาวน์โหลด Excel
+        </button>
+      
       </div>
     </aside>
 
@@ -2418,6 +2448,10 @@
         if (c && c.style.display === 'flex') closeCompleteModal();
       }
     });
+  
+    function exportHealthExcel() {
+      window.open('/export-health-excel', '_blank');
+    }
   </script>
 
 </body>
