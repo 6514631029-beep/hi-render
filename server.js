@@ -2188,17 +2188,14 @@ app.post('/complete-with-media/:id', (req, res) => {
 
               await pushLineMessage(lineUserId, msg);
 
-              for (const f of uploadedExtra) {
-                if (f.type === 'image') {
-                  await pushLineImage(lineUserId, f.url);
-                }
-              }
+              const trackUrl = `${process.env.BASE_URL || 'https://hi-render.onrender.com'}/track.html`;
 
-              const videos = uploadedExtra.filter(x => x.type === 'video');
-              if (videos.length) {
-                const list = videos.map((v,i)=>`${i+1}) ${v.url}`).join('\n');
-                await pushLineMessage(lineUserId, `🎥 ไฟล์วิดีโอแนบตอนเสร็จสิ้น:\n${list}`);
-              }
+              let linkMsg =
+                `🔗 ดูรายละเอียดคำร้องและไฟล์แนบล่าสุด\n` +
+                `${trackUrl}\n\n` +
+                `หากมีการลบหรืออัปเดตไฟล์ ระบบจะแสดงข้อมูลล่าสุดจากหน้าเว็บ`;
+
+              await pushLineMessage(lineUserId, linkMsg);
 
               await db.promise().query(
                 'UPDATE requests SET notified_completed_at = NOW() WHERE id = ?',
