@@ -3036,13 +3036,178 @@ async function exportHealthExcelFile(res, title, whereClause = '', params = []) 
 // ======================================
 // Export Routes
 // ======================================
+async function exportHealthBucketExcelFile(res, title, tableName) {
+  try {
+    const allowedTables = ['pending', 'inprogress', 'completed'];
+    if (!allowedTables.includes(tableName)) {
+      return res.status(400).send('ตารางที่ต้องการ export ไม่ถูกต้อง');
+    }
 
+    const sql = `
+      SELECT *
+      FROM ${tableName}
+      WHERE department = 'สาธารณสุข'
+      ORDER BY created_at DESC
+    `;
+
+    db.query(sql, async (err, results) => {
+      if (err) {
+        console.error(`Export health bucket excel error [${tableName}]:`, err);
+        return res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('งานสาธารณสุข');
+
+      worksheet.mergeCells('A1:K1');
+      worksheet.getCell('A1').value = title;
+      worksheet.getCell('A1').font = { bold: true, size: 18 };
+      worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+
+      worksheet.mergeCells('A2:K2');
+      worksheet.getCell('A2').value = `วันที่ออกรายงาน: ${new Date().toLocaleString('th-TH', {
+        timeZone: 'Asia/Bangkok'
+      })}`;
+      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('A2').font = { size: 12, italic: true };
+
+      worksheet.addRow([]);
+
+      worksheet.columns = [
+        { header: 'ลำดับ', key: 'no', width: 10 },
+        { header: 'รหัสคำร้อง', key: 'id', width: 14 },
+        { header: 'ชื่อผู้แจ้ง', key: 'name', width: 22 },
+        { header: 'เบอร์โทร', key: 'phone', width: 18 },
+        { header: 'รายละเอียด', key: 'message', width: 38 },
+        { header: 'แผนก', key: 'department', width: 18 },
+        { header: 'สถานะ', key: 'status', width: 20 },
+        { header: 'ละติจูด', key: 'latitude', width: 15 },
+        { header: 'ลองจิจูด', key: 'longitude', width: 15 },
+        { header: 'ลิงก์แผนที่', key: 'map_link', width: 34 },
+        { header: 'วันที่แจ้ง', key: 'created_at_text', width: 24 }
+      ];
+
+      const headerRowNumber = 4;
+      worksheet.getRow(headerRowNumber).values = [
+        'ลำดับ',
+        'รหัสคำร้อง',
+        'ชื่อผู้แจ้ง',
+        'เบอร์โทร',
+        'รายละเอียด',
+        'แผนก',
+        'สถานะ',
+        'ละติจูด',
+        'ลองจิจูด',
+        'ลิงก์แผนที่',
+        'วันที่แจ้ง'
+      ];
+
+      const headerRow = worksheet.getRow(headerRowNumber);
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '155263' }
+        };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'CCCCCC' } },
+          left: { style: 'thin', color: { argb: 'CCCCCC' } },
+          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+          right: { style: 'thin', color: { argb: 'CCCCCC' } }
+        };
+      });
+
+      results.forEach((row, index) => {
+        const requestId = row.original_id || row.id || '';
+        const mapLink = (row.latitude && row.longitude)
+          ? `https://maps.google.com/?q=${row.latitude},${row.longitude}`
+          : '';
+
+        const excelRow = worksheet.addRow({
+          no: index + 1,
+          id: requestId,
+          name: row.name || '',
+          phone: row.phone || '',
+          message: row.message || '',
+          department: row.department || '',
+          status: row.status || '',
+          latitude: row.latitude || '',
+          longitude: row.longitude || '',
+          map_link: mapLink,
+          created_at_text: row.created_at
+            ? new Date(row.created_at).toLocaleString('th-TH', {
+                timeZone: 'Asia/Bangkok'
+              })
+            : ''
+        });
+
+        excelRow.eachCell((cell) => {
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: 'left',
+            wrapText: true
+          };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'DDDDDD' } },
+            left: { style: 'thin', color: { argb: 'DDDDDD' } },
+            bottom: { style: 'thin', color: { argb: 'DDDDDD' } },
+            right: { style: 'thin', color: { argb: 'DDDDDD' } }
+          };
+        });
+
+        if (mapLink) {
+          excelRow.getCell(10).value = {
+            text: 'เปิดแผนที่',
+            hyperlink: mapLink
+          };
+          excelRow.getCell(10).font = {
+            color: { argb: '0000FF' },
+            underline: true
+          };
+          excelRow.getCell(10).alignment = {
+            horizontal: 'center',
+            vertical: 'middle'
+          };
+        }
+      });
+
+      worksheet.views = [{ state: 'frozen', ySplit: 4 }];
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+
+      const safeTitle = title
+        .replace(/\s+/g, '-')
+        .replace(/[\/\\?%*:|"<>]/g, '');
+
+      const fileName = `${safeTitle}-${yyyy}-${mm}-${dd}.xlsx`;
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`
+      );
+
+      await workbook.xlsx.write(res);
+      res.end();
+    });
+  } catch (error) {
+    console.error('Export health bucket excel fatal error:', error);
+    res.status(500).send('เกิดข้อผิดพลาดในการสร้างไฟล์ Excel');
+  }
+}
 // Excel ทั้งหมด
 app.get('/export-health-excel-all', async (req, res) => {
   exportHealthExcelFile(res, 'รายงานคำร้อง-สาธารณสุข-ทั้งหมด');
 });
 
-// Excel รอดำเนินการ
 app.get('/export-health-excel-pending', async (req, res) => {
   exportHealthBucketExcelFile(
     res,
@@ -3051,7 +3216,6 @@ app.get('/export-health-excel-pending', async (req, res) => {
   );
 });
 
-// Excel กำลังดำเนินการ
 app.get('/export-health-excel-inprogress', async (req, res) => {
   exportHealthBucketExcelFile(
     res,
@@ -3060,7 +3224,6 @@ app.get('/export-health-excel-inprogress', async (req, res) => {
   );
 });
 
-// Excel เสร็จสิ้น
 app.get('/export-health-excel-completed', async (req, res) => {
   exportHealthBucketExcelFile(
     res,
