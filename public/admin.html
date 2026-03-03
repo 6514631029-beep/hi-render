@@ -3,688 +3,1301 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>🏛️ Dashboard - Admin หลัก</title>
+  <title>📋 จัดการคำร้อง (Admin)</title>
   <link rel="stylesheet" href="/admin-font.css" />
+
   <style>
     :root{
-      --bg:#eef3fb; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
-      --navy:#0b2a4a; --navy-2:#133a63; --gold:#c9a227; --gold-2:#f4e3a1;
-      --line:#e2e8f0; --ok:#16a34a; --warn:#f59e0b; --danger:#dc2626; --info:#2563eb;
-      --radius:16px; --shadow:0 12px 30px rgba(2,6,23,.08); --shadow2:0 8px 24px rgba(2,6,23,.06);
-      --sidebarW:220px;
+      --bg:#eef3fb;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --navy:#0b2a4a;
+      --navy-2:#133a63;
+      --green:#15563b;
+      --green-2:#1e6e50;
+      --line:#e2e8f0;
+      --danger:#ef4444;
+      --danger-2:#dc2626;
+      --info:#2563eb;
+      --warn:#f59e0b;
+      --radius:16px;
+      --shadow:0 12px 30px rgba(2,6,23,.08);
+      --shadow2:0 8px 24px rgba(2,6,23,.06);
     }
-    *{box-sizing:border-box}
-    html{font-size:20px}
+
+    *{ box-sizing:border-box; }
+
     body{
-      margin:0; font-size:18px; line-height:1.5; color:var(--ink);
-      font-family:'Kanit',sans-serif;
-      background:
-        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
-        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
-        var(--bg);
-      -webkit-text-size-adjust:100%;
+      margin:0;
+      padding:20px;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"THSarabunNew","Kanit",system-ui,sans-serif;
+      font-size:22px;
+      line-height:1.45;
     }
-    .app{display:flex;min-height:100vh}
-    .sidebar{
-      width:var(--sidebarW); background:linear-gradient(180deg,#0b2a4a 0%,#071e35 100%);
-      border-right:1px solid rgba(255,255,255,.10); position:sticky; top:0; height:100vh;
-      overflow-y:auto; overflow-x:hidden; padding:12px 10px; box-shadow:6px 0 22px rgba(2,6,23,.06);
-      scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.25) transparent;
+
+    .navbar{
+      background:linear-gradient(135deg, var(--green) 0%, var(--green-2) 100%);
+      padding:14px 20px;
+      color:#fff;
+      border-radius:16px;
+      margin-bottom:20px;
+      box-shadow:var(--shadow);
     }
-    .sidebar::-webkit-scrollbar{width:8px} .sidebar::-webkit-scrollbar-track{background:transparent}
-    .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.22);border-radius:999px}
-    .brand{display:flex;align-items:center;gap:10px;padding:10px 10px 14px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:10px;color:#fff}
-    .brand .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(201,162,39,.95),rgba(244,227,161,.9));display:flex;align-items:center;justify-content:center;color:#1f2937;font-weight:1000;box-shadow:0 12px 22px rgba(201,162,39,.25)}
-    .brand .title{font-weight:1000;line-height:1.1;font-size:15px}
-    .menu{display:flex;flex-direction:column;gap:8px;padding:8px 4px}
-    .menu-title{font-size:13px;color:rgba(255,255,255,.72);font-weight:900;margin:6px 6px 2px;text-transform:uppercase;letter-spacing:.4px}
-    .side-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:#fff;font-weight:900;text-decoration:none;font-size:15px}
-    .side-link:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18)}
-    .side-link.active{background:rgba(201,162,39,.16);border-color:rgba(201,162,39,.38);position:relative}
-    .side-link.active::before{content:'';position:absolute;left:-6px;top:10px;bottom:10px;width:4px;border-radius:999px;background:rgba(201,162,39,.95);box-shadow:0 0 0 4px rgba(201,162,39,.12)}
-    .main{flex:1;min-width:0;display:flex;flex-direction:column}
-    .topbar{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#0a2340 100%);color:#fff;border-bottom:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);padding:14px 18px}
-    .topbar-inner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-    .topbar h1{margin:0;font-size:26px;line-height:1.2}
-    .topbar p{margin:4px 0 0;color:rgba(255,255,255,.82);font-size:14px}
-    .topbar-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .meta-chip{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);padding:9px 12px;border-radius:999px;font-weight:800;font-size:13px;backdrop-filter:blur(6px)}
-    .page{padding:18px}
-    .hero{display:grid;grid-template-columns:1.4fr .9fr;gap:16px;margin-bottom:16px}
-    .panel{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow2)}
-    .hero-card{padding:22px 22px 18px;position:relative;overflow:hidden}
-    .hero-card::after{content:'';position:absolute;right:-70px;top:-70px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle, rgba(201,162,39,.18), transparent 70%)}
-    .hero-card h2{margin:0;font-size:26px;color:var(--navy)}
-    .hero-card p{margin:8px 0 0;color:var(--muted);max-width:760px}
-    .quick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .quick-link{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;border:1px solid var(--line);background:#fff;text-decoration:none;color:var(--ink);font-weight:900;box-shadow:0 6px 18px rgba(2,6,23,.04)}
-    .quick-link:hover{transform:translateY(-1px)}
-    .quick-link .icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#eff6ff;font-size:22px}
-    .control-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px;margin-bottom:16px}
-    .mode-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .btn-mode{border:none;border-radius:999px;padding:11px 16px;font-family:inherit;font-weight:900;cursor:pointer;box-shadow:0 6px 18px rgba(2,6,23,.06)}
-    #btn-show-all{background:#e2e8f0;color:#0f172a}
-    #btn-show-today{background:#dbeafe;color:#1d4ed8}
-    #view-mode-badge{display:inline-flex;align-items:center;gap:8px;background:#f8fafc;color:#334155;padding:10px 12px;border-radius:999px;border:1px solid var(--line);font-weight:800;font-size:13px}
-    .updated{font-weight:800;color:#334155}
-    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
-    .stat{padding:18px;border-radius:18px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow2)}
-    .stat .label{color:var(--muted);font-weight:800;font-size:13px}
-    .stat .value{margin-top:6px;font-size:34px;font-weight:1000;line-height:1;color:var(--navy)}
-    .stat .note{margin-top:8px;color:#475569;font-size:13px}
-    .new-banner{display:none;margin:0 0 16px 0;padding:12px 14px;border-radius:14px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;font-weight:800}
-    .new-banner.show{display:block}
-    .shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}
-    .admin-shortcut-card{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:18px;text-decoration:none;color:var(--ink);background:#fff;border:1px solid var(--line);box-shadow:var(--shadow2)}
-    .admin-shortcut-card:hover{transform:translateY(-1px)}
-    .admin-shortcut-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;flex:0 0 auto}
-    .admin-shortcut-card.pending .admin-shortcut-icon{background:#fff7ed}
-    .admin-shortcut-card.progress .admin-shortcut-icon{background:#eff6ff}
-    .admin-shortcut-card.completed .admin-shortcut-icon{background:#ecfdf5}
-    .admin-shortcut-title{font-weight:1000;font-size:18px;color:var(--navy);margin-bottom:4px}
-    .admin-shortcut-desc{color:var(--muted);font-size:14px}
-    .table-card{padding:0;overflow:hidden}
-    .table-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:18px 18px 10px}
-    .table-head h3{margin:0;font-size:22px;color:var(--navy)}
-    .table-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
-    .table-wrap{overflow:auto;padding:0 18px 18px}
-    table{width:100%;border-collapse:separate;border-spacing:0;min-width:1180px;background:#fff}
-    th,td{padding:14px 12px;vertical-align:middle;text-align:center;border-bottom:1px solid #e2e8f0}
-    th{background:#0f3258;color:#fff;font-size:15px;font-weight:900;position:sticky;top:0;z-index:2}
-    th:first-child{border-top-left-radius:14px} th:last-child{border-top-right-radius:14px}
-    td{color:#334155;font-size:15px;background:#fff}
-    tbody tr:nth-child(even) td{background:#f8fafc} tbody tr:hover td{background:#eef6ff}
-    tr.row-new td{background-color:#fff8c5 !important;animation:newRowPulse 1s ease-in-out 2}
-    .new-badge{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:#f59e0b;color:#fff;font-size:12px;font-weight:700;vertical-align:middle}
-    @keyframes newRowPulse{0%{box-shadow:inset 0 0 0 9999px rgba(253,224,71,.18)}50%{box-shadow:inset 0 0 0 9999px rgba(253,224,71,.32)}100%{box-shadow:inset 0 0 0 9999px rgba(253,224,71,.18)}}
-    .btn{padding:8px 14px;font-size:14px;border:none;border-radius:10px;cursor:pointer;margin:4px 0;transition:.15s; font-family:'Kanit',sans-serif;font-weight:800}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-    .btn.reject{background:#ef4444;color:#fff} .btn.reject:hover{background:#dc2626}
-    select{padding:8px 10px;border-radius:10px;margin:4px 0;width:130px;font-family:'Kanit',sans-serif;border:1px solid #cbd5e1;background:#fff}
-    .map-link{text-decoration:none;color:#2563eb;font-weight:800}
-    .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0}
-    .preview-thumb{width:150px;height:auto;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.16)}
-    .show-all-btn{margin-top:10px;padding:7px 12px;border:1px solid #94a3b8;border-radius:10px;background:#fff;font-weight:800;cursor:pointer;color:#0f172a}
-    .show-all-btn:hover{background:#f8fafc}
-    .bounce-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:#fef2f2;color:#b91c1c;font-weight:900;font-size:13px;border:1px solid #fecaca}
-    .small-muted{margin-top:6px;color:#64748b;font-size:13px;line-height:1.45}
-    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:9999;justify-content:center;align-items:center;padding:20px}
-    .modal-card{background:#fff;padding:24px;border-radius:20px;width:min(460px,100%);box-shadow:0 20px 60px rgba(0,0,0,.18);text-align:center}
-    .modal-card h3{margin:0 0 16px;font-size:22px;color:var(--navy)}
-    .modal-card textarea{width:100%;max-width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;border:1.5px solid #cbd5e1;font-size:16px;resize:vertical;transition:border .2s;font-family:'Kanit',sans-serif}
-    .modal-actions{margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-    .btn-soft{padding:10px 20px;background:#f3f4f6;color:#111827;border:none;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer}
-    .table-empty{padding:26px !important;color:#64748b;font-weight:700}
-    @media (max-width:1100px){.hero{grid-template-columns:1fr} .stats{grid-template-columns:repeat(2,minmax(0,1fr))} .shortcut-grid{grid-template-columns:1fr} }
-    @media (max-width:900px){.app{display:block} .sidebar{position:relative;width:100%;height:auto} .page{padding:14px} .topbar h1{font-size:22px} }
-    @media (max-width:640px){.stats{grid-template-columns:1fr} .quick-links{grid-template-columns:1fr} .control-bar{padding:14px} .hero-card{padding:18px} table{min-width:980px} }
+
+    .navbar-container{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    h2{
+      margin:0;
+      font-size:28px;
+      line-height:1.2;
+      font-weight:800;
+    }
+
+    .nav-links{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .nav-link{
+      color:#fff;
+      text-decoration:none;
+      font-weight:700;
+      padding:8px 14px;
+      border-radius:10px;
+      background:rgba(255,255,255,.08);
+      transition:background-color .2s ease, transform .15s ease;
+      font-size:20px;
+    }
+
+    .nav-link:hover{
+      background:rgba(255,255,255,.16);
+      transform:translateY(-1px);
+    }
+
+    .top-control{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin:10px 0 14px;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .left-info{
+      color:#334155;
+      font-weight:700;
+      font-size:20px;
+    }
+
+    .right-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .mode-badge{
+      background:#e2e8f0;
+      color:#0f172a;
+      padding:7px 12px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:16px;
+    }
+
+    .btn{
+      padding:7px 14px;
+      font-size:18px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      margin:4px 0;
+      transition:background-color .2s ease, transform .15s ease;
+      font-family:"THSarabunNew","Kanit",sans-serif;
+      font-weight:700;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .btn.reject{
+      background-color:var(--danger);
+      color:#fff;
+    }
+
+    .btn.reject:hover:not(:disabled){
+      background-color:var(--danger-2);
+    }
+
+    .new-banner{
+      display:none;
+      margin:0 0 12px 0;
+      padding:12px 16px;
+      border-radius:14px;
+      background:#ecfdf5;
+      color:#065f46;
+      border:1px solid #a7f3d0;
+      font-weight:700;
+      font-size:20px;
+    }
+
+    .new-banner.show{
+      display:block;
+    }
+
+    .admin-shortcuts{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;
+      margin:0 0 18px 0;
+    }
+
+    .admin-shortcut-card{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      text-decoration:none;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .admin-shortcut-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .admin-shortcut-icon{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      flex:0 0 auto;
+    }
+
+    .admin-shortcut-text{
+      flex:1;
+    }
+
+    .admin-shortcut-title{
+      font-size:24px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+      line-height:1.2;
+    }
+
+    .admin-shortcut-desc{
+      font-size:18px;
+      color:#64748b;
+      line-height:1.45;
+    }
+
+    .admin-shortcut-card.pending{
+      background:#fff7ed;
+      border-color:#fdba74;
+    }
+
+    .admin-shortcut-card.pending .admin-shortcut-icon{
+      background:#ffedd5;
+    }
+
+    .admin-shortcut-card.progress{
+      background:#eff6ff;
+      border-color:#93c5fd;
+    }
+
+    .admin-shortcut-card.progress .admin-shortcut-icon{
+      background:#dbeafe;
+    }
+
+    .admin-shortcut-card.completed{
+      background:#ecfdf5;
+      border-color:#86efac;
+    }
+
+    .admin-shortcut-card.completed .admin-shortcut-icon{
+      background:#dcfce7;
+    }
+
+    .table-wrapper{
+      overflow-x:auto;
+      background:#fff;
+      border-radius:16px;
+      box-shadow:var(--shadow2);
+      border:1px solid var(--line);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+    }
+
+    th, td{
+      padding:14px 10px;
+      text-align:center;
+      border-bottom:1px solid #e2e8f0;
+      vertical-align:middle;
+    }
+
+    th{
+      background-color:var(--green);
+      color:#fff;
+      position:sticky;
+      top:0;
+      z-index:1;
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.2px;
+      text-transform:none;
+    }
+
+    td{
+      color:#334155;
+      font-size:20px;
+    }
+
+    tbody tr:nth-child(even){
+      background-color:#f8fafc;
+    }
+
+    tbody tr:hover{
+      background-color:#e0f2fe;
+    }
+
+    tr.row-new{
+      background-color:#fff8c5 !important;
+      animation:newRowPulse 1s ease-in-out 2;
+    }
+
+    .new-badge{
+      display:inline-block;
+      margin-left:6px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#f59e0b;
+      color:#fff;
+      font-size:14px;
+      font-weight:700;
+      vertical-align:middle;
+    }
+
+    @keyframes newRowPulse {
+      0%   { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0.35); }
+      100% { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0); }
+    }
+
+    img{
+      max-width:150px;
+      max-height:120px;
+      border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    video{
+      max-width:300px;
+      max-height:200px;
+      border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .media-container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding:10px 0;
+    }
+
+    select{
+      padding:8px 10px;
+      border-radius:8px;
+      margin:6px 0 0;
+      width:128px;
+      font-family:"THSarabunNew","Kanit",sans-serif;
+      font-size:18px;
+      border:1px solid #cbd5e1;
+      background:#fff;
+      color:#0f172a;
+    }
+
+    a.map-link{
+      text-decoration:none;
+      color:var(--info);
+      font-weight:700;
+    }
+
+    .bounce-badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:15px;
+      background:#fee2e2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      margin-bottom:6px;
+    }
+
+    .small-muted{
+      font-size:15px;
+      color:#64748b;
+      margin-top:4px;
+      line-height:1.3;
+    }
+
+    .file-btn{
+      margin-top:10px;
+      padding:6px 12px;
+      border:1px solid #999;
+      border-radius:8px;
+      background:#fff;
+      font-weight:700;
+      cursor:pointer;
+      font-family:"THSarabunNew","Kanit",sans-serif;
+      font-size:17px;
+    }
+
+    .empty-cell{
+      padding:20px;
+      color:#64748b;
+      font-weight:700;
+    }
+
+    .modal-backdrop{
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background-color:rgba(0,0,0,0.4);
+      z-index:9999;
+      justify-content:center;
+      align-items:center;
+      padding:16px;
+    }
+
+    .modal-card{
+      background:#fff;
+      padding:24px;
+      border-radius:16px;
+      width:90%;
+      max-width:460px;
+      font-family:"THSarabunNew","Kanit",sans-serif;
+      box-shadow:0 8px 24px rgba(0,0,0,0.1);
+      text-align:center;
+    }
+
+    .modal-card h3{
+      margin:0 0 16px;
+      font-size:24px;
+      text-align:center;
+      line-height:1.2;
+    }
+
+    .modal-card textarea{
+      width:100%;
+      max-width:100%;
+      box-sizing:border-box;
+      padding:12px;
+      border-radius:10px;
+      border:1.5px solid #ccc;
+      font-size:18px;
+      resize:vertical;
+      transition:border .2s;
+      font-family:"THSarabunNew","Kanit",sans-serif;
+      min-height:110px;
+    }
+
+    .modal-actions{
+      margin-top:20px;
+      text-align:center;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .modal-btn{
+      padding:10px 20px;
+      border:none;
+      border-radius:10px;
+      font-weight:700;
+      font-size:18px;
+      cursor:pointer;
+      transition:background .2s ease;
+      font-family:"THSarabunNew","Kanit",sans-serif;
+    }
+
+    .modal-btn.danger{
+      background:#ef4444;
+      color:#fff;
+    }
+
+    .modal-btn.danger:hover{
+      background:#dc2626;
+    }
+
+    .modal-btn.light{
+      background:#f3f4f6;
+      color:#111827;
+    }
+
+    .modal-btn.light:hover{
+      background:#e5e7eb;
+    }
+
+    @media (max-width: 768px){
+      body{
+        padding:14px;
+        font-size:20px;
+      }
+
+      h2{
+        font-size:24px;
+      }
+
+      td, th{
+        font-size:18px;
+      }
+
+      .admin-shortcut-title{
+        font-size:22px;
+      }
+
+      .admin-shortcut-desc{
+        font-size:17px;
+      }
+
+      .left-info{
+        font-size:18px;
+      }
+
+      .nav-link{
+        font-size:18px;
+      }
+
+      .btn,
+      select,
+      .modal-btn,
+      .modal-card textarea{
+        font-size:17px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">A</div>
-        <div class="title">ระบบจัดการคำร้อง<br>Admin Dashboard</div>
-      </div>
-      <div class="menu">
-        <div class="menu-title">หน้าหลัก</div>
-        <a href="/admin.html" class="side-link active"><span>📋 คำร้องเข้าใหม่</span></a>
-        <a href="/approved-all" class="side-link"><span>✅ อนุมัติแล้ว</span></a>
-        <a href="/rejected" class="side-link"><span>❌ ไม่อนุมัติแล้ว</span></a>
-        <div class="menu-title">ดูตามสถานะ</div>
-        <a href="/choose-pending-admin.html" class="side-link"><span>⏳ รอดำเนินการ</span></a>
-        <a href="/choose-inprogress-admin.html" class="side-link"><span>⚙️ กำลังดำเนินการ</span></a>
-        <a href="/choose-completed-admin.html" class="side-link"><span>✅ เสร็จสิ้น</span></a>
-      </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-inner">
-          <div>
-            <h1>🏛️ Dashboard - Admin หลัก</h1>
-            <p>โครงสร้างใหม่แบบเดียวกับหน้าแผนก โดยคงฟังก์ชันคัดแยก อนุมัติ และไม่อนุมัติคำร้องไว้ครบ</p>
-          </div>
-          <div class="topbar-meta">
-            <div class="meta-chip">📌 โหมดอนุมัติคำร้องใหม่</div>
-            <div class="meta-chip">🕒 อัปเดตล่าสุด: <span id="last-updated">-</span></div>
-          </div>
-        </div>
-      </header>
-
-      <section class="page">
-        <div class="hero">
-          <div class="panel hero-card">
-            <h2>จัดการคำร้องส่วนกลาง</h2>
-            <p>หน้านี้ใช้สำหรับคัดแยกคำร้องเข้าใหม่ เลือกแผนก อนุมัติ หรือไม่อนุมัติ ก่อนส่งต่อไปยัง dashboard ของแต่ละหน่วยงาน</p>
-          </div>
-          <div class="panel hero-card">
-            <div class="quick-links">
-              <a href="/approved-all" class="quick-link"><span class="icon">✅</span><span>รายการที่อนุมัติแล้ว</span></a>
-              <a href="/rejected" class="quick-link"><span class="icon">❌</span><span>รายการที่ไม่อนุมัติ</span></a>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel control-bar">
-          <div class="mode-wrap">
-            <span id="view-mode-badge">โหมด: คำร้องใหม่ทั้งหมด</span>
-            <button class="btn-mode" id="btn-show-all" onclick="setViewMode('all')">📋 คำร้องทั้งหมด</button>
-            <button class="btn-mode" id="btn-show-today" onclick="setViewMode('today')">📅 คำร้องวันนี้</button>
-          </div>
-          <div class="updated">ดูแลโดยแอดมินหลัก · ไม่มีรีเฟรชอัตโนมัติ</div>
-        </div>
-
-        <div class="stats">
-          <div class="stat"><div class="label">รายการในมุมมองนี้</div><div class="value" id="stat-total">0</div><div class="note">ตามโหมดที่เลือก</div></div>
-          <div class="stat"><div class="label">รายการที่มีไฟล์แนบ</div><div class="value" id="stat-files">0</div><div class="note">รูปภาพหรือวิดีโอ</div></div>
-          <div class="stat"><div class="label">รายการที่มีพิกัดแผนที่</div><div class="value" id="stat-map">0</div><div class="note">พร้อมเปิด Google Maps</div></div>
-          <div class="stat"><div class="label">ตีกลับจากหน่วยงาน</div><div class="value" id="stat-bounce">0</div><div class="note">ต้องให้แอดมินหลักตรวจอีกครั้ง</div></div>
-        </div>
-
-        <div id="new-banner" class="new-banner"></div>
-
-        <div class="shortcut-grid admin-shortcuts">
-          <a href="/choose-pending-admin.html" class="admin-shortcut-card pending">
-            <div class="admin-shortcut-icon">⏳</div>
-            <div><div class="admin-shortcut-title">ดูรอดำเนินการ</div><div class="admin-shortcut-desc">เลือกแผนกเพื่อดูรายการรอดำเนินการแบบอ่านอย่างเดียว</div></div>
-          </a>
-          <a href="/choose-inprogress-admin.html" class="admin-shortcut-card progress">
-            <div class="admin-shortcut-icon">⚙️</div>
-            <div><div class="admin-shortcut-title">ดูกำลังดำเนินการ</div><div class="admin-shortcut-desc">เลือกแผนกเพื่อดูรายการกำลังดำเนินการแบบอ่านอย่างเดียว</div></div>
-          </a>
-          <a href="/choose-completed-admin.html" class="admin-shortcut-card completed">
-            <div class="admin-shortcut-icon">✅</div>
-            <div><div class="admin-shortcut-title">ดูเสร็จสิ้น</div><div class="admin-shortcut-desc">เลือกแผนกเพื่อดูรายการเสร็จสิ้นแบบอ่านอย่างเดียว</div></div>
-          </a>
-        </div>
-
-        <section class="panel table-card">
-          <div class="table-head">
-            <div>
-              <h3>รายการคำร้องเข้าใหม่</h3>
-              <p>คงฟังก์ชันเดิมของ admin ไว้ครบ ทั้งอนุมัติ ไม่อนุมัติ เลือกแผนก และตรวจรายการตีกลับ</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table id="data-table">
-              <thead>
-                <tr>
-                  <th>ชื่อ</th>
-                  <th>เบอร์</th>
-                  <th>ข้อความ</th>
-                  <th>ไฟล์</th>
-                  <th>แผนก</th>
-                  <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
-                  <th>แผนที่</th>
-                  <th>วันที่และเวลา</th>
-                  <th>จัดการ</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-    </main>
-  </div>
 
   <div id="reject-modal" class="modal-backdrop">
     <div class="modal-card">
       <h3>📣 กรุณาระบุเหตุผลไม่อนุมัติ</h3>
+
       <textarea id="reject-reason" rows="4"></textarea>
+
       <div class="modal-actions">
-        <button onclick="submitReject()" class="btn reject">ส่ง</button>
-        <button onclick="closeRejectModal()" class="btn-soft">ยกเลิก</button>
+        <button onclick="submitReject()" class="modal-btn danger">ส่ง</button>
+        <button onclick="closeRejectModal()" class="modal-btn light">ยกเลิก</button>
       </div>
     </div>
   </div>
 
+  <nav class="navbar">
+    <div class="navbar-container">
+      <h2>📋 ระบบจัดการคำร้อง</h2>
+      <div class="nav-links">
+        <a href="/approved-all" class="nav-link">✅ อนุมัติแล้ว</a>
+        <a href="/rejected" class="nav-link">❌ ไม่อนุมัติแล้ว</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="top-control">
+    <div class="left-info">
+      🕒 อัปเดตล่าสุด: <span id="last-updated">-</span>
+    </div>
+
+    <div class="right-actions">
+      <span id="view-mode-badge" class="mode-badge">โหมด: คำร้องใหม่ทั้งหมด</span>
+
+      <button class="btn" id="btn-show-all" onclick="setViewMode('all')" style="background:#e2e8f0; color:#0f172a;">
+        📋 คำร้องทั้งหมด
+      </button>
+
+      <button class="btn" id="btn-show-today" onclick="setViewMode('today')" style="background:#dbeafe; color:#1d4ed8;">
+        📅 คำร้องวันนี้
+      </button>
+    </div>
+  </div>
+
+  <div id="new-banner" class="new-banner"></div>
+
+  <div class="admin-shortcuts">
+    <a href="/choose-pending-admin.html" class="admin-shortcut-card pending">
+      <div class="admin-shortcut-icon">⏳</div>
+      <div class="admin-shortcut-text">
+        <div class="admin-shortcut-title">ดูรอดำเนินการ</div>
+        <div class="admin-shortcut-desc">
+          สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการรอดำเนินการแบบอ่านอย่างเดียว
+        </div>
+      </div>
+    </a>
+
+    <a href="/choose-inprogress-admin.html" class="admin-shortcut-card progress">
+      <div class="admin-shortcut-icon">⚙️</div>
+      <div class="admin-shortcut-text">
+        <div class="admin-shortcut-title">ดูกำลังดำเนินการ</div>
+        <div class="admin-shortcut-desc">
+          สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการกำลังดำเนินการแบบอ่านอย่างเดียว
+        </div>
+      </div>
+    </a>
+
+    <a href="/choose-completed-admin.html" class="admin-shortcut-card completed">
+      <div class="admin-shortcut-icon">✅</div>
+      <div class="admin-shortcut-text">
+        <div class="admin-shortcut-title">ดูเสร็จสิ้น</div>
+        <div class="admin-shortcut-desc">
+          สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการเสร็จสิ้นแบบอ่านอย่างเดียว
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>ชื่อ</th>
+          <th>เบอร์</th>
+          <th>ข้อความ</th>
+          <th>ไฟล์</th>
+          <th>แผนก</th>
+          <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
+          <th>แผนที่</th>
+          <th>วันที่และเวลา</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
   <script>
-  // ===== New item detection (client-side only) =====
-  let isFirstLoadByMode = { all: true, today: true };
+    let isFirstLoadByMode = { all: true, today: true };
 
-  function getSeenKey() {
-    return currentViewMode === 'today'
-      ? 'admin_seen_ids_today_v1'
-      : 'admin_seen_ids_all_v1';
-  }
-
-  function getSeenIds() {
-    try {
-      const raw = localStorage.getItem(getSeenKey());
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch (e) {
-      console.warn('อ่าน seen ids ไม่สำเร็จ:', e);
-      return [];
+    function getSeenKey() {
+      return currentViewMode === 'today'
+        ? 'admin_seen_ids_today_v1'
+        : 'admin_seen_ids_all_v1';
     }
-  }
 
-  function saveSeenIds(ids) {
-    try {
-      localStorage.setItem(getSeenKey(), JSON.stringify(ids));
-    } catch (e) {
-      console.warn('บันทึก seen ids ไม่สำเร็จ:', e);
-    }
-  }
-
-  function getActiveNewKey() {
-    return currentViewMode === 'today'
-      ? 'admin_active_new_ids_today_v1'
-      : 'admin_active_new_ids_all_v1';
-  }
-
-  function getActiveNewIds() {
-    try {
-      const raw = localStorage.getItem(getActiveNewKey());
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr.map(Number).filter(Boolean) : [];
-    } catch (e) {
-      console.warn('อ่าน active new ids ไม่สำเร็จ:', e);
-      return [];
-    }
-  }
-
-  function saveActiveNewIds(ids) {
-    try {
-      const unique = [...new Set(ids.map(Number).filter(Boolean))];
-      localStorage.setItem(getActiveNewKey(), JSON.stringify(unique));
-    } catch (e) {
-      console.warn('บันทึก active new ids ไม่สำเร็จ:', e);
-    }
-  }
-
-  function removeFromActiveNewIds(id) {
-    const target = Number(id);
-    const allKey = 'admin_active_new_ids_all_v1';
-    const todayKey = 'admin_active_new_ids_today_v1';
-
-    [allKey, todayKey].forEach((key) => {
+    function getSeenIds() {
       try {
-        const raw = localStorage.getItem(key);
+        const raw = localStorage.getItem(getSeenKey());
         const arr = raw ? JSON.parse(raw) : [];
-        const next = (Array.isArray(arr) ? arr : [])
-          .map(Number)
-          .filter(x => x && x !== target);
-
-        localStorage.setItem(key, JSON.stringify([...new Set(next)]));
+        return Array.isArray(arr) ? arr : [];
       } catch (e) {
-        console.warn('ลบ active new id ไม่สำเร็จ:', e);
+        console.warn('อ่าน seen ids ไม่สำเร็จ:', e);
+        return [];
       }
-    });
-  }
-
-  function updateNewBanner(count) {
-    const el = document.getElementById('new-banner');
-    if (!el) return;
-
-    if (count > 0) {
-      el.textContent = `🔔 มีคำร้องใหม่ ${count} รายการ`;
-      el.classList.add('show');
-    } else {
-      el.textContent = '';
-      el.classList.remove('show');
     }
-  }
 
-  function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, (m) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[m]));
-  }
+    function saveSeenIds(ids) {
+      try {
+        localStorage.setItem(getSeenKey(), JSON.stringify(ids));
+      } catch (e) {
+        console.warn('บันทึก seen ids ไม่สำเร็จ:', e);
+      }
+    }
 
-  // (ไม่บังคับ) ใช้ตอนทดสอบ อยากให้ระบบนับใหม่อีกครั้ง
-  function resetSeenNewState() {
-    localStorage.removeItem('admin_seen_ids_all_v1');
-    localStorage.removeItem('admin_seen_ids_today_v1');
-    localStorage.removeItem('admin_active_new_ids_all_v1');
-    localStorage.removeItem('admin_active_new_ids_today_v1');
-    isFirstLoadByMode = { all: true, today: true };
-    updateNewBanner(0);
-    alert('รีเซ็ตสถานะ "ข้อมูลใหม่" แล้ว');
-    safeLoadData();
-  }
-</script>
+    function getActiveNewKey() {
+      return currentViewMode === 'today'
+        ? 'admin_active_new_ids_today_v1'
+        : 'admin_active_new_ids_all_v1';
+    }
+
+    function getActiveNewIds() {
+      try {
+        const raw = localStorage.getItem(getActiveNewKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr.map(Number).filter(Boolean) : [];
+      } catch (e) {
+        console.warn('อ่าน active new ids ไม่สำเร็จ:', e);
+        return [];
+      }
+    }
+
+    function saveActiveNewIds(ids) {
+      try {
+        const unique = [...new Set(ids.map(Number).filter(Boolean))];
+        localStorage.setItem(getActiveNewKey(), JSON.stringify(unique));
+      } catch (e) {
+        console.warn('บันทึก active new ids ไม่สำเร็จ:', e);
+      }
+    }
+
+    function removeFromActiveNewIds(id) {
+      const target = Number(id);
+      const allKey = 'admin_active_new_ids_all_v1';
+      const todayKey = 'admin_active_new_ids_today_v1';
+
+      [allKey, todayKey].forEach((key) => {
+        try {
+          const raw = localStorage.getItem(key);
+          const arr = raw ? JSON.parse(raw) : [];
+          const next = (Array.isArray(arr) ? arr : [])
+            .map(Number)
+            .filter(x => x && x !== target);
+
+          localStorage.setItem(key, JSON.stringify([...new Set(next)]));
+        } catch (e) {
+          console.warn('ลบ active new id ไม่สำเร็จ:', e);
+        }
+      });
+    }
+
+    function updateNewBanner(count) {
+      const el = document.getElementById('new-banner');
+      if (!el) return;
+
+      if (count > 0) {
+        el.textContent = `🔔 มีคำร้องใหม่ ${count} รายการ`;
+        el.classList.add('show');
+      } else {
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[m]));
+    }
+
+    function resetSeenNewState() {
+      localStorage.removeItem('admin_seen_ids_all_v1');
+      localStorage.removeItem('admin_seen_ids_today_v1');
+      localStorage.removeItem('admin_active_new_ids_all_v1');
+      localStorage.removeItem('admin_active_new_ids_today_v1');
+      isFirstLoadByMode = { all: true, today: true };
+      updateNewBanner(0);
+      alert('รีเซ็ตสถานะ "ข้อมูลใหม่" แล้ว');
+      safeLoadData();
+    }
+  </script>
+
   <script>
-  function updateSummaryStats(rows) {
-    const safeRows = Array.isArray(rows) ? rows : [];
-    const total = safeRows.length;
-    const withFiles = safeRows.filter(row => {
-      try {
-        const files = typeof row.photo === 'string' ? JSON.parse(row.photo || '[]') : (Array.isArray(row.photo) ? row.photo : []);
-        return Array.isArray(files) && files.length > 0;
-      } catch (e) {
-        return false;
-      }
-    }).length;
-    const withMap = safeRows.filter(row => row.latitude && row.longitude).length;
-    const bounced = safeRows.filter(row => row.status === 'รอแอดมินหลัก' || Number(row.dept_accept) === 0).length;
+    let currentViewMode = 'all';
 
-    const setText = (id, value) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = String(value);
-    };
+    function updateViewModeUI() {
+      const badge = document.getElementById('view-mode-badge');
+      const btnAll = document.getElementById('btn-show-all');
+      const btnToday = document.getElementById('btn-show-today');
 
-    setText('stat-total', total);
-    setText('stat-files', withFiles);
-    setText('stat-map', withMap);
-    setText('stat-bounce', bounced);
-  }
-
-
-  let currentViewMode = 'all'; // all | today
-
-  function updateViewModeUI() {
-    const badge = document.getElementById('view-mode-badge');
-    const btnAll = document.getElementById('btn-show-all');
-    const btnToday = document.getElementById('btn-show-today');
-
-    if (badge) {
-      badge.textContent = currentViewMode === 'today'
-        ? 'โหมด: คำร้องวันนี้'
-        : 'โหมด: คำร้องใหม่ทั้งหมด';
-    }
-
-    if (btnAll) {
-      btnAll.style.background = currentViewMode === 'all' ? '#15563b' : '#e2e8f0';
-      btnAll.style.color = currentViewMode === 'all' ? '#fff' : '#0f172a';
-    }
-
-    if (btnToday) {
-      btnToday.style.background = currentViewMode === 'today' ? '#1d4ed8' : '#dbeafe';
-      btnToday.style.color = currentViewMode === 'today' ? '#fff' : '#1d4ed8';
-    }
-  }
-
-  async function setViewMode(mode) {
-    currentViewMode = mode === 'today' ? 'today' : 'all';
-    updateViewModeUI();
-    await safeLoadData();
-  }
-
-  async function loadData() {
-    const endpoint = currentViewMode === 'today' ? '/data-today' : '/data';
-    const res = await fetch(`${endpoint}?_=${Date.now()}`);
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || `โหลดข้อมูลไม่สำเร็จ (${res.status})`);
-    }
-
-    const data = await res.json();
-    console.log(`📌 โหลดข้อมูลใหม่ [${currentViewMode}]:`, data);
-
-    // ===== NEW: ตรวจข้อมูลใหม่ =====
-    const seenIds = new Set(getSeenIds());
-    const activeNewIds = new Set(getActiveNewIds());
-    const isFirstLoad = isFirstLoadByMode[currentViewMode];
-    let newCount = 0;
-
-    const tbody = document.querySelector("tbody");
-    tbody.innerHTML = "";
-
-    data.forEach(row => {
-      const rowId = Number(row.id);
-
-      if (!isFirstLoad && rowId && !seenIds.has(rowId)) {
-        activeNewIds.add(rowId);
+      if (badge) {
+        badge.textContent = currentViewMode === 'today'
+          ? 'โหมด: คำร้องวันนี้'
+          : 'โหมด: คำร้องใหม่ทั้งหมด';
       }
 
-      const isNewRow = !!(rowId && activeNewIds.has(rowId));
-      if (isNewRow) newCount++;
-
-      const mapLink = row.latitude && row.longitude
-        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
-        : "-";
-
-      const createdAt = row.created_at ? new Date(row.created_at) : null;
-      const createdAtFormatted = createdAt
-        ? createdAt.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
-        : "-";
-
-      let files = [];
-      try {
-        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
-        else if (Array.isArray(row.photo)) files = row.photo;
-        else files = [];
-      } catch (e) {
-        console.error('⚠️ JSON parse error:', e);
-        files = [];
+      if (btnAll) {
+        btnAll.style.background = currentViewMode === 'all' ? '#15563b' : '#e2e8f0';
+        btnAll.style.color = currentViewMode === 'all' ? '#fff' : '#0f172a';
       }
 
-      let fileLinks = "-";
-      if (files.length > 0) {
-        const first = files[0];
-        const rawUrl = typeof first === 'string' ? first : first.url;
-        const firstUrl = encodeURI(rawUrl);
-        const firstType = (typeof first === 'object' && first.type) ? first.type : "";
+      if (btnToday) {
+        btnToday.style.background = currentViewMode === 'today' ? '#1d4ed8' : '#dbeafe';
+        btnToday.style.color = currentViewMode === 'today' ? '#fff' : '#1d4ed8';
+      }
+    }
 
-        const firstElement = firstType === 'video'
-          ? `<video controls class="preview-thumb">
-              <source src="${firstUrl}" type="video/mp4">
-            </video>`
-          : `<img src="${firstUrl}" class="preview-thumb" />`;
+    async function setViewMode(mode) {
+      currentViewMode = mode === 'today' ? 'today' : 'all';
+      updateViewModeUI();
+      await safeLoadData();
+    }
 
-        const buttonHtml = `
-          <button class="show-all-btn" onclick='showImages(${JSON.stringify(files)})'>
-            ดูทั้งหมด
-          </button>`;
+    async function loadData() {
+      const endpoint = currentViewMode === 'today' ? '/data-today' : '/data';
+      const res = await fetch(`${endpoint}?_=${Date.now()}`);
 
-        fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `โหลดข้อมูลไม่สำเร็จ (${res.status})`);
       }
 
-      // ✅ เคสตีกลับจากหน่วยงาน
-      const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
-      const bounceFrom = bounced ? (row.routed_to || '-') : '-';
-      const bounceReason = bounced ? (row.dept_reason || '-') : '-';
+      const data = await res.json();
+      console.log(`📌 โหลดข้อมูลใหม่ [${currentViewMode}]:`, data);
 
-      const bounceCell = bounced
-        ? `
-          <div class="bounce-badge">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
-          <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
-        `
-        : '-';
-      const blockedDepartment =
-        bounced && row.routed_to ? String(row.routed_to).trim() : '';
-      // ✅ ปุ่มอนุมัติจะ disable ถ้ายังไม่เลือกแผนก
-      const isDeptSelected = row.department && row.department !== "-";
+      const seenIds = new Set(getSeenIds());
+      const activeNewIds = new Set(getActiveNewIds());
+      const isFirstLoad = isFirstLoadByMode[currentViewMode];
+      let newCount = 0;
 
-      const tr = document.createElement("tr");
-      tr.setAttribute("data-row-id", row.id);
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
 
-      if (isNewRow) tr.classList.add('row-new');
+      data.forEach(row => {
+        const rowId = Number(row.id);
 
-      tr.innerHTML = `
-        <td>
-          ${escapeHtml(row.name || "-")}
-          ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
-        </td>
-        <td>${escapeHtml(row.phone || "-")}</td>
-        <td>${escapeHtml(row.message || "-")}</td>
-        <td>${fileLinks || "-"}</td>
-        <td>${escapeHtml(row.department || "-")}</td>
+        if (!isFirstLoad && rowId && !seenIds.has(rowId)) {
+          activeNewIds.add(rowId);
+        }
 
-        <!-- ✅ เพิ่มคอลัมน์นี้ -->
-        <td>${bounceCell}</td>
+        const isNewRow = !!(rowId && activeNewIds.has(rowId));
+        if (isNewRow) newCount++;
 
-        <td>${mapLink}</td>
-        <td>${createdAtFormatted}</td>
-        <td>
-          <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
+        const mapLink = row.latitude && row.longitude
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" rel="noopener">📍 แผนที่</a>`
+          : '-';
 
-          <select onchange="setDept(${row.id}, this.value)">
-            <option value="">เลือกแผนก</option>
+        const createdAt = row.created_at ? new Date(row.created_at) : null;
+        const createdAtFormatted = createdAt
+          ? createdAt.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
+          : '-';
 
-            <option
-              value="สำนักงานปลัด"
-              ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}
-              ${blockedDepartment === 'สำนักงานปลัด' ? 'disabled' : ''}
-            >
-              สำนักงานปลัด${blockedDepartment === 'สำนักงานปลัด' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
+        let files = [];
+        try {
+          if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+          else if (Array.isArray(row.photo)) files = row.photo;
+          else files = [];
+        } catch (e) {
+          console.error('⚠️ JSON parse error:', e);
+          files = [];
+        }
 
-            <option
-              value="สาธารณสุข"
-              ${row.department === 'สาธารณสุข' ? 'selected' : ''}
-              ${blockedDepartment === 'สาธารณสุข' ? 'disabled' : ''}
-            >
-              สาธารณสุข${blockedDepartment === 'สาธารณสุข' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
+        let fileLinks = '-';
+        if (files.length > 0) {
+          const first = files[0];
+          const rawUrl = typeof first === 'string' ? first : first.url;
+          const firstUrl = encodeURI(rawUrl);
+          const firstType = (typeof first === 'object' && first.type) ? first.type : '';
 
-            <option
-              value="กองช่าง"
-              ${row.department === 'กองช่าง' ? 'selected' : ''}
-              ${blockedDepartment === 'กองช่าง' ? 'disabled' : ''}
-            >
-              กองช่าง${blockedDepartment === 'กองช่าง' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
+          const firstElement = firstType === 'video'
+            ? `<video controls style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+                <source src="${firstUrl}" type="video/mp4">
+              </video>`
+            : `<img src="${firstUrl}" style="width:150px;height:auto;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);" alt="ไฟล์แนบ" />`;
 
-            <option
-              value="ไฟฟ้า"
-              ${row.department === 'ไฟฟ้า' ? 'selected' : ''}
-              ${blockedDepartment === 'ไฟฟ้า' ? 'disabled' : ''}
-            >
-              ไฟฟ้า${blockedDepartment === 'ไฟฟ้า' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
+          const buttonHtml = `
+            <button class="file-btn" onclick='showImages(${JSON.stringify(files)})'>
+              ดูทั้งหมด
+            </button>`;
 
-            <option
-              value="อื่นๆ"
-              ${row.department === 'อื่นๆ' ? 'selected' : ''}
-              ${blockedDepartment === 'อื่นๆ' ? 'disabled' : ''}
-            >
-              อื่นๆ${blockedDepartment === 'อื่นๆ' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
-          </select><br>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
+          fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
+        }
 
-    updateSummaryStats(data);
+        const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
+        const bounceFrom = bounced ? (row.routed_to || '-') : '-';
+        const bounceReason = bounced ? (row.dept_reason || '-') : '-';
 
-    if (data.length === 0) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td colspan="9" class="table-empty">
-          ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    }
+        const bounceCell = bounced
+          ? `
+            <div class="bounce-badge">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
+            <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
+          `
+          : '-';
 
-    updateNewBanner(newCount);
+        const blockedDepartment =
+          bounced && row.routed_to ? String(row.routed_to).trim() : '';
 
-    const merged = new Set([
-      ...seenIds,
-      ...data.map(r => Number(r.id)).filter(Boolean)
-    ]);
-    saveSeenIds([...merged]);
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-row-id', row.id);
 
-    saveActiveNewIds([...activeNewIds]);
+        if (isNewRow) tr.classList.add('row-new');
 
-    isFirstLoadByMode[currentViewMode] = false;
-  }
+        tr.innerHTML = `
+          <td>
+            ${escapeHtml(row.name || '-')}
+            ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
+          </td>
+          <td>${escapeHtml(row.phone || '-')}</td>
+          <td>${escapeHtml(row.message || '-')}</td>
+          <td>${fileLinks || '-'}</td>
+          <td>${escapeHtml(row.department || '-')}</td>
+          <td>${bounceCell}</td>
+          <td>${mapLink}</td>
+          <td>${createdAtFormatted}</td>
+          <td>
+            <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
 
-  function removeRowFromTable(id) {
-    const tr = document.querySelector(`tr[data-row-id="${id}"]`);
-    if (tr) tr.remove();
+            <select onchange="setDept(${row.id}, this.value)">
+              <option value="">เลือกแผนก</option>
 
-    const tbody = document.querySelector('#data-table tbody');
-    if (!tbody) return;
+              <option
+                value="สำนักงานปลัด"
+                ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}
+                ${blockedDepartment === 'สำนักงานปลัด' ? 'disabled' : ''}
+              >
+                สำนักงานปลัด${blockedDepartment === 'สำนักงานปลัด' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
 
-    const rowCount = tbody.querySelectorAll('tr').length;
-    if (rowCount === 0) {
-      const emptyTr = document.createElement('tr');
-      emptyTr.innerHTML = `
-        <td colspan="9" class="table-empty">
-          ${currentViewMode === 'today'
-            ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
-            : '📭 ไม่มีข้อมูลคำร้องใหม่'}
-        </td>
-      `;
-      tbody.appendChild(emptyTr);
-    }
-  }
+              <option
+                value="สาธารณสุข"
+                ${row.department === 'สาธารณสุข' ? 'selected' : ''}
+                ${blockedDepartment === 'สาธารณสุข' ? 'disabled' : ''}
+              >
+                สาธารณสุข${blockedDepartment === 'สาธารณสุข' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
 
-  function openRejectReasonModal(id) {
-    currentRejectId = id;
-    document.getElementById('reject-reason').value = '';
-    document.getElementById('reject-modal').style.display = 'flex';
-  }
+              <option
+                value="กองช่าง"
+                ${row.department === 'กองช่าง' ? 'selected' : ''}
+                ${blockedDepartment === 'กองช่าง' ? 'disabled' : ''}
+              >
+                กองช่าง${blockedDepartment === 'กองช่าง' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
 
-  function closeRejectModal() {
-    document.getElementById('reject-modal').style.display = 'none';
-  }
+              <option
+                value="ไฟฟ้า"
+                ${row.department === 'ไฟฟ้า' ? 'selected' : ''}
+                ${blockedDepartment === 'ไฟฟ้า' ? 'disabled' : ''}
+              >
+                ไฟฟ้า${blockedDepartment === 'ไฟฟ้า' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
 
-  async function submitReject() {
-    const reason = document.getElementById('reject-reason').value.trim();
-    if (!reason) {
-      alert("กรุณากรอกเหตุผลก่อนส่ง");
-      return;
-    }
-
-    const rejectId = currentRejectId;
-
-    try {
-      const res = await fetch(`/reject/${rejectId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason })
+              <option
+                value="อื่นๆ"
+                ${row.department === 'อื่นๆ' ? 'selected' : ''}
+                ${blockedDepartment === 'อื่นๆ' ? 'disabled' : ''}
+              >
+                อื่นๆ${blockedDepartment === 'อื่นๆ' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
 
-      if (res.redirected) {
-        window.location.href = res.url;
-        return;
-      } else {
-        const text = await res.text();
-        alert(text);
+      if (data.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td colspan="9" class="empty-cell">
+            ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+          </td>
+        `;
+        tbody.appendChild(tr);
       }
 
-      closeRejectModal();
-      removeFromActiveNewIds(rejectId);
-      removeRowFromTable(rejectId);
+      updateNewBanner(newCount);
 
-      setTimeout(() => { safeLoadData(); }, 200);
-    } catch (err) {
-      console.error('submitReject error:', err);
-      alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
+      const merged = new Set([
+        ...seenIds,
+        ...data.map(r => Number(r.id)).filter(Boolean)
+      ]);
+      saveSeenIds([...merged]);
+
+      saveActiveNewIds([...activeNewIds]);
+      isFirstLoadByMode[currentViewMode] = false;
     }
-  }
 
+    function removeRowFromTable(id) {
+      const tr = document.querySelector(`tr[data-row-id="${id}"]`);
+      if (tr) tr.remove();
 
-  let isLoading = false;
+      const tbody = document.querySelector('#data-table tbody');
+      if (!tbody) return;
 
-  function setLastUpdated() {
-    const now = new Date();
-    const el = document.getElementById('last-updated');
-    if (el) {
-      el.textContent = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+      const rowCount = tbody.querySelectorAll('tr').length;
+      if (rowCount === 0) {
+        const emptyTr = document.createElement('tr');
+        emptyTr.innerHTML = `
+          <td colspan="9" class="empty-cell">
+            ${currentViewMode === 'today'
+              ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
+              : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+          </td>
+        `;
+        tbody.appendChild(emptyTr);
+      }
     }
-  }
 
-  async function safeLoadData() {
-    if (isLoading) return;
-    isLoading = true;
-    try {
-      await loadData();
-      setLastUpdated();
-    } catch (e) {
-      console.error('Load data error:', e);
-    } finally {
-      isLoading = false;
+    async function setDept(id, dept) {
+      const res = await fetch(`/set-department/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ department: dept })
+      });
+      const data = await res.json();
+      alert(data.message || 'เปลี่ยนแผนกแล้ว');
+      removeFromActiveNewIds(id);
+      safeLoadData();
     }
-  }
 
-  window.addEventListener('load', () => {
-    updateViewModeUI();
-    safeLoadData();
-  });
-</script>
+    async function setStatus(id, status) {
+      const res = await fetch(`/set-status/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      alert(await res.text());
+      safeLoadData();
+    }
+  </script>
+
+  <script>
+    let isLoading = false;
+
+    function setLastUpdated() {
+      const now = new Date();
+      document.getElementById('last-updated').textContent =
+        now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+    }
+
+    async function safeLoadData() {
+      if (isLoading) return;
+      isLoading = true;
+      try {
+        await loadData();
+        setLastUpdated();
+      } catch (e) {
+        console.error('Load error:', e);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    window.addEventListener('load', () => {
+      updateViewModeUI();
+      safeLoadData();
+    });
+  </script>
+
+  <script>
+    function showImages(images) {
+      const safeImages = (images || []).filter(img => {
+        const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+        return !!rawUrl;
+      });
+
+      const itemsHtml = safeImages.map((img, index) => {
+        const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+        const url = encodeURI(rawUrl);
+        const type = (typeof img === 'object' && img?.type) ? img.type : '';
+
+        const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
+
+        const mediaHtml = isVideo
+          ? `
+            <video controls preload="metadata" class="preview-media">
+              <source src="${url}">
+              เบราว์เซอร์ไม่รองรับวิดีโอ
+            </video>
+          `
+          : `
+            <img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />
+          `;
+
+        return `
+          <div class="media-card">
+            <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
+              ${mediaHtml}
+            </div>
+
+            <div class="media-meta">
+              <span class="media-index">ไฟล์ที่ ${index + 1}</span>
+              <div class="media-actions">
+                <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
+                  เปิดเต็ม
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const win = window.open('', '_blank', 'width=1200,height=800');
+
+      if (!win) {
+        alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+        return;
+      }
+
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>ดูไฟล์ทั้งหมด</title>
+          <style>
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              font-family: "THSarabunNew","Kanit",sans-serif;
+              background: #f1f5f9;
+              color: #0f172a;
+            }
+            .topbar {
+              position: sticky;
+              top: 0;
+              z-index: 10;
+              background: #ffffff;
+              border-bottom: 1px solid #e2e8f0;
+              padding: 12px 16px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 10px;
+              flex-wrap: wrap;
+            }
+            .title { font-size: 24px; font-weight: 700; margin: 0; }
+            .count-badge {
+              background: #15563b;
+              color: #fff;
+              padding: 6px 10px;
+              border-radius: 999px;
+              font-size: 16px;
+              font-weight: 700;
+            }
+            .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+              gap: 16px;
+              align-items: start;
+            }
+            .media-card {
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            .media-link {
+              display: block;
+              text-decoration: none;
+              background: #f8fafc;
+              cursor: pointer;
+            }
+            .preview-media {
+              display: block;
+              width: 100%;
+              height: 220px;
+              object-fit: cover;
+              background: #e2e8f0;
+            }
+            .media-meta {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 8px;
+              padding: 10px 12px;
+            }
+            .media-index {
+              font-size: 16px;
+              color: #475569;
+              font-weight: 600;
+            }
+            .open-btn {
+              border: none;
+              background: #2563eb;
+              color: #fff;
+              padding: 6px 10px;
+              border-radius: 8px;
+              font-size: 15px;
+              font-weight: 700;
+              cursor: pointer;
+              font-family: "THSarabunNew","Kanit",sans-serif;
+            }
+            .media-actions {
+              display: flex;
+              gap: 6px;
+              align-items: center;
+              flex-wrap: wrap;
+              justify-content: flex-end;
+            }
+            .empty {
+              text-align: center;
+              padding: 40px 20px;
+              color: #64748b;
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              font-size: 18px;
+            }
+            @media (max-width: 640px) {
+              .container { padding: 12px; }
+              .grid { grid-template-columns: 1fr; gap: 12px; }
+              .preview-media { height: 220px; }
+              .title { font-size: 20px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
+            <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+          </div>
+          <div class="container">
+            ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
+          </div>
+
+          <script>
+            function openMediaViewer(payload) {
+              const { url, isVideo, index } = payload || {};
+              if (!url) return;
+
+              const viewer = window.open('', '_blank', 'width=1200,height=800');
+              if (!viewer) {
+                alert('กรุณาอนุญาต popup');
+                return;
+              }
+
+              if (isVideo) {
+                viewer.document.write(\`
+                  <!DOCTYPE html>
+                  <html lang="th">
+                  <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <title>วิดีโอไฟล์ที่ \${index}</title>
+                    <style>
+                      body { margin:0; background:#0f172a; color:#fff; font-family:"THSarabunNew","Kanit",sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                      .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                      .btn { color:#fff; background:#2563eb; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:15px; }
+                      .btn-secondary { background:#334155; }
+                      .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                      video { width:100%; max-width:1200px; max-height:calc(100vh - 90px); background:black; border-radius:12px; outline:none; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="top">
+                      <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
+                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                      </div>
+                    </div>
+                    <div class="wrap">
+                      <video controls autoplay playsinline>
+                        <source src="\${url}">
+                        เบราว์เซอร์ไม่รองรับการเล่นวิดีโอไฟล์นี้
+                      </video>
+                    </div>
+                  </body>
+                  </html>
+                \`);
+              } else {
+                viewer.document.write(\`
+                  <!DOCTYPE html>
+                  <html lang="th">
+                  <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <title>รูปภาพไฟล์ที่ \${index}</title>
+                    <style>
+                      body { margin:0; background:#0f172a; color:#fff; font-family:"THSarabunNew","Kanit",sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                      .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                      .btn { color:#fff; background:#16a34a; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:15px; }
+                      .btn-secondary { background:#334155; }
+                      .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                      img { max-width:100%; max-height:calc(100vh - 90px); object-fit:contain; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.35); background:#fff; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="top">
+                      <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                      </div>
+                    </div>
+                    <div class="wrap">
+                      <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+                    </div>
+                  </body>
+                  </html>
+                \`);
+              }
+
+              viewer.document.close();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+
+      win.document.close();
+    }
+  </script>
+
+  <script>
+    let currentRejectId = null;
+
+    function openRejectReasonModal(id) {
+      currentRejectId = id;
+      document.getElementById('reject-reason').value = '';
+      document.getElementById('reject-modal').style.display = 'flex';
+    }
+
+    function closeRejectModal() {
+      document.getElementById('reject-modal').style.display = 'none';
+    }
+
+    async function submitReject() {
+      const reason = document.getElementById('reject-reason').value.trim();
+      if (!reason) {
+        alert('กรุณากรอกเหตุผลก่อนส่ง');
+        return;
+      }
+
+      const rejectId = currentRejectId;
+
+      try {
+        const res = await fetch(`/reject/${rejectId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+
+        if (res.redirected) {
+          window.location.href = res.url;
+          return;
+        } else {
+          const text = await res.text();
+          alert(text);
+        }
+
+        closeRejectModal();
+        removeFromActiveNewIds(rejectId);
+        removeRowFromTable(rejectId);
+
+        setTimeout(() => { safeLoadData(); }, 200);
+      } catch (err) {
+        console.error('submitReject error:', err);
+        alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
+      }
+    }
+  </script>
+
 </body>
 </html>
