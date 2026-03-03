@@ -2689,6 +2689,48 @@ app.get('/export-health-excel', async (req, res) => {
         excelRow.getCell(10).alignment = { horizontal: 'center', vertical: 'middle' };
         excelRow.getCell(12).alignment = { horizontal: 'center', vertical: 'middle' };
 
+
+        // ใส่สีตามสถานะในคอลัมน์ "สถานะ" (คอลัมน์ที่ 7)
+        const statusCell = excelRow.getCell(7);
+        const statusText = String(row.status || '').trim();
+
+        if (
+          statusText === 'รอดำเนินการ' ||
+          statusText === 'รอแผนกรับเรื่อง' ||
+          statusText === 'ใหม่'
+        ) {
+          statusCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF3CD' } // เหลืองอ่อน
+          };
+          statusCell.font = {
+            bold: true,
+            color: { argb: '856404' }
+          };
+        } else if (statusText === 'กำลังดำเนินการ') {
+          statusCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE5B4' } // ส้มอ่อน
+          };
+          statusCell.font = {
+            bold: true,
+            color: { argb: '9A3412' }
+          };
+        } else if (statusText === 'เสร็จสิ้น') {
+          statusCell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'D1FAE5' } // เขียวอ่อน
+          };
+          statusCell.font = {
+            bold: true,
+            color: { argb: '065F46' }
+          };
+        }
+
+        
         // ทำคอลัมน์ลิงก์แผนที่ให้กดได้
         if (mapLink) {
           excelRow.getCell(11).value = {
