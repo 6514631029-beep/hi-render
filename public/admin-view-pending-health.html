@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin View - รอดำเนินการ สาธารณสุข</title>
+  <style>
+    body{
+      font-family:'Kanit',sans-serif;
+      background:#f1f5f9;
+      margin:0;
+      padding:20px;
+      color:#0f172a;
+    }
+    .topbar{
+      background:#15563b;
+      color:white;
+      border-radius:14px;
+      padding:16px 20px;
+      margin-bottom:18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .topbar h1{
+      margin:0;
+      font-size:24px;
+    }
+    .back-btn{
+      text-decoration:none;
+      background:white;
+      color:#15563b;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:700;
+    }
+    .search-box{
+      background:white;
+      padding:14px;
+      border-radius:12px;
+      margin-bottom:16px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    }
+    .search{
+      width:100%;
+      padding:12px;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      font-size:16px;
+      font-family:'Kanit',sans-serif;
+    }
+    .table-wrapper{
+      overflow-x:auto;
+      background:white;
+      border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:900px;
+    }
+    th, td{
+      padding:14px 10px;
+      text-align:center;
+      border-bottom:1px solid #e2e8f0;
+      vertical-align:middle;
+    }
+    th{
+      background:#15563b;
+      color:white;
+      position:sticky;
+      top:0;
+    }
+    tbody tr:nth-child(even){
+      background:#f8fafc;
+    }
+    tbody tr:hover{
+      background:#eef6ff;
+    }
+    .btn{
+      padding:8px 12px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-family:'Kanit',sans-serif;
+      font-weight:700;
+      background:#2563eb;
+      color:white;
+    }
+    .map-link{
+      text-decoration:none;
+      color:#2563eb;
+      font-weight:700;
+    }
+    .status-badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      background:#fff7ed;
+      color:#9a3412;
+      border:1px solid #fdba74;
+      font-weight:800;
+      font-size:13px;
+    }
+    .media-container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    img, video{
+      max-width:140px;
+      max-height:110px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.12);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>👁️ แอดมินดูอย่างเดียว - รอดำเนินการ (สาธารณสุข)</h1>
+    <a href="/choose-pending-admin.html" class="back-btn">⬅ กลับหน้าเลือกแผนก</a>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" class="search" placeholder="ค้นหาชื่อหรือเบอร์..." oninput="filterRows()" />
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ชื่อ</th>
+          <th>เบอร์</th>
+          <th>รายละเอียด</th>
+          <th>ไฟล์</th>
+          <th>สถานะ</th>
+          <th>แผนที่</th>
+          <th>วันที่และเวลา</th>
+        </tr>
+      </thead>
+      <tbody id="data-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let allRows = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch('/data-pending?department=' + encodeURIComponent('สาธารณสุข') + '&_=' + Date.now());
+        const data = await res.json();
+        allRows = Array.isArray(data) ? data : [];
+        renderTable(allRows);
+      } catch (err) {
+        console.error(err);
+        alert('โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function filterRows() {
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = allRows.filter(row => {
+        return !keyword ||
+          String(row.name || '').toLowerCase().includes(keyword) ||
+          String(row.phone || '').toLowerCase().includes(keyword);
+      });
+      renderTable(filtered);
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const d = new Date(dateString);
+      if (isNaN(d)) return '-';
+      return d.toLocaleString('th-TH', {
+        year:'numeric',
+        month:'2-digit',
+        day:'2-digit',
+        hour:'2-digit',
+        minute:'2-digit',
+        second:'2-digit'
+      });
+    }
+
+    function showImages(images) {
+      const safeImages = (images || []).filter(img => {
+        const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+        return !!rawUrl;
+      });
+
+      const itemsHtml = safeImages.map((img, index) => {
+        const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+        const url = encodeURI(rawUrl);
+        const type = (typeof img === 'object' && img?.type) ? img.type : '';
+        const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
+
+        return `
+          <div style="background:#fff;border:1px solid #ddd;border-radius:12px;padding:12px;">
+            ${
+              isVideo
+                ? `<video controls style="width:100%;max-height:300px;"><source src="${url}"></video>`
+                : `<img src="${url}" style="width:100%;max-height:300px;object-fit:contain;" />`
+            }
+            <div style="margin-top:8px;font-weight:700;">ไฟล์ที่ ${index + 1}</div>
+          </div>
+        `;
+      }).join('');
+
+      const win = window.open('', '_blank', 'width=1200,height=800');
+      if (!win) return alert('กรุณาอนุญาต popup');
+
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <title>ดูไฟล์ทั้งหมด</title>
+          <style>
+            body{font-family:Kanit,sans-serif;background:#f1f5f9;margin:0;padding:16px;}
+            .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+          </style>
+        </head>
+        <body>
+          <h2>ดูไฟล์ทั้งหมด</h2>
+          <div class="grid">${itemsHtml || '<p>ไม่มีไฟล์</p>'}</div>
+        </body>
+        </html>
+      `);
+      win.document.close();
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      rows.forEach(row => {
+        let files = [];
+        try {
+          if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+          else if (Array.isArray(row.photo)) files = row.photo;
+        } catch (e) {
+          files = [];
+        }
+
+        let fileHtml = '-';
+        if (files.length > 0) {
+          const first = files[0];
+          const rawUrl = typeof first === 'string' ? first : first.url;
+          const url = encodeURI(rawUrl);
+          const type = (typeof first === 'object' && first.type) ? first.type : '';
+          const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
+
+          fileHtml = `
+            <div class="media-container">
+              ${
+                isVideo
+                  ? `<video controls><source src="${url}"></video>`
+                  : `<img src="${url}" />`
+              }
+              <button class="btn" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>
+            </div>
+          `;
+        }
+
+        const mapLink = row.latitude && row.longitude
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.name || '-'}</td>
+          <td>${row.phone || '-'}</td>
+          <td>${row.message || '-'}</td>
+          <td>${fileHtml}</td>
+          <td><span class="status-badge">รอดำเนินการ</span></td>
+          <td>${mapLink}</td>
+          <td>${formatDate(row.created_at)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (!rows.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="padding:20px; color:#64748b; font-weight:700;">
+              ไม่มีข้อมูลรอดำเนินการของแผนกสาธารณสุข
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

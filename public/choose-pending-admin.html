@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เลือกแผนก - รอดำเนินการ</title>
+  <style>
+    :root{
+      --bg:#f1f5f9;
+      --card:#ffffff;
+      --line:#e2e8f0;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --green:#15563b;
+      --green2:#1e6e50;
+      --shadow:0 8px 24px rgba(0,0,0,0.06);
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:'Kanit',sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px 16px 40px;
+    }
+
+    .header{
+      background:linear-gradient(135deg,var(--green),var(--green2));
+      color:#fff;
+      border-radius:20px;
+      padding:22px;
+      box-shadow:var(--shadow);
+      margin-bottom:20px;
+    }
+
+    .header h1{
+      margin:0;
+      font-size:28px;
+    }
+
+    .header p{
+      margin:8px 0 0;
+      opacity:.95;
+    }
+
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .back-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:#fff;
+      color:var(--green);
+      border:1px solid var(--line);
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:700;
+    }
+
+    .title{
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      gap:16px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .icon{
+      width:58px;
+      height:58px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      background:#dcfce7;
+      margin-bottom:12px;
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      font-size:22px;
+    }
+
+    .card p{
+      margin:0 0 16px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .go-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:var(--green);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>⏳ ดูรายการรอดำเนินการ</h1>
+      <p>เลือกแผนกที่ต้องการดูแบบอ่านอย่างเดียวสำหรับแอดมิน</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="title">เลือกแผนก</div>
+      <a href="/admin.html" class="back-btn">⬅ กลับหน้า Admin</a>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🏥</div>
+        <h3>สาธารณสุข</h3>
+        <p>ดูรายการรอดำเนินการของแผนกสาธารณสุขแบบอ่านอย่างเดียว</p>
+        <a href="/admin-view-pending-health.html" class="go-btn">ดูรายการ</a>
+      </div>
+
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>ไฟฟ้า</h3>
+        <p>ยังทำต่อในขั้นถัดไป</p>
+        <a href="#" class="go-btn" onclick="alert('เดี๋ยวเราทำหน้าของไฟฟ้าต่อในขั้นถัดไป'); return false;">ดูรายการ</a>
+      </div>
+
+      <div class="card">
+        <div class="icon">🛠️</div>
+        <h3>กองช่าง</h3>
+        <p>ยังทำต่อในขั้นถัดไป</p>
+        <a href="#" class="go-btn" onclick="alert('เดี๋ยวเราทำหน้าของกองช่างต่อในขั้นถัดไป'); return false;">ดูรายการ</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
