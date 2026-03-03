@@ -99,7 +99,6 @@
     @keyframes newRowPulse{0%{box-shadow:inset 0 0 0 9999px rgba(253,224,71,.18)}50%{box-shadow:inset 0 0 0 9999px rgba(253,224,71,.32)}100%{box-shadow:inset 0 0 0 9999px rgba(253,224,71,.18)}}
     .btn{padding:8px 14px;font-size:14px;border:none;border-radius:10px;cursor:pointer;margin:4px 0;transition:.15s; font-family:'Kanit',sans-serif;font-weight:800}
     .btn:disabled{opacity:.5;cursor:not-allowed}
-    .btn.approve{background:#22c55e;color:#fff} .btn.approve:hover:not(:disabled){background:#16a34a}
     .btn.reject{background:#ef4444;color:#fff} .btn.reject:hover{background:#dc2626}
     select{padding:8px 10px;border-radius:10px;margin:4px 0;width:130px;font-family:'Kanit',sans-serif;border:1px solid #cbd5e1;background:#fff}
     .map-link{text-decoration:none;color:#2563eb;font-weight:800}
@@ -517,7 +516,6 @@
         <td>${mapLink}</td>
         <td>${createdAtFormatted}</td>
         <td>
-          <button class="btn approve" onclick="approve(${row.id})" ${!isDeptSelected ? 'disabled' : ''}>✅ อนุมัติ</button><br>
           <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
 
           <select onchange="setDept(${row.id}, this.value)">
@@ -614,328 +612,6 @@
     }
   }
 
-  async function approve(id) {
-    try {
-      const res = await fetch(`/approve/${id}`, { method: 'POST' });
-      const text = await res.text();
-
-      alert(text);
-      removeFromActiveNewIds(id);
-      removeRowFromTable(id);
-
-      setTimeout(() => { safeLoadData(); }, 200);
-    } catch (err) {
-      console.error('approve error:', err);
-      alert('เกิดข้อผิดพลาดในการอนุมัติ');
-    }
-  }
-
-  async function setDept(id, dept) {
-    const res = await fetch(`/set-department/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ department: dept })
-    });
-    const data = await res.json();
-    alert(data.message || 'เปลี่ยนแผนกแล้ว');
-    removeFromActiveNewIds(id);
-    safeLoadData();
-  }
-
-  async function setStatus(id, status) {
-    const res = await fetch(`/set-status/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    alert(await res.text());
-    safeLoadData();
-  }
-</script>
-  <script>
-  let isLoading = false;
-
-  function setLastUpdated() {
-    const now = new Date();
-    document.getElementById('last-updated').textContent =
-      now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
-  }
-
-  async function safeLoadData() {
-    if (isLoading) return;
-    isLoading = true;
-    try {
-      await loadData();
-      setLastUpdated();
-    } catch (e) {
-      console.error("Auto refresh error:", e);
-    } finally {
-      isLoading = false;
-    }
-  }
-window.addEventListener('load', () => {
-    updateViewModeUI();
-    safeLoadData();
-  });
-   
-</script>
-  <script>
-function showImages(images) {
-  const safeImages = (images || []).filter(img => {
-    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-    return !!rawUrl;
-  });
-
-  const itemsHtml = safeImages.map((img, index) => {
-    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-    const url = encodeURI(rawUrl);
-    const type = (typeof img === 'object' && img?.type) ? img.type : '';
-
-    const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
-
-    const mediaHtml = isVideo
-      ? `
-        <video controls preload="metadata" class="preview-media">
-          <source src="${url}">
-          เบราว์เซอร์ไม่รองรับวิดีโอ
-        </video>
-      `
-      : `
-        <img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />
-      `;
-
-    return `
-      <div class="media-card">
-        <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
-          ${mediaHtml}
-        </div>
-
-        <div class="media-meta">
-          <span class="media-index">ไฟล์ที่ ${index + 1}</span>
-          <div class="media-actions">
-            <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
-              เปิดเต็ม
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  const win = window.open('', '_blank', 'width=1200,height=800');
-
-  if (!win) {
-    alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
-    return;
-  }
-
-  win.document.write(`
-    <!DOCTYPE html>
-    <html lang="th">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>ดูไฟล์ทั้งหมด</title>
-      <style>
-        * { box-sizing: border-box; }
-        body {
-          margin: 0;
-          font-family: 'Kanit', sans-serif;
-          background: #f1f5f9;
-          color: #0f172a;
-        }
-        .topbar {
-          position: sticky;
-          top: 0;
-          z-index: 10;
-          background: #ffffff;
-          border-bottom: 1px solid #e2e8f0;
-          padding: 12px 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .title { font-size: 18px; font-weight: 700; margin: 0; }
-        .count-badge {
-          background: #15563b;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 999px;
-          font-size: 13px;
-          font-weight: 700;
-        }
-        .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 16px;
-          align-items: start;
-        }
-        .media-card {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .media-link {
-          display: block;
-          text-decoration: none;
-          background: #f8fafc;
-          cursor: pointer;
-        }
-        .preview-media {
-          display: block;
-          width: 100%;
-          height: 220px;
-          object-fit: cover;
-          background: #e2e8f0;
-        }
-        .media-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 12px;
-        }
-        .media-index {
-          font-size: 13px;
-          color: #475569;
-          font-weight: 600;
-        }
-        .open-btn {
-          border: none;
-          background: #2563eb;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-        .media-actions {
-          display: flex;
-          gap: 6px;
-          align-items: center;
-          flex-wrap: wrap;
-          justify-content: flex-end;
-        }
-        .empty {
-          text-align: center;
-          padding: 40px 20px;
-          color: #64748b;
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-        }
-        @media (max-width: 640px) {
-          .container { padding: 12px; }
-          .grid { grid-template-columns: 1fr; gap: 12px; }
-          .preview-media { height: 220px; }
-          .title { font-size: 16px; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="topbar">
-        <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
-        <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
-      </div>
-      <div class="container">
-        ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
-      </div>
-
-      <script>
-        function openMediaViewer(payload) {
-          const { url, isVideo, index } = payload || {};
-          if (!url) return;
-
-          const viewer = window.open('', '_blank', 'width=1200,height=800');
-          if (!viewer) {
-            alert('กรุณาอนุญาต popup');
-            return;
-          }
-
-          if (isVideo) {
-            viewer.document.write(\`
-              <!DOCTYPE html>
-              <html lang="th">
-              <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>วิดีโอไฟล์ที่ \${index}</title>
-                <style>
-                  body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
-                  .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
-                  .btn { color:#fff; background:#2563eb; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
-                  .btn-secondary { background:#334155; }
-                  .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
-                  video { width:100%; max-width:1200px; max-height:calc(100vh - 90px); background:black; border-radius:12px; outline:none; }
-                </style>
-              </head>
-              <body>
-                <div class="top">
-                  <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
-                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
-                  </div>
-                </div>
-                <div class="wrap">
-                  <video controls autoplay playsinline>
-                    <source src="\${url}">
-                    เบราว์เซอร์ไม่รองรับการเล่นวิดีโอไฟล์นี้
-                  </video>
-                </div>
-              </body>
-              </html>
-            \`);
-          } else {
-            viewer.document.write(\`
-              <!DOCTYPE html>
-              <html lang="th">
-              <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>รูปภาพไฟล์ที่ \${index}</title>
-                <style>
-                  body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
-                  .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
-                  .btn { color:#fff; background:#16a34a; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
-                  .btn-secondary { background:#334155; }
-                  .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
-                  img { max-width:100%; max-height:calc(100vh - 90px); object-fit:contain; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.35); background:#fff; }
-                </style>
-              </head>
-              <body>
-                <div class="top">
-                  <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
-                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
-                  </div>
-                </div>
-                <div class="wrap">
-                  <img src="\${url}" alt="ไฟล์ที่ \${index}" />
-                </div>
-              </body>
-              </html>
-            \`);
-          }
-
-          viewer.document.close();
-        }
-      <\/script>
-    </body>
-    </html>
-  `);
-
-  win.document.close();
-}
-</script>
-  <script>
-  let currentRejectId = null;
-
   function openRejectReasonModal(id) {
     currentRejectId = id;
     document.getElementById('reject-reason').value = '';
@@ -980,6 +656,35 @@ function showImages(images) {
       alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
     }
   }
+
+
+  let isLoading = false;
+
+  function setLastUpdated() {
+    const now = new Date();
+    const el = document.getElementById('last-updated');
+    if (el) {
+      el.textContent = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
+    }
+  }
+
+  async function safeLoadData() {
+    if (isLoading) return;
+    isLoading = true;
+    try {
+      await loadData();
+      setLastUpdated();
+    } catch (e) {
+      console.error('Load data error:', e);
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  window.addEventListener('load', () => {
+    updateViewModeUI();
+    safeLoadData();
+  });
 </script>
 </body>
 </html>
