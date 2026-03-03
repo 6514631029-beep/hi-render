@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>👁️ Admin View - รอดำเนินการ (กองช่าง)</title>
+
+  <link rel="stylesheet" href="/admin-font.css" />
+
+  <style>
+    :root{
+      --bg: #eef3fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+
+      --navy: #0b2a4a;
+      --navy-2:#133a63;
+      --gold: #c9a227;
+      --gold-2:#f4e3a1;
+
+      --line: #e2e8f0;
+      --ok: #16a34a;
+      --warn:#f59e0b;
+      --danger:#dc2626;
+      --info:#2563eb;
+
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(2,6,23,.08);
+      --shadow2: 0 8px 24px rgba(2,6,23,.06);
+
+      --sidebarW: 220px;
+
+      --status-pending-bg:#fff7ed;
+      --status-pending-bd:#fdba74;
+      --status-pending-tx:#9a3412;
+    }
+
+    html{ font-size:20px; }
+    body{ font-size:18px; line-height:1.5; }
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
+        var(--bg);
+      -webkit-text-size-adjust:100%;
+    }
+
+    .app{
+      display:flex;
+      min-height:100vh;
+      gap:0;
+    }
+
+    .sidebar{
+      width: var(--sidebarW);
+      background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
+      border-right: 1px solid rgba(255,255,255,.10);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px 10px;
+      box-shadow: 6px 0 22px rgba(2,6,23,.06);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.25) transparent;
+    }
+
+    .sidebar::-webkit-scrollbar{ width:8px; }
+    .sidebar::-webkit-scrollbar-track{ background:transparent; }
+    .sidebar::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.22);
+      border-radius:999px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover{
+      background: rgba(255,255,255,.34);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      margin-bottom:10px;
+      color:#fff;
+    }
+
+    .brand .logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#1f2937;
+      font-weight:1000;
+      flex:0 0 auto;
+      box-shadow:0 12px 22px rgba(201,162,39,.25);
+    }
+
+    .brand .title{
+      font-weight:1000;
+      line-height:1.1;
+      font-size:15px;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:8px 4px;
+    }
+
+    .menu-title{
+      font-size:13px;
+      color: rgba(255,255,255,.72);
+      font-weight:900;
+      margin:6px 6px 2px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .side-link{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      transition:.15s transform, .15s background, .15s border;
+      text-align:left;
+      font-size:15px;
+      text-decoration:none;
+    }
+
+    .side-link:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .side-link.active{
+      background: rgba(201,162,39,.16);
+      border-color: rgba(201,162,39,.38);
+      position:relative;
+    }
+
+    .side-link.active::before{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:10px;
+      bottom:10px;
+      width:4px;
+      border-radius:999px;
+      background: rgba(201,162,39,.95);
+      box-shadow: 0 0 0 4px rgba(201,162,39,.12);
+    }
+
+    .side-link .label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+
+    .count{
+      min-width:34px;
+      text-align:center;
+      padding:4px 10px;
+      border-radius:999px;
+      background: rgba(201,162,39,.18);
+      border: 1px solid rgba(201,162,39,.35);
+      color: var(--gold);
+      font-weight:1000;
+      font-size:14px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.12);
+      margin:10px 6px;
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:60;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #0a2340 100%);
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,.14);
+      box-shadow:var(--shadow);
+      padding:12px 16px;
+      overflow:hidden;
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.32), transparent 62%);
+      pointer-events:none;
+    }
+
+    .topbar-row{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      z-index:2;
+    }
+
+    .topbar-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:260px;
+    }
+
+    .topbar-left h1{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .topbar-left .sub{
+      margin-top:2px;
+      font-size:14px;
+      opacity:.82;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .top-btn{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:14px;
+      backdrop-filter: blur(6px);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .top-btn:hover{
+      background: rgba(255,255,255,.16);
+    }
+
+    .content{
+      padding:16px 18px 26px;
+      max-width:1400px;
+      margin:0 auto;
+      width:100%;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow2);
+      overflow:hidden;
+    }
+
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .card-h h2{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+    }
+
+    .card-b{ padding:12px 14px; }
+
+    .tiny{
+      font-size:14px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .search{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      font-weight:800;
+      font-family:inherit;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .stat-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px;
+      box-shadow:var(--shadow2);
+    }
+
+    .stat-box .label{
+      font-size:13px;
+      font-weight:900;
+      color:#64748b;
+      margin-bottom:6px;
+    }
+
+    .stat-box .value{
+      font-size:26px;
+      line-height:1;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .stat-box .sub{
+      margin-top:6px;
+      font-size:12px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .stat-box.total{ border-color:#bfdbfe; background:#f8fbff; }
+    .stat-box.today{ border-color:#fde68a; background:#fffdf2; }
+    .stat-box.stale{ border-color:#fed7aa; background:#fff7ed; }
+    .stat-box.map{ border-color:#bbf7d0; background:#f0fdf4; }
+
+    .alert-banner{
+      display:none;
+      margin-top:12px;
+      border-radius:16px;
+      padding:14px 16px;
+      border:1px solid #fed7aa;
+      background:linear-gradient(180deg, #fffaf3 0%, #fff7ed 100%);
+      color:#9a3412;
+      box-shadow:var(--shadow2);
+    }
+
+    .alert-banner .title{
+      font-size:16px;
+      font-weight:1000;
+      margin-bottom:4px;
+    }
+
+    .alert-banner .desc{
+      font-size:14px;
+      font-weight:800;
+      line-height:1.5;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      background:#fff;
+      border-radius:16px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:860px;
+      background:#fff;
+      table-layout:fixed;
+    }
+
+    th, td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:#eef2f7 !important;
+      color:#0f172a !important;
+      text-transform:none !important;
+      letter-spacing:0 !important;
+      box-shadow:none !important;
+      border-bottom:1px solid #e5e7eb !important;
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    th:nth-child(1), td:nth-child(1){ width:120px; }
+    th:nth-child(2), td:nth-child(2){ width:120px; }
+    th:nth-child(3), td:nth-child(3){ width:210px; }
+    th:nth-child(4), td:nth-child(4){ width:150px; }
+    th:nth-child(5), td:nth-child(5){ width:140px; }
+    th:nth-child(6), td:nth-child(6){ width:100px; }
+    th:nth-child(7), td:nth-child(7){ width:160px; }
+
+    td{ font-size:15px; }
+    tbody tr:nth-child(even){ background:#fbfdff; }
+    tbody tr:hover{ background:#f3f7ff; }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      font-size:14px;
+      font-family:inherit;
+    }
+
+    .btn.mini{
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:14px;
+    }
+
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+
+    .media-container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      padding:6px 0;
+    }
+
+    .media-container .tiny{
+      font-size:13px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:125px;
+      padding:9px 12px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:1000;
+      border:1px solid var(--status-pending-bd);
+      line-height:1.2;
+      background:var(--status-pending-bg);
+      color:var(--status-pending-tx);
+    }
+
+    .aging-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:1000;
+      margin-top:6px;
+      border:1px solid transparent;
+    }
+
+    .aging-badge.today{
+      background:#dbeafe;
+      color:#1d4ed8;
+      border-color:#93c5fd;
+    }
+
+    .aging-badge.stale{
+      background:#ffedd5;
+      color:#9a3412;
+      border-color:#fdba74;
+    }
+
+    .aging-badge.urgent{
+      background:#fee2e2;
+      color:#991b1b;
+      border-color:#fca5a5;
+    }
+
+    .stale-row{ background:#fff4e8 !important; }
+    .stale-row:hover{ background:#ffe9d2 !important; }
+
+    .urgent-row{ background:#fff1f2 !important; }
+    .urgent-row:hover{ background:#ffe2e8 !important; }
+
+    #pagination{
+      padding:12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border-top:1px solid var(--line);
+    }
+
+    #pagination button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    a.map-link{
+      color:var(--info);
+      font-weight:1000;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+
+    .detail-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.5);
+      z-index:10000;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .detail-modal{
+      width:min(860px, 100%);
+      max-height:85vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 24px 60px rgba(2,6,23,.25);
+    }
+
+    .detail-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid #e2e8f0;
+      background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+
+    .detail-head h3{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .detail-close{
+      border:none;
+      background:#fee2e2;
+      color:#991b1b;
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      font-size:20px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    .detail-body{ padding:18px; }
+
+    .detail-grid{
+      display:grid;
+      grid-template-columns:140px 1fr;
+      gap:10px 14px;
+      margin-bottom:16px;
+    }
+
+    .detail-label{ color:#475569; font-weight:900; }
+    .detail-value{ color:#0f172a; font-weight:800; word-break:break-word; }
+
+    .detail-message-box{
+      margin-top:8px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:14px;
+      color:#0f172a;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .detail-file-box{
+      margin-top:8px;
+      background:#ffffff;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .detail-file-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .detail-file-meta{
+      color:#334155;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    @media (max-width:1100px){
+      .stats-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-right:0;
+        box-shadow:none;
+      }
+      .app{ display:block; }
+      .content{ padding:14px; }
+      table{ min-width:760px; }
+    }
+
+    @media (max-width:700px){
+      .detail-grid{
+        grid-template-columns:1fr;
+        gap:6px;
+      }
+      .stats-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">AD</div>
+        <div>
+          <div class="title">Admin View</div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <div class="menu-title">สถานะที่กำลังดู</div>
+
+        <a href="/choose-pending-admin.html" class="side-link active">
+          <span class="label">⏳ รอดำเนินการ</span>
+          <span class="count" id="count-all-left">0</span>
+        </a>
+
+        <div class="menu-title">ข้อมูลหน้า</div>
+
+        <a href="/choose-pending-admin.html" class="side-link">
+          <span class="label">🛠️ เลือกแผนกอื่น</span>
+        </a>
+
+        <a href="/admin.html" class="side-link">
+          <span class="label">⬅ กลับหน้า Admin</span>
+        </a>
+
+        <div class="divider"></div>
+
+        <div class="menu-title">โหมดการใช้งาน</div>
+        <div class="side-link" style="cursor:default;">
+          <span class="label">👁️ ดูอย่างเดียว</span>
+        </div>
+
+        <div class="side-link" style="cursor:default;">
+          <span class="label">🛠️ แผนกกองช่าง</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-row">
+          <div class="topbar-left">
+            <div>
+              <h1>👁️ Admin View • รอดำเนินการ • กองช่าง</h1>
+              <div class="sub">สำหรับแอดมินหลัก • ดูข้อมูลแบบอ่านอย่างเดียว</div>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <a href="/choose-pending-admin.html" class="top-btn">🛠️ เลือกแผนก</a>
+            <a href="/admin.html" class="top-btn">⬅ กลับหน้า Admin</a>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-box total">
+            <div class="label">รายการทั้งหมด</div>
+            <div class="value" id="statTotal">0</div>
+            <div class="sub">รอดำเนินการของกองช่าง</div>
+          </div>
+
+          <div class="stat-box today">
+            <div class="label">รายการวันนี้</div>
+            <div class="value" id="statToday">0</div>
+            <div class="sub">เฉพาะรายการที่สร้างวันนี้</div>
+          </div>
+
+          <div class="stat-box stale">
+            <div class="label">งานค้าง</div>
+            <div class="value" id="statStale">0</div>
+            <div class="sub">ค้างเกิน 3 วัน</div>
+          </div>
+
+          <div class="stat-box map">
+            <div class="label">มีตำแหน่งแผนที่</div>
+            <div class="value" id="statMap">0</div>
+            <div class="sub">รายการที่กดดูแผนที่ได้</div>
+          </div>
+        </div>
+
+        <div id="alertBanner" class="alert-banner">
+          <div class="title" id="alertBannerTitle">แจ้งเตือนงานค้าง</div>
+          <div class="desc" id="alertBannerDesc">-</div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-h">
+            <h2>ค้นหา</h2>
+            <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • ดูอย่างเดียว</div>
+          </div>
+          <div class="card-b">
+            <input
+              type="text"
+              id="searchInput"
+              class="search"
+              placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+              oninput="filterByKeyword()"
+            />
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-h">
+            <h2>รายการคำร้อง</h2>
+            <div class="tiny">รอดำเนินการ • แผนกกองช่าง</div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อ</th>
+                  <th>เบอร์</th>
+                  <th>รายละเอียด</th>
+                  <th>ไฟล์</th>
+                  <th>สถานะ</th>
+                  <th>แผนที่</th>
+                  <th>วันที่เวลา</th>
+                </tr>
+              </thead>
+              <tbody id="data-body"></tbody>
+            </table>
+          </div>
+
+          <div id="pagination">
+            <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+            <span id="pageInfo" class="btn" style="cursor:default;">หน้า 1 จาก 1</span>
+            <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
+    <div class="detail-modal" onclick="event.stopPropagation()">
+      <div class="detail-head">
+        <h3>รายละเอียดคำร้อง</h3>
+        <button class="detail-close" onclick="closeDetailModal()">×</button>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-grid">
+          <div class="detail-label">ชื่อ</div>
+          <div class="detail-value" id="detailName">-</div>
+
+          <div class="detail-label">เบอร์โทร</div>
+          <div class="detail-value" id="detailPhone">-</div>
+
+          <div class="detail-label">สถานะ</div>
+          <div class="detail-value" id="detailStatus">-</div>
+
+          <div class="detail-label">วันที่-เวลา</div>
+          <div class="detail-value" id="detailDate">-</div>
+
+          <div class="detail-label">พิกัดแผนที่</div>
+          <div class="detail-value" id="detailMap">-</div>
+        </div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
+        <div class="detail-message-box" id="detailMessage">-</div>
+
+        <div style="height:14px;"></div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ไฟล์จากผู้ใช้</div>
+        <div id="detailFilesBox">
+          <div class="detail-message-box">ไม่มีไฟล์จากผู้ใช้</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEPT = 'กองช่าง';
+    let allRows = [];
+    let filteredRows = [];
+    let currentPage = 1;
+    const pageSize = 20;
+
+    function getBangkokDateParts(dateInput = new Date()) {
+      const d = new Date(dateInput);
+      const y = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric' }).format(d);
+      const m = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', month: '2-digit' }).format(d);
+      const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', day: '2-digit' }).format(d);
+      return { y, m, day, key: `${y}-${m}-${day}` };
+    }
+
+    function isTodayBangkok(dateString) {
+      if (!dateString) return false;
+      const dateParts = getBangkokDateParts(dateString);
+      const nowParts = getBangkokDateParts(new Date());
+      return dateParts.key === nowParts.key;
+    }
+
+    function getAgeDays(dateString) {
+      if (!dateString) return 0;
+      const d = new Date(dateString);
+      if (isNaN(d)) return 0;
+      const diffMs = Date.now() - d.getTime();
+      return Math.max(0, Math.floor(diffMs / 86400000));
+    }
+
+    function getAgingInfo(row) {
+      const ageDays = getAgeDays(row?.created_at);
+      const isToday = isTodayBangkok(row?.created_at);
+
+      if (ageDays >= 7) return { level: 'urgent', ageDays, isToday };
+      if (ageDays >= 3) return { level: 'stale', ageDays, isToday };
+      return { level: 'normal', ageDays, isToday };
+    }
+
+    function getAgingBadgeHtml(row) {
+      const aging = getAgingInfo(row);
+
+      if (aging.level === 'urgent') {
+        return `<div class="aging-badge urgent">เร่งด่วน • ค้าง ${aging.ageDays} วัน</div>`;
+      }
+
+      if (aging.level === 'stale') {
+        return `<div class="aging-badge stale">ค้าง ${aging.ageDays} วัน</div>`;
+      }
+
+      if (aging.isToday) {
+        return `<div class="aging-badge today">วันนี้</div>`;
+      }
+
+      return '';
+    }
+
+    function normalizeFileUrl(item) {
+      if (typeof item === 'string') return item.startsWith('uploads/') ? `/${item}` : item;
+      const raw = item?.url || '';
+      return raw.startsWith('uploads/') ? `/${raw}` : raw;
+    }
+
+    function getFileType(item) {
+      if (typeof item === 'string') {
+        const url = item.toLowerCase();
+        return url.match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/) ? 'video' : 'image';
+      }
+      return item?.type || '';
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'ไม่ทราบเวลา';
+      const d = new Date(dateString);
+      if (isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
+      return d.toLocaleString('th-TH', {
+        timeZone: 'Asia/Bangkok',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
+    function getFiles(row) {
+      let files = [];
+      try {
+        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+        else if (Array.isArray(row.photo)) files = row.photo;
+      } catch (e) {
+        files = [];
+      }
+      return files;
+    }
+
+    function updateStats(rows) {
+      const total = rows.length;
+      const today = rows.filter(row => isTodayBangkok(row.created_at)).length;
+      const stale = rows.filter(row => {
+        const aging = getAgingInfo(row);
+        return aging.level === 'stale' || aging.level === 'urgent';
+      }).length;
+      const mapCount = rows.filter(row => row.latitude && row.longitude).length;
+
+      document.getElementById('statTotal').textContent = String(total);
+      document.getElementById('statToday').textContent = String(today);
+      document.getElementById('statStale').textContent = String(stale);
+      document.getElementById('statMap').textContent = String(mapCount);
+
+      document.getElementById('count-all-left').textContent = String(total);
+
+      const banner = document.getElementById('alertBanner');
+      const title = document.getElementById('alertBannerTitle');
+      const desc = document.getElementById('alertBannerDesc');
+
+      if (stale > 0) {
+        banner.style.display = 'block';
+        title.textContent = '⚠️ พบงานค้าง';
+        desc.textContent = `มีรายการรอดำเนินการของแผนกกองช่างที่ค้างเกิน 3 วัน จำนวน ${stale} รายการ`;
+      } else {
+        banner.style.display = 'none';
+        title.textContent = '';
+        desc.textContent = '';
+      }
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now());
+        const data = await res.json();
+        allRows = Array.isArray(data) ? data : [];
+        filteredRows = [...allRows];
+        currentPage = 1;
+        updateStats(allRows);
+        renderCurrentPage();
+      } catch (err) {
+        console.error(err);
+        alert('โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function filterByKeyword() {
+      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+      filteredRows = allRows.filter(row =>
+        (!keyword) ||
+        String(row.name || '').toLowerCase().includes(keyword) ||
+        String(row.phone || '').toLowerCase().includes(keyword)
+      );
+
+      currentPage = 1;
+      renderCurrentPage();
+    }
+
+    function renderCurrentPage() {
+      const totalItems = filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredRows.slice(start, end);
+
+      renderTable(pageData);
+
+      const info = document.getElementById('pageInfo');
+      if (info) info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderCurrentPage();
+    }
+
+    function openDetailModal(row) {
+      document.getElementById('detailName').textContent = row?.name || '-';
+      document.getElementById('detailPhone').textContent = row?.phone || '-';
+      document.getElementById('detailStatus').textContent = row?.status || 'รอดำเนินการ';
+      document.getElementById('detailDate').textContent = formatDate(row?.created_at);
+
+      const mapText = (row?.latitude && row?.longitude)
+        ? `${row.latitude}, ${row.longitude}`
+        : 'ไม่มีข้อมูลพิกัด';
+      document.getElementById('detailMap').textContent = mapText;
+
+      document.getElementById('detailMessage').textContent = row?.message || '-';
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function renderDetailFileButtons(boxId, files = [], emptyText = 'ไม่มีไฟล์') {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+
+      if (!Array.isArray(files) || !files.length) {
+        box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="detail-file-box">
+          <div class="detail-file-row">
+            <div class="detail-file-meta">จำนวน ${files.length} ไฟล์</div>
+            <button
+              type="button"
+              class="btn mini link-btn"
+              onclick='showImages(${JSON.stringify(files)})'
+            >
+              ดูทั้งหมด
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function openDetailById(id) {
+      const row = allRows.find(x => String(x.id) === String(id));
+      if (!row) return;
+
+      const files = getFiles(row);
+
+      openDetailModal({
+        id: row.id,
+        name: row.name || '-',
+        phone: row.phone || '-',
+        message: row.message || '-',
+        status: row.status || 'รอดำเนินการ',
+        created_at: row.created_at || '',
+        latitude: row.latitude,
+        longitude: row.longitude
+      });
+
+      renderDetailFileButtons('detailFilesBox', files, 'ไม่มีไฟล์จากผู้ใช้');
+    }
+
+    function closeDetailModal(e) {
+      if (e && e.target && e.target.id !== 'detailModal') return;
+
+      document.getElementById('detailModal').style.display = 'none';
+      const box = document.getElementById('detailFilesBox');
+      if (box) box.innerHTML = `<div class="detail-message-box">ไม่มีไฟล์จากผู้ใช้</div>`;
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      data.forEach(row => {
+        const files = getFiles(row);
+
+        let fileHtml = '-';
+        if (files.length > 0) {
+          fileHtml = `
+            <div class="media-container">
+              <button class="btn mini link-btn" onclick='showImages(${JSON.stringify(files)})'>ดูทั้งหมด</button>
+              <span class="tiny">${files.length} ไฟล์</span>
+            </div>
+          `;
+        }
+
+        const mapLink = (row.latitude && row.longitude)
+          ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+          : '-';
+
+        const aging = getAgingInfo(row);
+        let rowClass = '';
+        if (aging.level === 'urgent') rowClass = 'urgent-row';
+        else if (aging.level === 'stale') rowClass = 'stale-row';
+
+        const agingBadgeHtml = getAgingBadgeHtml(row);
+
+        const tr = document.createElement('tr');
+        tr.className = rowClass;
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <div style="font-weight:900;">${row.name || '-'}</div>
+              ${agingBadgeHtml}
+            </div>
+          </td>
+          <td>${row.phone || '-'}</td>
+          <td>
+            <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+          </td>
+          <td>${fileHtml}</td>
+          <td><span class="status-badge">รอดำเนินการ</span></td>
+          <td>${mapLink}</td>
+          <td>${formatDate(row.created_at)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (!data.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="padding:22px; color:#64748b; font-weight:900;">
+              ไม่มีข้อมูลรอดำเนินการของแผนกกองช่าง
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function showImages(images) {
+      const items = Array.isArray(images) ? images : [];
+      if (!items.length) return;
+
+      const viewerHtml = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <title>ดูไฟล์แนบ</title>
+          <style>
+            body{ margin:0; font-family:Arial,sans-serif; background:#0f172a; color:#fff; }
+            .topbar{
+              position:sticky; top:0; z-index:10;
+              display:flex; justify-content:space-between; align-items:center; gap:12px;
+              padding:14px 18px; background:rgba(15,23,42,.92);
+              backdrop-filter: blur(8px);
+              border-bottom:1px solid rgba(255,255,255,.08);
+            }
+            .title{ font-size:18px; font-weight:700; }
+            .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+            .btn{ border:none; border-radius:10px; padding:10px 14px; font-size:14px; font-weight:700; cursor:pointer; }
+            .btn.dark{ background:#1e293b; color:#fff; }
+            .wrap{ padding:20px; display:flex; flex-direction:column; gap:18px; }
+            .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+            .thumb{ background:#111827; border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden; cursor:pointer; }
+            .thumb img,.thumb video{ width:100%; height:180px; object-fit:cover; display:block; background:#000; }
+            .thumb .meta{ padding:10px 12px; font-size:13px; color:#cbd5e1; }
+            .viewer{
+              display:flex; justify-content:center; align-items:center;
+              min-height:60vh; background:#020617; border-radius:18px;
+              overflow:hidden; padding:18px;
+            }
+            .viewer img,.viewer video{
+              max-width:100%; max-height:72vh; border-radius:14px;
+              object-fit:contain; background:#000;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <div class="title">ไฟล์แนบ</div>
+            <div class="actions">
+              <button class="btn dark" onclick="prevItem()">ก่อนหน้า</button>
+              <button class="btn dark" onclick="nextItem()">ถัดไป</button>
+            </div>
+          </div>
+
+          <div class="wrap">
+            <div class="viewer" id="viewer"></div>
+            <div class="grid" id="thumbGrid"></div>
+          </div>
+
+          <script>
+            const items = ${JSON.stringify(items)};
+            let currentIndex = 0;
+
+            function normalizeFileUrl(item) {
+              if (typeof item === 'string') return item.startsWith('uploads/') ? '/' + item : item;
+              const raw = item?.url || '';
+              return raw.startsWith('uploads/') ? '/' + raw : raw;
+            }
+
+            function getFileType(item) {
+              if (typeof item === 'string') {
+                const url = item.toLowerCase();
+                return url.match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/) ? 'video' : 'image';
+              }
+              return item?.type || '';
+            }
+
+            function renderViewer() {
+              const item = items[currentIndex];
+              const url = normalizeFileUrl(item);
+              const type = getFileType(item);
+              const viewer = document.getElementById('viewer');
+
+              if (type === 'video' || url.toLowerCase().match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/)) {
+                viewer.innerHTML = '<video controls autoplay><source src="' + url + '"></video>';
+              } else {
+                viewer.innerHTML = '<img src="' + url + '" alt="preview">';
+              }
+            }
+
+            function renderThumbs() {
+              const grid = document.getElementById('thumbGrid');
+              grid.innerHTML = items.map((item, index) => {
+                const url = normalizeFileUrl(item);
+                const type = getFileType(item);
+                const media = (type === 'video' || url.toLowerCase().match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/))
+                  ? '<video muted><source src="' + url + '"></video>'
+                  : '<img src="' + url + '" alt="thumb">';
+
+                return '<div class="thumb" onclick="goTo(' + index + ')">' +
+                        media +
+                        '<div class="meta">ไฟล์ ' + (index + 1) + '</div>' +
+                      '</div>';
+              }).join('');
+            }
+
+            function goTo(index){ currentIndex = index; renderViewer(); }
+            function prevItem(){ currentIndex = (currentIndex - 1 + items.length) % items.length; renderViewer(); }
+            function nextItem(){ currentIndex = (currentIndex + 1) % items.length; renderViewer(); }
+
+            renderViewer();
+            renderThumbs();
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const win = window.open('', '_blank', 'width=1200,height=850');
+      if (!win) {
+        alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+        return;
+      }
+      win.document.open();
+      win.document.write(viewerHtml);
+      win.document.close();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('detailModal');
+        if (modal && modal.style.display === 'flex') closeDetailModal();
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
