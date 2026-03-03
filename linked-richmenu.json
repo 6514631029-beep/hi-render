@@ -46,18 +46,18 @@
         "uri": "https://liff.line.me/2009275648-vSO7porW"
       }
     },
-    {
-      "bounds": {
-        "x": 1250,
-        "y": 843,
-        "width": 1250,
-        "height": 843
-      },
-      "action": {
-        "type": "message",
-        "label": "ติดต่อเจ้าหน้าที่",
-        "text": "ติดต่อเจ้าหน้าที่"
+        {
+        "bounds": {
+          "x": 1250,
+          "y": 843,
+          "width": 1250,
+          "height": 843
+        },
+        "action": {
+          "type": "uri",
+          "label": "ส่งคำร้อง",
+          "uri": "https://hi-render.onrender.com/"
+        }
       }
-    }
   ]
 }
