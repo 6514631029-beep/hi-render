@@ -41,9 +41,9 @@
         "height": 843
       },
       "action": {
-        "type": "message",
-        "label": "วิธีผูกบัญชี",
-        "text": "วิธีผูกบัญชี"
+        "type": "uri",
+        "label": "แก้ไขเบอร์",
+        "uri": "https://liff.line.me/2009275648-vSO7porW"
       }
     },
     {
