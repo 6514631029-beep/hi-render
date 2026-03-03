@@ -1961,7 +1961,12 @@ app.post('/set-department/:id', (req, res) => {
       }
 
       db.query(
-        'UPDATE requests SET department = ? WHERE id = ?',
+        `UPDATE requests
+        SET department = ?,
+            status = 'รอแผนกรับเรื่อง',
+            dept_accept = NULL,
+            dept_reason = NULL
+        WHERE id = ?`,
         [department, id],
         (err, result) => {
           if (err) {
