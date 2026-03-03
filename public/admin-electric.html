@@ -4,145 +4,1530 @@
   <link rel="manifest" href="/manifest-electric.json">
   <meta name="theme-color" content="#155263">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>📋 รายการคำร้อง - ไฟฟ้า</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>🏛️ Dashboard - ไฟฟ้า</title>
+
+  <link rel="stylesheet" href="/admin-font.css" />
 
   <style>
-    body { font-family: 'Kanit', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
-    h2 { text-align: center; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
-    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
-    th { background: #15563b; color: white; }
-    img, video { max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    video.rotated-180 { transform: rotate(180deg); }
+    :root{
+      --bg: #eef3fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
 
-    .media-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 0;
+      --navy: #0b2a4a;
+      --navy-2:#133a63;
+      --gold: #c9a227;
+      --gold-2:#f4e3a1;
+
+      --line: #e2e8f0;
+      --ok: #16a34a;
+      --warn:#f59e0b;
+      --danger:#dc2626;
+      --info:#2563eb;
+
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(2,6,23,.08);
+      --shadow2: 0 8px 24px rgba(2,6,23,.06);
+
+      --sidebarW: 220px;
+
+      --status-empty-bg:#f8fafc;
+      --status-empty-bd:#cbd5e1;
+      --status-empty-tx:#475569;
+
+      --status-pending-bg:#fff7ed;
+      --status-pending-bd:#fdba74;
+      --status-pending-tx:#9a3412;
+
+      --status-progress-bg:#eff6ff;
+      --status-progress-bd:#93c5fd;
+      --status-progress-tx:#1d4ed8;
+
+      --status-done-bg:#ecfdf5;
+      --status-done-bd:#86efac;
+      --status-done-tx:#166534;
     }
 
-    a.map-link { color: #2563eb; font-weight: bold; text-decoration: none; }
+    html{ font-size: 20px; }
+    body{ font-size: 18px; line-height: 1.5; }
+    *{box-sizing:border-box}
 
-    .btn {
-      padding:10px 14px;
-      border-radius:8px;
-      border:1px solid #cbd5e1;
-      background:#fff;
-      font-weight:600;
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
+        var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .app{
+      display:flex;
+      min-height:100vh;
+      gap:0;
+    }
+
+    .sidebar{
+      width: var(--sidebarW);
+      background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
+      border-right: 1px solid rgba(255,255,255,.10);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: scroll;   /* เปลี่ยนจาก auto เป็น scroll */
+      overflow-x: hidden;
+      padding: 12px 10px;
+      box-shadow: 6px 0 22px rgba(2,6,23,.06);
+    }
+    .sidebar{
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.25) transparent;
+    }
+
+    .sidebar::-webkit-scrollbar{
+      width: 8px;
+    }
+
+    .sidebar::-webkit-scrollbar-track{
+      background: transparent;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.22);
+      border-radius: 999px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover{
+      background: rgba(255,255,255,.34);
+    }
+    
+    
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      margin-bottom: 10px;
+      color:#fff;
+    }
+    .brand .logo{
+      width:38px;height:38px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
+      display:flex;align-items:center;justify-content:center;
+      color:#1f2937;
+      font-weight:1000;
+      flex:0 0 auto;
+      box-shadow: 0 12px 22px rgba(201,162,39,.25);
+    }
+    .brand .title{
+      font-weight:1000;
+      line-height:1.1;
+      font-size:15px;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding: 8px 4px;
+    }
+    .menu-title{
+      font-size:13px;
+      color: rgba(255,255,255,.72);
+      font-weight:900;
+      margin: 6px 6px 2px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .side-link{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
       cursor:pointer;
-      font-family: 'Kanit', sans-serif;
+      transition: .15s transform, .15s background, .15s border;
+      text-align:left;
+      font-size:15px;
     }
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .side-link:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.18);
+    }
+    .side-link:active{ transform: translateY(1px); }
+
+    .side-link .label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+
+    .count{
+      min-width: 34px;
+      text-align:center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(201,162,39,.18);
+      border: 1px solid rgba(201,162,39,.35);
+      color: var(--gold);
+      font-weight:1000;
+      font-size:14px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.12);
+      margin: 10px 6px;
+    }
+
+    .side-kpis{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      padding: 6px;
+    }
+    .side-kpi{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 10px 10px;
+      color:#fff;
+    }
+    .side-kpi .t{
+      font-size:12px;
+      opacity:.82;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .side-kpi .v{
+      font-size:20px;
+      font-weight:1000;
+      margin-top:4px;
+    }
+    .side-kpi .v.ok{color:#86efac}
+    .side-kpi .v.warn{color:#fde68a}
+    .side-kpi .v.info{color:#93c5fd}
+    .side-kpi .v.gold{color: var(--gold-2)}
+
+    .view-link{
+      position:relative;
+    }
+    .view-link.active{
+      background: rgba(201,162,39,.16);
+      border-color: rgba(201,162,39,.38);
+    }
+    .view-link.active::before{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:10px;
+      bottom:10px;
+      width:4px;
+      border-radius:999px;
+      background: rgba(201,162,39,.95);
+      box-shadow: 0 0 0 4px rgba(201,162,39,.12);
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:60;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #0a2340 100%);
+      color:#fff;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+      overflow:hidden;
+    }
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.32), transparent 62%);
+      pointer-events:none;
+    }
+    .topbar-row{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .topbar-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:260px;
+    }
+    .topbar-left h1{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+    .topbar-left .sub{
+      margin-top:2px;
+      font-size:14px;
+      opacity:.82;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .sound-btn{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:14px;
+      backdrop-filter: blur(6px);
+    }
+    .sound-btn.on{
+      background: rgba(34,197,94,.18);
+      border-color: rgba(134,239,172,.32);
+      color:#dcfce7;
+    }
+    .sound-btn.off{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+      color:#fff;
+    }
+
+    .content{
+      padding: 16px 18px 26px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width:100%;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .card-h h2{margin:0;font-size:18px;font-weight:1000}
+    .card-b{padding:12px 14px}
+
+    .tiny{font-size:14px;color:#64748b;font-weight:800}
+
+    .search{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      font-weight:800;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      font-size:16px;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
+      border-color: rgba(0,0,0,.06);
+      color:#1f2937;
+    }
+    .btn.danger{
+      background:#fee2e2;border-color:#fecaca;color:#991b1b;
+    }
+    .btn.mini{padding:8px 10px;border-radius:10px;font-size:15px}
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+
+    .inbox-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    .inbox-actions .btn{
+      padding:7px 10px;
+      font-size:13px;
+      border-radius:10px;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .stat-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px;
+      box-shadow:var(--shadow2);
+    }
+
+    .stat-box .label{
+      font-size:13px;
+      font-weight:900;
+      color:#64748b;
+      margin-bottom:6px;
+    }
+
+    .stat-box .value{
+      font-size:26px;
+      line-height:1;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .stat-box .sub{
+      margin-top:6px;
+      font-size:12px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .stat-box.today{ border-color:#bfdbfe; background:#f8fbff; }
+    .stat-box.stale{ border-color:#fed7aa; background:#fff7ed; }
+    .stat-box.urgent{ border-color:#fecaca; background:#fff1f2; }
+    .stat-box.newbox{ border-color:#fde68a; background:#fffdf2; }
+
+    .toolbar-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .filter-chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      border:1px solid #dbe2ea;
+      background:#fff;
+      color:#334155;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .chip.active{
+      background:#0b2a4a;
+      color:#fff;
+      border-color:#0b2a4a;
+      box-shadow:0 8px 18px rgba(11,42,74,.16);
+    }
+
+    .alert-banner{
+      display:none;
+      margin-top:12px;
+      border-radius:16px;
+      padding:14px 16px;
+      border:1px solid #fecaca;
+      background:linear-gradient(180deg, #fff5f5 0%, #fff1f2 100%);
+      color:#7f1d1d;
+      box-shadow:var(--shadow2);
+    }
+
+    .alert-banner.warn{
+      border-color:#fed7aa;
+      background:linear-gradient(180deg, #fffaf3 0%, #fff7ed 100%);
+      color:#9a3412;
+    }
+
+    .alert-banner .title{
+      font-size:16px;
+      font-weight:1000;
+      margin-bottom:4px;
+    }
+
+    .alert-banner .desc{
+      font-size:14px;
+      font-weight:800;
+      line-height:1.5;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      background:#fff;
+      border-radius: 16px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width: 700px;
+      background:#fff;
+      table-layout: fixed;
+    }
+    th,td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background: #eef2f7 !important;
+      color: #0f172a !important;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+      box-shadow: none !important;
+      border-bottom: 1px solid #e5e7eb !important;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    th.th-message{ text-align:center; padding-left:0; }
+
+    th:nth-child(1), td:nth-child(1){ width: 120px; }
+    th:nth-child(2), td:nth-child(2){ width: 120px; }
+    th:nth-child(3), td:nth-child(3){ width: 200px; }
+    th:nth-child(4), td:nth-child(4){ width: 180px; }
+    th:nth-child(5), td:nth-child(5){ width: 90px; }
+    th:nth-child(6), td:nth-child(6){ width: 150px; }
+
+    td{ font-size:15px; }
+    tbody tr:nth-child(even){background:#fbfdff}
+    tbody tr:hover{background:#f3f7ff}
+    a.map-link{color:var(--info);font-weight:1000;text-decoration:none;white-space:nowrap}
+
+    .media-container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      padding:6px 0;
+    }
+    .media-container .tiny{
+      font-size:13px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    #pagination{
+      padding:12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border-top:1px solid var(--line);
+    }
+    #pagination button:disabled{opacity:.5;cursor:not-allowed}
+
+    .status-select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      border:1px solid var(--status-empty-bd) !important;
+      box-shadow:none !important;
+      outline:none !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      padding: 0 34px 0 12px !important;
+      border-radius: 12px !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      cursor:pointer;
+      white-space:nowrap;
+      box-sizing:border-box;
+      width: 100% !important;
+      max-width: 150px !important;
+      min-width: 0 !important;
+      text-align: left;
+      transition: .18s ease;
+      background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) 50%,
+        calc(100% - 9px) 50%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .status-select.status-empty{
+      background-color: var(--status-empty-bg) !important;
+      border-color: var(--status-empty-bd) !important;
+      color: var(--status-empty-tx) !important;
+    }
+    .status-select.status-pending{
+      background-color: var(--status-pending-bg) !important;
+      border-color: var(--status-pending-bd) !important;
+      color: var(--status-pending-tx) !important;
+    }
+    .status-select.status-progress{
+      background-color: var(--status-progress-bg) !important;
+      border-color: var(--status-progress-bd) !important;
+      color: var(--status-progress-tx) !important;
+    }
+    .status-select.status-done{
+      background-color: var(--status-done-bg) !important;
+      border-color: var(--status-done-bd) !important;
+      color: var(--status-done-tx) !important;
+    }
+
+    .status-select:focus{
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.10) !important;
+    }
+
+    .status-box{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:140px;
+      padding:9px 12px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:1000;
+      border:1px solid transparent;
+      line-height:1.2;
+    }
+    .status-badge.waiting{
+      background:#e0f2fe;
+      color:#075985;
+      border-color:#7dd3fc;
+    }
+
+    .side-kpis .side-kpi{ background: rgba(255,255,255,.06); }
+    .side-kpis .side-kpi:nth-child(1){ background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.35); }
+    .side-kpis .side-kpi:nth-child(2){ background: rgba(245,158,11,.18); border-color: rgba(245,158,11,.35); }
+    .side-kpis .side-kpi:nth-child(3){ background: rgba(16,185,129,.18); border-color: rgba(16,185,129,.35); }
+    .side-kpis .side-kpi:nth-child(4){ background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.35); }
+
+    .msg-cell{
+      min-width: 0;
+      max-width: 190px;
+      width: 190px;
+      text-align:center;
+      vertical-align:middle;
+      padding-left:10px;
+      padding-right:10px;
+    }
+
+    .msg-actions{
+      display:flex;
+      justify-content:center;
+      margin-top:0;
+    }
+    .msg-actions .btn{ min-width:110px; }
+
+    .detail-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.5);
+      z-index:10000;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .detail-modal{
+      width:min(860px, 100%);
+      max-height:85vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 24px 60px rgba(2,6,23,.25);
+    }
+
+    .detail-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid #e2e8f0;
+      background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+
+    .detail-head h3{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .detail-close{
+      border:none;
+      background:#fee2e2;
+      color:#991b1b;
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      font-size:20px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    .detail-body{ padding:18px; }
+
+    .detail-grid{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap:10px 14px;
+      margin-bottom:16px;
+    }
+
+    .detail-label{ color:#475569; font-weight:900; }
+    .detail-value{ color:#0f172a; font-weight:800; word-break:break-word; }
+
+    .detail-message-box{
+      margin-top:8px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:14px;
+      color:#0f172a;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .detail-file-box{
+      margin-top:8px;
+      background:#ffffff;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .detail-file-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .detail-file-meta{
+      color:#334155;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .new-row{
+      background: #fff8c4 !important;
+      animation: newRowGlow 1.2s ease-in-out infinite alternate;
+    }
+    .new-row:hover{ background: #fff3a3 !important; }
+
+    .stale-row{
+      background:#fff4e8 !important;
+    }
+    .stale-row:hover{
+      background:#ffe9d2 !important;
+    }
+
+    .urgent-row{
+      background:#fff1f2 !important;
+    }
+    .urgent-row:hover{
+      background:#ffe2e8 !important;
+    }
+
+    .new-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#facc15;
+      color:#78350f;
+      font-size:12px;
+      font-weight:1000;
+      box-shadow:0 4px 10px rgba(250, 204, 21, .28);
+      margin-top:6px;
+    }
+
+    .aging-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:1000;
+      margin-top:6px;
+      border:1px solid transparent;
+    }
+
+    .aging-badge.today{
+      background:#dbeafe;
+      color:#1d4ed8;
+      border-color:#93c5fd;
+    }
+
+    .aging-badge.stale{
+      background:#ffedd5;
+      color:#9a3412;
+      border-color:#fdba74;
+    }
+
+    .aging-badge.urgent{
+      background:#fee2e2;
+      color:#991b1b;
+      border-color:#fca5a5;
+    }
+
+    @keyframes newRowGlow{
+      from{ box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .08); }
+      to{ box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, .18); }
+    }
+
+    @media (max-width: 1100px){
+      .stats-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px){
+      .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-right:0;
+        box-shadow:none;
+      }
+      .app{display:block}
+      .content{padding:14px}
+      table{min-width:700px}
+    }
+
+    @media (max-width: 700px){
+      .detail-grid{ grid-template-columns: 1fr; gap:6px; }
+      .msg-cell{
+        width: 200px;
+        max-width: 200px;
+      }
+      th:nth-child(3), td:nth-child(3){ width: 200px; }
+      th:nth-child(4), td:nth-child(4){ width: 210px; }
+      .stats-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  
+    .side-export-btn{
+      width:100%;
+      margin-top:14px;
+      padding:14px 16px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#14532d,#16a34a);
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(22,163,74,.22);
+      transition:transform .15s ease, opacity .2s ease, box-shadow .2s ease;
+    }
+
+    .side-export-btn:hover{
+      opacity:.96;
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(22,163,74,.28);
+    }
+
+    .side-export-btn:active{
+      transform:translateY(0);
+    }
+  
+    .export-group{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
   </style>
 </head>
 
 <body>
-  <h2>📋 รายการคำร้อง - ไฟฟ้า</h2>
+  <div class="app">
 
-  <!-- ค้นหา + ปุ่มรีเฟรชเดิม -->
-  <div style="text-align:center; margin-bottom: 12px;">
-    <input type="text" id="searchInput" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()" style="
-      padding: 10px;
-      width: 300px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    " />
-    <button id="refreshBtn" class="btn" onclick="refreshData()" style="margin-left:8px;">🔄 รีเฟรช</button>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">สธ</div>
+        <div>
+          <div class="title">ไฟฟ้า</div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <div class="menu-title">กล่องรับเรื่อง</div>
+        <button id="btn-inbox" class="side-link view-link active" onclick="setView('inbox')">
+          <span class="label">📥 กล่องรับเรื่อง</span>
+          <span class="count" id="count-inbox-left">0</span>
+        </button>
+
+        <button id="btn-work" class="side-link view-link" onclick="setView('work')">
+          <span class="label">📋 งานของแผนก</span>
+          <span class="count" id="count-work-left">-</span>
+        </button>
+
+        <div class="menu-title">เมนูสถานะ</div>
+
+        <button id="btn-unset" class="side-link" style="display:none" onclick="location.href='unset-electric.html'">
+          <span class="label">📝 ยังไม่ได้เลือกสถานะ</span>
+          <span class="count" id="count-unset">0</span>
+        </button>
+
+        <button id="btn-pending" class="side-link" onclick="location.href='pending-electric.html'">
+          <span class="label">⏳ รอดำเนินการ</span>
+          <span class="count" id="count-pending">0</span>
+        </button>
+
+        <button id="btn-inprogress" class="side-link" onclick="location.href='inprogress-electric.html'">
+          <span class="label">⚙️ กำลังดำเนินการ</span>
+          <span class="count" id="count-inprogress">0</span>
+        </button>
+
+        <button id="btn-completed" class="side-link" onclick="location.href='completed-electric.html'">
+          <span class="label">✅ เสร็จสิ้น</span>
+          <span class="count" id="count-completed">0</span>
+        </button>
+      
+        <div class="export-group">
+          <button class="side-export-btn" onclick="exportHealthExcelAll()">📥 ดาวน์โหลดExcel ทั้งหมด</button>
+          <button class="side-export-btn" onclick="exportHealthExcelPending()">📥 ดาวน์โหลดExcel รอดำเนินการ</button>
+          <button class="side-export-btn" onclick="exportHealthExcelInprogress()">📥 ดาวน์โหลดExcel กำลังดำเนินการ</button>
+          <button class="side-export-btn" onclick="exportHealthExcelCompleted()">📥 ดาวน์โหลดExcel เสร็จสิ้น</button>
+        </div>
+      
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div class="topbar-row">
+          <div class="topbar-left">
+            <div>
+              <h1>🏛️ ระบบรับเรื่องร้องเรียน • งานไฟฟ้า</h1>
+              <div class="sub">องค์การบริหารส่วนตำบล</div>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <button id="soundToggleBtn" class="sound-btn off" onclick="toggleSoundAlert()">
+              🔕 เสียงแจ้งเตือนปิด
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <div class="stats-grid" style="margin-bottom:12px;">
+          <div class="stat-box today">
+            <div class="label" id="statTodayLabel">คำร้องวันนี้</div>
+            <div class="value" id="statTodayValue">0</div>
+            <div class="sub" id="statTodaySub">รายการวันที่วันนี้</div>
+          </div>
+
+          <div class="stat-box newbox">
+            <div class="label" id="statNewLabel">รายการใหม่</div>
+            <div class="value" id="statNewValue">0</div>
+            <div class="sub" id="statNewSub">เฉพาะโหมดปัจจุบัน</div>
+          </div>
+
+          <div class="stat-box stale">
+            <div class="label" id="statStaleLabel">งานค้าง</div>
+            <div class="value" id="statStaleValue">0</div>
+            <div class="sub" id="statStaleSub">เกินเกณฑ์เตือน</div>
+          </div>
+
+          <div class="stat-box urgent">
+            <div class="label" id="statUrgentLabel">งานเร่งด่วน</div>
+            <div class="value" id="statUrgentValue">0</div>
+            <div class="sub" id="statUrgentSub">ค้างนานมาก</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <h2>ค้นหา</h2>
+            <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบแบ่งหน้า</div>
+          </div>
+
+          <div class="card-b">
+            <input type="text" id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterByName()">
+          </div>
+        </div>
+
+        <div id="alertBanner" class="alert-banner" style="display:none;">
+          <div class="title" id="alertBannerTitle">แจ้งเตือนงานค้าง</div>
+          <div class="desc" id="alertBannerDesc">-</div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-h">
+            <div class="toolbar-row" style="width:100%;">
+              <h2>รายการคำร้อง</h2>
+
+              <div class="filter-chips">
+                <button class="chip active" id="chip-all" onclick="setFilterMode('all')">ทั้งหมด</button>
+                <button class="chip" id="chip-today" onclick="setFilterMode('today')">วันนี้</button>
+                <button class="chip" id="chip-stale" onclick="setFilterMode('stale')">ค้าง</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead id="table-head"></thead>
+              <tbody id="data-body"></tbody>
+            </table>
+          </div>
+
+          <div id="pagination">
+            <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+            <span id="pageInfo" class="btn" style="cursor:default;">หน้า 1 จาก 1</span>
+            <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
   </div>
 
-  <!-- ✅ เพิ่ม: อัปเดตล่าสุด + toggle auto -->
-  <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; margin:-4px 0 14px;">
-    <div style="color:#334155; font-weight:600;">
-      🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+  <div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
+    <div class="detail-modal" onclick="event.stopPropagation()">
+      <div class="detail-head">
+        <h3>รายละเอียดคำร้อง</h3>
+        <button class="detail-close" onclick="closeDetailModal()">×</button>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-grid">
+          <div class="detail-label">ชื่อ</div>
+          <div class="detail-value" id="detailName">-</div>
+
+          <div class="detail-label">เบอร์โทร</div>
+          <div class="detail-value" id="detailPhone">-</div>
+
+          <div class="detail-label">สถานะ</div>
+          <div class="detail-value" id="detailStatus">-</div>
+
+          <div class="detail-label">วันที่-เวลา</div>
+          <div class="detail-value" id="detailDate">-</div>
+        </div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
+        <div class="detail-message-box" id="detailMessage">-</div>
+
+        <div style="height:14px;"></div>
+
+        <div class="detail-label" style="margin-bottom:8px;">รูปภาพจากผู้ใช้</div>
+        <div id="detailFilesBox">
+          <div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>
+        </div>
+
+        <div id="detailCompletedWrap">
+          <div style="height:14px;"></div>
+
+          <div class="detail-label" style="margin-bottom:8px;">รูปภาพ(เสร็จสิ้น)</div>
+          <div id="detailCompletedFilesBox">
+            <div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
-      <input type="checkbox" id="auto-refresh-toggle" checked />
-      รีเฟรชอัตโนมัติ
-    </label>
   </div>
 
-  <!-- ปุ่มตัวนับเดิม -->
-  <div style="text-align:center; margin:-8px 0 16px;">
-    <button id="btn-unset" onclick="location.href='unset-electric.html'"
-      style="padding:10px 14px; border-radius:8px; border:1px solid #eab308; background:#fff8e1; color:#92400e; font-weight:600; cursor:pointer; margin-right:6px;">
-      📝 ยังไม่ได้เลือกสถานะ (0)
-    </button>
+  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
+      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
+      <p style="margin:0 0 12px; color:#555">
+        คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?
+        <br><b>หมายเหตุ:</b> ถ้าเซิร์ฟเวอร์ของคุณ “บังคับต้องแนบไฟล์” จะต้องเลือกอย่างน้อย 1 ไฟล์ก่อนกดยืนยัน
+      </p>
 
-    <button id="btn-pending" onclick="location.href='pending-electric.html'"
-      style="padding:10px 14px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-weight:600; cursor:pointer;">
-      ⏳ รอดำเนินการ (0)
-    </button>
+      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
 
-    <button id="btn-inprogress" onclick="location.href='inprogress-electric.html'"
-      style="padding:10px 14px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-weight:600; cursor:pointer; margin-left:6px;">
-      ⚙️ กำลังดำเนินการ (0)
-    </button>
-
-    <button id="btn-completed" onclick="location.href='completed-electric.html'"
-      style="padding:10px 14px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-weight:600; cursor:pointer; margin-left:6px;">
-      ✅ เสร็จสิ้น (0)
-    </button>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th><th>ไฟล์(เสร็จสิ้น)</th>
-      </tr>
-    </thead>
-    <tbody id="data-body"></tbody>
-  </table>
-
-  <!-- Pagination เดิม -->
-  <div id="pagination" style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
-    <button id="prevPage" onclick="changePage(-1)"
-      style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
-      ก่อนหน้า
-    </button>
-
-    <span id="pageInfo">หน้า 1 จาก 1</span>
-
-    <button id="nextPage" onclick="changePage(1)"
-      style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
-      ถัดไป
-    </button>
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
+        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn primary">ยืนยัน</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    // =============================
-    // 1) DATA + PAGINATION (ของเดิม)
-    // =============================
-    let allElectricData = [];
+    const DEPT = 'ไฟฟ้า';
+
+    let VIEW_MODE = 'inbox';
+    let FILTER_MODE = 'all';
+    let allHealthData = [];
     let filteredData = [];
     let currentPage = 1;
     const pageSize = 20;
+    let isLoading = false;
+    let typingTimer = null;
+    let pendingCompleteId = null;
 
-    async function loadData() {
-      // ✅ ปรับให้ auto refresh ไม่เด้งกลับหน้า 1 และคงคำค้นหาเดิม
-      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-      const prevPage = currentPage;
+    let soundEnabled = localStorage.getItem('electric_sound_enabled') === 'true';
+    let lastNewCount = 0;
 
-      const res = await fetch('/data-electric-all?_=' + Date.now());
-      const data = await res.json();
+    const STORAGE_KEYS = {
+      inboxSeen: 'electric_seen_ids_inbox',
+      workSeen: 'electric_seen_ids_work',
+      inboxActiveNew: 'electric_active_new_ids_inbox',
+      workActiveNew: 'electric_active_new_ids_work'
+    };
 
-      allElectricData = Array.isArray(data) ? data : [];
+    function syncLeftViewActive(){
+      const inboxBtn = document.getElementById('btn-inbox');
+      const workBtn  = document.getElementById('btn-work');
+      if (!inboxBtn || !workBtn) return;
 
-      if (keyword) {
-        filteredData = allElectricData.filter(row =>
-          (row.name && String(row.name).toLowerCase().includes(keyword)) ||
-          (row.phone && String(row.phone).toLowerCase().includes(keyword))
-        );
+      if (VIEW_MODE === 'inbox') {
+        inboxBtn.classList.add('active');
+        workBtn.classList.remove('active');
       } else {
-        filteredData = allElectricData;
+        workBtn.classList.add('active');
+        inboxBtn.classList.remove('active');
+      }
+    }
+
+    function setFilterMode(mode){
+      FILTER_MODE = ['all', 'today', 'stale'].includes(mode) ? mode : 'all';
+      const allChip = document.getElementById('chip-all');
+      const todayChip = document.getElementById('chip-today');
+      const staleChip = document.getElementById('chip-stale');
+
+      [allChip, todayChip, staleChip].forEach(chip => chip && chip.classList.remove('active'));
+
+      if (FILTER_MODE === 'today' && todayChip) todayChip.classList.add('active');
+      else if (FILTER_MODE === 'stale' && staleChip) staleChip.classList.add('active');
+      else if (allChip) allChip.classList.add('active');
+
+      currentPage = 1;
+      applyCurrentFilters();
+    }
+
+    function updateSoundButton() {
+      const btn = document.getElementById('soundToggleBtn');
+      if (!btn) return;
+
+      if (soundEnabled) {
+        btn.classList.remove('off');
+        btn.classList.add('on');
+        btn.textContent = '🔔 เสียงแจ้งเตือนเปิด';
+      } else {
+        btn.classList.remove('on');
+        btn.classList.add('off');
+        btn.textContent = '🔕 เสียงแจ้งเตือนปิด';
+      }
+    }
+
+    function toggleSoundAlert() {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('electric_sound_enabled', String(soundEnabled));
+      updateSoundButton();
+
+      if (soundEnabled) {
+        playBeep();
+      }
+    }
+
+    function playBeep() {
+      if (!soundEnabled) return;
+
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        const ctx = new AudioContextClass();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+
+        gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.25);
+
+        oscillator.onended = () => {
+          if (ctx && typeof ctx.close === 'function') ctx.close();
+        };
+      } catch (err) {
+        console.log('เล่นเสียงไม่ได้:', err);
+      }
+    }
+
+    function checkAndPlayNewAlert() {
+      if (VIEW_MODE !== 'inbox') return;
+
+      const newCount = allHealthData.filter(row => row.__isNew).length;
+
+      if (newCount > lastNewCount) {
+        playBeep();
       }
 
-      currentPage = prevPage;
+      lastNewCount = newCount;
+    }
+
+    function getSeenKey() {
+      return VIEW_MODE === 'inbox'
+        ? STORAGE_KEYS.inboxSeen
+        : STORAGE_KEYS.workSeen;
+    }
+
+    function getActiveNewKey() {
+      return VIEW_MODE === 'inbox'
+        ? STORAGE_KEYS.inboxActiveNew
+        : STORAGE_KEYS.workActiveNew;
+    }
+
+    function readJsonArray(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function writeJsonArray(key, arr) {
+      localStorage.setItem(key, JSON.stringify(arr));
+    }
+
+    function normalizeRowId(row) {
+      return String(row?.original_id || row?.id || '');
+    }
+
+    function markRowsAsNew(rows = []) {
+      const seenKey = getSeenKey();
+      const activeNewKey = getActiveNewKey();
+
+      const seenIds = new Set(readJsonArray(seenKey));
+      const oldActiveNewIds = new Set(readJsonArray(activeNewKey));
+
+      const currentIds = rows
+        .map(row => normalizeRowId(row))
+        .filter(Boolean);
+
+      const freshIds = [];
+
+      for (const row of rows) {
+        const id = normalizeRowId(row);
+        if (!id) continue;
+
+        if (!seenIds.has(id)) {
+          freshIds.push(id);
+        }
+      }
+
+      const activeNewIds = Array.from(new Set([
+        ...oldActiveNewIds,
+        ...freshIds
+      ])).filter(id => currentIds.includes(id));
+
+      rows.forEach(row => {
+        const id = normalizeRowId(row);
+        row.__isNew = activeNewIds.includes(id);
+      });
+
+      writeJsonArray(activeNewKey, activeNewIds);
+      writeJsonArray(seenKey, currentIds);
+
+      return rows;
+    }
+
+    function clearNewById(id) {
+      const activeNewKey = getActiveNewKey();
+      const activeNewIds = readJsonArray(activeNewKey)
+        .filter(x => String(x) !== String(id));
+
+      writeJsonArray(activeNewKey, activeNewIds);
+
+      allHealthData = allHealthData.map(row => {
+        const rowId = normalizeRowId(row);
+        if (String(rowId) === String(id)) {
+          return { ...row, __isNew: false };
+        }
+        return row;
+      });
+
+      filteredData = filteredData.map(row => {
+        const rowId = normalizeRowId(row);
+        if (String(rowId) === String(id)) {
+          return { ...row, __isNew: false };
+        }
+        return row;
+      });
+
+      if (VIEW_MODE === 'inbox') {
+        lastNewCount = Math.max(0, allHealthData.filter(row => row.__isNew).length);
+      }
+    }
+
+    function getBangkokDateParts(dateInput = new Date()) {
+      const d = new Date(dateInput);
+      const y = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric' }).format(d);
+      const m = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', month: '2-digit' }).format(d);
+      const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', day: '2-digit' }).format(d);
+      return { y, m, day, key: `${y}-${m}-${day}` };
+    }
+
+    function isTodayBangkok(dateString) {
+      if (!dateString) return false;
+      const dateParts = getBangkokDateParts(dateString);
+      const nowParts = getBangkokDateParts(new Date());
+      return dateParts.key === nowParts.key;
+    }
+
+    function getAgeDays(dateString) {
+      if (!dateString) return 0;
+      const d = new Date(dateString);
+      if (isNaN(d)) return 0;
+      const diffMs = Date.now() - d.getTime();
+      return Math.max(0, Math.floor(diffMs / 86400000));
+    }
+
+    function getAgingInfo(row) {
+      const ageDays = getAgeDays(row?.created_at);
+      const isToday = isTodayBangkok(row?.created_at);
+
+      if (VIEW_MODE === 'inbox') {
+        if (ageDays >= 3) return { level: 'urgent', ageDays, isToday };
+        if (ageDays >= 1) return { level: 'stale', ageDays, isToday };
+        return { level: 'normal', ageDays, isToday };
+      } else {
+        if (ageDays >= 7) return { level: 'urgent', ageDays, isToday };
+        if (ageDays >= 3) return { level: 'stale', ageDays, isToday };
+        return { level: 'normal', ageDays, isToday };
+      }
+    }
+
+    function getAgingBadgeHtml(row) {
+      const aging = getAgingInfo(row);
+
+      if (aging.level === 'urgent') {
+        return `<div class="aging-badge urgent">เร่งด่วน • ค้าง ${aging.ageDays} วัน</div>`;
+      }
+
+      if (aging.level === 'stale') {
+        return `<div class="aging-badge stale">ค้าง ${aging.ageDays} วัน</div>`;
+      }
+
+      if (aging.isToday) {
+        return `<div class="aging-badge today">วันนี้</div>`;
+      }
+
+      return '';
+    }
+
+    function getKeywordFilteredRows(rows) {
+      const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+      return rows.filter(row =>
+        (!keyword) ||
+        (row.name && String(row.name).toLowerCase().includes(keyword)) ||
+        (row.phone && String(row.phone).toLowerCase().includes(keyword))
+      );
+    }
+
+    function applyCurrentFilters() {
+      let rows = [...allHealthData];
+
+      if (FILTER_MODE === 'today') {
+        rows = rows.filter(row => isTodayBangkok(row.created_at));
+      } else if (FILTER_MODE === 'stale') {
+        rows = rows.filter(row => {
+          const aging = getAgingInfo(row);
+          return aging.level === 'stale' || aging.level === 'urgent';
+        });
+      }
+
+      filteredData = getKeywordFilteredRows(rows);
+      updateInsights();
       renderCurrentPage();
+    }
+
+    function updateInsights() {
+      const todayCount = allHealthData.filter(row => isTodayBangkok(row.created_at)).length;
+      const newCount = VIEW_MODE === 'inbox'
+        ? allHealthData.filter(row => row.__isNew).length
+        : 0;
+
+      const staleRows = allHealthData.filter(row => getAgingInfo(row).level === 'stale');
+      const urgentRows = allHealthData.filter(row => getAgingInfo(row).level === 'urgent');
+
+      const todayLabel = document.getElementById('statTodayLabel');
+      const todayValue = document.getElementById('statTodayValue');
+      const todaySub = document.getElementById('statTodaySub');
+
+      const newLabel = document.getElementById('statNewLabel');
+      const newValue = document.getElementById('statNewValue');
+      const newSub = document.getElementById('statNewSub');
+
+      const staleLabel = document.getElementById('statStaleLabel');
+      const staleValue = document.getElementById('statStaleValue');
+      const staleSub = document.getElementById('statStaleSub');
+
+      const urgentLabel = document.getElementById('statUrgentLabel');
+      const urgentValue = document.getElementById('statUrgentValue');
+      const urgentSub = document.getElementById('statUrgentSub');
+
+      if (todayLabel) todayLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox วันนี้' : 'งานวันนี้';
+      if (todayValue) todayValue.textContent = String(todayCount);
+      if (todaySub) todaySub.textContent = 'รายการที่เข้าวันนี้';
+
+      if (newLabel) newLabel.textContent = VIEW_MODE === 'inbox' ? 'ข้อความใหม่' : 'รายการใหม่วันนี้';
+      if (newValue) newValue.textContent = String(VIEW_MODE === 'inbox' ? newCount : todayCount);
+      if (newSub) newSub.textContent = VIEW_MODE === 'inbox' ? 'ยังไม่เคยเปิดดู' : 'ในโหมดงานของแผนก';
+
+      if (staleLabel) staleLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox ค้าง' : 'งานค้าง';
+      if (staleValue) staleValue.textContent = String(staleRows.length);
+      if (staleSub) staleSub.textContent = VIEW_MODE === 'inbox' ? 'เกิน 1 วัน' : 'เกิน 3 วัน';
+
+      if (urgentLabel) urgentLabel.textContent = 'งานเร่งด่วน';
+      if (urgentValue) urgentValue.textContent = String(urgentRows.length);
+      if (urgentSub) urgentSub.textContent = VIEW_MODE === 'inbox' ? 'Inbox เกิน 3 วัน' : 'งานเกิน 7 วัน';
+
+      updateAlertBanner(staleRows.length, urgentRows.length);
+    }
+
+    function updateAlertBanner(staleCount, urgentCount) {
+      const banner = document.getElementById('alertBanner');
+      const title = document.getElementById('alertBannerTitle');
+      const desc = document.getElementById('alertBannerDesc');
+      if (!banner || !title || !desc) return;
+
+      if (urgentCount > 0) {
+        banner.style.display = 'block';
+        banner.classList.remove('warn');
+        title.textContent = '🚨 พบงานเร่งด่วน';
+        desc.textContent = VIEW_MODE === 'inbox'
+          ? `มี Inbox ค้างเกิน 3 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 1 วันอีก ${staleCount} รายการ`
+          : `มีงานของแผนกค้างเกิน 7 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 3 วันอีก ${staleCount} รายการ`;
+        return;
+      }
+
+      if (staleCount > 0) {
+        banner.style.display = 'block';
+        banner.classList.add('warn');
+        title.textContent = '⚠️ พบงานค้าง';
+        desc.textContent = VIEW_MODE === 'inbox'
+          ? `มี Inbox ค้างเกิน 1 วัน จำนวน ${staleCount} รายการ`
+          : `มีงานของแผนกค้างเกิน 3 วัน จำนวน ${staleCount} รายการ`;
+        return;
+      }
+
+      banner.style.display = 'none';
+      title.textContent = '';
+      desc.textContent = '';
+    }
+
+    async function setView(mode) {
+      VIEW_MODE = mode === 'work' ? 'work' : 'inbox';
+      currentPage = 1;
+      syncLeftViewActive();
+
+      if (VIEW_MODE !== 'inbox') {
+        lastNewCount = 0;
+      }
+
+      await safeLoadData();
+    }
+
+    function getEndpointForMode() {
+      return VIEW_MODE === 'inbox' ? '/data-electric-inbox' : '/data-electric-all';
+    }
+
+    async function loadData() {
+      const endpoint = getEndpointForMode();
+      const res = await fetch(endpoint + '?_=' + Date.now());
+      const data = await res.json();
+
+      allHealthData = Array.isArray(data) ? data : [];
+
+      if (VIEW_MODE === 'inbox') {
+        allHealthData = markRowsAsNew(allHealthData);
+        checkAndPlayNewAlert();
+      } else {
+        allHealthData = allHealthData.map(row => ({ ...row, __isNew: false }));
+      }
+
+      applyCurrentFilters();
     }
 
     function renderCurrentPage() {
@@ -154,6 +1539,7 @@
       const end = start + pageSize;
       const pageData = filteredData.slice(start, end);
 
+      renderTableHead();
       renderTable(pageData);
 
       const info = document.getElementById('pageInfo');
@@ -163,11 +1549,186 @@
       const nextBtn = document.getElementById('nextPage');
       if (prevBtn) prevBtn.disabled = currentPage === 1;
       if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+
+      applyStatusSelectStyles();
     }
 
     function changePage(delta) {
       currentPage += delta;
       renderCurrentPage();
+    }
+
+    function filterByName() {
+      clearTimeout(typingTimer);
+
+      typingTimer = setTimeout(() => {
+        currentPage = 1;
+        applyCurrentFilters();
+      }, 150);
+    }
+
+    function normalizeFileUrl(item) {
+      if (typeof item === 'string') return item.startsWith('uploads/') ? `/${item}` : item;
+      const raw = item?.url || '';
+      return raw.startsWith('uploads/') ? `/${raw}` : raw;
+    }
+
+    function getFileType(item) {
+      if (typeof item === 'string') {
+        const url = item.toLowerCase();
+        return url.match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/) ? 'video' : 'image';
+      }
+      return item?.type || '';
+    }
+
+    function isImageFile(item) {
+      const type = getFileType(item);
+      const url = normalizeFileUrl(item).toLowerCase();
+      if (type === 'image') return true;
+      return /\.(jpg|jpeg|png|gif|webp|bmp|svg|heic|heif)(\?|$)/.test(url);
+    }
+
+    function getStatusClass(status) {
+      if (!status) return 'status-empty';
+      if (status === 'รอดำเนินการ') return 'status-pending';
+      if (status === 'กำลังดำเนินการ') return 'status-progress';
+      if (status === 'เสร็จสิ้น') return 'status-done';
+      return 'status-empty';
+    }
+
+    function applyStatusSelectStyles() {
+      const selects = document.querySelectorAll('.status-select');
+      selects.forEach(select => {
+        select.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        select.classList.add(getStatusClass(select.value));
+      });
+    }
+
+    function openDetailModal(row) {
+      document.getElementById('detailName').textContent = row?.name || '-';
+      document.getElementById('detailPhone').textContent = row?.phone || '-';
+      document.getElementById('detailStatus').textContent =
+        row?.status || (VIEW_MODE === 'inbox' ? 'รอแผนกรับเรื่อง' : '-');
+      document.getElementById('detailDate').textContent =
+        formatDate(row?.completed_at || row?.created_at);
+      document.getElementById('detailMessage').textContent = row?.message || '-';
+
+      const completedWrap = document.getElementById('detailCompletedWrap');
+      if (completedWrap) {
+        completedWrap.style.display = VIEW_MODE === 'inbox' ? 'none' : 'block';
+      }
+
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function renderDetailImageButtons(boxId, files = [], emptyText = 'ไม่มีรูปภาพ') {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+
+      const imageFiles = (Array.isArray(files) ? files : []).filter(isImageFile);
+
+      if (!imageFiles.length) {
+        box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="detail-file-box">
+          <div class="detail-file-row">
+            <div class="detail-file-meta">จำนวน ${imageFiles.length} รูปภาพ</div>
+            <button
+              type="button"
+              class="btn mini"
+              style="background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; font-weight:900;"
+              onclick='showImageViewer(${JSON.stringify(imageFiles)}, 0)'
+            >
+              ดูรูปภาพ
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function openDetailById(id) {
+      clearNewById(id);
+
+      const row = allHealthData.find(x => String(x.id) === String(id));
+      if (!row) return;
+
+      let files = [];
+      try {
+        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+        else if (Array.isArray(row.photo)) files = row.photo;
+      } catch (e) {
+        files = [];
+      }
+
+      const completedFiles = files.filter(it => {
+        if (!it || typeof it !== 'object') return false;
+        return it.from === 'completed' || it.tag === 'completed';
+      });
+
+      const mainFiles = files.filter(it => {
+        if (!it) return false;
+        if (typeof it !== 'object') return true;
+        return !(it.from === 'completed' || it.tag === 'completed');
+      });
+
+      openDetailModal({
+        id: row.id,
+        name: row.name || '-',
+        phone: row.phone || '-',
+        message: row.message || '-',
+        status: row.status || '',
+        created_at: row.created_at || '',
+        completed_at: row.completed_at || ''
+      });
+
+      renderDetailImageButtons('detailFilesBox', mainFiles, 'ไม่มีรูปภาพจากผู้ใช้');
+      renderDetailImageButtons('detailCompletedFilesBox', completedFiles, 'ไม่มีรูปภาพ(เสร็จสิ้น)');
+      renderCurrentPage();
+    }
+
+    function closeDetailModal(e) {
+      if (e && e.target && e.target.id !== 'detailModal') return;
+
+      document.getElementById('detailModal').style.display = 'none';
+
+      const box1 = document.getElementById('detailFilesBox');
+      const box2 = document.getElementById('detailCompletedFilesBox');
+      const completedWrap = document.getElementById('detailCompletedWrap');
+
+      if (box1) box1.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพจากผู้ใช้</div>`;
+      if (box2) box2.innerHTML = `<div class="detail-message-box">ไม่มีรูปภาพ(เสร็จสิ้น)</div>`;
+      if (completedWrap) completedWrap.style.display = 'block';
+    }
+
+    function renderTableHead() {
+      const thead = document.getElementById('table-head');
+      if (!thead) return;
+
+      if (VIEW_MODE === 'inbox') {
+        thead.innerHTML = `
+          <tr>
+            <th>ชื่อ</th>
+            <th>เบอร์</th>
+            <th class="th-message">รายละเอียด</th>
+            <th>สถานะ/จัดการ</th>
+            <th>แผนที่</th>
+          </tr>
+        `;
+      } else {
+        thead.innerHTML = `
+          <tr>
+            <th>ชื่อ</th>
+            <th>เบอร์</th>
+            <th class="th-message">รายละเอียด</th>
+            <th>สถานะ/จัดการ</th>
+            <th>แผนที่</th>
+            <th>ไฟล์(เสร็จสิ้น)</th>
+          </tr>
+        `;
+      }
     }
 
     function renderTable(data) {
@@ -180,7 +1741,6 @@
           if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
           else if (Array.isArray(row.photo)) files = row.photo;
         } catch (e) {
-          console.error('JSON parse error', e);
           files = [];
         }
 
@@ -189,11 +1749,7 @@
           return it.from === 'completed' || it.tag === 'completed';
         });
 
-        const mainFiles = files.filter(it => {
-          if (!it) return false;
-          if (typeof it !== 'object') return true;
-          return !(it.from === 'completed' || it.tag === 'completed');
-        });
+        const completedImageFiles = completedFiles.filter(isImageFile);
 
         let completedLinks = "-";
         if (completedFiles.length > 0) {
@@ -202,66 +1758,117 @@
             ? (cf.startsWith('uploads/') ? `/${cf}` : cf)
             : ((cf.url || '').startsWith('uploads/') ? `/${cf.url}` : (cf.url || ''));
 
-          const cfBtn = `
-            <button style="margin-top:10px; padding:6px 12px; border:1px solid #999; border-radius:6px; background:#fff; font-weight:bold; cursor:pointer;"
-                    onclick='showImages(${JSON.stringify(completedFiles)})'>
-              ดูทั้งหมด
-            </button>`;
-
           completedLinks = `
             <div class="media-container">
-              ${cfBtn}
-              <button onclick="deleteCompletedFile(${row.id}, '${cfUrl}')"
-                style="margin-top:6px; padding:6px 12px; border:1px solid #dc2626;
-                       background:#fee2e2; color:#b91c1c; border-radius:6px; cursor:pointer;">
-                🗑 ลบไฟล์นี้
-              </button>
+              ${
+                completedImageFiles.length > 0
+                  ? `<button class="btn mini link-btn" onclick='showImageViewer(${JSON.stringify(completedImageFiles)}, 0)'>ดูรูปภาพ</button>`
+                  : `<span class="tiny">ไม่มีรูปภาพ</span>`
+              }
+              <button class="btn mini danger" onclick="deleteCompletedFile(${row.id}, '${cfUrl}')">🗑 ลบไฟล์นี้</button>
             </div>
           `;
         }
 
-        let fileLinks = "-";
-        if (mainFiles.length > 0) {
-          const buttonHtml =
-            `<button style="margin-top:10px; padding:6px 12px; border:1px solid #999; border-radius:6px; background:#fff; font-weight:bold; cursor:pointer;"
-                    onclick='showImages(${JSON.stringify(mainFiles)})'>ดูทั้งหมด</button>`;
-          fileLinks = `<div class="media-container">${buttonHtml}</div>`;
-        }
-
-        const mapLink = row.latitude && row.longitude
+        const mapLink = (row.latitude && row.longitude)
           ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
           : '-';
 
-        const statusSelect = `
-          <select onchange="onStatusChange(${row.id}, this.value)">
-            <option value="" disabled ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
-            <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
-            <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
-            <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
-          </select>
-        `;
+        let statusCellHtml = '-';
+        if (VIEW_MODE === 'inbox') {
+          statusCellHtml = `
+            <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="status-badge waiting">รอแผนกรับเรื่อง</div>
+              <div class="inbox-actions">
+                <button class="btn primary mini" onclick="acceptDept(${row.id})">✅ รับเรื่อง</button>
+                <button class="btn mini danger" onclick="rejectDept(${row.id})">❌ ไม่รับ</button>
+              </div>
+            </div>
+          `;
+        } else {
+          statusCellHtml = `
+            <div class="status-box">
+              <select class="status-select ${getStatusClass(row.status)}" onchange="onStatusChange(${row.id}, this.value)">
+                <option value="" ${(row.status === null || row.status === undefined || row.status === '') ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+                <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
+                <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
+                <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
+              </select>
+            </div>
+          `;
+        }
 
-        tbody.innerHTML += `
-          <tr id="row-${row.id}">
-            <td>${row.name || '-'}</td>
-            <td>${row.phone || '-'}</td>
-            <td>${row.message || '-'}</td>
-            <td>${fileLinks || '-'}</td>
-            <td>${row.department || '-'}</td>
-            <td>${statusSelect}</td>
-            <td>${mapLink}</td>
-            <td>${formatDate(row.completed_at || row.created_at)}</td>
-            <td>${completedLinks || '-'}</td>
+        const isNew = VIEW_MODE === 'inbox' && !!row.__isNew;
+        const aging = getAgingInfo(row);
+
+        let rowClass = '';
+        if (aging.level === 'urgent') rowClass = 'urgent-row';
+        else if (aging.level === 'stale') rowClass = 'stale-row';
+        else if (isNew) rowClass = 'new-row';
+
+        const newBadgeHtml = isNew ? `<div class="new-badge">🟡 ใหม่</div>` : '';
+        const agingBadgeHtml = getAgingBadgeHtml(row);
+
+        if (VIEW_MODE === 'inbox') {
+          tbody.innerHTML += `
+            <tr id="row-${row.id}" class="${rowClass}">
+              <td>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-weight:900;">${row.name || '-'}</div>
+                  ${newBadgeHtml}
+                  ${agingBadgeHtml}
+                </div>
+              </td>
+              <td>${row.phone || '-'}</td>
+              <td class="msg-cell">
+                <div class="msg-actions">
+                  <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+                </div>
+              </td>
+              <td>${statusCellHtml}</td>
+              <td>${mapLink}</td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML += `
+            <tr id="row-${row.id}" class="${rowClass}">
+              <td>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-weight:900;">${row.name || '-'}</div>
+                  ${agingBadgeHtml}
+                </div>
+              </td>
+              <td>${row.phone || '-'}</td>
+              <td class="msg-cell">
+                <div class="msg-actions">
+                  <button class="btn mini link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+                </div>
+              </td>
+              <td>${statusCellHtml}</td>
+              <td>${mapLink}</td>
+              <td>${completedLinks || '-'}</td>
+            </tr>
+          `;
+        }
+      });
+
+      if (!data.length) {
+        const emptyText = FILTER_MODE === 'today'
+          ? 'ไม่มีข้อมูลคำร้องของวันนี้'
+          : FILTER_MODE === 'stale'
+            ? 'ไม่มีงานค้างในโหมดนี้'
+            : 'ไม่มีข้อมูลในโหมดนี้';
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="${VIEW_MODE === 'inbox' ? 5 : 6}" style="padding:22px; color:#64748b; font-weight:900;">
+              ${emptyText}
+            </td>
           </tr>
         `;
-      });
+      }
     }
-  </script>
 
-  <script>
-    // =============================
-    // 2) UTIL เดิม (format/search/show)
-    // =============================
     function formatDate(dateString) {
       if (!dateString) return 'ไม่ทราบเวลา';
       const d = new Date(dateString);
@@ -274,180 +1881,433 @@
       });
     }
 
-    function filterByName() {
-      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+    function showImages(images, startIndex = 0) {
+      const items = Array.isArray(images) ? images : [];
+      if (!items.length) return;
 
-      filteredData = allElectricData.filter(row =>
-        (row.name && String(row.name).toLowerCase().includes(keyword)) ||
-        (row.phone && String(row.phone).toLowerCase().includes(keyword))
-      );
+      const viewerHtml = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <title>ดูไฟล์แนบ</title>
+          <style>
+            body{ margin:0; font-family:Arial,sans-serif; background:#0f172a; color:#fff; }
+            .topbar{
+              position:sticky; top:0; z-index:10;
+              display:flex; justify-content:space-between; align-items:center; gap:12px;
+              padding:14px 18px; background:rgba(15,23,42,.92);
+              backdrop-filter: blur(8px);
+              border-bottom:1px solid rgba(255,255,255,.08);
+            }
+            .title{ font-size:18px; font-weight:700; }
+            .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+            .btn{ border:none; border-radius:10px; padding:10px 14px; font-size:14px; font-weight:700; cursor:pointer; }
+            .btn.dark{ background:#1e293b; color:#fff; }
+            .wrap{ padding:20px; display:flex; flex-direction:column; gap:18px; }
+            .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+            .thumb{ background:#111827; border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden; cursor:pointer; }
+            .thumb img,.thumb video{ width:100%; height:180px; object-fit:cover; display:block; background:#000; }
+            .thumb .meta{ padding:10px 12px; font-size:13px; color:#cbd5e1; }
+            .viewer{
+              display:flex; justify-content:center; align-items:center;
+              min-height:60vh; background:#020617; border-radius:18px;
+              overflow:hidden; padding:18px;
+            }
+            .viewer img,.viewer video{
+              max-width:100%; max-height:72vh; border-radius:14px;
+              object-fit:contain; background:#000;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <div class="title">ไฟล์แนบ</div>
+            <div class="actions">
+              <button class="btn dark" onclick="prevItem()">ก่อนหน้า</button>
+              <button class="btn dark" onclick="nextItem()">ถัดไป</button>
+            </div>
+          </div>
 
-      currentPage = 1;
-      renderCurrentPage();
+          <div class="wrap">
+            <div class="viewer" id="viewer"></div>
+            <div class="grid" id="thumbGrid"></div>
+          </div>
+
+          <script>
+            const items = ${JSON.stringify(items)};
+            let currentIndex = ${Number(startIndex) || 0};
+
+            function normalizeFileUrl(item) {
+              if (typeof item === 'string') return item.startsWith('uploads/') ? '/' + item : item;
+              const raw = item?.url || '';
+              return raw.startsWith('uploads/') ? '/' + raw : raw;
+            }
+
+            function getFileType(item) {
+              if (typeof item === 'string') {
+                const url = item.toLowerCase();
+                return url.match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/) ? 'video' : 'image';
+              }
+              return item?.type || '';
+            }
+
+            function renderViewer() {
+              const item = items[currentIndex];
+              const url = normalizeFileUrl(item);
+              const type = getFileType(item);
+              const viewer = document.getElementById('viewer');
+
+              if (type === 'video' || url.toLowerCase().match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/)) {
+                viewer.innerHTML = '<video controls autoplay><source src="' + url + '"></video>';
+              } else {
+                viewer.innerHTML = '<img src="' + url + '" alt="preview">';
+              }
+            }
+
+            function renderThumbs() {
+              const grid = document.getElementById('thumbGrid');
+              grid.innerHTML = items.map((item, index) => {
+                const url = normalizeFileUrl(item);
+                const type = getFileType(item);
+                const media = (type === 'video' || url.toLowerCase().match(/\\.(mp4|mov|avi|webm|m4v)(\\?|$)/))
+                  ? '<video muted><source src="' + url + '"></video>'
+                  : '<img src="' + url + '" alt="thumb">';
+
+                return '<div class="thumb" onclick="goTo(' + index + ')">' +
+                        media +
+                        '<div class="meta">ไฟล์ ' + (index + 1) + '</div>' +
+                      '</div>';
+              }).join('');
+            }
+
+            function goTo(index){ currentIndex = index; renderViewer(); }
+            function prevItem(){ currentIndex = (currentIndex - 1 + items.length) % items.length; renderViewer(); }
+            function nextItem(){ currentIndex = (currentIndex + 1) % items.length; renderViewer(); }
+
+            renderViewer();
+            renderThumbs();
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const win = window.open('', '_blank', 'width=1200,height=850');
+      win.document.open();
+      win.document.write(viewerHtml);
+      win.document.close();
     }
 
-    function showImages(images) {
-      const html = images.map(img => {
-        const url = typeof img === 'string'
-          ? (img.startsWith('uploads/') ? `/${img}` : img)
-          : ((img.url || '').startsWith('uploads/') ? `/${img.url}` : (img.url || ''));
+    function showImageViewer(images, startIndex = 0) {
+      const safeImages = (Array.isArray(images) ? images : []).filter(isImageFile);
 
-        const type = (typeof img === 'string') ? "" : (img.type || "");
+      if (!safeImages.length) {
+        alert('ไม่มีรูปภาพให้แสดง');
+        return;
+      }
 
-        if (type === 'video' || url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/)) {
-          return `
-            <video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
-              <source src="${url}" type="video/mp4">
-            </video>`;
-        }
+      const itemsHtml = safeImages.map((img, index) => {
+        const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+        const url = encodeURI(rawUrl);
 
         return `
-          <img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,0.2);" />`;
+          <div class="media-card">
+            <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})' title="เปิดรูปเต็ม">
+              <img src="${url}" loading="lazy" class="preview-media" alt="รูปภาพ ${index + 1}" />
+            </div>
+
+            <div class="media-meta">
+              <span class="media-index">รูปภาพ ${index + 1}</span>
+              <div class="media-actions">
+                <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, index: index + 1 })})'>
+                  เปิดเต็ม
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
       }).join('');
 
-      const win = window.open('', '_blank', 'width=800,height=600');
-      win.document.write(`<body style="font-family:kanit; padding:30px; text-align:center; background:#f9f9f9">${html}</body>`);
-    }
-  </script>
+      const win = window.open('', '_blank', 'width=1200,height=850');
 
-  <script>
-    // =============================
-    // 3) setStatus เดิม (เพิ่มรีเฟรชทันที)
-    // =============================
+      if (!win) {
+        alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+        return;
+      }
+
+      win.document.open();
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>ดูรูปภาพ</title>
+          <style>
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              font-family: 'Kanit', sans-serif;
+              background: #f1f5f9;
+              color: #0f172a;
+            }
+            .topbar {
+              position: sticky;
+              top: 0;
+              z-index: 10;
+              background: #ffffff;
+              border-bottom: 1px solid #e2e8f0;
+              padding: 12px 16px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 10px;
+              flex-wrap: wrap;
+            }
+            .title {
+              font-size: 18px;
+              font-weight: 700;
+              margin: 0;
+            }
+            .count-badge {
+              background: #2563eb;
+              color: #fff;
+              padding: 6px 10px;
+              border-radius: 999px;
+              font-size: 13px;
+              font-weight: 700;
+            }
+            .container {
+              padding: 16px;
+              max-width: 1400px;
+              margin: 0 auto;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+              gap: 16px;
+              align-items: start;
+            }
+            .media-card {
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            .media-link {
+              display: block;
+              text-decoration: none;
+              background: #f8fafc;
+              cursor: pointer;
+            }
+            .preview-media {
+              display: block;
+              width: 100%;
+              height: 220px;
+              object-fit: cover;
+              background: #e2e8f0;
+            }
+            .media-meta {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 8px;
+              padding: 10px 12px;
+            }
+            .media-index {
+              font-size: 13px;
+              color: #475569;
+              font-weight: 600;
+            }
+            .open-btn {
+              border: none;
+              background: #2563eb;
+              color: #fff;
+              padding: 6px 10px;
+              border-radius: 8px;
+              font-size: 12px;
+              font-weight: 700;
+              cursor: pointer;
+            }
+            .media-actions {
+              display: flex;
+              gap: 6px;
+              align-items: center;
+              flex-wrap: wrap;
+              justify-content: flex-end;
+            }
+            .empty {
+              text-align: center;
+              padding: 40px 20px;
+              color: #64748b;
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+            }
+            @media (max-width: 640px) {
+              .container { padding: 12px; }
+              .grid { grid-template-columns: 1fr; gap: 12px; }
+              .preview-media { height: 220px; }
+              .title { font-size: 16px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="topbar">
+            <h1 class="title">🖼️ ดูรูปภาพทั้งหมด</h1>
+            <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+          </div>
+
+          <div class="container">
+            ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีรูปภาพให้แสดง</div>`}
+          </div>
+
+          <script>
+            function openMediaViewer(payload) {
+              const { url, index } = payload || {};
+              if (!url) return;
+
+              const viewer = window.open('', '_blank', 'width=1200,height=800');
+              if (!viewer) {
+                alert('กรุณาอนุญาต popup');
+                return;
+              }
+
+              viewer.document.open();
+              viewer.document.write(\`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  <title>รูปภาพไฟล์ที่ \${index}</title>
+                  <style>
+                    body {
+                      margin:0;
+                      background:#0f172a;
+                      color:#fff;
+                      font-family:sans-serif;
+                      display:flex;
+                      flex-direction:column;
+                      min-height:100vh;
+                    }
+                    .top {
+                      padding:12px 16px;
+                      background:rgba(15,23,42,.95);
+                      border-bottom:1px solid rgba(255,255,255,.1);
+                      display:flex;
+                      justify-content:space-between;
+                      align-items:center;
+                      gap:10px;
+                      flex-wrap:wrap;
+                    }
+                    .btn {
+                      color:#fff;
+                      background:#334155;
+                      text-decoration:none;
+                      padding:8px 12px;
+                      border-radius:8px;
+                      font-weight:700;
+                      font-size:13px;
+                    }
+                    .wrap {
+                      flex:1;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      padding:16px;
+                    }
+                    img {
+                      max-width:100%;
+                      max-height:calc(100vh - 90px);
+                      object-fit:contain;
+                      border-radius:12px;
+                      box-shadow:0 8px 30px rgba(0,0,0,.35);
+                      background:#fff;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="top">
+                    <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                    </div>
+                  </div>
+                  <div class="wrap">
+                    <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+                  </div>
+                </body>
+                </html>
+              \`);
+              viewer.document.close();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+      win.document.close();
+    }
+
+    async function acceptDept(id) {
+      if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
+      const res = await fetch(`/dept-accept/${id}`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        clearNewById(id);
+        alert('✅ รับเรื่องแล้ว (สถานะเป็น "รอดำเนินการ")');
+        await setView('work');
+        await updateCounters();
+      } else {
+        alert('❌ รับเรื่องไม่สำเร็จ');
+      }
+    }
+
+    async function rejectDept(id) {
+      const reason = prompt('❌ ไม่รับเรื่องเพราะอะไร? (ใส่หรือเว้นว่างได้)');
+      if (reason === null) return;
+
+      const res = await fetch(`/dept-reject/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        clearNewById(id);
+        alert('✅ ส่งกลับแอดมินหลักแล้ว');
+        await safeLoadData();
+        await updateCounters();
+      } else {
+        alert('❌ ส่งกลับไม่สำเร็จ');
+      }
+    }
+
     async function setStatus(id, status) {
-      try {
-        const res = await fetch(`/set-status/${id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status })
-        });
+      const res = await fetch(`/set-status/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
 
-        if (res.ok) {
-          alert('อัปเดตสถานะเรียบร้อย');
-          await safeLoadData(); // ✅ สำคัญ: รีเฟรชตารางทันที
-          if (typeof updateCounters === 'function') updateCounters();
-        } else {
-          alert('เกิดข้อผิดพลาดในการอัปเดต');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('เกิดข้อผิดพลาดในการอัปเดต');
+      if (res.ok) {
+        alert('✅ อัปเดตสถานะเรียบร้อย');
+        await safeLoadData();
+        await updateCounters();
+      } else {
+        const txt = await res.text().catch(()=> '');
+        alert(txt || 'เกิดข้อผิดพลาดในการอัปเดต');
       }
     }
-  </script>
-
-  <script>
-    // =============================
-    // 4) counters เดิม
-    // =============================
-    async function updateCounters() {
-      const DEPT = 'ไฟฟ้า';
-      try {
-        const [allRes, pRes, iRes, cRes] = await Promise.all([
-          fetch('/data-electric-all?_=' + Date.now()),
-          fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
-          fetch('/data-in-progress?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
-          fetch('/data-completed?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now())
-        ]);
-
-        const [allData, pAll, iAll, cAll] = await Promise.all([
-          allRes.json(), pRes.json(), iRes.json(), cRes.json()
-        ]);
-
-        const byDept = (r) => ((r.department || '').trim() === DEPT);
-
-        const unset      = (Array.isArray(allData) ? allData : []).filter(r => byDept(r) && (!r.status || String(r.status).trim()==='')).length;
-        const pending    = Array.isArray(pAll) ? pAll.length : 0;
-        const inProgress = Array.isArray(iAll) ? iAll.length : 0;
-        const completed  = Array.isArray(cAll) ? cAll.length : 0;
-
-        document.getElementById('btn-unset').textContent      = `📝 ยังไม่ได้เลือกสถานะ (${unset})`;
-        document.getElementById('btn-pending').textContent    = `⏳ รอดำเนินการ (${pending})`;
-        document.getElementById('btn-inprogress').textContent = `⚙️ กำลังดำเนินการ (${inProgress})`;
-        document.getElementById('btn-completed').textContent  = `✅ เสร็จสิ้น (${completed})`;
-      } catch (err) {
-        console.error('Error updating counters:', err);
-      }
-    }
-  </script>
-
-  <script>
-    // =============================
-    // 5) ✅ auto refresh (เพิ่มใหม่)
-    // =============================
-    let autoTimer = null;
-    let isLoading = false;
-
-    function setLastUpdated() {
-      const now = new Date();
-      const el = document.getElementById('last-updated');
-      if (el) {
-        el.textContent = now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
-      }
-    }
-
-    async function safeLoadData() {
-      if (isLoading) return;
-      isLoading = true;
-      try {
-        await loadData();
-        setLastUpdated();
-      } catch (e) {
-        console.error('Auto refresh error:', e);
-      } finally {
-        isLoading = false;
-      }
-    }
-
-    function startAutoRefresh(ms = 15000) {
-      stopAutoRefresh();
-      autoTimer = setInterval(() => {
-        const toggle = document.getElementById('auto-refresh-toggle');
-        if (!toggle || toggle.checked) safeLoadData();
-      }, ms);
-    }
-
-    function stopAutoRefresh() {
-      if (autoTimer) clearInterval(autoTimer);
-      autoTimer = null;
-    }
-
-    async function refreshData() {
-      const btn = document.getElementById('refreshBtn');
-      btn.innerHTML = '⏳ กำลังรีเฟรช...';
-      btn.disabled = true;
-
-      await safeLoadData();
-
-      setTimeout(() => {
-        btn.innerHTML = '🔄 รีเฟรช';
-        btn.disabled = false;
-      }, 500);
-    }
-  </script>
-
-  <!-- ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น" (ของเดิม) -->
-  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
-    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
-      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
-      <p style="margin:0 0 12px; color:#555">คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?</p>
-
-      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
-
-      <div style="display:flex; gap:8px; justify-content:flex-end">
-        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
-        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn" style="border-color:#15563b;background:#15563b;color:#fff">ยืนยัน</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // =============================
-    // 6) complete modal + upload (ของเดิม) + ✅ หยุด/เริ่ม auto
-    // =============================
-    let pendingCompleteId = null;
 
     function onStatusChange(id, value) {
+      const select = event?.target;
+      if (select) {
+        select.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        select.classList.add(getStatusClass(value));
+      }
+
       if (value === 'เสร็จสิ้น') {
         pendingCompleteId = id;
         openCompleteModal();
@@ -458,34 +2318,12 @@
 
     function openCompleteModal() {
       document.getElementById('completeModal').style.display = 'flex';
-      stopAutoRefresh(); // ✅ หยุด auto ตอนเปิด modal
     }
 
     function closeCompleteModal() {
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
       pendingCompleteId = null;
-      startAutoRefresh(15000); // ✅ เริ่ม auto กลับตอนปิด
-    }
-
-    async function deleteCompletedFile(id, fileUrl) {
-      if (!confirm('แน่ใจหรือไม่ว่าต้องการลบไฟล์นี้?')) return;
-
-      try {
-        const res = await fetch(`/delete-completed-file/${id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileUrl })
-        });
-
-        const data = await res.json();
-        alert(data.message);
-
-        if (data.success) await safeLoadData(); // ✅ รีเฟรชตารางหลังลบ
-      } catch (err) {
-        console.error(err);
-        alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
-      }
     }
 
     async function submitComplete() {
@@ -509,9 +2347,9 @@
         if (!res.ok || data.success === false) {
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
-          alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
+          alert(data.message || '✅ บันทึกสำเร็จ');
           await safeLoadData();
-          if (typeof updateCounters === 'function') await updateCounters();
+          await updateCounters();
         }
       } catch (err) {
         console.error(err);
@@ -522,27 +2360,121 @@
         closeCompleteModal();
       }
     }
-  </script>
 
-  <script>
-    // =============================
-    // 7) INIT (รวมทุกอย่างให้เรียบร้อย)
-    // =============================
-    window.addEventListener('load', () => {
-      safeLoadData();           // โหลดตารางครั้งแรก + last updated
-      updateCounters();         // นับปุ่มครั้งแรก
+    async function deleteCompletedFile(id, fileUrl) {
+      if (!confirm('แน่ใจหรือไม่ว่าต้องการลบไฟล์นี้?')) return;
 
-      startAutoRefresh(15000);  // รีเฟรชตารางทุก 15 วิ
-      setInterval(updateCounters, 60000); // นับปุ่มทุก 60 วิ
-
-      const toggle = document.getElementById('auto-refresh-toggle');
-      if (toggle) {
-        toggle.addEventListener('change', () => {
-          if (!toggle.checked) stopAutoRefresh();
-          else startAutoRefresh(15000);
+      try {
+        const res = await fetch(`/delete-completed-file/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileUrl })
         });
+        const data = await res.json().catch(()=>({}));
+        alert(data.message || 'เสร็จสิ้น');
+        if (data.success) await safeLoadData();
+      } catch (err) {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการลบไฟล์');
+      }
+    }
+
+    async function updateCounters() {
+      try {
+        const [inboxRes, allRes, pRes, iRes, cRes] = await Promise.all([
+          fetch('/data-electric-inbox?_=' + Date.now()),
+          fetch('/data-electric-all?_=' + Date.now()),
+          fetch('/data-pending?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+          fetch('/data-in-progress?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+          fetch('/data-completed?department=' + encodeURIComponent(DEPT) + '&_=' + Date.now()),
+        ]);
+
+        const [inboxData, allData, pAll, iAll, cAll] = await Promise.all([
+          inboxRes.json(), allRes.json(), pRes.json(), iRes.json(), cRes.json()
+        ]);
+
+        const inboxCount = Array.isArray(inboxData) ? inboxData.length : 0;
+        const workCount  = Array.isArray(allData) ? allData.length : 0;
+
+        const pending    = Array.isArray(pAll) ? pAll.length : 0;
+        const inProgress = Array.isArray(iAll) ? iAll.length : 0;
+        const completed  = Array.isArray(cAll) ? cAll.length : 0;
+
+        const leftInbox = document.getElementById('count-inbox-left');
+        if (leftInbox) leftInbox.textContent = String(inboxCount);
+
+        const leftWork = document.getElementById('count-work-left');
+        if (leftWork) leftWork.textContent = String(workCount);
+
+        const sInbox = document.getElementById('kpi-inbox-side');
+        const sP = document.getElementById('kpi-pending-side');
+        const sI = document.getElementById('kpi-inprogress-side');
+        const sC = document.getElementById('kpi-completed-side');
+        if (sInbox) sInbox.textContent = String(inboxCount);
+        if (sP) sP.textContent = String(pending);
+        if (sI) sI.textContent = String(inProgress);
+        if (sC) sC.textContent = String(completed);
+
+        const cP = document.getElementById('count-pending');
+        const cI = document.getElementById('count-inprogress');
+        const cC = document.getElementById('count-completed');
+        if (cP) cP.textContent = String(pending);
+        if (cI) cI.textContent = String(inProgress);
+        if (cC) cC.textContent = String(completed);
+      } catch (err) {
+        console.error('Error updating counters:', err);
+      }
+    }
+
+    async function safeLoadData() {
+      if (isLoading) return;
+      isLoading = true;
+      try {
+        await loadData();
+      } catch (e) {
+        console.error('Load error:', e);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    updateSoundButton();
+    syncLeftViewActive();
+    setFilterMode('all');
+    setView('inbox');
+    updateCounters();
+
+    setInterval(updateCounters, 60000);
+    setInterval(() => {
+      safeLoadData();
+    }, 15000);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('detailModal');
+        if (modal && modal.style.display === 'flex') closeDetailModal();
+
+        const c = document.getElementById('completeModal');
+        if (c && c.style.display === 'flex') closeCompleteModal();
       }
     });
+  
+    function exportHealthExcelAll() {
+      window.open('/export-electric-excel-all', '_blank');
+    }
+
+    function exportHealthExcelPending() {
+      window.open('/export-electric-excel-pending', '_blank');
+    }
+
+    function exportHealthExcelInprogress() {
+      window.open('/export-electric-excel-inprogress', '_blank');
+    }
+
+    function exportHealthExcelCompleted() {
+      window.open('/export-electric-excel-completed', '_blank');
+    }
+    
   </script>
 
 </body>
