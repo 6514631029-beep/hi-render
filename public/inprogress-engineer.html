@@ -1,246 +1,1223 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+  <link rel="manifest" href="/manifest-engineer.json">
+  <meta name="theme-color" content="#155263">
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>⚙️ กำลังดำเนินการ - กองช่าง</title>
+
+  <link rel="stylesheet" href="/admin-font.css" />
+
   <style>
-    body{font-family:'Kanit',sans-serif;background:#f1f5f9;margin:0;padding:20px}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap}
-    h2{margin:0}
-    .btn{padding:10px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600}
-    .btn.link{color:#15563b;border-color:#15563b}
-    .search{padding:10px;width:300px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-    table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.1)}
-    th,td{padding:10px;border:1px solid #ddd;text-align:center;vertical-align:middle}
-    th{background:#15563b;color:#fff}
-    img,video{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-    .media-container{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
-    a.map-link{color:#2563eb;font-weight:bold;text-decoration:none}
-    .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    :root{
+      --bg: #eef3fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+
+      --navy: #0b2a4a;
+      --navy-2:#133a63;
+      --gold: #c9a227;
+      --gold-2:#f4e3a1;
+
+      --line: #e2e8f0;
+      --ok: #16a34a;
+      --warn:#f59e0b;
+      --danger:#dc2626;
+      --info:#2563eb;
+
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(2,6,23,.08);
+      --shadow2: 0 8px 24px rgba(2,6,23,.06);
+
+      --sidebarW: 260px;
+
+      --status-empty-bg:#f8fafc;
+      --status-empty-bd:#cbd5e1;
+      --status-empty-tx:#475569;
+
+      --status-pending-bg:#fff7ed;
+      --status-pending-bd:#fdba74;
+      --status-pending-tx:#9a3412;
+
+      --status-progress-bg:#eff6ff;
+      --status-progress-bd:#93c5fd;
+      --status-progress-tx:#1d4ed8;
+
+      --status-done-bg:#ecfdf5;
+      --status-done-bd:#86efac;
+      --status-done-tx:#166534;
+    }
+
+    html{ font-size:20px; }
+    body{ font-size:18px; line-height:1.5; }
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
+        var(--bg);
+      -webkit-text-size-adjust:100%;
+    }
+
+    .app{
+      display:flex;
+      min-height:100vh;
+      gap:0;
+    }
+
+    .sidebar{
+      width:var(--sidebarW);
+      background:linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
+      border-right:1px solid rgba(255,255,255,.10);
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      padding:14px 12px;
+      box-shadow:6px 0 22px rgba(2,6,23,.06);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      margin-bottom:10px;
+      color:#fff;
+    }
+
+    .brand .logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      background:linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#1f2937;
+      font-weight:1000;
+      flex:0 0 auto;
+      box-shadow:0 12px 22px rgba(201,162,39,.25);
+    }
+
+    .brand .title{
+      font-weight:1000;
+      line-height:1.1;
+      font-size:15px;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:10px 6px;
+    }
+
+    .menu-title{
+      font-size:13px;
+      color:rgba(255,255,255,.72);
+      font-weight:900;
+      margin:6px 6px 2px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .side-link{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      transition:.15s transform, .15s background, .15s border;
+      text-align:left;
+      font-size:16px;
+    }
+
+    .side-link:hover{
+      background:rgba(255,255,255,.10);
+      border-color:rgba(255,255,255,.18);
+    }
+
+    .side-link:active{ transform:translateY(1px); }
+
+    .side-link .label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+
+    .view-link.active{
+      background:rgba(201,162,39,.16);
+      border-color:rgba(201,162,39,.38);
+      position:relative;
+    }
+
+    .view-link.active::before{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:10px;
+      bottom:10px;
+      width:4px;
+      border-radius:999px;
+      background:rgba(201,162,39,.95);
+      box-shadow:0 0 0 4px rgba(201,162,39,.12);
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:60;
+      background:linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #0a2340 100%);
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,.14);
+      box-shadow:var(--shadow);
+      padding:12px 16px;
+      overflow:hidden;
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.32), transparent 62%);
+      pointer-events:none;
+    }
+
+    .topbar-row{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .topbar-left h1{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .topbar-left .sub{
+      margin-top:2px;
+      font-size:14px;
+      opacity:.82;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .toolbar-links{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .content{
+      padding:16px 18px 26px;
+      max-width:1450px;
+      margin:0 auto;
+      width:100%;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow2);
+      overflow:hidden;
+    }
+
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .card-h h2{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+    }
+
+    .card-b{ padding:12px 14px; }
+
+    .tiny{
+      font-size:14px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .search{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      font-weight:800;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      font-size:15px;
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
+      border-color:rgba(0,0,0,.06);
+      color:#1f2937;
+    }
+
+    .btn.danger{
+      background:#fee2e2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+
+    .btn.mini{
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:14px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      background:#fff;
+      border-radius:16px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1000px;
+      background:#fff;
+      table-layout:fixed;
+    }
+
+    th, td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:#eef2f7 !important;
+      color:#0f172a !important;
+      text-transform:none !important;
+      letter-spacing:0 !important;
+      box-shadow:none !important;
+      border-bottom:1px solid #e5e7eb !important;
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    td{
+      font-size:15px;
+      word-break:break-word;
+    }
+
+    tbody tr:nth-child(even){ background:#fbfdff; }
+    tbody tr:hover{ background:#f3f7ff; }
+
+    th:nth-child(1), td:nth-child(1){ width:140px; }
+    th:nth-child(2), td:nth-child(2){ width:140px; }
+    th:nth-child(3), td:nth-child(3){ width:200px; }
+    th:nth-child(4), td:nth-child(4){ width:190px; }
+    th:nth-child(5), td:nth-child(5){ width:140px; }
+
+    .name-cell{
+      font-weight:900;
+      color:#0f172a;
+    }
+
+    .msg-cell{
+      min-width:0;
+      max-width:190px;
+      width:190px;
+      text-align:center;
+      vertical-align:middle;
+      padding-left:10px;
+      padding-right:10px;
+    }
+
+    .msg-actions{
+      display:flex;
+      justify-content:center;
+      margin-top:0;
+    }
+
+    .msg-actions .btn{ min-width:110px; }
+
+    a.map-link{
+      color:var(--info);
+      font-weight:1000;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+
+    .status-box{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+    }
+
+    .status-select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      border:1px solid var(--status-empty-bd) !important;
+      box-shadow:none !important;
+      outline:none !important;
+      height:40px !important;
+      line-height:40px !important;
+      padding:0 34px 0 12px !important;
+      border-radius:12px !important;
+      font-size:14px !important;
+      font-weight:900 !important;
+      cursor:pointer;
+      white-space:nowrap;
+      box-sizing:border-box;
+      width:100% !important;
+      max-width:150px !important;
+      min-width:0 !important;
+      text-align:left;
+      transition:.18s ease;
+      background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) 50%,
+        calc(100% - 9px) 50%;
+      background-size:5px 5px, 5px 5px;
+      background-repeat:no-repeat;
+    }
+
+    .status-select.status-empty{
+      background-color:var(--status-empty-bg) !important;
+      border-color:var(--status-empty-bd) !important;
+      color:var(--status-empty-tx) !important;
+    }
+
+    .status-select.status-pending{
+      background-color:var(--status-pending-bg) !important;
+      border-color:var(--status-pending-bd) !important;
+      color:var(--status-pending-tx) !important;
+    }
+
+    .status-select.status-progress{
+      background-color:var(--status-progress-bg) !important;
+      border-color:var(--status-progress-bd) !important;
+      color:var(--status-progress-tx) !important;
+    }
+
+    .status-select.status-done{
+      background-color:var(--status-done-bg) !important;
+      border-color:var(--status-done-bd) !important;
+      color:var(--status-done-tx) !important;
+    }
+
+    .status-select:focus{
+      transform:translateY(-1px);
+      box-shadow:0 0 0 3px rgba(37,99,235,.10) !important;
+    }
+
+    #pagination{
+      padding:12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border-top:1px solid var(--line);
+    }
+
+    #pagination button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    .detail-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.5);
+      z-index:10000;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .detail-modal{
+      width:min(860px, 100%);
+      max-height:85vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 24px 60px rgba(2,6,23,.25);
+    }
+
+    .detail-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid #e2e8f0;
+      background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+
+    .detail-head h3{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .detail-close{
+      border:none;
+      background:#fee2e2;
+      color:#991b1b;
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      font-size:20px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    .detail-body{ padding:18px; }
+
+    .detail-grid{
+      display:grid;
+      grid-template-columns:140px 1fr;
+      gap:10px 14px;
+      margin-bottom:16px;
+    }
+
+    .detail-label{
+      color:#475569;
+      font-weight:900;
+    }
+
+    .detail-value{
+      color:#0f172a;
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .detail-message-box{
+      margin-top:8px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:14px;
+      color:#0f172a;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .detail-file-box{
+      margin-top:8px;
+      background:#ffffff;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .detail-file-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .detail-file-meta{
+      color:#334155;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:16px;
+    }
+
+    .modal{
+      width:min(560px, 94vw);
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 12px 30px rgba(0,0,0,.25);
+      padding:18px;
+      border:1px solid #e2e8f0;
+    }
+
+    .modal h3{
+      margin:0 0 10px;
+      font-size:20px;
+      font-weight:1000;
+    }
+
+    .modal .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .modal .actions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:12px;
+    }
+
+    .hint{
+      color:#666;
+      font-size:13px;
+      margin-top:6px;
+      font-weight:700;
+    }
+
+    @media (max-width:980px){
+      .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-right:0;
+        box-shadow:none;
+      }
+
+      .app{ display:block; }
+      .content{ padding:14px; }
+    }
+
+    @media (max-width:700px){
+      .detail-grid{ grid-template-columns:1fr; gap:6px; }
+      .msg-cell{ width:200px; max-width:200px; }
+    }
   </style>
 </head>
 
 <body>
-  <header>
-    <h2>⚙️ รายการคำร้อง — กำลังดำเนินการ (กองช่าง)</h2>
-    <div class="toolbar">
-      <input id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="applyFilters()" />
-      <button class="btn link" onclick="location.href='admin-engineer.html'">⬅️ กลับหน้ากองช่าง</button>
-      <button class="btn" onclick="location.href='pending-engineer.html'">⏳ รอดำเนินการ</button>
-      <button class="btn" onclick="location.href='completed-engineer.html'">✅ เสร็จสิ้น</button>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">สธ</div>
+        <div>
+          <div class="title">กองช่าง</div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <div class="menu-title">หน้าหลัก</div>
+
+        <button class="side-link" onclick="location.href='admin-engineer.html'">
+          <span class="label">🏛️ Dashboard</span>
+        </button>
+
+        <button class="side-link" onclick="location.href='pending-engineer.html'">
+          <span class="label">⏳ รอดำเนินการ</span>
+        </button>
+
+        <button class="side-link view-link active" onclick="location.href='inprogress-engineer.html'">
+          <span class="label">⚙️ กำลังดำเนินการ</span>
+        </button>
+
+        <button class="side-link" onclick="location.href='completed-engineer.html'">
+          <span class="label">✅ เสร็จสิ้น</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-row">
+          <div class="topbar-left">
+            <div>
+              <h1>⚙️ รายการคำร้อง • กำลังดำเนินการ</h1>
+              <div class="sub">แผนกกองช่าง</div>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <div class="toolbar-links">
+              <button class="btn" onclick="location.href='admin-engineer.html'">⬅️ กลับหน้า กองช่าง</button>
+              <button class="btn" onclick="location.href='pending-engineer.html'">⏳ รอดำเนินการ</button>
+              <button class="btn" onclick="location.href='completed-engineer.html'">✅ เสร็จสิ้น</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="card">
+          <div class="card-h">
+            <h2>ค้นหา</h2>
+            <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบแบ่งหน้า</div>
+          </div>
+          <div class="card-b">
+            <input
+              id="searchInput"
+              class="search"
+              placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+              oninput="applyFilters()"
+            />
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-h">
+            <h2>รายการคำร้องสถานะกำลังดำเนินการ</h2>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อ</th>
+                  <th>เบอร์</th>
+                  <th>รายละเอียด</th>
+                  <th>สถานะ/จัดการ</th>
+                  <th>แผนที่</th>
+                </tr>
+              </thead>
+              <tbody id="data-body"></tbody>
+            </table>
+          </div>
+
+          <div id="pagination">
+            <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+            <span id="pageInfo" class="btn" style="cursor:default;">หน้า 1 จาก 1</span>
+            <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
+    <div class="detail-modal" onclick="event.stopPropagation()">
+      <div class="detail-head">
+        <h3>รายละเอียดคำร้อง</h3>
+        <button class="detail-close" onclick="closeDetailModal()">×</button>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-grid">
+          <div class="detail-label">ชื่อ</div>
+          <div class="detail-value" id="detailName">-</div>
+
+          <div class="detail-label">เบอร์โทร</div>
+          <div class="detail-value" id="detailPhone">-</div>
+
+          <div class="detail-label">สถานะ</div>
+          <div class="detail-value" id="detailStatus">-</div>
+
+          <div class="detail-label">วันที่-เวลา</div>
+          <div class="detail-value" id="detailDate">-</div>
+        </div>
+
+        <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
+        <div class="detail-message-box" id="detailMessage">-</div>
+
+        <div style="height:14px;"></div>
+
+        <div class="detail-label" style="margin-bottom:8px;">รูปภาพ/วิดีโอจากผู้ใช้</div>
+        <div id="detailFilesBox">
+          <div class="detail-message-box">ไม่มีไฟล์จากผู้ใช้</div>
+        </div>
+
+        <div id="detailCompletedWrap">
+          <div style="height:14px;"></div>
+          <div class="detail-label" style="margin-bottom:8px;">ไฟล์(เสร็จสิ้น)</div>
+          <div id="detailCompletedFilesBox">
+            <div class="detail-message-box">ไม่มีไฟล์(เสร็จสิ้น)</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </header>
+  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>ชื่อ</th><th>เบอร์</th><th>ข้อความ</th><th>ไฟล์</th><th>แผนก</th><th>สถานะ</th><th>แผนที่</th><th>วันที่-เวลา</th>
-      </tr>
-    </thead>
-    <tbody id="data-body"></tbody>
-  </table>
+  <div id="completeModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>✅ แนบไฟล์เพิ่มเติม (เสร็จสิ้น)</h3>
 
-  <!-- 🔢 แถวแบ่งหน้า (เหมือนไฟฟ้า 100%) -->
-  <div id="pagination"
-       style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:8px;">
-    <button id="prevPage"
-            onclick="changePage(-1)"
-            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
-      ก่อนหน้า
-    </button>
+      <div class="row">
+        <input id="completeFiles" type="file" multiple accept="image/*,video/*">
+      </div>
 
-    <span id="pageInfo">หน้า 1 จาก 1</span>
+      <div class="hint">
+        * ไม่แนบไฟล์ก็ได้ กด “ยืนยันเสร็จสิ้น” ได้เลย
+      </div>
 
-    <button id="nextPage"
-            onclick="changePage(1)"
-            style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
-      ถัดไป
-    </button>
+      <div class="actions">
+        <button class="btn" onclick="closeCompleteModal()">ยกเลิก</button>
+        <button class="btn primary" id="btnCompleteUpload" onclick="submitComplete()">ยืนยันเสร็จสิ้น</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    // ⭐ ข้อมูล + ตัวแปรแบ่งหน้า (เหมือนไฟฟ้า 100%)
-    let allData = [];        // ดิบจาก /data-in-progress
-    let deptData = [];       // กรองเฉพาะกองช่าง
-    let filteredRows = [];   // ข้อมูลหลังค้นหา (ใช้แบ่งหน้า)
+    const pageSize = 20;
+    let allData = [];
+    let deptData = [];
+    let filteredRows = [];
     let currentPage = 1;
-    const pageSize = 20;     // จำนวนแถวต่อหน้า
+    let pendingCompleteId = null;
 
     async function loadData(){
-      const res = await fetch('/data-in-progress?_=' + Date.now());
-      const data = await res.json();
-      allData = Array.isArray(data) ? data : [];
-      // เผื่อ endpoint มีหลายแผนก → กรองเฉพาะกองช่าง
+      try{
+        const res = await fetch('/data-in-progress?_=' + Date.now());
+        const data = await res.json();
+        allData = Array.isArray(data) ? data : [];
+      }catch(err){
+        console.error(err);
+        allData = [];
+      }
+
       deptData = allData.filter(r => (r.department || '') === 'กองช่าง');
       applyFilters();
     }
 
     function applyFilters(){
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-      filteredRows = deptData.filter(r=>{
-        const name=(r.name||'').toLowerCase();
-        const phone=(r.phone||'').toLowerCase();
+
+      filteredRows = deptData.filter(r => {
+        const name = String(r.name || '').toLowerCase();
+        const phone = String(r.phone || '').toLowerCase();
         return !kw || name.includes(kw) || phone.includes(kw);
       });
+
       currentPage = 1;
       renderCurrentPage();
     }
 
-    // ✅ แสดงเฉพาะหน้าปัจจุบัน (เหมือนไฟฟ้า 100%)
-    function renderCurrentPage() {
+    function renderCurrentPage(){
       const totalItems = filteredRows.length;
       const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-      if (currentPage > totalPages) currentPage = totalPages;
+      if(currentPage > totalPages) currentPage = totalPages;
 
       const start = (currentPage - 1) * pageSize;
-      const end = start + pageSize;
-      const pageData = filteredRows.slice(start, end);
+      const pageData = filteredRows.slice(start, start + pageSize);
 
       renderTable(pageData);
 
-      const info = document.getElementById('pageInfo');
-      if (info) {
-        info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
-      }
+      document.getElementById('pageInfo').textContent =
+        `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
 
-      const prevBtn = document.getElementById('prevPage');
-      const nextBtn = document.getElementById('nextPage');
-      if (prevBtn) prevBtn.disabled = currentPage === 1;
-      if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = currentPage === totalPages;
+      applyStatusSelectStyles();
     }
 
-    function changePage(delta) {
+    function changePage(delta){
       currentPage += delta;
       renderCurrentPage();
     }
 
-    // 🧾 เรนเดอร์ตาราง (ไม่โชว์รูป แค่ปุ่ม "ดูทั้งหมด") เหมือนไฟฟ้า 100%
-    function renderTable(rows){
-      const tbody=document.getElementById('data-body');
-      tbody.innerHTML='';
+    function normalizeRowId(row){
+      return String(row?.original_id || row?.id || '');
+    }
 
-      // ถ้าไม่มีคำร้องเลย (เหมือนไฟฟ้า 100%)
-      if (!rows || rows.length === 0) {
+    function normalizeFileUrl(item){
+      if (typeof item === 'string') {
+        return item.startsWith('uploads/') ? `/${item}` : item;
+      }
+      const raw = item?.url || '';
+      return raw.startsWith('uploads/') ? `/${raw}` : raw;
+    }
+
+    function getFileType(item){
+      if (typeof item === 'string') {
+        const url = item.toLowerCase();
+        return url.match(/\.(mp4|mov|avi|webm|m4v)(\?|$)/i) ? 'video' : 'image';
+      }
+      return item?.type || '';
+    }
+
+    function parseFiles(photo){
+      let files = [];
+      try{
+        if (typeof photo === 'string') files = JSON.parse(photo);
+        else if (Array.isArray(photo)) files = photo;
+      }catch{
+        files = [];
+      }
+      return Array.isArray(files) ? files : [];
+    }
+
+    function splitFiles(files){
+      const completedFiles = files.filter(it => {
+        if (!it || typeof it !== 'object') return false;
+        return it.from === 'completed' || it.tag === 'completed';
+      });
+
+      const mainFiles = files.filter(it => {
+        if (!it) return false;
+        if (typeof it !== 'object') return true;
+        return !(it.from === 'completed' || it.tag === 'completed');
+      });
+
+      return { mainFiles, completedFiles };
+    }
+
+    function getStatusClass(status) {
+      if (!status) return 'status-empty';
+      if (status === 'รอดำเนินการ') return 'status-pending';
+      if (status === 'กำลังดำเนินการ') return 'status-progress';
+      if (status === 'เสร็จสิ้น') return 'status-done';
+      return 'status-empty';
+    }
+
+    function applyStatusSelectStyles() {
+      const selects = document.querySelectorAll('.status-select');
+      selects.forEach(select => {
+        select.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        select.classList.add(getStatusClass(select.value));
+      });
+    }
+
+    function renderTable(rows){
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';
+
+      if(!rows || rows.length === 0){
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" style="padding:24px;text-align:center;color:#64748b;font-size:15px;">
+            <td colspan="5" style="padding:35px;text-align:center;color:#555;font-size:18px;font-weight:900;">
               ⚙️ ยังไม่มีคำร้องที่อยู่ในสถานะ "กำลังดำเนินการ" สำหรับแผนกกองช่าง
             </td>
-          </tr>`;
+          </tr>
+        `;
         return;
       }
 
-      rows.forEach(row=>{
-        let files=[];
-        try{
-          if(row.photo && typeof row.photo==='string') files=JSON.parse(row.photo);
-          else if(Array.isArray(row.photo)) files=row.photo;
-        }catch(e){ files=[]; }
-
-        // ❌ ไม่แสดงรูป / วิดีโอในตาราง
-        // ✅ ถ้ามีไฟล์ ให้แค่ปุ่ม "ดูทั้งหมด"
-        let fileLinks='-';
-        if(files.length>0){
-          const btnAll = `
-            <button style="margin-top:10px;padding:6px 12px;border:1px solid #999;border-radius:6px;background:#fff;font-weight:bold;cursor:pointer;"
-                    onclick='showImages(${JSON.stringify(files)})'>
-              ดูทั้งหมด
-            </button>`;
-          fileLinks = `<div class="media-container">${btnAll}</div>`;
-        }
-
-        const mapLink=(row.latitude && row.longitude)
+      rows.forEach(row => {
+        const targetId = row.original_id || row.id;
+        const mapLink = (row.latitude && row.longitude)
           ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
           : '-';
 
-        const statusSelect=`
-          <select onchange="onStatusChange(${row.original_id || row.id}, this.value)">
-            <option value="" disabled ${(row.status==null||row.status==='')?'selected':''}>โปรดเลือกสถานะ</option>
-            <option value="รอดำเนินการ" ${row.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
-            <option value="กำลังดำเนินการ" ${row.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option>
-            <option value="เสร็จสิ้น" ${row.status==='เสร็จสิ้น'?'selected':''}>เสร็จสิ้น</option>
-          </select>`;
+        const statusSelect = `
+          <div class="status-box">
+            <select class="status-select ${getStatusClass(row.status)}" onchange="onStatusChange(${targetId}, this.value, this)">
+              <option value="" disabled ${!row.status ? 'selected' : ''}>โปรดเลือกสถานะ</option>
+              <option value="รอดำเนินการ" ${row.status === 'รอดำเนินการ' ? 'selected' : ''}>รอดำเนินการ</option>
+              <option value="กำลังดำเนินการ" ${row.status === 'กำลังดำเนินการ' ? 'selected' : ''}>กำลังดำเนินการ</option>
+              <option value="เสร็จสิ้น" ${row.status === 'เสร็จสิ้น' ? 'selected' : ''}>เสร็จสิ้น</option>
+            </select>
+          </div>
+        `;
 
         tbody.innerHTML += `
           <tr>
-            <td>${row.name||'-'}</td>
-            <td>${row.phone||'-'}</td>
-            <td>${row.message||'-'}</td>
-            <td>${fileLinks}</td>
-            <td>${row.department||'-'}</td>
+            <td class="name-cell">${row.name || '-'}</td>
+            <td>${row.phone || '-'}</td>
+            <td class="msg-cell">
+              <div class="msg-actions">
+                <button class="btn mini link-btn" onclick="openDetailById(${targetId})">📄 รายละเอียด</button>
+              </div>
+            </td>
             <td>${statusSelect}</td>
             <td>${mapLink}</td>
-            <td>${formatDate(row.created_at)}</td>
-          </tr>`;
+          </tr>
+        `;
       });
     }
 
     function formatDate(s){
       if(!s) return 'ไม่ทราบเวลา';
-      const d=new Date(s);
+      const d = new Date(s);
       if(isNaN(d)) return 'ไม่สามารถแปลงเวลาได้';
       return d.toLocaleString('th-TH',{
-        year:'numeric',month:'2-digit',day:'2-digit',
-        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        timeZone:'Asia/Bangkok',
+        year:'numeric',
+        month:'2-digit',
+        day:'2-digit',
+        hour:'2-digit',
+        minute:'2-digit',
+        second:'2-digit',
         hour12:false
       });
     }
 
-    function showImages(images){
-      const html = images.map(img=>{
-        const url = typeof img==='string'
-          ? (img.startsWith('uploads/')?`/${img}`:img)
-          : ((img.url||'').startsWith('uploads/')?`/${img.url}`:img.url);
-        const type = (typeof img==='string')?'':(img.type||'');
+    function renderDetailFileButtons(boxId, files = [], emptyText = 'ไม่มีไฟล์'){
+      const box = document.getElementById(boxId);
+      if (!box) return;
 
-        if(type==='video' || (url && url.toLowerCase().match(/\.(mp4|mov|avi)(\?|$)/))){
-          return `<video controls style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);">
-                    <source src="${url}" type="video/mp4">
-                  </video>`;
-        }
-        return `<img src="${url}" style="width:auto;max-width:700px;max-height:500px;margin-bottom:20px;border-radius:8px;object-fit:contain;box-shadow:0 2px 6px rgba(0,0,0,.2);" />`;
-      }).join('');
-      const win=window.open('','_blank','width=800,height=600');
-      win.document.write(`<body style="font-family:kanit;padding:30px;text-align:center;background:#f9f9f9">${html}</body>`);
+      const items = Array.isArray(files) ? files : [];
+      if (!items.length) {
+        box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="detail-file-box">
+          <div class="detail-file-row">
+            <div class="detail-file-meta">จำนวน ${items.length} ไฟล์</div>
+            <button
+              type="button"
+              class="btn mini"
+              style="background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; font-weight:900;"
+              onclick='showImages(${JSON.stringify(items)}, 0)'
+            >
+              ดูไฟล์
+            </button>
+          </div>
+        </div>
+      `;
     }
 
-    function setStatus(id,status){
-      fetch(`/set-status/${id}`,{
+    function openDetailModal(row, mainFiles = [], completedFiles = []){
+      document.getElementById('detailName').textContent = row?.name || '-';
+      document.getElementById('detailPhone').textContent = row?.phone || '-';
+      document.getElementById('detailStatus').textContent = row?.status || '-';
+      document.getElementById('detailDate').textContent = formatDate(row?.completed_at || row?.created_at);
+      document.getElementById('detailMessage').textContent = row?.message || '-';
+
+      renderDetailFileButtons('detailFilesBox', mainFiles, 'ไม่มีไฟล์จากผู้ใช้');
+      renderDetailFileButtons('detailCompletedFilesBox', completedFiles, 'ไม่มีไฟล์(เสร็จสิ้น)');
+
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function openDetailById(id){
+      const row = deptData.find(x => String(normalizeRowId(x)) === String(id));
+      if (!row) return;
+
+      const files = parseFiles(row.photo);
+      const { mainFiles, completedFiles } = splitFiles(files);
+
+      openDetailModal({
+        id: normalizeRowId(row),
+        name: row.name || '-',
+        phone: row.phone || '-',
+        message: row.message || '-',
+        status: row.status || '',
+        created_at: row.created_at || '',
+        completed_at: row.completed_at || ''
+      }, mainFiles, completedFiles);
+    }
+
+    function closeDetailModal(e){
+      if (e && e.target && e.target.id !== 'detailModal') return;
+
+      document.getElementById('detailModal').style.display = 'none';
+      document.getElementById('detailFilesBox').innerHTML = `<div class="detail-message-box">ไม่มีไฟล์จากผู้ใช้</div>`;
+      document.getElementById('detailCompletedFilesBox').innerHTML = `<div class="detail-message-box">ไม่มีไฟล์(เสร็จสิ้น)</div>`;
+    }
+
+    function showImages(images, startIndex = 0){
+      const items = Array.isArray(images) ? images : [];
+      if (!items.length) return;
+
+      const normalized = items.map(item => {
+        const url = normalizeFileUrl(item);
+        const type = getFileType(item);
+        return { url, type };
+      });
+
+      const viewerHtml = `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>ดูไฟล์</title>
+          <style>
+            body{
+              margin:0;
+              font-family:system-ui, -apple-system, sans-serif;
+              background:#0f172a;
+              color:#fff;
+              display:flex;
+              flex-direction:column;
+              min-height:100vh;
+            }
+            .top{
+              padding:14px 18px;
+              background:#111827;
+              border-bottom:1px solid rgba(255,255,255,.12);
+              font-weight:700;
+            }
+            .wrap{
+              flex:1;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              padding:20px;
+            }
+            .media{
+              max-width:95vw;
+              max-height:82vh;
+              border-radius:14px;
+              background:#000;
+              box-shadow:0 10px 30px rgba(0,0,0,.35);
+            }
+            .bar{
+              display:flex;
+              justify-content:center;
+              gap:10px;
+              padding:14px 18px 20px;
+              flex-wrap:wrap;
+            }
+            button{
+              border:none;
+              border-radius:12px;
+              padding:10px 14px;
+              cursor:pointer;
+              font-weight:800;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="top" id="caption">ไฟล์</div>
+          <div class="wrap" id="viewer"></div>
+          <div class="bar">
+            <button onclick="prev()">ก่อนหน้า</button>
+            <button onclick="next()">ถัดไป</button>
+          </div>
+
+          <script>
+            const files = ${JSON.stringify(normalized)};
+            let index = ${Number(startIndex) || 0};
+
+            function render(){
+              const file = files[index];
+              const viewer = document.getElementById('viewer');
+              const caption = document.getElementById('caption');
+
+              caption.textContent = 'ไฟล์ ' + (index + 1) + ' / ' + files.length;
+
+              if (!file) {
+                viewer.innerHTML = '<div>ไม่พบไฟล์</div>';
+                return;
+              }
+
+              if (file.type === 'video') {
+                viewer.innerHTML = '<video class="media" controls autoplay playsinline><source src="' + file.url + '"></video>';
+              } else {
+                viewer.innerHTML = '<img class="media" src="' + file.url + '" alt="image">';
+              }
+            }
+
+            function prev(){
+              index = (index - 1 + files.length) % files.length;
+              render();
+            }
+
+            function next(){
+              index = (index + 1) % files.length;
+              render();
+            }
+
+            render();
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const win = window.open('', '_blank', 'width=1200,height=900');
+      if (!win) {
+        alert('กรุณาอนุญาต popup ก่อน');
+        return;
+      }
+      win.document.open();
+      win.document.write(viewerHtml);
+      win.document.close();
+    }
+
+    function setStatus(id, status){
+      fetch(`/set-status/${id}`, {
         method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({status})
+        headers:{ 'Content-Type':'application/json' },
+        body:JSON.stringify({ status })
       })
-      .then(res=>{
-        if(res.ok){
-          alert('อัปเดตสถานะเรียบร้อย');
-          loadData();   // โหลดใหม่ให้ข้อมูลอัปเดต
+      .then(res => {
+        if (res.ok) {
+          loadData();
         } else {
           alert('เกิดข้อผิดพลาดในการอัปเดต');
         }
       })
-      .catch(()=>alert('เกิดข้อผิดพลาดในการอัปเดต'));
+      .catch(() => alert('เกิดข้อผิดพลาดในการอัปเดต'));
     }
 
-    loadData();
-  </script>
+    function onStatusChange(id, value, el){
+      if (el) {
+        el.classList.remove('status-empty', 'status-pending', 'status-progress', 'status-done');
+        el.classList.add(getStatusClass(value));
+      }
 
-  <!-- ✅ Modal แนบไฟล์ตอน "เสร็จสิ้น" (เหมือนไฟฟ้า 100%) -->
-  <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
-    <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
-      <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
-      <p style="margin:0 0 12px; color:#555">คุณตั้งค่าสถานะเป็น “เสร็จสิ้น” ต้องการแนบรูป/วิดีโอเพิ่มเพื่อยืนยันผลการดำเนินงานหรือไม่?</p>
-      <input id="completeFiles" type="file" multiple accept="image/*,video/*" style="display:block; margin-bottom:14px">
-      <div style="display:flex; gap:8px; justify-content:flex-end">
-        <button onclick="closeCompleteModal()" class="btn">ยกเลิก</button>
-        <button id="btnCompleteUpload" onclick="submitComplete()" class="btn" style="border-color:#15563b;background:#15563b;color:#fff">ยืนยัน</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let pendingCompleteId = null;
-
-    function onStatusChange(id, value) {
       if (value === 'เสร็จสิ้น') {
         pendingCompleteId = id;
         openCompleteModal();
@@ -249,49 +1226,50 @@
       }
     }
 
-    function openCompleteModal() {
+    function openCompleteModal(){
       document.getElementById('completeModal').style.display = 'flex';
     }
-    function closeCompleteModal() {
+
+    function closeCompleteModal(){
       document.getElementById('completeModal').style.display = 'none';
       document.getElementById('completeFiles').value = '';
       pendingCompleteId = null;
     }
 
-    async function submitComplete() {
+    async function submitComplete(){
       if (!pendingCompleteId) return;
 
       const btn = document.getElementById('btnCompleteUpload');
       btn.disabled = true;
       btn.textContent = 'กำลังอัปโหลด...';
 
-      try {
+      try{
         const fd = new FormData();
         const files = document.getElementById('completeFiles').files;
         for (const f of files) fd.append('extraFiles', f);
 
         const res = await fetch(`/complete-with-media/${pendingCompleteId}`, {
-          method: 'POST',
-          body: fd
+          method:'POST',
+          body:fd
         });
 
         const data = await res.json().catch(() => ({}));
         if (!res.ok || data.success === false) {
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
-          alert('✅ อัปเดตเป็น "เสร็จสิ้น" และแนบไฟล์เรียบร้อย');
           await loadData();
         }
-      } catch (err) {
+      } catch(err){
         console.error(err);
         alert('❌ เกิดข้อผิดพลาดในการอัปโหลด');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'ยืนยัน';
+        btn.textContent = 'ยืนยันเสร็จสิ้น';
         closeCompleteModal();
       }
     }
-  </script>
 
+    loadData();
+  </script>
 </body>
 </html>
