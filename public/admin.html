@@ -792,10 +792,10 @@
         <td>${mapLink}</td>
         <td>${createdAtFormatted}</td>
         <td>
-          <button class="btn approve" onclick="approve(${row.id})" ${!isDeptSelected ? 'disabled' : ''}>✅ อนุมัติ</button><br>
+          <button class="btn approve" id="approve-btn-${row.id}" onclick="approve(${row.id})" disabled>✅ อนุมัติ</button><br>
           <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
 
-          <select onchange="setDept(${row.id}, this.value)">
+          <select id="dept-${row.id}" onchange="toggleApproveButton(${row.id})">
             <option value="">เลือกแผนก</option>
 
             <option
@@ -886,22 +886,55 @@
       tbody.appendChild(emptyTr);
     }
   }
+  
+  function toggleApproveButton(id) {
+    const deptSelect = document.getElementById(`dept-${id}`);
+    const approveBtn = document.getElementById(`approve-btn-${id}`);
 
-  async function approve(id) {
-    try {
-      const res = await fetch(`/approve/${id}`, { method: 'POST' });
-      const text = await res.text();
+    if (!deptSelect || !approveBtn) return;
 
-      alert(text);
-      removeFromActiveNewIds(id);
-      removeRowFromTable(id);
-
-      setTimeout(() => { safeLoadData(); }, 200);
-    } catch (err) {
-      console.error('approve error:', err);
-      alert('เกิดข้อผิดพลาดในการอนุมัติ');
-    }
+    approveBtn.disabled = !deptSelect.value;
   }
+  
+  async function approve(id) {
+  try {
+    const deptSelect = document.getElementById(`dept-${id}`);
+    const department = deptSelect ? deptSelect.value : '';
+
+    if (!department) {
+      alert('กรุณาเลือกแผนกก่อนอนุมัติ');
+      return;
+    }
+
+    // 1) บันทึกแผนกก่อน
+    const deptRes = await fetch(`/set-department/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ department })
+    });
+
+    const deptData = await deptRes.json();
+
+    if (!deptRes.ok) {
+      alert(deptData.message || 'เปลี่ยนแผนกไม่สำเร็จ');
+      return;
+    }
+
+    // 2) ค่อยอนุมัติ
+    const approveRes = await fetch(`/approve/${id}`, { method: 'POST' });
+    const approveText = await approveRes.text();
+
+    alert(approveText || 'อนุมัติสำเร็จ');
+
+    removeFromActiveNewIds(id);
+    removeRowFromTable(id);
+
+    setTimeout(() => { safeLoadData(); }, 200);
+  } catch (err) {
+    console.error('approve error:', err);
+    alert('เกิดข้อผิดพลาดในการอนุมัติ');
+  }
+}
 
   async function setDept(id, dept) {
     const res = await fetch(`/set-department/${id}`, {
