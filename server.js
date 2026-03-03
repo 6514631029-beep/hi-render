@@ -1281,6 +1281,7 @@ app.get('/line/bind-info', async (req, res) => {
   }
 });
 app.post('/api/line/bind-phone', async (req, res) => {
+  console.log('[bind-phone hit]', req.body);
   try {
     const { phone, lineUserId } = req.body;
 
