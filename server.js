@@ -2187,7 +2187,10 @@ app.post('/complete-with-media/:id', (req, res) => {
                 `คำร้องของคุณดำเนินการเสร็จเรียบร้อยแล้ว\nขอบคุณที่แจ้งเรื่องครับ`;
 
               await pushLineMessage(lineUserId, msg);
+              
 
+
+              
               const trackUrl = `${process.env.BASE_URL || 'https://hi-render.onrender.com'}/track.html`;
 
               let linkMsg =
@@ -2485,7 +2488,7 @@ app.post('/login', (req, res) => {
   });
 });
 app.get('/track.html', (req, res) => {
-  res.sendFile(__dirname + '/public/track.html');
+  res.sendFile(path.join(__dirname, 'public', 'track.html'));
 });
 // ✅ endpoint ใหม่สำหรับดึงข้อมูล "กำลังดำเนินการ"
 // ดึงจากตาราง inprogress (แนะนำ)
