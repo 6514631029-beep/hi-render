@@ -2534,59 +2534,194 @@ app.get('/export-health-excel', async (req, res) => {
       }
 
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('สาธารณสุข');
+      const worksheet = workbook.addWorksheet('งานสาธารณสุข');
 
+      // =========================
+      // หัวรายงาน
+      // =========================
+      worksheet.mergeCells('A1:L1');
+      worksheet.getCell('A1').value = 'รายงานคำร้อง - แผนกสาธารณสุข';
+      worksheet.getCell('A1').font = {
+        bold: true,
+        size: 18
+      };
+      worksheet.getCell('A1').alignment = {
+        horizontal: 'center',
+        vertical: 'middle'
+      };
+
+      worksheet.mergeCells('A2:L2');
+      worksheet.getCell('A2').value = `วันที่ออกรายงาน: ${new Date().toLocaleString('th-TH', {
+        timeZone: 'Asia/Bangkok'
+      })}`;
+      worksheet.getCell('A2').alignment = {
+        horizontal: 'center',
+        vertical: 'middle'
+      };
+      worksheet.getCell('A2').font = {
+        size: 12,
+        italic: true
+      };
+
+      worksheet.addRow([]);
+
+      // =========================
+      // คอลัมน์
+      // =========================
       worksheet.columns = [
+        { header: 'ลำดับ', key: 'no', width: 10 },
         { header: 'รหัสคำร้อง', key: 'id', width: 12 },
         { header: 'ชื่อผู้แจ้ง', key: 'name', width: 22 },
         { header: 'เบอร์โทร', key: 'phone', width: 18 },
-        { header: 'รายละเอียด', key: 'message', width: 40 },
+        { header: 'รายละเอียด', key: 'message', width: 38 },
         { header: 'แผนก', key: 'department', width: 18 },
         { header: 'สถานะ', key: 'status', width: 20 },
+        { header: 'ค้างกี่วัน', key: 'pending_days', width: 14 },
         { header: 'ละติจูด', key: 'latitude', width: 15 },
         { header: 'ลองจิจูด', key: 'longitude', width: 15 },
+        { header: 'ลิงก์แผนที่', key: 'map_link', width: 34 },
         { header: 'วันที่แจ้ง', key: 'created_at', width: 24 }
       ];
 
-      // ทำหัวตารางให้เด่น
-      worksheet.getRow(1).font = { bold: true };
-      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+      const headerRowNumber = 4;
+      const headerRow = worksheet.getRow(headerRowNumber);
 
-      // ใส่ข้อมูลทีละแถว
-      results.forEach((row) => {
-        worksheet.addRow({
+      worksheet.getRow(headerRowNumber).values = [
+        'ลำดับ',
+        'รหัสคำร้อง',
+        'ชื่อผู้แจ้ง',
+        'เบอร์โทร',
+        'รายละเอียด',
+        'แผนก',
+        'สถานะ',
+        'ค้างกี่วัน',
+        'ละติจูด',
+        'ลองจิจูด',
+        'ลิงก์แผนที่',
+        'วันที่แจ้ง'
+      ];
+
+      // =========================
+      // style หัวตาราง
+      // =========================
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.alignment = {
+          horizontal: 'center',
+          vertical: 'middle',
+          wrapText: true
+        };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '155263' }
+        };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'CCCCCC' } },
+          left: { style: 'thin', color: { argb: 'CCCCCC' } },
+          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+          right: { style: 'thin', color: { argb: 'CCCCCC' } }
+        };
+      });
+
+      headerRow.height = 24;
+
+      const now = new Date();
+
+      // =========================
+      // ใส่ข้อมูล
+      // =========================
+      results.forEach((row, index) => {
+        let pendingDays = '';
+        let mapLink = '';
+
+        if (row.created_at) {
+          const createdAt = new Date(row.created_at);
+          const diffMs = now - createdAt;
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          pendingDays = `${diffDays} วัน`;
+        }
+
+        if (row.latitude && row.longitude) {
+          mapLink = `https://maps.google.com/?q=${row.latitude},${row.longitude}`;
+        }
+
+        const excelRow = worksheet.addRow({
+          no: index + 1,
           id: row.id || '',
           name: row.name || '',
           phone: row.phone || '',
           message: row.message || '',
           department: row.department || '',
           status: row.status || '',
+          pending_days: pendingDays,
           latitude: row.latitude || '',
           longitude: row.longitude || '',
+          map_link: mapLink,
           created_at: row.created_at
-            ? new Date(row.created_at).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+            ? new Date(row.created_at).toLocaleString('th-TH', {
+                timeZone: 'Asia/Bangkok'
+              })
             : ''
         });
-      });
 
-      // จัดข้อความในคอลัมน์
-      worksheet.eachRow((row, rowNumber) => {
-        row.eachCell((cell) => {
+        excelRow.eachCell((cell) => {
           cell.alignment = {
             vertical: 'middle',
-            horizontal: rowNumber === 1 ? 'center' : 'left',
+            horizontal: 'left',
             wrapText: true
           };
           cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
+            top: { style: 'thin', color: { argb: 'DDDDDD' } },
+            left: { style: 'thin', color: { argb: 'DDDDDD' } },
+            bottom: { style: 'thin', color: { argb: 'DDDDDD' } },
+            right: { style: 'thin', color: { argb: 'DDDDDD' } }
           };
         });
+
+        // จัดกลางบางคอลัมน์
+        excelRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(6).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(7).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(8).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(9).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(10).alignment = { horizontal: 'center', vertical: 'middle' };
+        excelRow.getCell(12).alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // ทำคอลัมน์ลิงก์แผนที่ให้กดได้
+        if (mapLink) {
+          excelRow.getCell(11).value = {
+            text: 'เปิดแผนที่',
+            hyperlink: mapLink
+          };
+          excelRow.getCell(11).font = {
+            color: { argb: '0000FF' },
+            underline: true
+          };
+          excelRow.getCell(11).alignment = {
+            horizontal: 'center',
+            vertical: 'middle'
+          };
+        }
       });
 
-      const fileName = `health-requests-${Date.now()}.xlsx`;
+      // =========================
+      // Freeze หัวตาราง
+      // =========================
+      worksheet.views = [
+        { state: 'frozen', ySplit: 4 }
+      ];
+
+      // =========================
+      // ตั้งชื่อไฟล์
+      // =========================
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+
+      const fileName = `รายงานคำร้อง-สาธารณสุข-${yyyy}-${mm}-${dd}.xlsx`;
 
       res.setHeader(
         'Content-Type',
@@ -2594,7 +2729,7 @@ app.get('/export-health-excel', async (req, res) => {
       );
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="${fileName}"`
+        `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`
       );
 
       await workbook.xlsx.write(res);
@@ -2605,7 +2740,6 @@ app.get('/export-health-excel', async (req, res) => {
     res.status(500).send('เกิดข้อผิดพลาดในการสร้างไฟล์ Excel');
   }
 });
-
 
 app.get('/completed', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'completed.html'));
