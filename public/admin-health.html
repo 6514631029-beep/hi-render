@@ -878,6 +878,13 @@
     .side-export-btn:active{
       transform:translateY(0);
     }
+  
+    .export-group{
+      margin-top:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
   </style>
 </head>
 
@@ -950,9 +957,12 @@
           <span class="count" id="count-completed">0</span>
         </button>
       
-        <button class="side-export-btn" onclick="exportHealthExcel()">
-          📥 ดาวน์โหลด Excel
-        </button>
+        <div class="export-group">
+          <button class="side-export-btn" onclick="exportHealthExcelAll()">📥 ดาวน์โหลดExcel ทั้งหมด</button>
+          <button class="side-export-btn" onclick="exportHealthExcelPending()">📥 ดาวน์โหลดExcel รอดำเนินการ</button>
+          <button class="side-export-btn" onclick="exportHealthExcelInprogress()">📥 ดาวน์โหลดExcel กำลังดำเนินการ</button>
+          <button class="side-export-btn" onclick="exportHealthExcelCompleted()">📥 ดาวน์โหลดExcel เสร็จสิ้น</button>
+        </div>
       
       </div>
     </aside>
@@ -2449,9 +2459,22 @@
       }
     });
   
-    function exportHealthExcel() {
-      window.open('/export-health-excel', '_blank');
+    function exportHealthExcelAll() {
+      window.open('/export-health-excel-all', '_blank');
     }
+
+    function exportHealthExcelPending() {
+      window.open('/export-health-excel-pending', '_blank');
+    }
+
+    function exportHealthExcelInprogress() {
+      window.open('/export-health-excel-inprogress', '_blank');
+    }
+
+    function exportHealthExcelCompleted() {
+      window.open('/export-health-excel-completed', '_blank');
+    }
+    
   </script>
 
 </body>
