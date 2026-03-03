@@ -74,11 +74,11 @@
       width: var(--sidebarW);
       background: linear-gradient(180deg, #0b2a4a 0%, #071e35 100%);
       border-right: 1px solid rgba(255,255,255,.10);
-      position:sticky;
-      top:0;
-      height:100vh;
-      overflow:auto;
-      padding: 14px 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 12px 10px;
       box-shadow: 6px 0 22px rgba(2,6,23,.06);
     }
 
@@ -109,8 +109,8 @@
     .menu{
       display:flex;
       flex-direction:column;
-      gap:10px;
-      padding: 10px 6px;
+      gap:8px;
+      padding: 8px 4px;
     }
     .menu-title{
       font-size:13px;
@@ -126,9 +126,9 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 14px;
+      gap:8px;
+      padding: 9px 10px;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.06);
       color:#fff;
@@ -136,7 +136,7 @@
       cursor:pointer;
       transition: .15s transform, .15s background, .15s border;
       text-align:left;
-      font-size:16px;
+      font-size:15px;
     }
     .side-link:hover{
       background: rgba(255,255,255,.10);
@@ -880,11 +880,12 @@
     }
   
     .export-group{
-      margin-top:14px;
+      margin-top:12px;
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:8px;
     }
+
   </style>
 </head>
 
@@ -910,30 +911,6 @@
           <span class="label">📋 งานของแผนก</span>
           <span class="count" id="count-work-left">-</span>
         </button>
-
-        <div class="divider"></div>
-
-        <div class="menu-title">สรุปสถานะ</div>
-        <div class="side-kpis">
-          <div class="side-kpi">
-            <div class="t">Inbox</div>
-            <div class="v info" id="kpi-inbox-side">0</div>
-          </div>
-          <div class="side-kpi">
-            <div class="t">Pending</div>
-            <div class="v warn" id="kpi-pending-side">0</div>
-          </div>
-          <div class="side-kpi">
-            <div class="t">InProgress</div>
-            <div class="v gold" id="kpi-inprogress-side">0</div>
-          </div>
-          <div class="side-kpi">
-            <div class="t">Completed</div>
-            <div class="v ok" id="kpi-completed-side">0</div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
 
         <div class="menu-title">เมนูสถานะ</div>
 
