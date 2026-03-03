@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เลือกแผนก - เสร็จสิ้น</title>
+
+  <link rel="stylesheet" href="/admin-font.css" />
+
+  <style>
+    :root{
+      --bg:#eef3fb;
+      --card:#ffffff;
+      --navy:#0b2a4a;
+      --navy2:#133a63;
+      --gold:#c9a227;
+      --line:#dbe4f0;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --shadow:0 14px 35px rgba(2,6,23,.08);
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:'Kanit',sans-serif;
+      background:
+        radial-gradient(1000px 400px at 50% -20%, rgba(201,162,39,.16), transparent 60%),
+        radial-gradient(700px 300px at 0% 0%, rgba(11,42,74,.10), transparent 55%),
+        var(--bg);
+      color:var(--ink);
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:30px 16px 40px;
+    }
+
+    .topbar{
+      background:linear-gradient(135deg,var(--navy),var(--navy2));
+      color:#fff;
+      border-radius:22px;
+      padding:22px 22px;
+      box-shadow:var(--shadow);
+      margin-bottom:20px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.28), transparent 62%);
+      pointer-events:none;
+    }
+
+    .topbar h1{
+      position:relative;
+      z-index:1;
+      margin:0;
+      font-size:28px;
+      font-weight:900;
+    }
+
+    .topbar p{
+      position:relative;
+      z-index:1;
+      margin:8px 0 0;
+      opacity:.92;
+      font-size:15px;
+      font-weight:500;
+    }
+
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .back-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:#fff;
+      color:var(--navy);
+      border:1px solid var(--line);
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:800;
+      box-shadow:0 4px 10px rgba(0,0,0,.04);
+    }
+
+    .section-title{
+      font-size:20px;
+      font-weight:900;
+      color:#0f172a;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:16px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-height:200px;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 36px rgba(2,6,23,.10);
+    }
+
+    .icon{
+      width:60px;
+      height:60px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:30px;
+      box-shadow:0 10px 20px rgba(0,0,0,.08);
+    }
+
+    .card.health .icon{
+      background:linear-gradient(135deg,#fef3c7,#fde68a);
+    }
+
+    .card.electric .icon{
+      background:linear-gradient(135deg,#dbeafe,#93c5fd);
+    }
+
+    .card.engineer .icon{
+      background:linear-gradient(135deg,#dcfce7,#86efac);
+    }
+
+    .card h3{
+      margin:0;
+      font-size:22px;
+      font-weight:900;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.55;
+      flex:1;
+    }
+
+    .meta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid transparent;
+    }
+
+    .badge.readonly{
+      background:#eff6ff;
+      color:#1d4ed8;
+      border-color:#bfdbfe;
+    }
+
+    .badge.completed{
+      background:#ecfdf5;
+      color:#15803d;
+      border-color:#86efac;
+    }
+
+    .go-btn{
+      display:inline-block;
+      text-align:center;
+      text-decoration:none;
+      background:linear-gradient(135deg,#0b2a4a,#133a63);
+      color:#fff;
+      padding:12px 14px;
+      border-radius:12px;
+      font-weight:900;
+      transition:.15s ease;
+    }
+
+    .go-btn:hover{
+      transform:translateY(-1px);
+      opacity:.97;
+    }
+
+    @media (max-width:640px){
+      .topbar h1{ font-size:22px; }
+      .card h3{ font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>✅ เลือกแผนกที่ต้องการดู</h1>
+      <p>รายการคำร้องสถานะ “เสร็จสิ้น” สำหรับแอดมินหลักแบบดูอย่างเดียว</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="section-title">เลือกแผนก</div>
+      <a href="/admin.html" class="back-btn">⬅ กลับหน้า Admin</a>
+    </div>
+
+    <div class="grid">
+      <div class="card health">
+        <div class="icon">🏥</div>
+        <h3>สาธารณสุข</h3>
+        <p>ดูรายการคำร้องเสร็จสิ้นของแผนกสาธารณสุขในโหมดอ่านอย่างเดียวสำหรับแอดมินหลัก</p>
+        <div class="meta">
+          <span class="badge readonly">ดูอย่างเดียว</span>
+          <span class="badge completed">เสร็จสิ้น</span>
+        </div>
+        <a class="go-btn" href="/admin-view-completed-health.html">ดูรายการ</a>
+      </div>
+
+      <div class="card electric">
+        <div class="icon">⚡</div>
+        <h3>ไฟฟ้า</h3>
+        <p>ดูรายการคำร้องเสร็จสิ้นของแผนกไฟฟ้าในโหมดอ่านอย่างเดียวสำหรับแอดมินหลัก</p>
+        <div class="meta">
+          <span class="badge readonly">ดูอย่างเดียว</span>
+          <span class="badge completed">เสร็จสิ้น</span>
+        </div>
+        <a class="go-btn" href="/admin-view-completed-electric.html">ดูรายการ</a>
+      </div>
+
+      <div class="card engineer">
+        <div class="icon">🛠️</div>
+        <h3>กองช่าง</h3>
+        <p>ดูรายการคำร้องเสร็จสิ้นของแผนกกองช่างในโหมดอ่านอย่างเดียวสำหรับแอดมินหลัก</p>
+        <div class="meta">
+          <span class="badge readonly">ดูอย่างเดียว</span>
+          <span class="badge completed">เสร็จสิ้น</span>
+        </div>
+        <a class="go-btn" href="/admin-view-completed-engineer.html">ดูรายการ</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

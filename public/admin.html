@@ -340,7 +340,33 @@
       color:#64748b;
       line-height:1.5;
     }
-  
+
+    .admin-shortcut-card.pending{
+      background:#fff7ed;
+      border-color:#fdba74;
+    }
+
+    .admin-shortcut-card.pending .admin-shortcut-icon{
+      background:#ffedd5;
+    }
+
+    .admin-shortcut-card.progress{
+      background:#eff6ff;
+      border-color:#93c5fd;
+    }
+
+    .admin-shortcut-card.progress .admin-shortcut-icon{
+      background:#dbeafe;
+    }
+
+    .admin-shortcut-card.completed{
+      background:#ecfdf5;
+      border-color:#86efac;
+    }
+
+    .admin-shortcut-card.completed .admin-shortcut-icon{
+      background:#dcfce7;
+    }
   
   </style>
 </head>
@@ -455,12 +481,32 @@
 <div id="new-banner" class="new-banner"></div>
 
 <div class="admin-shortcuts">
-  <a href="/choose-pending-admin.html" class="admin-shortcut-card">
+  <a href="/choose-pending-admin.html" class="admin-shortcut-card pending">
     <div class="admin-shortcut-icon">⏳</div>
     <div class="admin-shortcut-text">
       <div class="admin-shortcut-title">ดูรอดำเนินการ</div>
       <div class="admin-shortcut-desc">
         สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการรอดำเนินการแบบอ่านอย่างเดียว
+      </div>
+    </div>
+  </a>
+
+  <a href="/choose-inprogress-admin.html" class="admin-shortcut-card progress">
+    <div class="admin-shortcut-icon">⚙️</div>
+    <div class="admin-shortcut-text">
+      <div class="admin-shortcut-title">ดูกำลังดำเนินการ</div>
+      <div class="admin-shortcut-desc">
+        สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการกำลังดำเนินการแบบอ่านอย่างเดียว
+      </div>
+    </div>
+  </a>
+
+  <a href="/choose-completed-admin.html" class="admin-shortcut-card completed">
+    <div class="admin-shortcut-icon">✅</div>
+    <div class="admin-shortcut-text">
+      <div class="admin-shortcut-title">ดูเสร็จสิ้น</div>
+      <div class="admin-shortcut-desc">
+        สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการเสร็จสิ้นแบบอ่านอย่างเดียว
       </div>
     </div>
   </a>
