@@ -250,9 +250,37 @@ async function pushLineMessage(to, text) {
 
   if (!res.ok) console.error('LINE push failed:', await res.text());
 }
-async function linkRichMenuToUser(lineUserId, richMenuId) {
+async function unlinkRichMenuFromUser(lineUserId) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
+  if (!token || !lineUserId) {
+    console.log('[LINE richmenu unlink skip]', { lineUserId, hasToken: !!token });
+    return false;
+  }
+
+  const res = await fetch(
+    `https://api.line.me/v2/bot/user/${encodeURIComponent(lineUserId)}/richmenu`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('LINE richmenu unlink failed:', text);
+    return false;
+  }
+
+  console.log('[LINE richmenu unlink success]', { lineUserId });
+  return true;
+}
+async function linkRichMenuToUser(lineUserId, richMenuId) {
+
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  await unlinkRichMenuFromUser(lineUserId);
   if (!token || !lineUserId || !richMenuId) {
     console.log('[LINE richmenu skip]', {
       lineUserId,
