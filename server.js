@@ -3044,28 +3044,28 @@ app.get('/export-health-excel-all', async (req, res) => {
 
 // Excel รอดำเนินการ
 app.get('/export-health-excel-pending', async (req, res) => {
-  exportHealthExcelFile(
+  exportHealthBucketExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-รอดำเนินการ',
-    ` AND status IN ('รอดำเนินการ', 'รอแผนกรับเรื่อง', 'ใหม่')`
+    'pending'
   );
 });
 
 // Excel กำลังดำเนินการ
 app.get('/export-health-excel-inprogress', async (req, res) => {
-  exportHealthExcelFile(
+  exportHealthBucketExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-กำลังดำเนินการ',
-    ` AND status = 'กำลังดำเนินการ'`
+    'inprogress'
   );
 });
 
 // Excel เสร็จสิ้น
 app.get('/export-health-excel-completed', async (req, res) => {
-  exportHealthExcelFile(
+  exportHealthBucketExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-เสร็จสิ้น',
-    ` AND status = 'เสร็จสิ้น'`
+    'completed'
   );
 });
 
