@@ -4,16 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>เลือกแผนก - รอดำเนินการ</title>
+
+  <link rel="stylesheet" href="/admin-font.css" />
+
   <style>
     :root{
-      --bg:#f1f5f9;
+      --bg:#eef3fb;
       --card:#ffffff;
-      --line:#e2e8f0;
+      --navy:#0b2a4a;
+      --navy2:#133a63;
+      --gold:#c9a227;
+      --line:#dbe4f0;
       --ink:#0f172a;
       --muted:#64748b;
-      --green:#15563b;
-      --green2:#1e6e50;
-      --shadow:0 8px 24px rgba(0,0,0,0.06);
+      --shadow:0 14px 35px rgba(2,6,23,.08);
       --radius:18px;
     }
 
@@ -22,33 +26,53 @@
     body{
       margin:0;
       font-family:'Kanit',sans-serif;
-      background:var(--bg);
+      background:
+        radial-gradient(1000px 400px at 50% -20%, rgba(201,162,39,.16), transparent 60%),
+        radial-gradient(700px 300px at 0% 0%, rgba(11,42,74,.10), transparent 55%),
+        var(--bg);
       color:var(--ink);
     }
 
     .wrap{
       max-width:1100px;
       margin:0 auto;
-      padding:24px 16px 40px;
+      padding:30px 16px 40px;
     }
 
-    .header{
-      background:linear-gradient(135deg,var(--green),var(--green2));
+    .topbar{
+      background:linear-gradient(135deg,var(--navy),var(--navy2));
       color:#fff;
-      border-radius:20px;
-      padding:22px;
+      border-radius:22px;
+      padding:22px 22px;
       box-shadow:var(--shadow);
       margin-bottom:20px;
+      position:relative;
+      overflow:hidden;
     }
 
-    .header h1{
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.28), transparent 62%);
+      pointer-events:none;
+    }
+
+    .topbar h1{
+      position:relative;
+      z-index:1;
       margin:0;
       font-size:28px;
+      font-weight:900;
     }
 
-    .header p{
+    .topbar p{
+      position:relative;
+      z-index:1;
       margin:8px 0 0;
-      opacity:.95;
+      opacity:.92;
+      font-size:15px;
+      font-weight:500;
     }
 
     .toolbar{
@@ -57,28 +81,30 @@
       align-items:center;
       gap:10px;
       flex-wrap:wrap;
-      margin-bottom:16px;
+      margin-bottom:18px;
     }
 
     .back-btn{
       display:inline-block;
       text-decoration:none;
       background:#fff;
-      color:var(--green);
+      color:var(--navy);
       border:1px solid var(--line);
       padding:10px 14px;
       border-radius:12px;
-      font-weight:700;
+      font-weight:800;
+      box-shadow:0 4px 10px rgba(0,0,0,.04);
     }
 
-    .title{
+    .section-title{
       font-size:20px;
-      font-weight:800;
+      font-weight:900;
+      color:#0f172a;
     }
 
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
       gap:16px;
     }
 
@@ -88,74 +114,150 @@
       border-radius:var(--radius);
       padding:20px;
       box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-height:200px;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 36px rgba(2,6,23,.10);
     }
 
     .icon{
-      width:58px;
-      height:58px;
-      border-radius:16px;
+      width:60px;
+      height:60px;
+      border-radius:18px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:28px;
-      background:#dcfce7;
-      margin-bottom:12px;
+      font-size:30px;
+      box-shadow:0 10px 20px rgba(0,0,0,.08);
+    }
+
+    .card.health .icon{
+      background:linear-gradient(135deg,#fef3c7,#fde68a);
+    }
+
+    .card.electric .icon{
+      background:linear-gradient(135deg,#dbeafe,#93c5fd);
+    }
+
+    .card.engineer .icon{
+      background:linear-gradient(135deg,#dcfce7,#86efac);
     }
 
     .card h3{
-      margin:0 0 8px;
+      margin:0;
       font-size:22px;
+      font-weight:900;
     }
 
     .card p{
-      margin:0 0 16px;
+      margin:0;
       color:var(--muted);
-      line-height:1.5;
+      font-size:15px;
+      line-height:1.55;
+      flex:1;
+    }
+
+    .meta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid transparent;
+    }
+
+    .badge.readonly{
+      background:#eff6ff;
+      color:#1d4ed8;
+      border-color:#bfdbfe;
+    }
+
+    .badge.pending{
+      background:#fff7ed;
+      color:#9a3412;
+      border-color:#fdba74;
     }
 
     .go-btn{
       display:inline-block;
+      text-align:center;
       text-decoration:none;
-      background:var(--green);
+      background:linear-gradient(135deg,#0b2a4a,#133a63);
       color:#fff;
-      padding:10px 14px;
+      padding:12px 14px;
       border-radius:12px;
-      font-weight:700;
+      font-weight:900;
+      transition:.15s ease;
+    }
+
+    .go-btn:hover{
+      transform:translateY(-1px);
+      opacity:.97;
+    }
+
+    @media (max-width:640px){
+      .topbar h1{ font-size:22px; }
+      .card h3{ font-size:20px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="header">
-      <h1>⏳ ดูรายการรอดำเนินการ</h1>
-      <p>เลือกแผนกที่ต้องการดูแบบอ่านอย่างเดียวสำหรับแอดมิน</p>
+    <div class="topbar">
+      <h1>⏳ เลือกแผนกที่ต้องการดู</h1>
+      <p>รายการคำร้องสถานะ “รอดำเนินการ” สำหรับแอดมินหลักแบบดูอย่างเดียว</p>
     </div>
 
     <div class="toolbar">
-      <div class="title">เลือกแผนก</div>
+      <div class="section-title">เลือกแผนก</div>
       <a href="/admin.html" class="back-btn">⬅ กลับหน้า Admin</a>
     </div>
 
     <div class="grid">
-      <div class="card">
+      <div class="card health">
         <div class="icon">🏥</div>
         <h3>สาธารณสุข</h3>
-        <p>ดูรายการรอดำเนินการของแผนกสาธารณสุขแบบอ่านอย่างเดียว</p>
-        <a href="/admin-view-pending-health.html" class="go-btn">ดูรายการ</a>
+        <p>ดูรายการคำร้องรอดำเนินการของแผนกสาธารณสุขในโหมดอ่านอย่างเดียวสำหรับแอดมินหลัก</p>
+        <div class="meta">
+          <span class="badge readonly">ดูอย่างเดียว</span>
+          <span class="badge pending">รอดำเนินการ</span>
+        </div>
+        <a class="go-btn" href="/admin-view-pending-health.html">ดูรายการ</a>
       </div>
 
-      <div class="card">
+      <div class="card electric">
         <div class="icon">⚡</div>
         <h3>ไฟฟ้า</h3>
-        <p>ยังทำต่อในขั้นถัดไป</p>
-        <a href="#" class="go-btn" onclick="alert('เดี๋ยวเราทำหน้าของไฟฟ้าต่อในขั้นถัดไป'); return false;">ดูรายการ</a>
+        <p>ดูรายการคำร้องรอดำเนินการของแผนกไฟฟ้าในโหมดอ่านอย่างเดียวสำหรับแอดมินหลัก</p>
+        <div class="meta">
+          <span class="badge readonly">ดูอย่างเดียว</span>
+          <span class="badge pending">รอดำเนินการ</span>
+        </div>
+        <a class="go-btn" href="/admin-view-pending-electric.html">ดูรายการ</a>
       </div>
 
-      <div class="card">
+      <div class="card engineer">
         <div class="icon">🛠️</div>
         <h3>กองช่าง</h3>
-        <p>ยังทำต่อในขั้นถัดไป</p>
-        <a href="#" class="go-btn" onclick="alert('เดี๋ยวเราทำหน้าของกองช่างต่อในขั้นถัดไป'); return false;">ดูรายการ</a>
+        <p>ดูรายการคำร้องรอดำเนินการของแผนกกองช่างในโหมดอ่านอย่างเดียวสำหรับแอดมินหลัก</p>
+        <div class="meta">
+          <span class="badge readonly">ดูอย่างเดียว</span>
+          <span class="badge pending">รอดำเนินการ</span>
+        </div>
+        <a class="go-btn" href="/admin-view-pending-engineer.html">ดูรายการ</a>
       </div>
     </div>
   </div>
