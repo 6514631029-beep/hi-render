@@ -286,6 +286,62 @@
     .shortcut-card.completed .shortcut-icon{
       background:#dcfce7;
     }
+  
+    .admin-shortcuts{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;
+      margin:0 0 18px 0;
+    }
+
+    .admin-shortcut-card{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      text-decoration:none;
+      background:#fff7ed;
+      border:1px solid #fdba74;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .admin-shortcut-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .admin-shortcut-icon{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      background:#ffedd5;
+      flex:0 0 auto;
+    }
+
+    .admin-shortcut-text{
+      flex:1;
+    }
+
+    .admin-shortcut-title{
+      font-size:20px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+
+    .admin-shortcut-desc{
+      font-size:14px;
+      color:#64748b;
+      line-height:1.5;
+    }
+  
+  
   </style>
 </head>
 <body>
@@ -398,28 +454,14 @@
   </div>
 <div id="new-banner" class="new-banner"></div>
 
-<div class="status-shortcuts">
-  <a href="/choose-pending.html" class="shortcut-card pending">
-    <div class="shortcut-icon">⏳</div>
-    <div class="shortcut-text">
-      <div class="shortcut-title">รอดำเนินการ</div>
-      <div class="shortcut-desc">เลือกแผนกเพื่อดูรายการคำร้องที่อยู่ในสถานะรอดำเนินการ</div>
-    </div>
-  </a>
-
-  <a href="/choose-inprogress.html" class="shortcut-card progress">
-    <div class="shortcut-icon">⚙️</div>
-    <div class="shortcut-text">
-      <div class="shortcut-title">กำลังดำเนินการ</div>
-      <div class="shortcut-desc">เลือกแผนกเพื่อดูรายการคำร้องที่กำลังดำเนินงาน</div>
-    </div>
-  </a>
-
-  <a href="/choose-completed.html" class="shortcut-card completed">
-    <div class="shortcut-icon">✅</div>
-    <div class="shortcut-text">
-      <div class="shortcut-title">เสร็จสิ้น</div>
-      <div class="shortcut-desc">เลือกแผนกเพื่อดูรายการคำร้องที่ดำเนินการเสร็จแล้ว</div>
+<div class="admin-shortcuts">
+  <a href="/choose-pending-admin.html" class="admin-shortcut-card">
+    <div class="admin-shortcut-icon">⏳</div>
+    <div class="admin-shortcut-text">
+      <div class="admin-shortcut-title">ดูรอดำเนินการ</div>
+      <div class="admin-shortcut-desc">
+        สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการรอดำเนินการแบบอ่านอย่างเดียว
+      </div>
     </div>
   </a>
 </div>
