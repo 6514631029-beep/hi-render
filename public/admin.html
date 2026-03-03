@@ -206,6 +206,86 @@
       margin-top: 4px;
       line-height: 1.3;
     }
+  
+    .status-shortcuts{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:16px;
+      margin:0 0 18px 0;
+    }
+
+    .shortcut-card{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      text-decoration:none;
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .shortcut-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .shortcut-icon{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      flex:0 0 auto;
+    }
+
+    .shortcut-text{
+      flex:1;
+    }
+
+    .shortcut-title{
+      font-size:20px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+
+    .shortcut-desc{
+      font-size:14px;
+      color:#64748b;
+      line-height:1.5;
+    }
+
+    .shortcut-card.pending{
+      background:#fff7ed;
+      border-color:#fdba74;
+    }
+
+    .shortcut-card.pending .shortcut-icon{
+      background:#ffedd5;
+    }
+
+    .shortcut-card.progress{
+      background:#eff6ff;
+      border-color:#93c5fd;
+    }
+
+    .shortcut-card.progress .shortcut-icon{
+      background:#dbeafe;
+    }
+
+    .shortcut-card.completed{
+      background:#ecfdf5;
+      border-color:#86efac;
+    }
+
+    .shortcut-card.completed .shortcut-icon{
+      background:#dcfce7;
+    }
   </style>
 </head>
 <body>
@@ -316,10 +396,35 @@
       </label>
     </div>
   </div>
+<div id="new-banner" class="new-banner"></div>
 
-  <div id="new-banner" class="new-banner"></div>
+<div class="status-shortcuts">
+  <a href="/choose-pending.html" class="shortcut-card pending">
+    <div class="shortcut-icon">⏳</div>
+    <div class="shortcut-text">
+      <div class="shortcut-title">รอดำเนินการ</div>
+      <div class="shortcut-desc">เลือกแผนกเพื่อดูรายการคำร้องที่อยู่ในสถานะรอดำเนินการ</div>
+    </div>
+  </a>
 
-  <div class="table-wrapper">
+  <a href="/choose-inprogress.html" class="shortcut-card progress">
+    <div class="shortcut-icon">⚙️</div>
+    <div class="shortcut-text">
+      <div class="shortcut-title">กำลังดำเนินการ</div>
+      <div class="shortcut-desc">เลือกแผนกเพื่อดูรายการคำร้องที่กำลังดำเนินงาน</div>
+    </div>
+  </a>
+
+  <a href="/choose-completed.html" class="shortcut-card completed">
+    <div class="shortcut-icon">✅</div>
+    <div class="shortcut-text">
+      <div class="shortcut-title">เสร็จสิ้น</div>
+      <div class="shortcut-desc">เลือกแผนกเพื่อดูรายการคำร้องที่ดำเนินการเสร็จแล้ว</div>
+    </div>
+  </a>
+</div>
+
+<div class="table-wrapper">
     <table id="data-table">
       <thead>
         <tr>
