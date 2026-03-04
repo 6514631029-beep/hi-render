@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>📋 ระบบจัดการคำร้อง (Admin)</title>
+  <title>🏛️ Dashboard - แอดมินหลัก</title>
 
-  <!-- ฟอนต์ (ใช้ไฟล์เดียวกับหน้า admin-health) -->
   <link rel="stylesheet" href="/admin-font.css" />
 
   <style>
@@ -31,14 +30,10 @@
       --shadow2: 0 8px 24px rgba(2,6,23,.06);
 
       --sidebarW: 220px;
-
-      /* main admin accent */
-      --accent: #15563b;
-      --accent-2:#1e6e50;
     }
 
-    html{ font-size: 20px; }
-    body{ font-size: 18px; line-height: 1.5; }
+    html{ font-size:20px; }
+    body{ font-size:18px; line-height:1.5; }
     *{ box-sizing:border-box; }
 
     body{
@@ -46,18 +41,15 @@
       color:var(--ink);
       background:
         radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
-        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.12), transparent 55%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
         var(--bg);
-      -webkit-text-size-adjust: 100%;
-      font-family: "Kanit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-text-size-adjust:100%;
     }
 
-    a{ color:inherit; }
-
-    /* =============== LAYOUT =============== */
     .app{
       display:flex;
       min-height:100vh;
+      gap:0;
     }
 
     .sidebar{
@@ -71,29 +63,30 @@
       overflow-x: hidden;
       padding: 12px 10px;
       box-shadow: 6px 0 22px rgba(2,6,23,.06);
-      z-index: 20;
-    }
-    .sidebar{
       scrollbar-width: thin;
       scrollbar-color: rgba(255,255,255,.25) transparent;
     }
-    .sidebar::-webkit-scrollbar{ width: 8px; }
-    .sidebar::-webkit-scrollbar-track{ background: transparent; }
+
+    .sidebar::-webkit-scrollbar{ width:8px; }
+    .sidebar::-webkit-scrollbar-track{ background:transparent; }
     .sidebar::-webkit-scrollbar-thumb{
       background: rgba(255,255,255,.22);
-      border-radius: 999px;
+      border-radius:999px;
     }
-    .sidebar::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.34); }
+    .sidebar::-webkit-scrollbar-thumb:hover{
+      background: rgba(255,255,255,.34);
+    }
 
     .brand{
       display:flex;
       align-items:center;
       gap:10px;
-      padding: 10px 10px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.12);
-      margin-bottom: 10px;
+      padding:10px 10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      margin-bottom:10px;
       color:#fff;
     }
+
     .brand .logo{
       width:38px;height:38px;border-radius:12px;
       background: linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.9));
@@ -101,26 +94,22 @@
       color:#1f2937;
       font-weight:1000;
       flex:0 0 auto;
-      box-shadow: 0 12px 22px rgba(201,162,39,.25);
+      box-shadow:0 12px 22px rgba(201,162,39,.25);
     }
+
     .brand .title{
       font-weight:1000;
-      line-height:1.15;
+      line-height:1.1;
       font-size:15px;
-    }
-    .brand .sub{
-      font-size:12px;
-      opacity:.82;
-      font-weight:800;
-      margin-top:2px;
     }
 
     .menu{
       display:flex;
       flex-direction:column;
       gap:8px;
-      padding: 8px 4px;
+      padding:8px 4px;
     }
+
     .menu-title{
       font-size:13px;
       color: rgba(255,255,255,.72);
@@ -137,22 +126,24 @@
       justify-content:space-between;
       gap:8px;
       padding: 9px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.06);
       color:#fff;
       font-weight:900;
       cursor:pointer;
-      transition: .15s transform, .15s background, .15s border;
+      transition:.15s transform, .15s background, .15s border;
       text-align:left;
       font-size:15px;
       text-decoration:none;
     }
+
     .side-link:hover{
       background: rgba(255,255,255,.10);
       border-color: rgba(255,255,255,.18);
     }
-    .side-link:active{ transform: translateY(1px); }
+
+    .side-link:active{ transform:translateY(1px); }
 
     .side-link .label{
       display:flex;
@@ -161,16 +152,37 @@
       white-space:nowrap;
     }
 
-    .pill{
-      min-width: 34px;
+    .count{
+      min-width:34px;
       text-align:center;
-      padding: 4px 10px;
-      border-radius: 999px;
+      padding:4px 10px;
+      border-radius:999px;
       background: rgba(201,162,39,.18);
-      border: 1px solid rgba(201,162,39,.35);
-      color: var(--gold);
+      border:1px solid rgba(201,162,39,.35);
+      color:var(--gold);
       font-weight:1000;
       font-size:14px;
+    }
+
+    .view-link{
+      position:relative;
+    }
+
+    .view-link.active{
+      background: rgba(201,162,39,.16);
+      border-color: rgba(201,162,39,.38);
+    }
+
+    .view-link.active::before{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:10px;
+      bottom:10px;
+      width:4px;
+      border-radius:999px;
+      background: rgba(201,162,39,.95);
+      box-shadow: 0 0 0 4px rgba(201,162,39,.12);
     }
 
     .divider{
@@ -179,316 +191,351 @@
       margin: 10px 6px;
     }
 
+    .export-group{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .side-green-btn{
+      width:100%;
+      margin-top:0;
+      padding:14px 14px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#14532d,#16a34a);
+      color:#fff;
+      font-size:17px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(22,163,74,.22);
+      transition:transform .15s ease, opacity .2s ease, box-shadow .2s ease;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .side-green-btn:hover{
+      opacity:.96;
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(22,163,74,.28);
+    }
+
     .main{
       flex:1;
       min-width:0;
-      padding: 14px 16px 22px;
+      display:flex;
+      flex-direction:column;
     }
 
-    /* =============== TOPBAR =============== */
     .topbar{
-      position: sticky;
-      top: 0;
-      z-index: 15;
-      background: rgba(238,243,251,.85);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(226,232,240,.9);
-      border-radius: 18px;
-      box-shadow: var(--shadow2);
-      padding: 12px 14px;
+      position:sticky;
+      top:0;
+      z-index:60;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #0a2340 100%);
+      color:#fff;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+      overflow:hidden;
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.32), transparent 62%);
+      pointer-events:none;
+    }
+
+    .topbar-row{
+      position:relative;
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      gap:10px;
+      align-items:center;
+      gap:12px;
       flex-wrap:wrap;
     }
 
-    .top-left{
+    .topbar-left{
       display:flex;
       align-items:center;
-      gap:10px;
-      min-width: 260px;
+      gap:12px;
+      min-width:260px;
     }
 
-    .hamburger{
-      display:none;
-      width:42px;height:42px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: #fff;
-      box-shadow: 0 6px 18px rgba(2,6,23,.06);
-      cursor:pointer;
-      font-weight:900;
-    }
-
-    .page-title{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .page-title h1{
+    .topbar-left h1{
       margin:0;
       font-size:20px;
       font-weight:1000;
-      letter-spacing:.2px;
+      white-space:nowrap;
     }
-    .page-title .hint{
-      margin:0;
-      font-size:13px;
-      color: var(--muted);
+
+    .topbar-left .sub{
+      margin-top:2px;
+      font-size:14px;
+      opacity:.82;
       font-weight:800;
+      white-space:nowrap;
     }
 
-    .top-right{
+    .topbar-actions{
       display:flex;
       align-items:center;
-      justify-content:flex-end;
-      gap:10px;
+      gap:8px;
       flex-wrap:wrap;
+      position:relative;
+      z-index:2;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:13px;
-      border: 1px solid var(--line);
-      background:#fff;
-      color: #0f172a;
-      white-space:nowrap;
-    }
-
-    .btn{
-      border:none;
-      cursor:pointer;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-weight: 1000;
-      font-size: 15px;
-      line-height: 1;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      transition: transform .12s ease, box-shadow .12s ease, background .12s ease, opacity .12s ease;
-      box-shadow: 0 10px 18px rgba(2,6,23,.06);
-      font-family: inherit;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
-
-    .btn.ghost{
-      background:#fff;
-      border: 1px solid var(--line);
-      box-shadow: none;
-    }
-
-    .btn.primary{
-      background: var(--accent);
+    .top-pill{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
       color:#fff;
-    }
-    .btn.primary:hover{ background: var(--accent-2); }
-
-    .btn.info{
-      background: #1d4ed8;
-      color:#fff;
-    }
-    .btn.info:hover{ background:#1e40af; }
-
-    .btn.soft{
-      background:#e2e8f0;
-      color:#0f172a;
-      box-shadow:none;
-      border:1px solid #cbd5e1;
-    }
-
-    .btn.refresh{
-      background:#fff;
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-
-    .toggle{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding: 8px 10px;
       font-weight:900;
-      font-size:13px;
-      color:#0f172a;
-      white-space:nowrap;
+      font-size:14px;
+      backdrop-filter: blur(6px);
     }
-    .toggle input{ width:18px; height:18px; }
 
-    /* =============== CONTENT =============== */
     .content{
-      margin-top: 14px;
-      display:flex;
-      flex-direction:column;
-      gap: 14px;
+      padding: 16px 18px 26px;
+      max-width: 1500px;
+      margin: 0 auto;
+      width:100%;
     }
 
     .card{
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--radius);
       box-shadow: var(--shadow2);
+      overflow:hidden;
     }
 
-    /* NEW banner */
-    .new-banner{
-      display:none;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background:#ecfdf5;
-      color:#065f46;
-      border:1px solid #a7f3d0;
-      font-weight:1000;
-    }
-    .new-banner.show{ display:block; }
-
-    .row-new{
-      background-color: #fff8c5 !important;
-      animation: newRowPulse 1s ease-in-out 2;
-    }
-    .new-badge{
-      display:inline-block;
-      margin-left: 6px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #f59e0b;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 1000;
-      vertical-align: middle;
-    }
-    @keyframes newRowPulse{
-      0%{ box-shadow: inset 0 0 0 9999px rgba(253,224,71,.35); }
-      100%{ box-shadow: inset 0 0 0 9999px rgba(253,224,71,0); }
-    }
-
-    /* shortcut cards */
-    .admin-shortcuts{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:14px;
-    }
-    .admin-shortcut-card{
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
       display:flex;
-      gap:12px;
-      align-items:flex-start;
-      text-decoration:none;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow: var(--shadow2);
-      transition:transform .15s ease, box-shadow .15s ease;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
-    .admin-shortcut-card:hover{
-      transform:translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-    .admin-shortcut-icon{
-      width:52px;height:52px;border-radius:16px;
-      display:flex;align-items:center;justify-content:center;
-      font-size:24px;
-      background:#f1f5f9;
-      border:1px solid var(--line);
-      flex:0 0 auto;
-    }
-    .admin-shortcut-title{
+
+    .card-h h2{
+      margin:0;
       font-size:18px;
       font-weight:1000;
-      color:#0f172a;
-      margin-bottom:4px;
     }
-    .admin-shortcut-desc{
-      font-size:14px;
-      color:var(--muted);
-      font-weight:800;
-      line-height:1.5;
-    }
-    .admin-shortcut-card.pending{ background:#fff7ed; border-color:#fdba74; }
-    .admin-shortcut-card.pending .admin-shortcut-icon{ background:#ffedd5; border-color:#fdba74; }
-    .admin-shortcut-card.progress{ background:#eff6ff; border-color:#93c5fd; }
-    .admin-shortcut-card.progress .admin-shortcut-icon{ background:#dbeafe; border-color:#93c5fd; }
-    .admin-shortcut-card.completed{ background:#ecfdf5; border-color:#86efac; }
-    .admin-shortcut-card.completed .admin-shortcut-icon{ background:#dcfce7; border-color:#86efac; }
 
-    /* table */
-    .table-card{ overflow:hidden; }
-    .table-header{
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
+    .card-b{ padding:12px 14px; }
+
+    .tiny{
+      font-size:14px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .search{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      font-weight:800;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      font-size:15px;
+      font-family:inherit;
+    }
+
+    .btn.primary{
+      background: linear-gradient(135deg, var(--gold) 0%, #e6c85c 100%);
+      border-color: rgba(0,0,0,.06);
+      color:#1f2937;
+    }
+
+    .btn.danger{
+      background:#fee2e2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .stat-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px;
+      box-shadow:var(--shadow2);
+    }
+
+    .stat-box .label{
+      font-size:13px;
+      font-weight:900;
+      color:#64748b;
+      margin-bottom:6px;
+    }
+
+    .stat-box .value{
+      font-size:26px;
+      line-height:1;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .stat-box .sub{
+      margin-top:6px;
+      font-size:12px;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .stat-box.today{ border-color:#bfdbfe; background:#f8fbff; }
+    .stat-box.newbox{ border-color:#fde68a; background:#fffdf2; }
+    .stat-box.warnbox{ border-color:#fed7aa; background:#fff7ed; }
+    .stat-box.dangerbox{ border-color:#fecaca; background:#fff1f2; }
+
+    .toolbar-row{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
+      gap:12px;
       flex-wrap:wrap;
     }
-    .table-header .meta{
+
+    .filter-chips{
       display:flex;
-      align-items:center;
-      gap:10px;
+      gap:8px;
       flex-wrap:wrap;
     }
-    .last-updated{
-      font-weight:1000;
-      color:#0f172a;
+
+    .chip{
+      border:1px solid #dbe2ea;
       background:#fff;
-      border:1px solid var(--line);
+      color:#334155;
+      padding:8px 12px;
       border-radius:999px;
-      padding:6px 10px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .chip.active{
+      background:#0b2a4a;
+      color:#fff;
+      border-color:#0b2a4a;
+      box-shadow:0 8px 18px rgba(11,42,74,.16);
+    }
+
+    .new-banner{
+      display:none;
+      margin:12px 0 0 0;
+      padding:12px 14px;
+      border-radius:16px;
+      background:#ecfdf5;
+      color:#065f46;
+      border:1px solid #a7f3d0;
+      font-weight:800;
+      box-shadow:var(--shadow2);
+    }
+
+    .new-banner.show{ display:block; }
+
+    .table-wrap{
+      overflow:auto;
+      background:#fff;
+      border-radius:16px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1250px;
+      background:#fff;
+      table-layout:fixed;
+    }
+
+    th, td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:#eef2f7 !important;
+      color:#0f172a !important;
+      text-transform:none !important;
+      letter-spacing:0 !important;
+      box-shadow:none !important;
+      border-bottom:1px solid #e5e7eb !important;
       font-size:13px;
       white-space:nowrap;
     }
 
-    .table-wrap{
-      width:100%;
-      overflow:auto;
-    }
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      min-width: 980px;
-      font-size: 15px;
-    }
-    thead th{
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
-      color:#fff;
-      text-align:center;
-      padding: 12px 10px;
-      font-size: 14px;
-      font-weight:1000;
-      letter-spacing:.3px;
-      border-bottom: 1px solid rgba(255,255,255,.18);
-      white-space:nowrap;
-    }
-    tbody td{
-      padding: 12px 10px;
-      text-align:center;
-      border-bottom: 1px solid var(--line);
-      vertical-align: middle;
+    td{
+      font-size:15px;
       color:#334155;
-      background:#fff;
     }
-    tbody tr:nth-child(even) td{ background:#f9fafb; }
-    tbody tr:hover td{ background:#e0f2fe; }
 
-    a.map-link{
-      text-decoration:none;
-      color:#2563eb;
-      font-weight:1000;
+    tbody tr:nth-child(even){ background:#fbfdff; }
+    tbody tr:hover{ background:#f3f7ff; }
+
+    tr.row-new{
+      background:#fff8c5 !important;
+      animation:newRowPulse 1s ease-in-out 2;
+    }
+
+    .new-badge{
+      display:inline-block;
+      margin-top:6px;
+      padding:3px 8px;
+      border-radius:999px;
+      background:#f59e0b;
+      color:#fff;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @keyframes newRowPulse {
+      0%   { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0.35); }
+      100% { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0); }
     }
 
     .media-container{
@@ -496,357 +543,333 @@
       flex-direction:column;
       align-items:center;
       gap:10px;
-      padding: 6px 0;
-    }
-    img{
-      max-width: 150px;
-      max-height: 120px;
-      border-radius: 12px;
-      box-shadow: 0 8px 18px rgba(2,6,23,.10);
-    }
-    video{
-      max-width: 300px;
-      max-height: 200px;
-      border-radius: 12px;
-      box-shadow: 0 8px 18px rgba(2,6,23,.10);
+      padding:6px 0;
     }
 
-    select{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border:1px solid #cbd5e1;
-      font-weight: 900;
-      font-size: 14px;
-      width: 140px;
+    .file-thumb{
+      max-width:150px;
+      max-height:120px;
+      border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,.15);
+      object-fit:cover;
       background:#fff;
-      cursor:pointer;
-      font-family: inherit;
     }
 
-    .btn-mini{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border:1px solid #cbd5e1;
-      background:#fff;
-      cursor:pointer;
+    .file-video{
+      width:150px;
+      max-height:120px;
+      border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,.15);
+      background:#000;
+    }
+
+    a.map-link{
+      text-decoration:none;
+      color:#2563eb;
       font-weight:1000;
-      font-family:inherit;
+      white-space:nowrap;
     }
 
-    .btn.approve{
-      background: var(--ok);
-      color:#fff;
-      box-shadow:none;
-      border:1px solid rgba(22,163,74,.25);
-      padding: 9px 10px;
-      border-radius: 12px;
-      font-size: 14px;
-      justify-content:center;
-      width: 120px;
-    }
-    .btn.approve:hover:not(:disabled){ filter: brightness(.96); }
-
-    .btn.reject{
-      background: var(--danger);
-      color:#fff;
-      box-shadow:none;
-      border:1px solid rgba(220,38,38,.25);
-      padding: 9px 10px;
-      border-radius: 12px;
-      font-size: 14px;
-      justify-content:center;
-      width: 120px;
-    }
-    .btn.reject:hover:not(:disabled){ filter: brightness(.96); }
-
-    /* bounce cell */
     .bounce-badge{
       display:inline-block;
       padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 1000;
-      font-size: 12px;
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-      margin-bottom: 6px;
-      white-space:nowrap;
-    }
-    .small-muted{
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 4px;
-      line-height: 1.35;
-      font-weight: 800;
-      text-align:left;
-      max-width: 260px;
-      margin-left:auto;
-      margin-right:auto;
+      border-radius:999px;
+      font-weight:800;
+      font-size:12px;
+      background:#fee2e2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      margin-bottom:6px;
     }
 
-    /* modal */
-    #reject-modal{
+    .small-muted{
+      font-size:12px;
+      color:#64748b;
+      margin-top:4px;
+      line-height:1.35;
+      font-weight:700;
+      word-break:break-word;
+    }
+
+    .action-cell{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+
+    .dept-select{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #cbd5e1;
+      min-width:145px;
+      width:145px;
+      font-family:inherit;
+      font-size:14px;
+      font-weight:800;
+      outline:none;
+      background:#fff;
+    }
+
+    .modal-overlay{
       display:none;
       position:fixed;
       inset:0;
-      background: rgba(15,23,42,.45);
-      z-index: 9999;
+      background-color:rgba(0,0,0,0.4);
+      z-index:9999;
       justify-content:center;
       align-items:center;
-      padding: 16px;
+      padding:16px;
     }
-    .modal-card{
-      width: 100%;
-      max-width: 520px;
-      background:#fff;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      padding: 18px;
+
+    .modal-box{
+      background:white;
+      padding:24px;
+      border-radius:16px;
+      width:90%;
+      max-width:460px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
       text-align:center;
     }
-    .modal-card h3{
-      margin: 0 0 12px;
-      font-size: 20px;
-      font-weight: 1000;
+
+    .modal-box h3{
+      margin:0 0 16px;
+      font-size:20px;
+      text-align:center;
     }
-    .modal-card textarea{
+
+    .modal-box textarea{
       width:100%;
       max-width:100%;
       box-sizing:border-box;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1.5px solid #cbd5e1;
-      font-size: 16px;
-      resize: vertical;
-      outline:none;
-      font-family: inherit;
+      padding:12px;
+      border-radius:10px;
+      border:1.5px solid #ccc;
+      font-size:16px;
+      resize:vertical;
+      transition:border 0.2s;
+      font-family:inherit;
+      min-height:110px;
     }
+
     .modal-actions{
-      margin-top: 14px;
+      margin-top:20px;
+      text-align:center;
       display:flex;
+      gap:10px;
       justify-content:center;
-      gap: 10px;
       flex-wrap:wrap;
     }
-    .modal-actions .btn{
-      box-shadow:none;
-      border: 1px solid transparent;
-    }
-    .modal-actions .btn.danger{
-      background: var(--danger);
-      color:#fff;
-    }
-    .modal-actions .btn.neutral{
-      background:#f3f4f6;
-      color:#111827;
-      border-color:#e5e7eb;
-    }
 
-    /* =============== MOBILE =============== */
-    .overlay{
-      display:none;
-      position:fixed;
-      inset:0;
-      background: rgba(2,6,23,.35);
-      z-index: 19;
-    }
-
-    @media (max-width: 980px){
-      .hamburger{ display:inline-flex; align-items:center; justify-content:center; }
-      .sidebar{
-        position: fixed;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        transform: translateX(-102%);
-        transition: transform .18s ease;
-        height: 100vh;
+    @media (max-width:1100px){
+      .stats-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
       }
-      .sidebar.open{ transform: translateX(0); }
-      .overlay.show{ display:block; }
-      .main{ padding: 12px; }
-      table{ min-width: 980px; }
     }
 
-    @media (max-width: 640px){
-      html{ font-size: 18px; }
-      body{ font-size: 16px; }
-      .page-title h1{ font-size: 18px; }
-      .admin-shortcut-title{ font-size: 16px; }
+    @media (max-width:980px){
+      .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-right:0;
+        box-shadow:none;
+      }
+      .app{ display:block; }
+      .content{ padding:14px; }
+      table{ min-width:1100px; }
+    }
+
+    @media (max-width:700px){
+      .stats-grid{ grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- กล่อง modal สำหรับป้อนเหตุผล -->
-  <div id="reject-modal">
-    <div class="modal-card">
-      <h3>📣 กรุณาระบุเหตุผลไม่อนุมัติ</h3>
-      <textarea id="reject-reason" rows="4" placeholder="พิมพ์เหตุผล..."></textarea>
-      <div class="modal-actions">
-        <button type="button" class="btn danger" onclick="submitReject()">ส่ง</button>
-        <button type="button" class="btn neutral" onclick="closeRejectModal()">ยกเลิก</button>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">อด</div>
+      <div>
+        <div class="title">แอดมินหลัก</div>
       </div>
     </div>
-  </div>
 
-  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+    <div class="menu">
+      <div class="menu-title">มุมมองคำร้อง</div>
 
-  <div class="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="logo">🏛️</div>
-        <div>
-          <div class="title">แอดมินหลัก</div>
-          <div class="sub">ระบบจัดการคำร้อง</div>
+      <button id="btn-view-all" class="side-link view-link active" onclick="setViewMode('all')">
+        <span class="label">📋 คำร้องทั้งหมด</span>
+        <span class="count" id="count-all-left">0</span>
+      </button>
+
+      <button id="btn-view-today" class="side-link view-link" onclick="setViewMode('today')">
+        <span class="label">📅 คำร้องวันนี้</span>
+        <span class="count" id="count-today-left">0</span>
+      </button>
+
+      <div class="menu-title">หน้ารายการอ่านอย่างเดียว</div>
+
+      <a href="/choose-pending-admin.html" class="side-link">
+        <span class="label">⏳ ดูรอดำเนินการ</span>
+      </a>
+
+      <a href="/choose-inprogress-admin.html" class="side-link">
+        <span class="label">⚙️ ดูกำลังดำเนินการ</span>
+      </a>
+
+      <a href="/choose-completed-admin.html" class="side-link">
+        <span class="label">✅ ดูเสร็จสิ้น</span>
+      </a>
+
+      <div class="menu-title">รายการอื่น</div>
+
+      <a href="/approved-all" class="side-link">
+        <span class="label">✅ อนุมัติแล้ว</span>
+      </a>
+
+      <a href="/rejected" class="side-link">
+        <span class="label">❌ ไม่อนุมัติแล้ว</span>
+      </a>
+
+      <div class="divider"></div>
+
+      <div class="export-group">
+        <a href="/choose-pending-admin.html" class="side-green-btn">📂 รายการรอดำเนินการ</a>
+        <a href="/choose-inprogress-admin.html" class="side-green-btn">📂 รายการกำลังดำเนินการ</a>
+        <a href="/choose-completed-admin.html" class="side-green-btn">📂 รายการเสร็จสิ้น</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-row">
+        <div class="topbar-left">
+          <div>
+            <h1>🏛️ ระบบรับเรื่องร้องเรียน • แอดมินหลัก</h1>
+            <div class="sub">องค์การบริหารส่วนตำบล</div>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="top-pill" id="view-mode-badge">โหมด: คำร้องใหม่ทั้งหมด</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="stats-grid" style="margin-bottom:12px;">
+        <div class="stat-box today">
+          <div class="label">คำร้องทั้งหมด</div>
+          <div class="value" id="statAllValue">0</div>
+          <div class="sub">รายการทั้งหมดในโหมดปัจจุบัน</div>
+        </div>
+
+        <div class="stat-box newbox">
+          <div class="label">รายการใหม่</div>
+          <div class="value" id="statNewValue">0</div>
+          <div class="sub">ตรวจจากเบราว์เซอร์นี้</div>
+        </div>
+
+        <div class="stat-box warnbox">
+          <div class="label">ตีกลับจากหน่วยงาน</div>
+          <div class="value" id="statBounceValue">0</div>
+          <div class="sub">รอแอดมินหลักจัดการ</div>
+        </div>
+
+        <div class="stat-box dangerbox">
+          <div class="label">คำร้องวันนี้</div>
+          <div class="value" id="statTodayValue">0</div>
+          <div class="sub">นับจากข้อมูลฝั่งแอดมิน</div>
         </div>
       </div>
 
-      <div class="menu">
-        <div class="menu-title">เมนูหลัก</div>
-        <a class="side-link" href="/admin">
-          <span class="label">📋 หน้าหลักแอดมิน</span>
-          <span class="pill">NEW</span>
-        </a>
-        <a class="side-link" href="/approved-all">
-          <span class="label">✅ อนุมัติแล้ว</span>
-          <span class="pill">OK</span>
-        </a>
-        <a class="side-link" href="/rejected">
-          <span class="label">❌ ไม่อนุมัติแล้ว</span>
-          <span class="pill">NO</span>
-        </a>
+      <div class="card">
+        <div class="card-h">
+          <h2>ค้นหา</h2>
+          <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบตาราง</div>
+        </div>
 
-        <div class="divider"></div>
-        <div class="menu-title">ดูสถานะ (อ่านอย่างเดียว)</div>
-        <a class="side-link" href="/choose-pending-admin.html">
-          <span class="label">⏳ รอดำเนินการ</span>
-          <span class="pill">↗</span>
-        </a>
-        <a class="side-link" href="/choose-inprogress-admin.html">
-          <span class="label">⚙️ กำลังดำเนินการ</span>
-          <span class="pill">↗</span>
-        </a>
-        <a class="side-link" href="/choose-completed-admin.html">
-          <span class="label">✅ เสร็จสิ้น</span>
-          <span class="pill">↗</span>
-        </a>
+        <div class="card-b">
+          <input
+            type="text"
+            id="searchInput"
+            class="search"
+            placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+            oninput="filterRenderedTable()"
+          />
+        </div>
       </div>
-    </aside>
 
-    <!-- MAIN -->
-    <main class="main">
-      <header class="topbar">
-        <div class="top-left">
-          <button class="hamburger" type="button" onclick="openSidebar()">☰</button>
-          <div class="page-title">
-            <h1>📋 ระบบจัดการคำร้อง</h1>
-            <p class="hint">อนุมัติ/ไม่อนุมัติ และส่งต่อแผนก</p>
-          </div>
+      <div id="new-banner" class="new-banner"></div>
 
-          <span id="view-mode-badge" class="badge">โหมด: คำร้องใหม่ทั้งหมด</span>
-        </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-h">
+          <div class="toolbar-row" style="width:100%;">
+            <h2>รายการคำร้อง</h2>
 
-        <div class="top-right">
-          <span class="last-updated">🔄 อัปเดตล่าสุด: <span id="last-updated">-</span></span>
-
-          <button class="btn soft" id="btn-show-all" onclick="setViewMode('all')">📋 คำร้องทั้งหมด</button>
-          <button class="btn info" id="btn-show-today" onclick="setViewMode('today')">📅 คำร้องวันนี้</button>
-
-          <button class="btn refresh" id="btn-refresh" onclick="manualRefresh()">🔄 รีเฟรช</button>
-
-          <label class="toggle" title="เปิด/ปิดรีเฟรชอัตโนมัติ">
-            <input type="checkbox" id="auto-refresh-toggle" checked />
-            รีเฟรชอัตโนมัติ
-          </label>
-        </div>
-      </header>
-
-      <section class="content">
-        <div id="new-banner" class="new-banner"></div>
-
-        <div class="admin-shortcuts">
-          <a href="/choose-pending-admin.html" class="admin-shortcut-card pending">
-            <div class="admin-shortcut-icon">⏳</div>
-            <div>
-              <div class="admin-shortcut-title">ดูรอดำเนินการ</div>
-              <div class="admin-shortcut-desc">เลือกแผนกเพื่อดูรายการรอดำเนินการแบบอ่านอย่างเดียว</div>
-            </div>
-          </a>
-
-          <a href="/choose-inprogress-admin.html" class="admin-shortcut-card progress">
-            <div class="admin-shortcut-icon">⚙️</div>
-            <div>
-              <div class="admin-shortcut-title">ดูกำลังดำเนินการ</div>
-              <div class="admin-shortcut-desc">เลือกแผนกเพื่อดูรายการกำลังดำเนินการแบบอ่านอย่างเดียว</div>
-            </div>
-          </a>
-
-          <a href="/choose-completed-admin.html" class="admin-shortcut-card completed">
-            <div class="admin-shortcut-icon">✅</div>
-            <div>
-              <div class="admin-shortcut-title">ดูเสร็จสิ้น</div>
-              <div class="admin-shortcut-desc">เลือกแผนกเพื่อดูรายการเสร็จสิ้นแบบอ่านอย่างเดียว</div>
-            </div>
-          </a>
-        </div>
-
-        <div class="card table-card">
-          <div class="table-header">
-            <div class="meta">
-              <span class="badge">🗂️ รายการคำร้องใหม่ (ต้องจัดการ)</span>
-              <span class="badge" style="border-color: rgba(201,162,39,.35); color: var(--gold);">เลือกแผนกก่อนกด “อนุมัติ”</span>
-            </div>
-            <div class="meta">
-              <button type="button" class="btn ghost" onclick="resetSeenNewState()" title="รีเซ็ตการนับคำร้องใหม่ (สำหรับทดสอบ)">
-                ♻️ รีเซ็ตแจ้งเตือน
-              </button>
+            <div class="filter-chips">
+              <button class="chip active" id="chip-all" onclick="setViewMode('all')">ทั้งหมด</button>
+              <button class="chip" id="chip-today" onclick="setViewMode('today')">วันนี้</button>
             </div>
           </div>
-
-          <div class="table-wrap">
-            <table id="data-table">
-              <thead>
-                <tr>
-                  <th>ชื่อ</th>
-                  <th>เบอร์</th>
-                  <th>ข้อความ</th>
-                  <th>ไฟล์</th>
-                  <th>แผนก</th>
-                  <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
-                  <th>แผนที่</th>
-                  <th>วันที่และเวลา</th>
-                  <th>จัดการ</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
         </div>
-      </section>
-    </main>
+
+        <div class="table-wrap">
+          <table id="data-table">
+            <thead>
+              <tr>
+                <th>ชื่อ</th>
+                <th>เบอร์</th>
+                <th>ข้อความ</th>
+                <th>ไฟล์</th>
+                <th>แผนก</th>
+                <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
+                <th>แผนที่</th>
+                <th>วันที่และเวลา</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="reject-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h3>📣 กรุณาระบุเหตุผลไม่อนุมัติ</h3>
+
+    <textarea id="reject-reason"></textarea>
+
+    <div class="modal-actions">
+      <button onclick="submitReject()" class="btn danger">ส่ง</button>
+      <button onclick="closeRejectModal()" class="btn">ยกเลิก</button>
+    </div>
   </div>
-
-  <script>
-    function openSidebar(){
-      const sb = document.getElementById('sidebar');
-      const ov = document.getElementById('overlay');
-      if (sb) sb.classList.add('open');
-      if (ov) ov.classList.add('show');
-    }
-    function closeSidebar(){
-      const sb = document.getElementById('sidebar');
-      const ov = document.getElementById('overlay');
-      if (sb) sb.classList.remove('open');
-      if (ov) ov.classList.remove('show');
-    }
-  </script>
+</div>
 
 <script>
-  // ===== New item detection (client-side only) =====
+  let currentViewMode = 'all';
+  let currentRejectId = null;
+  let isLoading = false;
+  let latestRows = [];
+
   let isFirstLoadByMode = { all: true, today: true };
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m]));
+  }
 
   function getSeenKey() {
     return currentViewMode === 'today'
@@ -932,36 +955,12 @@
     }
   }
 
-  function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, (m) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[m]));
-  }
-
-  // (ไม่บังคับ) ใช้ตอนทดสอบ อยากให้ระบบนับใหม่อีกครั้ง
-  function resetSeenNewState() {
-    localStorage.removeItem('admin_seen_ids_all_v1');
-    localStorage.removeItem('admin_seen_ids_today_v1');
-    localStorage.removeItem('admin_active_new_ids_all_v1');
-    localStorage.removeItem('admin_active_new_ids_today_v1');
-    isFirstLoadByMode = { all: true, today: true };
-    updateNewBanner(0);
-    alert('รีเซ็ตสถานะ "ข้อมูลใหม่" แล้ว');
-    safeLoadData();
-  }
-</script>
-
-<script>
-  let currentViewMode = 'all'; // all | today
-
   function updateViewModeUI() {
     const badge = document.getElementById('view-mode-badge');
-    const btnAll = document.getElementById('btn-show-all');
-    const btnToday = document.getElementById('btn-show-today');
+    const btnAll = document.getElementById('btn-view-all');
+    const btnToday = document.getElementById('btn-view-today');
+    const chipAll = document.getElementById('chip-all');
+    const chipToday = document.getElementById('chip-today');
 
     if (badge) {
       badge.textContent = currentViewMode === 'today'
@@ -969,21 +968,222 @@
         : 'โหมด: คำร้องใหม่ทั้งหมด';
     }
 
-    if (btnAll) {
-      btnAll.style.background = currentViewMode === 'all' ? '#15563b' : '#e2e8f0';
-      btnAll.style.color = currentViewMode === 'all' ? '#fff' : '#0f172a';
-    }
+    if (btnAll) btnAll.classList.toggle('active', currentViewMode === 'all');
+    if (btnToday) btnToday.classList.toggle('active', currentViewMode === 'today');
 
-    if (btnToday) {
-      btnToday.style.background = currentViewMode === 'today' ? '#1d4ed8' : '#dbeafe';
-      btnToday.style.color = currentViewMode === 'today' ? '#fff' : '#1d4ed8';
-    }
+    if (chipAll) chipAll.classList.toggle('active', currentViewMode === 'all');
+    if (chipToday) chipToday.classList.toggle('active', currentViewMode === 'today');
   }
 
   async function setViewMode(mode) {
     currentViewMode = mode === 'today' ? 'today' : 'all';
     updateViewModeUI();
     await safeLoadData();
+  }
+
+  function updateStats(data, newCount) {
+    const allCount = Array.isArray(data) ? data.length : 0;
+    const bounceCount = (Array.isArray(data) ? data : []).filter(row =>
+      row.status === 'รอแอดมินหลัก' || Number(row.dept_accept) === 0
+    ).length;
+
+    const todayCount = (Array.isArray(data) ? data : []).filter(row => {
+      if (!row.created_at) return false;
+      const d = new Date(row.created_at);
+      const now = new Date();
+
+      const dStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+      const nStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+      return dStr === nStr;
+    }).length;
+
+    const statAllValue = document.getElementById('statAllValue');
+    const statNewValue = document.getElementById('statNewValue');
+    const statBounceValue = document.getElementById('statBounceValue');
+    const statTodayValue = document.getElementById('statTodayValue');
+    const countAllLeft = document.getElementById('count-all-left');
+    const countTodayLeft = document.getElementById('count-today-left');
+
+    if (statAllValue) statAllValue.textContent = String(allCount);
+    if (statNewValue) statNewValue.textContent = String(newCount);
+    if (statBounceValue) statBounceValue.textContent = String(bounceCount);
+    if (statTodayValue) statTodayValue.textContent = String(todayCount);
+
+    if (countAllLeft) countAllLeft.textContent = String(currentViewMode === 'all' ? allCount : latestRows.length || 0);
+    if (countTodayLeft) countTodayLeft.textContent = String(todayCount);
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return '-';
+    const d = new Date(dateString);
+    if (isNaN(d)) return '-';
+    return d.toLocaleString('th-TH', {
+      timeZone: 'Asia/Bangkok',
+      dateStyle: 'short',
+      timeStyle: 'short'
+    });
+  }
+
+  function buildFileLinks(files) {
+    if (!files.length) return '-';
+
+    const first = files[0];
+    const rawUrl = typeof first === 'string' ? first : first.url;
+    const firstUrl = encodeURI(rawUrl || '');
+    const firstType = (typeof first === 'object' && first.type) ? first.type : '';
+    const isVideo = firstType === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(firstUrl);
+
+    const firstElement = isVideo
+      ? `<video controls class="file-video"><source src="${firstUrl}" type="video/mp4"></video>`
+      : `<img src="${firstUrl}" class="file-thumb" alt="ไฟล์แนบ" />`;
+
+    const buttonHtml = `
+      <button class="btn link-btn" onclick='showImages(${JSON.stringify(files)})'>
+        ดูทั้งหมด
+      </button>
+    `;
+
+    return `<div class="media-container">${firstElement}${buttonHtml}</div>`;
+  }
+
+  function renderTable(data) {
+    const tbody = document.querySelector("#data-table tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+      const rowId = Number(row.id);
+
+      let files = [];
+      try {
+        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+        else if (Array.isArray(row.photo)) files = row.photo;
+        else files = [];
+      } catch (e) {
+        console.error('⚠️ JSON parse error:', e);
+        files = [];
+      }
+
+      const seenIds = new Set(getSeenIds());
+      const activeNewIds = new Set(getActiveNewIds());
+      const isNewRow = !!(rowId && activeNewIds.has(rowId) && !seenIds.has(-999999999));
+      const mapLink = row.latitude && row.longitude
+        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+        : "-";
+
+      const fileLinks = buildFileLinks(files);
+
+      const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
+      const bounceFrom = bounced ? (row.routed_to || '-') : '-';
+      const bounceReason = bounced ? (row.dept_reason || '-') : '-';
+
+      const bounceCell = bounced
+        ? `
+          <div class="bounce-badge">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
+          <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
+        `
+        : '-';
+
+      const blockedDepartment =
+        bounced && row.routed_to ? String(row.routed_to).trim() : '';
+
+      const tr = document.createElement("tr");
+      tr.setAttribute("data-row-id", row.id);
+      tr.setAttribute("data-name", String(row.name || '').toLowerCase());
+      tr.setAttribute("data-phone", String(row.phone || '').toLowerCase());
+
+      if (isNewRow) tr.classList.add('row-new');
+
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight:900;">${escapeHtml(row.name || "-")}</div>
+          ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
+        </td>
+        <td>${escapeHtml(row.phone || "-")}</td>
+        <td style="word-break:break-word;">${escapeHtml(row.message || "-")}</td>
+        <td>${fileLinks || "-"}</td>
+        <td>${escapeHtml(row.department || "-")}</td>
+        <td>${bounceCell}</td>
+        <td>${mapLink}</td>
+        <td>${formatDate(row.created_at)}</td>
+        <td>
+          <div class="action-cell">
+            <button class="btn primary" id="approve-btn-${row.id}" onclick="approve(${row.id})" disabled>✅ อนุมัติ</button>
+            <button class="btn danger" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button>
+
+            <select id="dept-${row.id}" class="dept-select" onchange="toggleApproveButton(${row.id})">
+              <option value="">เลือกแผนก</option>
+
+              <option
+                value="สำนักงานปลัด"
+                ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}
+                ${blockedDepartment === 'สำนักงานปลัด' ? 'disabled' : ''}
+              >
+                สำนักงานปลัด${blockedDepartment === 'สำนักงานปลัด' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
+
+              <option
+                value="สาธารณสุข"
+                ${row.department === 'สาธารณสุข' ? 'selected' : ''}
+                ${blockedDepartment === 'สาธารณสุข' ? 'disabled' : ''}
+              >
+                สาธารณสุข${blockedDepartment === 'สาธารณสุข' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
+
+              <option
+                value="กองช่าง"
+                ${row.department === 'กองช่าง' ? 'selected' : ''}
+                ${blockedDepartment === 'กองช่าง' ? 'disabled' : ''}
+              >
+                กองช่าง${blockedDepartment === 'กองช่าง' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
+
+              <option
+                value="ไฟฟ้า"
+                ${row.department === 'ไฟฟ้า' ? 'selected' : ''}
+                ${blockedDepartment === 'ไฟฟ้า' ? 'disabled' : ''}
+              >
+                ไฟฟ้า${blockedDepartment === 'ไฟฟ้า' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
+
+              <option
+                value="อื่นๆ"
+                ${row.department === 'อื่นๆ' ? 'selected' : ''}
+                ${blockedDepartment === 'อื่นๆ' ? 'disabled' : ''}
+              >
+                อื่นๆ${blockedDepartment === 'อื่นๆ' ? ' (ตีกลับแล้ว)' : ''}
+              </option>
+            </select>
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+      toggleApproveButton(row.id);
+    });
+
+    if (data.length === 0) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td colspan="9" style="padding:22px; color:#64748b; font-weight:900;">
+          ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function filterRenderedTable() {
+    const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+    const rows = document.querySelectorAll('#data-table tbody tr[data-row-id]');
+
+    rows.forEach(tr => {
+      const name = tr.getAttribute('data-name') || '';
+      const phone = tr.getAttribute('data-phone') || '';
+      const matched = !keyword || name.includes(keyword) || phone.includes(keyword);
+      tr.style.display = matched ? '' : 'none';
+    });
   }
 
   async function loadData() {
@@ -996,184 +1196,35 @@
     }
 
     const data = await res.json();
-    console.log(`📌 โหลดข้อมูลใหม่ [${currentViewMode}]:`, data);
+    latestRows = Array.isArray(data) ? data : [];
 
-    // ===== NEW: ตรวจข้อมูลใหม่ =====
     const seenIds = new Set(getSeenIds());
     const activeNewIds = new Set(getActiveNewIds());
     const isFirstLoad = isFirstLoadByMode[currentViewMode];
     let newCount = 0;
 
-    const tbody = document.querySelector("tbody");
-    tbody.innerHTML = "";
-
-    data.forEach(row => {
+    latestRows.forEach(row => {
       const rowId = Number(row.id);
-
       if (!isFirstLoad && rowId && !seenIds.has(rowId)) {
         activeNewIds.add(rowId);
       }
-
-      const isNewRow = !!(rowId && activeNewIds.has(rowId));
-      if (isNewRow) newCount++;
-
-      const mapLink = row.latitude && row.longitude
-        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
-        : "-";
-
-      const createdAt = row.created_at ? new Date(row.created_at) : null;
-      const createdAtFormatted = createdAt
-        ? createdAt.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
-        : "-";
-
-      let files = [];
-      try {
-        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
-        else if (Array.isArray(row.photo)) files = row.photo;
-        else files = [];
-      } catch (e) {
-        console.error('⚠️ JSON parse error:', e);
-        files = [];
-      }
-
-      let fileLinks = "-";
-      if (files.length > 0) {
-        const first = files[0];
-        const rawUrl = typeof first === 'string' ? first : first.url;
-        const firstUrl = encodeURI(rawUrl);
-        const firstType = (typeof first === 'object' && first.type) ? first.type : "";
-
-        const firstElement = firstType === 'video'
-          ? `<video controls style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-              <source src="${firstUrl}" type="video/mp4">
-            </video>`
-          : `<img src="${firstUrl}" style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);" />`;
-
-        const buttonHtml = `
-          <button style="
-            margin-top: 10px;
-            padding: 6px 12px;
-            border: 1px solid #999;
-            border-radius: 6px;
-            background: white;
-            font-weight: bold;
-            cursor: pointer;
-          " onclick='showImages(${JSON.stringify(files)})'>
-            ดูทั้งหมด
-          </button>`;
-
-        fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
-      }
-
-      // ✅ เคสตีกลับจากหน่วยงาน
-      const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
-      const bounceFrom = bounced ? (row.routed_to || '-') : '-';
-      const bounceReason = bounced ? (row.dept_reason || '-') : '-';
-
-      const bounceCell = bounced
-        ? `
-          <div class="bounce-badge">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
-          <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
-        `
-        : '-';
-      const blockedDepartment =
-        bounced && row.routed_to ? String(row.routed_to).trim() : '';
-      // ✅ ปุ่มอนุมัติจะ disable ถ้ายังไม่เลือกแผนก
-      const isDeptSelected = row.department && row.department !== "-";
-
-      const tr = document.createElement("tr");
-      tr.setAttribute("data-row-id", row.id);
-
-      if (isNewRow) tr.classList.add('row-new');
-
-      tr.innerHTML = `
-        <td>
-          ${escapeHtml(row.name || "-")}
-          ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
-        </td>
-        <td>${escapeHtml(row.phone || "-")}</td>
-        <td>${escapeHtml(row.message || "-")}</td>
-        <td>${fileLinks || "-"}</td>
-        <td>${escapeHtml(row.department || "-")}</td>
-
-        <!-- ✅ เพิ่มคอลัมน์นี้ -->
-        <td>${bounceCell}</td>
-
-        <td>${mapLink}</td>
-        <td>${createdAtFormatted}</td>
-        <td>
-          <button class="btn approve" id="approve-btn-${row.id}" onclick="approve(${row.id})" disabled>✅ อนุมัติ</button><br>
-          <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
-
-          <select id="dept-${row.id}" onchange="toggleApproveButton(${row.id})">
-            <option value="">เลือกแผนก</option>
-
-            <option
-              value="สำนักงานปลัด"
-              ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}
-              ${blockedDepartment === 'สำนักงานปลัด' ? 'disabled' : ''}
-            >
-              สำนักงานปลัด${blockedDepartment === 'สำนักงานปลัด' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
-
-            <option
-              value="สาธารณสุข"
-              ${row.department === 'สาธารณสุข' ? 'selected' : ''}
-              ${blockedDepartment === 'สาธารณสุข' ? 'disabled' : ''}
-            >
-              สาธารณสุข${blockedDepartment === 'สาธารณสุข' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
-
-            <option
-              value="กองช่าง"
-              ${row.department === 'กองช่าง' ? 'selected' : ''}
-              ${blockedDepartment === 'กองช่าง' ? 'disabled' : ''}
-            >
-              กองช่าง${blockedDepartment === 'กองช่าง' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
-
-            <option
-              value="ไฟฟ้า"
-              ${row.department === 'ไฟฟ้า' ? 'selected' : ''}
-              ${blockedDepartment === 'ไฟฟ้า' ? 'disabled' : ''}
-            >
-              ไฟฟ้า${blockedDepartment === 'ไฟฟ้า' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
-
-            <option
-              value="อื่นๆ"
-              ${row.department === 'อื่นๆ' ? 'selected' : ''}
-              ${blockedDepartment === 'อื่นๆ' ? 'disabled' : ''}
-            >
-              อื่นๆ${blockedDepartment === 'อื่นๆ' ? ' (ตีกลับแล้ว)' : ''}
-            </option>
-          </select><br>
-        </td>
-      `;
-      tbody.appendChild(tr);
+      if (rowId && activeNewIds.has(rowId)) newCount++;
     });
 
-    if (data.length === 0) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td colspan="9" style="padding:20px; color:#64748b; font-weight:600;">
-          ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    }
-
+    renderTable(latestRows);
     updateNewBanner(newCount);
+    updateStats(latestRows, newCount);
 
     const merged = new Set([
       ...seenIds,
-      ...data.map(r => Number(r.id)).filter(Boolean)
+      ...latestRows.map(r => Number(r.id)).filter(Boolean)
     ]);
     saveSeenIds([...merged]);
-
     saveActiveNewIds([...activeNewIds]);
 
     isFirstLoadByMode[currentViewMode] = false;
+
+    filterRenderedTable();
   }
 
   function removeRowFromTable(id) {
@@ -1183,11 +1234,11 @@
     const tbody = document.querySelector('#data-table tbody');
     if (!tbody) return;
 
-    const rowCount = tbody.querySelectorAll('tr').length;
-    if (rowCount === 0) {
+    const visibleRows = tbody.querySelectorAll('tr[data-row-id]');
+    if (visibleRows.length === 0) {
       const emptyTr = document.createElement('tr');
       emptyTr.innerHTML = `
-        <td colspan="9" style="padding:20px; color:#64748b; font-weight:600;">
+        <td colspan="9" style="padding:22px; color:#64748b; font-weight:900;">
           ${currentViewMode === 'today'
             ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
             : '📭 ไม่มีข้อมูลคำร้องใหม่'}
@@ -1196,87 +1247,95 @@
       tbody.appendChild(emptyTr);
     }
   }
-  
+
   function toggleApproveButton(id) {
     const deptSelect = document.getElementById(`dept-${id}`);
     const approveBtn = document.getElementById(`approve-btn-${id}`);
 
     if (!deptSelect || !approveBtn) return;
-
     approveBtn.disabled = !deptSelect.value;
   }
-  
+
   async function approve(id) {
-  try {
-    const deptSelect = document.getElementById(`dept-${id}`);
-    const department = deptSelect ? deptSelect.value : '';
+    try {
+      const deptSelect = document.getElementById(`dept-${id}`);
+      const department = deptSelect ? deptSelect.value : '';
 
-    if (!department) {
-      alert('กรุณาเลือกแผนกก่อนอนุมัติ');
+      if (!department) {
+        alert('กรุณาเลือกแผนกก่อนอนุมัติ');
+        return;
+      }
+
+      const deptRes = await fetch(`/set-department/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ department })
+      });
+
+      const deptData = await deptRes.json().catch(() => ({}));
+      if (!deptRes.ok) {
+        alert(deptData.message || 'เปลี่ยนแผนกไม่สำเร็จ');
+        return;
+      }
+
+      const approveRes = await fetch(`/approve/${id}`, { method: 'POST' });
+      const approveText = await approveRes.text();
+
+      alert(approveText || 'อนุมัติสำเร็จ');
+
+      removeFromActiveNewIds(id);
+      removeRowFromTable(id);
+
+      setTimeout(() => { safeLoadData(); }, 200);
+    } catch (err) {
+      console.error('approve error:', err);
+      alert('เกิดข้อผิดพลาดในการอนุมัติ');
+    }
+  }
+
+  function openRejectReasonModal(id) {
+    currentRejectId = id;
+    document.getElementById('reject-reason').value = '';
+    document.getElementById('reject-modal').style.display = 'flex';
+  }
+
+  function closeRejectModal() {
+    document.getElementById('reject-modal').style.display = 'none';
+  }
+
+  async function submitReject() {
+    const reason = document.getElementById('reject-reason').value.trim();
+    if (!reason) {
+      alert("กรุณากรอกเหตุผลก่อนส่ง");
       return;
     }
 
-    // 1) บันทึกแผนกก่อน
-    const deptRes = await fetch(`/set-department/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ department })
-    });
+    const rejectId = currentRejectId;
 
-    const deptData = await deptRes.json();
+    try {
+      const res = await fetch(`/reject/${rejectId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
 
-    if (!deptRes.ok) {
-      alert(deptData.message || 'เปลี่ยนแผนกไม่สำเร็จ');
-      return;
+      if (res.redirected) {
+        window.location.href = res.url;
+        return;
+      } else {
+        const text = await res.text();
+        alert(text || 'ไม่อนุมัติสำเร็จ');
+      }
+
+      closeRejectModal();
+      removeFromActiveNewIds(rejectId);
+      removeRowFromTable(rejectId);
+
+      setTimeout(() => { safeLoadData(); }, 200);
+    } catch (err) {
+      console.error('submitReject error:', err);
+      alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
     }
-
-    // 2) ค่อยอนุมัติ
-    const approveRes = await fetch(`/approve/${id}`, { method: 'POST' });
-    const approveText = await approveRes.text();
-
-    alert(approveText || 'อนุมัติสำเร็จ');
-
-    removeFromActiveNewIds(id);
-    removeRowFromTable(id);
-
-    setTimeout(() => { safeLoadData(); }, 200);
-  } catch (err) {
-    console.error('approve error:', err);
-    alert('เกิดข้อผิดพลาดในการอนุมัติ');
-  }
-}
-
-  async function setDept(id, dept) {
-    const res = await fetch(`/set-department/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ department: dept })
-    });
-    const data = await res.json();
-    alert(data.message || 'เปลี่ยนแผนกแล้ว');
-    removeFromActiveNewIds(id);
-    safeLoadData();
-  }
-
-  async function setStatus(id, status) {
-    const res = await fetch(`/set-status/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    alert(await res.text());
-    safeLoadData();
-  }
-</script>
-
-<script>
-  let autoTimer = null;
-  let isLoading = false;
-
-  function setLastUpdated() {
-    const now = new Date();
-    document.getElementById('last-updated').textContent =
-      now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
   }
 
   async function safeLoadData() {
@@ -1284,339 +1343,260 @@
     isLoading = true;
     try {
       await loadData();
-      setLastUpdated();
     } catch (e) {
-      console.error("Auto refresh error:", e);
+      console.error("load error:", e);
     } finally {
       isLoading = false;
     }
   }
 
-  function startAutoRefresh(ms = 15000) {
-    stopAutoRefresh();
-    autoTimer = setInterval(() => {
-      const toggle = document.getElementById('auto-refresh-toggle');
-      if (!toggle || toggle.checked) safeLoadData();
-    }, ms);
-  }
-
-  function stopAutoRefresh() {
-    if (autoTimer) clearInterval(autoTimer);
-    autoTimer = null;
-  }
-
-  function manualRefresh() {
-    safeLoadData();
-  }
-
-  window.addEventListener('load', () => {
-    updateViewModeUI();
-    safeLoadData();
-    startAutoRefresh(15000);
-
-    const toggle = document.getElementById('auto-refresh-toggle');
-    if (toggle) {
-      toggle.addEventListener('change', () => {
-        if (!toggle.checked) stopAutoRefresh();
-        else startAutoRefresh(15000);
-      });
-    }
-  });
-</script>
-
-<script>
-function showImages(images) {
-  const safeImages = (images || []).filter(img => {
-    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-    return !!rawUrl;
-  });
-
-  const itemsHtml = safeImages.map((img, index) => {
-    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-    const url = encodeURI(rawUrl);
-    const type = (typeof img === 'object' && img?.type) ? img.type : '';
-
-    const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
-
-    const mediaHtml = isVideo
-      ? `
-        <video controls preload="metadata" class="preview-media">
-          <source src="${url}">
-          เบราว์เซอร์ไม่รองรับวิดีโอ
-        </video>
-      `
-      : `
-        <img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />
-      `;
-
-    return `
-      <div class="media-card">
-        <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
-          ${mediaHtml}
-        </div>
-
-        <div class="media-meta">
-          <span class="media-index">ไฟล์ที่ ${index + 1}</span>
-          <div class="media-actions">
-            <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
-              เปิดเต็ม
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  const win = window.open('', '_blank', 'width=1200,height=800');
-
-  if (!win) {
-    alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
-    return;
-  }
-
-  win.document.write(`
-    <!DOCTYPE html>
-    <html lang="th">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>ดูไฟล์ทั้งหมด</title>
-      <style>
-        * { box-sizing: border-box; }
-        body {
-          margin: 0;
-          font-family: 'Kanit', sans-serif;
-          background: #f1f5f9;
-          color: #0f172a;
-        }
-        .topbar {
-          position: sticky;
-          top: 0;
-          z-index: 10;
-          background: #ffffff;
-          border-bottom: 1px solid #e2e8f0;
-          padding: 12px 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .title { font-size: 18px; font-weight: 700; margin: 0; }
-        .count-badge {
-          background: #15563b;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 999px;
-          font-size: 13px;
-          font-weight: 700;
-        }
-        .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 16px;
-          align-items: start;
-        }
-        .media-card {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .media-link {
-          display: block;
-          text-decoration: none;
-          background: #f8fafc;
-          cursor: pointer;
-        }
-        .preview-media {
-          display: block;
-          width: 100%;
-          height: 220px;
-          object-fit: cover;
-          background: #e2e8f0;
-        }
-        .media-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 12px;
-        }
-        .media-index {
-          font-size: 13px;
-          color: #475569;
-          font-weight: 600;
-        }
-        .open-btn {
-          border: none;
-          background: #2563eb;
-          color: #fff;
-          padding: 6px 10px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-        .media-actions {
-          display: flex;
-          gap: 6px;
-          align-items: center;
-          flex-wrap: wrap;
-          justify-content: flex-end;
-        }
-        .empty {
-          text-align: center;
-          padding: 40px 20px;
-          color: #64748b;
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-        }
-        @media (max-width: 640px) {
-          .container { padding: 12px; }
-          .grid { grid-template-columns: 1fr; gap: 12px; }
-          .preview-media { height: 220px; }
-          .title { font-size: 16px; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="topbar">
-        <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
-        <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
-      </div>
-      <div class="container">
-        ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
-      </div>
-
-      <script>
-        function openMediaViewer(payload) {
-          const { url, isVideo, index } = payload || {};
-          if (!url) return;
-
-          const viewer = window.open('', '_blank', 'width=1200,height=800');
-          if (!viewer) {
-            alert('กรุณาอนุญาต popup');
-            return;
-          }
-
-          if (isVideo) {
-            viewer.document.write(\`
-              <!DOCTYPE html>
-              <html lang="th">
-              <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>วิดีโอ #\${index}</title>
-                <style>
-                  body{margin:0;background:#0b1220;color:#fff;font-family:'Kanit',sans-serif}
-                  .bar{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0f172a}
-                  .bar .t{font-weight:800}
-                  .wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:14px}
-                  video{width:min(1100px,100%);height:auto;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);background:#000}
-                  a{color:#93c5fd;text-decoration:none;font-weight:800}
-                </style>
-              </head>
-              <body>
-                <div class="bar">
-                  <div class="t">🎞️ วิดีโอ #\${index}</div>
-                  <a href="\${url}" target="_blank" rel="noopener">เปิดในแท็บใหม่</a>
-                </div>
-                <div class="wrap">
-                  <video controls autoplay playsinline>
-                    <source src="\${url}">
-                    เบราว์เซอร์ไม่รองรับวิดีโอ
-                  </video>
-                </div>
-              </body>
-              </html>
-            \`);
-          } else {
-            viewer.document.write(\`
-              <!DOCTYPE html>
-              <html lang="th">
-              <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>รูปภาพ #\${index}</title>
-                <style>
-                  body{margin:0;background:#0b1220;color:#fff;font-family:'Kanit',sans-serif}
-                  .bar{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0f172a}
-                  .bar .t{font-weight:800}
-                  .wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:14px}
-                  img{width:min(1100px,100%);height:auto;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);background:#111}
-                  a{color:#93c5fd;text-decoration:none;font-weight:800}
-                </style>
-              </head>
-              <body>
-                <div class="bar">
-                  <div class="t">🖼️ รูปภาพ #\${index}</div>
-                  <a href="\${url}" target="_blank" rel="noopener">เปิดในแท็บใหม่</a>
-                </div>
-                <div class="wrap">
-                  <img src="\${url}" alt="รูปภาพ #\${index}" />
-                </div>
-              </body>
-              </html>
-            \`);
-          }
-          viewer.document.close();
-        }
-        window.openMediaViewer = openMediaViewer;
-      <\/script>
-    </body>
-    </html>
-  `);
-
-  win.document.close();
-}
-</script>
-
-<script>
-  let rejectTargetId = null;
-
-  function openRejectReasonModal(id) {
-    rejectTargetId = id;
-    document.getElementById("reject-modal").style.display = "flex";
-    document.getElementById("reject-reason").value = "";
-    document.getElementById("reject-reason").focus();
-  }
-
-  function closeRejectModal() {
-    document.getElementById("reject-modal").style.display = "none";
-    rejectTargetId = null;
-  }
-
-  async function submitReject() {
-    const reason = document.getElementById("reject-reason").value.trim();
-    if (!reason) return alert("กรุณากรอกเหตุผลก่อนส่ง");
-
-    const res = await fetch(`/reject/${rejectTargetId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason })
+  function showImages(images) {
+    const safeImages = (images || []).filter(img => {
+      const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+      return !!rawUrl;
     });
 
-    const data = await res.json();
-    alert(data.message || "ไม่อนุมัติแล้ว");
+    const itemsHtml = safeImages.map((img, index) => {
+      const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+      const url = encodeURI(rawUrl);
+      const type = (typeof img === 'object' && img?.type) ? img.type : '';
+      const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
 
-    closeRejectModal();
-    removeFromActiveNewIds(rejectTargetId);
-    removeRowFromTable(rejectTargetId);
-    safeLoadData();
+      const mediaHtml = isVideo
+        ? `
+          <video controls preload="metadata" class="preview-media">
+            <source src="${url}">
+            เบราว์เซอร์ไม่รองรับวิดีโอ
+          </video>
+        `
+        : `
+          <img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />
+        `;
+
+      return `
+        <div class="media-card">
+          <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
+            ${mediaHtml}
+          </div>
+
+          <div class="media-meta">
+            <span class="media-index">ไฟล์ที่ ${index + 1}</span>
+            <div class="media-actions">
+              <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
+                เปิดเต็ม
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const win = window.open('', '_blank', 'width=1200,height=800');
+    if (!win) {
+      alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+      return;
+    }
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="th">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>ดูไฟล์ทั้งหมด</title>
+        <style>
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            font-family: 'Kanit', sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+          }
+          .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+          .title { font-size: 18px; font-weight: 700; margin: 0; }
+          .count-badge {
+            background: #155263;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+          }
+          .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            align-items: start;
+          }
+          .media-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          }
+          .media-link {
+            display: block;
+            text-decoration: none;
+            background: #f8fafc;
+            cursor: pointer;
+          }
+          .preview-media {
+            display: block;
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: #e2e8f0;
+          }
+          .media-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+          }
+          .media-index {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 600;
+          }
+          .open-btn {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+          }
+          .media-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+          }
+          .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="topbar">
+          <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
+          <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+        </div>
+        <div class="container">
+          ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
+        </div>
+
+        <script>
+          function openMediaViewer(payload) {
+            const { url, isVideo, index } = payload || {};
+            if (!url) return;
+
+            const viewer = window.open('', '_blank', 'width=1200,height=800');
+            if (!viewer) {
+              alert('กรุณาอนุญาต popup');
+              return;
+            }
+
+            if (isVideo) {
+              viewer.document.write(\`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  <title>วิดีโอไฟล์ที่ \${index}</title>
+                  <style>
+                    body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                    .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                    .btn { color:#fff; background:#334155; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
+                    .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                    video { width:100%; max-width:1200px; max-height:calc(100vh - 90px); background:black; border-radius:12px; outline:none; }
+                  </style>
+                </head>
+                <body>
+                  <div class="top">
+                    <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
+                    <div><a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a></div>
+                  </div>
+                  <div class="wrap">
+                    <video controls autoplay playsinline>
+                      <source src="\${url}">
+                    </video>
+                  </div>
+                </body>
+                </html>
+              \`);
+            } else {
+              viewer.document.write(\`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  <title>รูปภาพไฟล์ที่ \${index}</title>
+                  <style>
+                    body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                    .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                    .btn { color:#fff; background:#334155; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
+                    .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                    img { max-width:100%; max-height:calc(100vh - 90px); object-fit:contain; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.35); background:#fff; }
+                  </style>
+                </head>
+                <body>
+                  <div class="top">
+                    <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                    <div><a class="btn" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a></div>
+                  </div>
+                  <div class="wrap">
+                    <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+                  </div>
+                </body>
+                </html>
+              \`);
+            }
+
+            viewer.document.close();
+          }
+        <\/script>
+      </body>
+      </html>
+    `);
+
+    win.document.close();
   }
 
-  // ปิด modal ด้วย ESC
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeRejectModal();
+    if (e.key === 'Escape') {
+      closeRejectModal();
+    }
   });
 
-  // ปิด modal เมื่อคลิกพื้นหลัง
-  document.getElementById("reject-modal").addEventListener("click", (e) => {
-    if (e.target.id === "reject-modal") closeRejectModal();
+  window.addEventListener('load', async () => {
+    updateViewModeUI();
+    await safeLoadData();
   });
 </script>
 
