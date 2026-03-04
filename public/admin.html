@@ -191,39 +191,6 @@
       margin: 10px 6px;
     }
 
-    .export-group{
-      margin-top:12px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    .side-green-btn{
-      width:100%;
-      margin-top:0;
-      padding:14px 14px;
-      border:none;
-      border-radius:16px;
-      background:linear-gradient(135deg,#14532d,#16a34a);
-      color:#fff;
-      font-size:17px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 10px 24px rgba(22,163,74,.22);
-      transition:transform .15s ease, opacity .2s ease, box-shadow .2s ease;
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-    }
-
-    .side-green-btn:hover{
-      opacity:.96;
-      transform:translateY(-1px);
-      box-shadow:0 14px 28px rgba(22,163,74,.28);
-    }
-
     .main{
       flex:1;
       min-width:0;
@@ -615,7 +582,7 @@
       display:none;
       position:fixed;
       inset:0;
-      background-color:rgba(0,0,0,0.4);
+      background-color:rgba(0,0,0,0.45);
       z-index:9999;
       justify-content:center;
       align-items:center;
@@ -661,6 +628,106 @@
       flex-wrap:wrap;
     }
 
+    .detail-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.5);
+      z-index:10000;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .detail-modal{
+      width:min(860px, 100%);
+      max-height:85vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 24px 60px rgba(2,6,23,.25);
+    }
+
+    .detail-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid #e2e8f0;
+      background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+
+    .detail-head h3{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .detail-close{
+      border:none;
+      background:#fee2e2;
+      color:#991b1b;
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      font-size:20px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    .detail-body{ padding:18px; }
+
+    .detail-grid{
+      display:grid;
+      grid-template-columns: 160px 1fr;
+      gap:10px 14px;
+      margin-bottom:16px;
+    }
+
+    .detail-label{ color:#475569; font-weight:900; }
+    .detail-value{ color:#0f172a; font-weight:800; word-break:break-word; }
+
+    .detail-message-box{
+      margin-top:8px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:14px;
+      color:#0f172a;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .detail-file-box{
+      margin-top:8px;
+      background:#ffffff;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .detail-file-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .detail-file-meta{
+      color:#334155;
+      font-weight:800;
+      font-size:14px;
+    }
+
     @media (max-width:1100px){
       .stats-grid{
         grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -682,6 +749,7 @@
 
     @media (max-width:700px){
       .stats-grid{ grid-template-columns:1fr; }
+      .detail-grid{ grid-template-columns:1fr; gap:6px; }
     }
   </style>
 </head>
@@ -732,14 +800,6 @@
       <a href="/rejected" class="side-link">
         <span class="label">❌ ไม่อนุมัติแล้ว</span>
       </a>
-
-      <div class="divider"></div>
-
-      <div class="export-group">
-        <a href="/choose-pending-admin.html" class="side-green-btn">📂 รายการรอดำเนินการ</a>
-        <a href="/choose-inprogress-admin.html" class="side-green-btn">📂 รายการกำลังดำเนินการ</a>
-        <a href="/choose-completed-admin.html" class="side-green-btn">📂 รายการเสร็จสิ้น</a>
-      </div>
     </div>
   </aside>
 
@@ -789,7 +849,7 @@
       <div class="card">
         <div class="card-h">
           <h2>ค้นหา</h2>
-          <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • แสดงผลแบบตาราง</div>
+          <div class="tiny">ค้นหาได้ทั้งชื่อ/เบอร์ • กดดูรายละเอียดใน modal</div>
         </div>
 
         <div class="card-b">
@@ -823,7 +883,7 @@
               <tr>
                 <th>ชื่อ</th>
                 <th>เบอร์</th>
-                <th>ข้อความ</th>
+                <th>รายละเอียด</th>
                 <th>ไฟล์</th>
                 <th>แผนก</th>
                 <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
@@ -843,12 +903,49 @@
 <div id="reject-modal" class="modal-overlay">
   <div class="modal-box">
     <h3>📣 กรุณาระบุเหตุผลไม่อนุมัติ</h3>
-
     <textarea id="reject-reason"></textarea>
 
     <div class="modal-actions">
       <button onclick="submitReject()" class="btn danger">ส่ง</button>
       <button onclick="closeRejectModal()" class="btn">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="detailModal" class="detail-overlay" onclick="closeDetailModal(event)">
+  <div class="detail-modal" onclick="event.stopPropagation()">
+    <div class="detail-head">
+      <h3>รายละเอียดคำร้อง</h3>
+      <button class="detail-close" onclick="closeDetailModal()">×</button>
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-grid">
+        <div class="detail-label">ชื่อ</div>
+        <div class="detail-value" id="detailName">-</div>
+
+        <div class="detail-label">เบอร์โทร</div>
+        <div class="detail-value" id="detailPhone">-</div>
+
+        <div class="detail-label">แผนก</div>
+        <div class="detail-value" id="detailDepartment">-</div>
+
+        <div class="detail-label">สถานะ</div>
+        <div class="detail-value" id="detailStatus">-</div>
+
+        <div class="detail-label">วันที่-เวลา</div>
+        <div class="detail-value" id="detailDate">-</div>
+      </div>
+
+      <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
+      <div class="detail-message-box" id="detailMessage">-</div>
+
+      <div style="height:14px;"></div>
+
+      <div class="detail-label" style="margin-bottom:8px;">ไฟล์แนบจากผู้ใช้</div>
+      <div id="detailFilesBox">
+        <div class="detail-message-box">ไม่มีไฟล์แนบ</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1046,6 +1143,66 @@
     return `<div class="media-container">${firstElement}${buttonHtml}</div>`;
   }
 
+  function renderDetailImageButtons(files = [], emptyText = 'ไม่มีไฟล์แนบ') {
+    const box = document.getElementById('detailFilesBox');
+    if (!box) return;
+
+    const validFiles = (Array.isArray(files) ? files : []).filter(item => {
+      if (typeof item === 'string') return !!item;
+      return !!item?.url;
+    });
+
+    if (!validFiles.length) {
+      box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="detail-file-box">
+        <div class="detail-file-row">
+          <div class="detail-file-meta">จำนวน ${validFiles.length} ไฟล์</div>
+          <button
+            type="button"
+            class="btn link-btn"
+            onclick='showImages(${JSON.stringify(validFiles)})'
+          >
+            ดูไฟล์ทั้งหมด
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function openDetailById(id) {
+    const row = latestRows.find(x => String(x.id) === String(id));
+    if (!row) return;
+
+    let files = [];
+    try {
+      if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+      else if (Array.isArray(row.photo)) files = row.photo;
+    } catch (e) {
+      files = [];
+    }
+
+    document.getElementById('detailName').textContent = row?.name || '-';
+    document.getElementById('detailPhone').textContent = row?.phone || '-';
+    document.getElementById('detailDepartment').textContent = row?.department || '-';
+    document.getElementById('detailStatus').textContent = row?.status || 'รอการอนุมัติ';
+    document.getElementById('detailDate').textContent = formatDate(row?.created_at);
+    document.getElementById('detailMessage').textContent = row?.message || '-';
+
+    renderDetailImageButtons(files, 'ไม่มีไฟล์แนบ');
+    document.getElementById('detailModal').style.display = 'flex';
+  }
+
+  function closeDetailModal(e) {
+    if (e && e.target && e.target.id !== 'detailModal') return;
+
+    document.getElementById('detailModal').style.display = 'none';
+    document.getElementById('detailFilesBox').innerHTML = `<div class="detail-message-box">ไม่มีไฟล์แนบ</div>`;
+  }
+
   function renderTable(data) {
     const tbody = document.querySelector("#data-table tbody");
     if (!tbody) return;
@@ -1065,9 +1222,9 @@
         files = [];
       }
 
-      const seenIds = new Set(getSeenIds());
       const activeNewIds = new Set(getActiveNewIds());
-      const isNewRow = !!(rowId && activeNewIds.has(rowId) && !seenIds.has(-999999999));
+      const isNewRow = !!(rowId && activeNewIds.has(rowId));
+
       const mapLink = row.latitude && row.longitude
         ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
         : "-";
@@ -1101,7 +1258,9 @@
           ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
         </td>
         <td>${escapeHtml(row.phone || "-")}</td>
-        <td style="word-break:break-word;">${escapeHtml(row.message || "-")}</td>
+        <td>
+          <button class="btn link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
+        </td>
         <td>${fileLinks || "-"}</td>
         <td>${escapeHtml(row.department || "-")}</td>
         <td>${bounceCell}</td>
@@ -1591,6 +1750,7 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeRejectModal();
+      closeDetailModal();
     }
   });
 
