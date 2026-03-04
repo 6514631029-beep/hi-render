@@ -2,24 +2,541 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>📋 ระบบจัดการคำร้อง (Admin)</title>
+  <title>📋 จัดการคำร้อง (Admin)</title>
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .navbar {
+      background-color: #15563b;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .nav-links {
+      display: flex;
+      gap: 16px;
+    }
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+    .nav-link:hover {
+      background-color: #1e6e50;
+    }
+    .nav-link.active {
+      background-color: #1e6e50;
+    }
+    h2 {
+      margin: 0;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px; /* ✅ เพิ่มนิดนึงเพราะเพิ่มคอลัมน์ */
+    }
+    th, td {
+      padding: 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background-color: #15563b;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    img {
+      max-width: 150px;
+      max-height: 120px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    video {
+      max-width: 300px;
+      max-height: 200px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn {
+      padding: 6px 14px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 4px 0;
+      transition: background-color 0.2s ease;
+      font-family: 'Kanit', sans-serif;
+    }
 
-  <!-- ใช้ฟอนต์ชุดเดียวกับ admin-health -->
-  <link rel="stylesheet" href="/admin-font.css" />
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn.approve {
+      background-color: #22c55e;
+      color: white;
+    }
+    .btn.reject {
+      background-color: #ef4444;
+      color: white;
+    }
+    .btn.approve:hover:not(:disabled) {
+      background-color: #16a34a;
+    }
+    .btn.reject:hover:not(:disabled) {
+      background-color: #dc2626;
+    }
+    select {
+      padding: 6px;
+      border-radius: 6px;
+      margin: 4px 0;
+      width: 110px;
+      font-family: 'Kanit', sans-serif;
+    }
+    a.map-link {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: bold;
+    }
+    .media-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+    }
+    tbody tr:nth-child(even) {
+     background-color: #f9fafb;
+    }
 
-  <script>
+    tbody tr:hover {
+      background-color: #e0f2fe;
+    }
+
+    th, td {
+      padding: 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    td {
+      color: #334155;
+      font-size: 15px;
+    }
+
+    th {
+      background-color: #15563b;
+      color: white;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== NEW ITEM HIGHLIGHT ===== */
+    .new-banner {
+      display: none;
+      margin: 0 0 12px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-weight: 700;
+    }
+    .new-banner.show { display:block; }
+    tr.row-new {
+      background-color: #fff8c5 !important;
+      animation: newRowPulse 1s ease-in-out 2;
+    }
+    .new-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f59e0b;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    @keyframes newRowPulse {
+      0%   { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0.35); }
+      100% { box-shadow: inset 0 0 0 9999px rgba(253, 224, 71, 0); }
+    }
+
+    /* ✅ badge สำหรับตีกลับ */
+    .bounce-badge {
+      display:inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      margin-bottom: 6px;
+    }
+
+    .small-muted {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+  
+    .status-shortcuts{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:16px;
+      margin:0 0 18px 0;
+    }
+
+    .shortcut-card{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      text-decoration:none;
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .shortcut-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .shortcut-icon{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      flex:0 0 auto;
+    }
+
+    .shortcut-text{
+      flex:1;
+    }
+
+    .shortcut-title{
+      font-size:20px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+
+    .shortcut-desc{
+      font-size:14px;
+      color:#64748b;
+      line-height:1.5;
+    }
+
+    .shortcut-card.pending{
+      background:#fff7ed;
+      border-color:#fdba74;
+    }
+
+    .shortcut-card.pending .shortcut-icon{
+      background:#ffedd5;
+    }
+
+    .shortcut-card.progress{
+      background:#eff6ff;
+      border-color:#93c5fd;
+    }
+
+    .shortcut-card.progress .shortcut-icon{
+      background:#dbeafe;
+    }
+
+    .shortcut-card.completed{
+      background:#ecfdf5;
+      border-color:#86efac;
+    }
+
+    .shortcut-card.completed .shortcut-icon{
+      background:#dcfce7;
+    }
+  
+    .admin-shortcuts{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;
+      margin:0 0 18px 0;
+    }
+
+    .admin-shortcut-card{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      text-decoration:none;
+      background:#fff7ed;
+      border:1px solid #fdba74;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .admin-shortcut-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .admin-shortcut-icon{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      background:#ffedd5;
+      flex:0 0 auto;
+    }
+
+    .admin-shortcut-text{
+      flex:1;
+    }
+
+    .admin-shortcut-title{
+      font-size:20px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+
+    .admin-shortcut-desc{
+      font-size:14px;
+      color:#64748b;
+      line-height:1.5;
+    }
+
+    .admin-shortcut-card.pending{
+      background:#fff7ed;
+      border-color:#fdba74;
+    }
+
+    .admin-shortcut-card.pending .admin-shortcut-icon{
+      background:#ffedd5;
+    }
+
+    .admin-shortcut-card.progress{
+      background:#eff6ff;
+      border-color:#93c5fd;
+    }
+
+    .admin-shortcut-card.progress .admin-shortcut-icon{
+      background:#dbeafe;
+    }
+
+    .admin-shortcut-card.completed{
+      background:#ecfdf5;
+      border-color:#86efac;
+    }
+
+    .admin-shortcut-card.completed .admin-shortcut-icon{
+      background:#dcfce7;
+    }
+  
+  </style>
+</head>
+<body>
+
+<!-- กล่อง modal สำหรับป้อนเหตุผล -->
+<div id="reject-modal" style="
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.4);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+">
+  <div style="
+    background:white;
+    padding:24px;
+    border-radius:16px;
+    width:90%;
+    max-width:460px;
+    font-family:'Kanit';
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    text-align: center;
+  ">
+    <h3 style="margin-bottom:16px; font-size:20px; text-align:center;">
+      📣 กรุณาระบุเหตุผลไม่อนุมัติ
+    </h3>
+
+    <textarea id="reject-reason" rows="4" style="
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding:12px;
+      border-radius:10px;
+      border:1.5px solid #ccc;
+      font-size:16px;
+      resize: vertical;
+      transition: border 0.2s;
+      font-family: 'Kanit', sans-serif;
+    "></textarea>
+
+    <div style="margin-top:20px; text-align:center; display:flex; gap:10px; justify-content:center;">
+      <button onclick="submitReject()" style="
+        padding:10px 20px;
+        background:#ef4444;
+        color:white;
+        border:none;
+        border-radius:10px;
+        font-weight:bold;
+        font-size:15px;
+        cursor:pointer;
+        transition: background 0.2s;
+      " onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">ส่ง</button>
+
+      <button onclick="closeRejectModal()" style="
+        padding:10px 20px;
+        background:#f3f4f6;
+        color:#111827;
+        border:none;
+        border-radius:10px;
+        font-weight:bold;
+        font-size:15px;
+        cursor:pointer;
+        transition: background 0.2s;
+      " onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+  <nav class="navbar">
+    <div class="navbar-container">
+      <h2>📋 ระบบจัดการคำร้อง</h2>
+      <div class="nav-links">
+        <a href="/approved-all" class="nav-link">✅ อนุมัติแล้ว</a>
+        <a href="/rejected" class="nav-link">❌ ไม่อนุมัติแล้ว</a>
+      </div>
+    </div>
+  </nav>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0 14px; gap:10px; flex-wrap:wrap;">
+    <div style="color:#334155; font-weight:600;">
+      🔄 อัปเดตล่าสุด: <span id="last-updated">-</span>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <span id="view-mode-badge" style="
+        background:#e2e8f0;
+        color:#0f172a;
+        padding:6px 10px;
+        border-radius:999px;
+        font-weight:700;
+        font-size:13px;
+      ">โหมด: คำร้องใหม่ทั้งหมด</span>
+
+      <button class="btn" id="btn-show-all" onclick="setViewMode('all')" style="background:#e2e8f0; color:#0f172a;">
+        📋 คำร้องทั้งหมด
+      </button>
+
+      <button class="btn" id="btn-show-today" onclick="setViewMode('today')" style="background:#dbeafe; color:#1d4ed8;">
+        📅 คำร้องวันนี้
+      </button>
+
+      <button class="btn" id="btn-refresh" onclick="manualRefresh()">รีเฟรชตอนนี้</button>
+
+      <label style="display:flex; align-items:center; gap:6px; color:#334155; font-weight:600;">
+        <input type="checkbox" id="auto-refresh-toggle" checked />
+        รีเฟรชอัตโนมัติ
+      </label>
+    </div>
+  </div>
+<div id="new-banner" class="new-banner"></div>
+
+<div class="admin-shortcuts">
+  <a href="/choose-pending-admin.html" class="admin-shortcut-card pending">
+    <div class="admin-shortcut-icon">⏳</div>
+    <div class="admin-shortcut-text">
+      <div class="admin-shortcut-title">ดูรอดำเนินการ</div>
+      <div class="admin-shortcut-desc">
+        สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการรอดำเนินการแบบอ่านอย่างเดียว
+      </div>
+    </div>
+  </a>
+
+  <a href="/choose-inprogress-admin.html" class="admin-shortcut-card progress">
+    <div class="admin-shortcut-icon">⚙️</div>
+    <div class="admin-shortcut-text">
+      <div class="admin-shortcut-title">ดูกำลังดำเนินการ</div>
+      <div class="admin-shortcut-desc">
+        สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการกำลังดำเนินการแบบอ่านอย่างเดียว
+      </div>
+    </div>
+  </a>
+
+  <a href="/choose-completed-admin.html" class="admin-shortcut-card completed">
+    <div class="admin-shortcut-icon">✅</div>
+    <div class="admin-shortcut-text">
+      <div class="admin-shortcut-title">ดูเสร็จสิ้น</div>
+      <div class="admin-shortcut-desc">
+        สำหรับแอดมินหลัก ใช้เลือกแผนกเพื่อดูรายการเสร็จสิ้นแบบอ่านอย่างเดียว
+      </div>
+    </div>
+  </a>
+</div>
+
+<div class="table-wrapper">
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>ชื่อ</th>
+          <th>เบอร์</th>
+          <th>ข้อความ</th>
+          <th>ไฟล์</th>
+          <th>แผนก</th>
+
+          <!-- ✅ เพิ่มคอลัมน์นี้ -->
+          <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
+
+          <th>แผนที่</th>
+          <th>วันที่และเวลา</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+  // ===== New item detection (client-side only) =====
   let isFirstLoadByMode = { all: true, today: true };
-  let currentViewMode = 'all';
-  let isLoading = false;
-  let autoTimer = null;
-
-  let rawData = [];
-  let filteredData = [];
-  let typingTimer = null;
-
-  let currentDetailId = null;
-  let currentRejectId = null;
 
   function getSeenKey() {
     return currentViewMode === 'today'
@@ -115,6 +632,7 @@
     }[m]));
   }
 
+  // (ไม่บังคับ) ใช้ตอนทดสอบ อยากให้ระบบนับใหม่อีกครั้ง
   function resetSeenNewState() {
     localStorage.removeItem('admin_seen_ids_all_v1');
     localStorage.removeItem('admin_seen_ids_today_v1');
@@ -125,34 +643,30 @@
     alert('รีเซ็ตสถานะ "ข้อมูลใหม่" แล้ว');
     safeLoadData();
   }
+</script>
+
+<script>
+  let currentViewMode = 'all'; // all | today
 
   function updateViewModeUI() {
     const badge = document.getElementById('view-mode-badge');
     const btnAll = document.getElementById('btn-show-all');
     const btnToday = document.getElementById('btn-show-today');
-    const totalSub = document.getElementById('kpiTotalSub');
 
     if (badge) {
       badge.textContent = currentViewMode === 'today'
         ? 'โหมด: คำร้องวันนี้'
         : 'โหมด: คำร้องใหม่ทั้งหมด';
-
-      badge.classList.remove('mode-all', 'mode-today');
-      badge.classList.add(currentViewMode === 'today' ? 'mode-today' : 'mode-all');
     }
 
     if (btnAll) {
-      btnAll.classList.toggle('blue', currentViewMode === 'all');
-      btnAll.classList.toggle('ghost', currentViewMode !== 'all');
+      btnAll.style.background = currentViewMode === 'all' ? '#15563b' : '#e2e8f0';
+      btnAll.style.color = currentViewMode === 'all' ? '#fff' : '#0f172a';
     }
 
     if (btnToday) {
-      btnToday.classList.toggle('blue', currentViewMode === 'today');
-      btnToday.classList.toggle('ghost', currentViewMode !== 'today');
-    }
-
-    if (totalSub) {
-      totalSub.textContent = currentViewMode === 'today' ? '/data-today' : '/data';
+      btnToday.style.background = currentViewMode === 'today' ? '#1d4ed8' : '#dbeafe';
+      btnToday.style.color = currentViewMode === 'today' ? '#fff' : '#1d4ed8';
     }
   }
 
@@ -160,114 +674,6 @@
     currentViewMode = mode === 'today' ? 'today' : 'all';
     updateViewModeUI();
     await safeLoadData();
-  }
-
-  function setLastUpdated() {
-    const now = new Date();
-    const el = document.getElementById('last-updated');
-    if (!el) return;
-    el.textContent = now.toLocaleString('th-TH', {
-      dateStyle: 'short',
-      timeStyle: 'medium'
-    });
-  }
-
-  function formatDate(dateString) {
-    if (!dateString) return '-';
-    const d = new Date(dateString);
-    if (isNaN(d)) return '-';
-    return d.toLocaleString('th-TH', {
-      dateStyle: 'short',
-      timeStyle: 'short'
-    });
-  }
-
-  function normalizeFiles(row) {
-    let files = [];
-    try {
-      if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
-      else if (Array.isArray(row.photo)) files = row.photo;
-    } catch (e) {
-      files = [];
-    }
-    return Array.isArray(files) ? files : [];
-  }
-
-  function normalizeFileUrl(item) {
-    if (typeof item === 'string') return item.startsWith('uploads/') ? `/${item}` : item;
-    const raw = item?.url || '';
-    return raw.startsWith('uploads/') ? `/${raw}` : raw;
-  }
-
-  function isVideoFile(item) {
-    const url = normalizeFileUrl(item).toLowerCase();
-    const type = (typeof item === 'object' && item?.type) ? item.type : '';
-    return type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
-  }
-
-  function buildMapLink(row) {
-    if (row.latitude && row.longitude) {
-      const href = `https://www.google.com/maps?q=${row.latitude},${row.longitude}`;
-      return `<a class="map-link" href="${href}" target="_blank" rel="noopener">📍 แผนที่</a>`;
-    }
-    return '-';
-  }
-
-  function calcKpis(rows, newCount) {
-    const todayCount = rows.filter(r => {
-      if (!r.created_at) return false;
-      const d = new Date(r.created_at);
-      if (isNaN(d)) return false;
-      const now = new Date();
-      const thDate = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Asia/Bangkok',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).format(d);
-      const thNow = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Asia/Bangkok',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).format(now);
-      return thDate === thNow;
-    }).length;
-
-    const bounceCount = rows.filter(r =>
-      (r.status === 'รอแอดมินหลัก') || (Number(r.dept_accept) === 0)
-    ).length;
-
-    const elToday = document.getElementById('kpiToday');
-    const elNew = document.getElementById('kpiNew');
-    const elTotal = document.getElementById('kpiTotal');
-    const elBounce = document.getElementById('kpiBounce');
-
-    if (elToday) elToday.textContent = String(todayCount);
-    if (elNew) elNew.textContent = String(newCount);
-    if (elTotal) elTotal.textContent = String(rows.length);
-    if (elBounce) elBounce.textContent = String(bounceCount);
-
-    const sideTotal = document.getElementById('sideCountTotal');
-    if (sideTotal) sideTotal.textContent = String(rows.length);
-  }
-
-  function applyKeywordFilter() {
-    const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-    if (!keyword) return [...rawData];
-
-    return rawData.filter(row =>
-      (row.name && String(row.name).toLowerCase().includes(keyword)) ||
-      (row.phone && String(row.phone).toLowerCase().includes(keyword))
-    );
-  }
-
-  function filterByName() {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      filteredData = applyKeywordFilter();
-      renderTable();
-    }, 150);
   }
 
   async function loadData() {
@@ -280,96 +686,287 @@
     }
 
     const data = await res.json();
-    rawData = Array.isArray(data) ? data : [];
+    console.log(`📌 โหลดข้อมูลใหม่ [${currentViewMode}]:`, data);
 
+    // ===== NEW: ตรวจข้อมูลใหม่ =====
     const seenIds = new Set(getSeenIds());
     const activeNewIds = new Set(getActiveNewIds());
     const isFirstLoad = isFirstLoadByMode[currentViewMode];
     let newCount = 0;
 
-    rawData.forEach(row => {
+    const tbody = document.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
       const rowId = Number(row.id);
 
       if (!isFirstLoad && rowId && !seenIds.has(rowId)) {
         activeNewIds.add(rowId);
       }
 
-      row.__isNew = !!(rowId && activeNewIds.has(rowId));
-      if (row.__isNew) newCount++;
-    });
+      const isNewRow = !!(rowId && activeNewIds.has(rowId));
+      if (isNewRow) newCount++;
 
-    updateNewBanner(newCount);
+      const mapLink = row.latitude && row.longitude
+        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
+        : "-";
 
-    const merged = new Set([
-      ...seenIds,
-      ...rawData.map(r => Number(r.id)).filter(Boolean)
-    ]);
-    saveSeenIds([...merged]);
-    saveActiveNewIds([...activeNewIds]);
+      const createdAt = row.created_at ? new Date(row.created_at) : null;
+      const createdAtFormatted = createdAt
+        ? createdAt.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
+        : "-";
 
-    isFirstLoadByMode[currentViewMode] = false;
+      let files = [];
+      try {
+        if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
+        else if (Array.isArray(row.photo)) files = row.photo;
+        else files = [];
+      } catch (e) {
+        console.error('⚠️ JSON parse error:', e);
+        files = [];
+      }
 
-    filteredData = applyKeywordFilter();
-    calcKpis(rawData, newCount);
-  }
+      let fileLinks = "-";
+      if (files.length > 0) {
+        const first = files[0];
+        const rawUrl = typeof first === 'string' ? first : first.url;
+        const firstUrl = encodeURI(rawUrl);
+        const firstType = (typeof first === 'object' && first.type) ? first.type : "";
 
-  function renderTable() {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
+        const firstElement = firstType === 'video'
+          ? `<video controls style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+              <source src="${firstUrl}" type="video/mp4">
+            </video>`
+          : `<img src="${firstUrl}" style="width: 150px; height: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);" />`;
 
-    const rows = filteredData;
+        const buttonHtml = `
+          <button style="
+            margin-top: 10px;
+            padding: 6px 12px;
+            border: 1px solid #999;
+            border-radius: 6px;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+          " onclick='showImages(${JSON.stringify(files)})'>
+            ดูทั้งหมด
+          </button>`;
 
-    rows.forEach(row => {
-      const createdAtFormatted = formatDate(row.created_at);
+        fileLinks = `<div class="media-container">${firstElement}${buttonHtml}</div>`;
+      }
+
+      // ✅ เคสตีกลับจากหน่วยงาน
       const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
       const bounceFrom = bounced ? (row.routed_to || '-') : '-';
+      const bounceReason = bounced ? (row.dept_reason || '-') : '-';
+
       const bounceCell = bounced
-        ? `<span class="chip bounce">ตีกลับ: ${escapeHtml(bounceFrom)}</span>`
+        ? `
+          <div class="bounce-badge">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
+          <div class="small-muted">เหตุผล: ${escapeHtml(bounceReason)}</div>
+        `
         : '-';
+      const blockedDepartment =
+        bounced && row.routed_to ? String(row.routed_to).trim() : '';
+      // ✅ ปุ่มอนุมัติจะ disable ถ้ายังไม่เลือกแผนก
+      const isDeptSelected = row.department && row.department !== "-";
 
-      const tr = document.createElement('tr');
-      tr.setAttribute('data-row-id', row.id);
+      const tr = document.createElement("tr");
+      tr.setAttribute("data-row-id", row.id);
 
-      if (row.__isNew) tr.classList.add('row-new');
+      if (isNewRow) tr.classList.add('row-new');
 
       tr.innerHTML = `
         <td>
-          ${escapeHtml(row.name || '-')}
-          ${row.__isNew ? '<span class="new-badge">ใหม่</span>' : ''}
+          ${escapeHtml(row.name || "-")}
+          ${isNewRow ? '<span class="new-badge">ใหม่</span>' : ''}
         </td>
-        <td>${escapeHtml(row.phone || '-')}</td>
-        <td>${escapeHtml(row.status || 'รอแอดมินตรวจสอบ')}</td>
+        <td>${escapeHtml(row.phone || "-")}</td>
+        <td>${escapeHtml(row.message || "-")}</td>
+        <td>${fileLinks || "-"}</td>
+        <td>${escapeHtml(row.department || "-")}</td>
+
+        <!-- ✅ เพิ่มคอลัมน์นี้ -->
         <td>${bounceCell}</td>
-        <td>${buildMapLink(row)}</td>
+
+        <td>${mapLink}</td>
         <td>${createdAtFormatted}</td>
         <td>
-          <button class="btn ghost" type="button" onclick="openDetailById(${Number(row.id)})">ดูรายละเอียด</button>
+          <button class="btn approve" id="approve-btn-${row.id}" onclick="approve(${row.id})" disabled>✅ อนุมัติ</button><br>
+          <button class="btn reject" onclick="openRejectReasonModal(${row.id})">❌ ไม่อนุมัติ</button><br>
+
+          <select id="dept-${row.id}" onchange="toggleApproveButton(${row.id})">
+            <option value="">เลือกแผนก</option>
+
+            <option
+              value="สำนักงานปลัด"
+              ${row.department === 'สำนักงานปลัด' ? 'selected' : ''}
+              ${blockedDepartment === 'สำนักงานปลัด' ? 'disabled' : ''}
+            >
+              สำนักงานปลัด${blockedDepartment === 'สำนักงานปลัด' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="สาธารณสุข"
+              ${row.department === 'สาธารณสุข' ? 'selected' : ''}
+              ${blockedDepartment === 'สาธารณสุข' ? 'disabled' : ''}
+            >
+              สาธารณสุข${blockedDepartment === 'สาธารณสุข' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="กองช่าง"
+              ${row.department === 'กองช่าง' ? 'selected' : ''}
+              ${blockedDepartment === 'กองช่าง' ? 'disabled' : ''}
+            >
+              กองช่าง${blockedDepartment === 'กองช่าง' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="ไฟฟ้า"
+              ${row.department === 'ไฟฟ้า' ? 'selected' : ''}
+              ${blockedDepartment === 'ไฟฟ้า' ? 'disabled' : ''}
+            >
+              ไฟฟ้า${blockedDepartment === 'ไฟฟ้า' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+
+            <option
+              value="อื่นๆ"
+              ${row.department === 'อื่นๆ' ? 'selected' : ''}
+              ${blockedDepartment === 'อื่นๆ' ? 'disabled' : ''}
+            >
+              อื่นๆ${blockedDepartment === 'อื่นๆ' ? ' (ตีกลับแล้ว)' : ''}
+            </option>
+          </select><br>
         </td>
       `;
-
       tbody.appendChild(tr);
     });
 
-    if (rows.length === 0) {
-      const tr = document.createElement('tr');
+    if (data.length === 0) {
+      const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td colspan="7" style="padding:20px; color:#64748b; font-weight:900; text-align:center;">
+        <td colspan="9" style="padding:20px; color:#64748b; font-weight:600;">
           ${currentViewMode === 'today' ? '📅 วันนี้ยังไม่มีคำร้องใหม่' : '📭 ไม่มีข้อมูลคำร้องใหม่'}
         </td>
       `;
       tbody.appendChild(tr);
     }
+
+    updateNewBanner(newCount);
+
+    const merged = new Set([
+      ...seenIds,
+      ...data.map(r => Number(r.id)).filter(Boolean)
+    ]);
+    saveSeenIds([...merged]);
+
+    saveActiveNewIds([...activeNewIds]);
+
+    isFirstLoadByMode[currentViewMode] = false;
   }
 
   function removeRowFromTable(id) {
     const tr = document.querySelector(`tr[data-row-id="${id}"]`);
     if (tr) tr.remove();
 
-    rawData = rawData.filter(r => String(r.id) !== String(id));
-    filteredData = filteredData.filter(r => String(r.id) !== String(id));
+    const tbody = document.querySelector('#data-table tbody');
+    if (!tbody) return;
 
-    renderTable();
-    calcKpis(rawData, rawData.filter(r => r.__isNew).length);
+    const rowCount = tbody.querySelectorAll('tr').length;
+    if (rowCount === 0) {
+      const emptyTr = document.createElement('tr');
+      emptyTr.innerHTML = `
+        <td colspan="9" style="padding:20px; color:#64748b; font-weight:600;">
+          ${currentViewMode === 'today'
+            ? '📅 วันนี้ยังไม่มีคำร้องใหม่'
+            : '📭 ไม่มีข้อมูลคำร้องใหม่'}
+        </td>
+      `;
+      tbody.appendChild(emptyTr);
+    }
+  }
+  
+  function toggleApproveButton(id) {
+    const deptSelect = document.getElementById(`dept-${id}`);
+    const approveBtn = document.getElementById(`approve-btn-${id}`);
+
+    if (!deptSelect || !approveBtn) return;
+
+    approveBtn.disabled = !deptSelect.value;
+  }
+  
+  async function approve(id) {
+  try {
+    const deptSelect = document.getElementById(`dept-${id}`);
+    const department = deptSelect ? deptSelect.value : '';
+
+    if (!department) {
+      alert('กรุณาเลือกแผนกก่อนอนุมัติ');
+      return;
+    }
+
+    // 1) บันทึกแผนกก่อน
+    const deptRes = await fetch(`/set-department/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ department })
+    });
+
+    const deptData = await deptRes.json();
+
+    if (!deptRes.ok) {
+      alert(deptData.message || 'เปลี่ยนแผนกไม่สำเร็จ');
+      return;
+    }
+
+    // 2) ค่อยอนุมัติ
+    const approveRes = await fetch(`/approve/${id}`, { method: 'POST' });
+    const approveText = await approveRes.text();
+
+    alert(approveText || 'อนุมัติสำเร็จ');
+
+    removeFromActiveNewIds(id);
+    removeRowFromTable(id);
+
+    setTimeout(() => { safeLoadData(); }, 200);
+  } catch (err) {
+    console.error('approve error:', err);
+    alert('เกิดข้อผิดพลาดในการอนุมัติ');
+  }
+}
+
+  async function setDept(id, dept) {
+    const res = await fetch(`/set-department/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ department: dept })
+    });
+    const data = await res.json();
+    alert(data.message || 'เปลี่ยนแผนกแล้ว');
+    removeFromActiveNewIds(id);
+    safeLoadData();
+  }
+
+  async function setStatus(id, status) {
+    const res = await fetch(`/set-status/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    alert(await res.text());
+    safeLoadData();
+  }
+</script>
+
+<script>
+  let autoTimer = null;
+  let isLoading = false;
+
+  function setLastUpdated() {
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      now.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'medium' });
   }
 
   async function safeLoadData() {
@@ -377,10 +974,9 @@
     isLoading = true;
     try {
       await loadData();
-      renderTable();
       setLastUpdated();
     } catch (e) {
-      console.error('Auto refresh error:', e);
+      console.error("Auto refresh error:", e);
     } finally {
       isLoading = false;
     }
@@ -403,334 +999,278 @@
     safeLoadData();
   }
 
-  function buildDeptOptions(row) {
-    const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
-    const blockedDepartment = bounced && row.routed_to ? String(row.routed_to).trim() : '';
-    const current = row.department || '';
+  window.addEventListener('load', () => {
+    updateViewModeUI();
+    safeLoadData();
+    startAutoRefresh(15000);
 
-    const options = [
-      { v: 'สำนักงานปลัด', t: 'สำนักงานปลัด' },
-      { v: 'สาธารณสุข', t: 'สาธารณสุข' },
-      { v: 'กองช่าง', t: 'กองช่าง' },
-      { v: 'ไฟฟ้า', t: 'ไฟฟ้า' },
-      { v: 'อื่นๆ', t: 'อื่นๆ' }
-    ];
-
-    const html = ['<option value="">เลือกแผนก</option>']
-      .concat(
-        options.map(opt => {
-          const disabled = blockedDepartment === opt.v ? 'disabled' : '';
-          const selected = current === opt.v ? 'selected' : '';
-          const label = blockedDepartment === opt.v ? `${opt.t} (ตีกลับแล้ว)` : opt.t;
-          return `<option value="${opt.v}" ${selected} ${disabled}>${label}</option>`;
-        })
-      )
-      .join('');
-
-    return html;
-  }
-
-  function renderDetailFiles(files) {
-    const box = document.getElementById('detailFilesBox');
-    if (!box) return;
-
-    const safeFiles = (files || []).filter(it => {
-      const url = normalizeFileUrl(it);
-      return !!url;
-    });
-
-    if (!safeFiles.length) {
-      box.innerHTML = `<div class="mini-muted">ไม่มีไฟล์แนบ</div>`;
-      return;
+    const toggle = document.getElementById('auto-refresh-toggle');
+    if (toggle) {
+      toggle.addEventListener('change', () => {
+        if (!toggle.checked) stopAutoRefresh();
+        else startAutoRefresh(15000);
+      });
     }
+  });
+</script>
 
-    box.innerHTML = `
-      <div class="file-box">
-        <div class="file-meta">ทั้งหมด ${safeFiles.length} ไฟล์</div>
-        <button class="btn ghost" type="button" onclick='showImages(${JSON.stringify(safeFiles)})'>ดูทั้งหมด</button>
+<script>
+function showImages(images) {
+  const safeImages = (images || []).filter(img => {
+    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+    return !!rawUrl;
+  });
+
+  const itemsHtml = safeImages.map((img, index) => {
+    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+    const url = encodeURI(rawUrl);
+    const type = (typeof img === 'object' && img?.type) ? img.type : '';
+
+    const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
+
+    const mediaHtml = isVideo
+      ? `
+        <video controls preload="metadata" class="preview-media">
+          <source src="${url}">
+          เบราว์เซอร์ไม่รองรับวิดีโอ
+        </video>
+      `
+      : `
+        <img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />
+      `;
+
+    return `
+      <div class="media-card">
+        <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
+          ${mediaHtml}
+        </div>
+
+        <div class="media-meta">
+          <span class="media-index">ไฟล์ที่ ${index + 1}</span>
+          <div class="media-actions">
+            <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
+              เปิดเต็ม
+            </button>
+          </div>
+        </div>
       </div>
     `;
+  }).join('');
+
+  const win = window.open('', '_blank', 'width=1200,height=800');
+
+  if (!win) {
+    alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
+    return;
   }
 
-  function openDetailById(id) {
-    const row = rawData.find(x => String(x.id) === String(id));
-    if (!row) return;
+  win.document.write(`
+    <!DOCTYPE html>
+    <html lang="th">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>ดูไฟล์ทั้งหมด</title>
+      <style>
+        * { box-sizing: border-box; }
+        body {
+          margin: 0;
+          font-family: 'Kanit', sans-serif;
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background: #ffffff;
+          border-bottom: 1px solid #e2e8f0;
+          padding: 12px 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .title { font-size: 18px; font-weight: 700; margin: 0; }
+        .count-badge {
+          background: #15563b;
+          color: #fff;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 16px;
+          align-items: start;
+        }
+        .media-card {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .media-link {
+          display: block;
+          text-decoration: none;
+          background: #f8fafc;
+          cursor: pointer;
+        }
+        .preview-media {
+          display: block;
+          width: 100%;
+          height: 220px;
+          object-fit: cover;
+          background: #e2e8f0;
+        }
+        .media-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 12px;
+        }
+        .media-index {
+          font-size: 13px;
+          color: #475569;
+          font-weight: 600;
+        }
+        .open-btn {
+          border: none;
+          background: #2563eb;
+          color: #fff;
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .media-actions {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+        .empty {
+          text-align: center;
+          padding: 40px 20px;
+          color: #64748b;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+        }
+        @media (max-width: 640px) {
+          .container { padding: 12px; }
+          .grid { grid-template-columns: 1fr; gap: 12px; }
+          .preview-media { height: 220px; }
+          .title { font-size: 16px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="topbar">
+        <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
+        <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+      </div>
+      <div class="container">
+        ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
+      </div>
 
-    currentDetailId = Number(id);
+      <script>
+        function openMediaViewer(payload) {
+          const { url, isVideo, index } = payload || {};
+          if (!url) return;
 
-    removeFromActiveNewIds(currentDetailId);
-    rawData = rawData.map(r => (String(r.id) === String(currentDetailId)) ? ({ ...r, __isNew: false }) : r);
-    filteredData = filteredData.map(r => (String(r.id) === String(currentDetailId)) ? ({ ...r, __isNew: false }) : r);
-
-    document.getElementById('detailName').textContent = row.name || '-';
-    document.getElementById('detailPhone').textContent = row.phone || '-';
-    document.getElementById('detailDate').textContent = formatDate(row.created_at);
-    document.getElementById('detailMap').innerHTML = buildMapLink(row);
-    document.getElementById('detailMessage').textContent = row.message || '-';
-    document.getElementById('detailSub').textContent = `ID: ${row.id} • โหมด: ${currentViewMode === 'today' ? 'วันนี้' : 'ทั้งหมด'}`;
-
-    const bounced = (row.status === 'รอแอดมินหลัก') || (Number(row.dept_accept) === 0);
-    const bounceFrom = bounced ? (row.routed_to || '-') : '-';
-    const bounceReason = bounced ? (row.dept_reason || '-') : '-';
-
-    const bounceWrap = document.getElementById('detailBounceWrap');
-    const bounceEl = document.getElementById('detailBounce');
-
-    if (bounced) {
-      bounceWrap.style.display = 'block';
-      bounceEl.innerHTML = `
-        <div class="chip bounce" style="margin-bottom:8px;">ตีกลับจาก: ${escapeHtml(bounceFrom)}</div>
-        <div class="mini-muted" style="color:#991b1b;">เหตุผล: ${escapeHtml(bounceReason)}</div>
-      `;
-    } else {
-      bounceWrap.style.display = 'none';
-      bounceEl.textContent = '-';
-    }
-
-    const deptSelect = document.getElementById('detailDeptSelect');
-    deptSelect.innerHTML = buildDeptOptions(row);
-
-    toggleApproveButton(currentDetailId);
-
-    const files = normalizeFiles(row);
-    renderDetailFiles(files);
-
-    document.getElementById('detailModal').style.display = 'flex';
-
-    renderTable();
-    calcKpis(rawData, rawData.filter(r => r.__isNew).length);
-  }
-
-  function hideDetailModal() {
-    document.getElementById('detailModal').style.display = 'none';
-    currentDetailId = null;
-  }
-
-  function closeDetailModal(e) {
-    if (e && e.target && e.target.id !== 'detailModal') return;
-    hideDetailModal();
-  }
-
-  function toggleApproveButton() {
-    const approveBtn = document.getElementById('approve-btn-detail');
-    const deptSelect = document.getElementById('detailDeptSelect');
-    if (!approveBtn || !deptSelect) return;
-    approveBtn.disabled = !deptSelect.value;
-  }
-
-  async function approve(id) {
-    try {
-      const deptSelect = document.getElementById('detailDeptSelect');
-      const department = deptSelect ? deptSelect.value : '';
-
-      if (!department) {
-        alert('กรุณาเลือกแผนกก่อนอนุมัติ');
-        return;
-      }
-
-      const deptRes = await fetch(`/set-department/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ department })
-      });
-
-      const deptData = await deptRes.json();
-
-      if (!deptRes.ok) {
-        alert(deptData.message || 'เปลี่ยนแผนกไม่สำเร็จ');
-        return;
-      }
-
-      const approveRes = await fetch(`/approve/${id}`, {
-        method: 'POST'
-      });
-
-      const approveText = await approveRes.text();
-      alert(approveText || 'อนุมัติสำเร็จ');
-
-      removeFromActiveNewIds(id);
-      hideDetailModal();
-      removeRowFromTable(id);
-
-      setTimeout(() => {
-        safeLoadData();
-      }, 200);
-    } catch (err) {
-      console.error('approve error:', err);
-      alert('เกิดข้อผิดพลาดในการอนุมัติ');
-    }
-  }
-
-  function showImages(images) {
-    const safeImages = (images || []).filter(img => {
-      const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-      return !!rawUrl;
-    });
-
-    const itemsHtml = safeImages.map((img, index) => {
-      const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-      const url = encodeURI(rawUrl);
-      const isVideo = isVideoFile(img);
-
-      const mediaHtml = isVideo
-        ? `
-          <video controls preload="metadata" class="preview-media">
-            <source src="${url}">
-            เบราว์เซอร์ไม่รองรับวิดีโอ
-          </video>
-        `
-        : `
-          <img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />
-        `;
-
-      return `
-        <div class="media-card">
-          <div class="media-link" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})' title="เปิดไฟล์เต็ม">
-            ${mediaHtml}
-          </div>
-          <div class="media-meta">
-            <span class="media-index">ไฟล์ที่ ${index + 1}</span>
-            <div class="media-actions">
-              <button type="button" class="open-btn" onclick='openMediaViewer(${JSON.stringify({ url, isVideo, index: index + 1 })})'>
-                เปิดเต็ม
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    const win = window.open('', '_blank', 'width=1200,height=800');
-
-    if (!win) {
-      alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
-      return;
-    }
-
-    win.document.write(`
-      <!DOCTYPE html>
-      <html lang="th">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>ดูไฟล์ทั้งหมด</title>
-        <style>
-          * { box-sizing: border-box; }
-          body {
-            margin: 0;
-            font-family: sans-serif;
-            background: #f1f5f9;
-            color: #0f172a;
+          const viewer = window.open('', '_blank', 'width=1200,height=800');
+          if (!viewer) {
+            alert('กรุณาอนุญาต popup');
+            return;
           }
-          .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-          }
-          .title { font-size: 18px; font-weight: 900; margin: 0; }
-          .count-badge {
-            background: #0b2a4a;
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 900;
-          }
-          .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
-          .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
-            align-items: start;
-          }
-          .media-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-          }
-          .media-link {
-            display: block;
-            text-decoration: none;
-            background: #f8fafc;
-            cursor: pointer;
-          }
-          .preview-media {
-            display: block;
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            background: #e2e8f0;
-          }
-          .media-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 12px;
-          }
-          .media-index {
-            font-size: 13px;
-            color: #475569;
-            font-weight: 900;
-          }
-          .open-btn {
-            border: none;
-            background: #2563eb;
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 900;
-            cursor: pointer;
-          }
-          .media-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-          }
-          .empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: #64748b;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-weight: 900;
-          }
-          @media (max-width: 640px) {
-            .container { padding: 12px; }
-            .grid { grid-template-columns: 1fr; gap: 12px; }
-            .preview-media { height: 220px; }
-            .title { font-size: 16px; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="topbar">
-          <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
-          <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
-        </div>
-        <div class="container">
-          ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
-        </div>
-      </body>
-      </html>
-    `);
 
-    win.document.close();
-  }
+          if (isVideo) {
+            viewer.document.write(\`
+              <!DOCTYPE html>
+              <html lang="th">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>วิดีโอไฟล์ที่ \${index}</title>
+                <style>
+                  body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                  .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                  .btn { color:#fff; background:#2563eb; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
+                  .btn-secondary { background:#334155; }
+                  .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                  video { width:100%; max-width:1200px; max-height:calc(100vh - 90px); background:black; border-radius:12px; outline:none; }
+                </style>
+              </head>
+              <body>
+                <div class="top">
+                  <div>🎬 วิดีโอไฟล์ที่ \${index}</div>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                  </div>
+                </div>
+                <div class="wrap">
+                  <video controls autoplay playsinline>
+                    <source src="\${url}">
+                    เบราว์เซอร์ไม่รองรับการเล่นวิดีโอไฟล์นี้
+                  </video>
+                </div>
+              </body>
+              </html>
+            \`);
+          } else {
+            viewer.document.write(\`
+              <!DOCTYPE html>
+              <html lang="th">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>รูปภาพไฟล์ที่ \${index}</title>
+                <style>
+                  body { margin:0; background:#0f172a; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+                  .top { padding:12px 16px; background:rgba(15,23,42,.95); border-bottom:1px solid rgba(255,255,255,.1); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+                  .btn { color:#fff; background:#16a34a; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:13px; }
+                  .btn-secondary { background:#334155; }
+                  .wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+                  img { max-width:100%; max-height:calc(100vh - 90px); object-fit:contain; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.35); background:#fff; }
+                </style>
+              </head>
+              <body>
+                <div class="top">
+                  <div>🖼️ รูปภาพไฟล์ที่ \${index}</div>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn btn-secondary" href="\${url}" target="_blank" rel="noopener">เปิด URL ตรง</a>
+                  </div>
+                </div>
+                <div class="wrap">
+                  <img src="\${url}" alt="ไฟล์ที่ \${index}" />
+                </div>
+              </body>
+              </html>
+            \`);
+          }
+
+          viewer.document.close();
+        }
+      <\/script>
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+}
+</script>
+
+<script>
+  let currentRejectId = null;
 
   function openRejectReasonModal(id) {
     currentRejectId = id;
@@ -742,15 +1282,10 @@
     document.getElementById('reject-modal').style.display = 'none';
   }
 
-  function closeRejectModalByBackdrop(e) {
-    if (e && e.target && e.target.id !== 'reject-modal') return;
-    closeRejectModal();
-  }
-
   async function submitReject() {
     const reason = document.getElementById('reject-reason').value.trim();
     if (!reason) {
-      alert('กรุณากรอกเหตุผลก่อนส่ง');
+      alert("กรุณากรอกเหตุผลก่อนส่ง");
       return;
     }
 
@@ -772,35 +1307,16 @@
       }
 
       closeRejectModal();
-      hideDetailModal();
       removeFromActiveNewIds(rejectId);
       removeRowFromTable(rejectId);
 
-      setTimeout(() => {
-        safeLoadData();
-      }, 200);
+      setTimeout(() => { safeLoadData(); }, 200);
     } catch (err) {
       console.error('submitReject error:', err);
       alert('เกิดข้อผิดพลาดในการไม่อนุมัติ');
     }
   }
-
-  window.addEventListener('load', () => {
-    updateViewModeUI();
-    safeLoadData();
-    startAutoRefresh(15000);
-
-    const toggle = document.getElementById('auto-refresh-toggle');
-    if (toggle) {
-      toggle.addEventListener('change', () => {
-        if (!toggle.checked) {
-          stopAutoRefresh();
-        } else {
-          startAutoRefresh(15000);
-        }
-      });
-    }
-  });
 </script>
+
 </body>
 </html>
