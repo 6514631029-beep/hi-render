@@ -468,12 +468,13 @@
       overflow:auto;
       background:#fff;
       border-radius:16px;
+      width:100%;
     }
 
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:960px;
+      min-width:880px;
       background:#fff;
       table-layout:fixed;
     }
@@ -499,13 +500,12 @@
       white-space:nowrap;
     }
 
-    th:nth-child(1), td:nth-child(1){ width: 140px; }
-    th:nth-child(2), td:nth-child(2){ width: 140px; }
-    th:nth-child(3), td:nth-child(3){ width: 150px; }
-    th:nth-child(4), td:nth-child(4){ width: 140px; }
-    th:nth-child(5), td:nth-child(5){ width: 220px; }
-    th:nth-child(6), td:nth-child(6){ width: 120px; }
-    th:nth-child(7), td:nth-child(7){ width: 170px; }
+    th:nth-child(1), td:nth-child(1){ width: 120px; }
+    th:nth-child(2), td:nth-child(2){ width: 120px; }
+    th:nth-child(3), td:nth-child(3){ width: 170px; }
+    th:nth-child(4), td:nth-child(4){ width: 250px; }
+    th:nth-child(5), td:nth-child(5){ width: 100px; }
+    th:nth-child(6), td:nth-child(6){ width: 240px; }
 
     td{
       font-size:15px;
@@ -954,7 +954,6 @@
                 <th>ชื่อ</th>
                 <th>เบอร์</th>
                 <th>รายละเอียด</th>
-                <th>แผนก</th>
                 <th>ตีกลับจากหน่วยงาน/เหตุผล</th>
                 <th>แผนที่</th>
                 <th>จัดการ</th>
@@ -1001,9 +1000,6 @@
         <div class="detail-label">เบอร์โทร</div>
         <div class="detail-value" id="detailPhone">-</div>
 
-        <div class="detail-label">แผนก</div>
-        <div class="detail-value" id="detailDepartment">-</div>
-
         <div class="detail-label">สถานะ</div>
         <div class="detail-value" id="detailStatus">-</div>
 
@@ -1029,7 +1025,7 @@
   let allAdminData = [];
   let filteredData = [];
   let currentPage = 1;
-  const pageSize = 10;
+  const pageSize = 20;
   let isLoading = false;
   let FILTER_MODE = 'all';
 
@@ -1365,7 +1361,6 @@
 
     document.getElementById('detailName').textContent = row?.name || '-';
     document.getElementById('detailPhone').textContent = row?.phone || '-';
-    document.getElementById('detailDepartment').textContent = row?.department || '-';
     document.getElementById('detailStatus').textContent = row?.status || 'รอการอนุมัติ';
     document.getElementById('detailDate').textContent = formatDate(row?.created_at);
     document.getElementById('detailMessage').textContent = row?.message || '-';
@@ -1434,7 +1429,6 @@
         <td>
           <button class="btn link-btn" onclick="openDetailById(${row.id})">📄 รายละเอียด</button>
         </td>
-        <td>${escapeHtml(row.department || "-")}</td>
         <td>${bounceCell}</td>
         <td>${mapLink}</td>
         <td>
@@ -1496,7 +1490,7 @@
     if (!rows.length) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" style="padding:22px; color:#64748b; font-weight:900;">
+          <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">
             ${FILTER_MODE === 'today'
               ? 'ไม่มีข้อมูลคำร้องของวันนี้'
               : FILTER_MODE === 'stale'
