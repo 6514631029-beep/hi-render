@@ -1901,26 +1901,52 @@ app.get('/data-processed', (req, res) => {
   });
 });
 
-app.post('/approve/:id', (req, res) => {
+app.post('/approve/:id', async (req, res) => {
   const id = req.params.id;
-  db.query('UPDATE requests SET approved = 1, processed = true WHERE id = ?', [id], (err) => {
-    if (err) return res.status(500).send('❌ อนุมัติไม่สำเร็จ');
-    res.send('✅ อนุมัติสำเร็จ');
-  });
+
+  try {
+    await db.promise().query(
+      'UPDATE requests SET approved = 1, processed = true WHERE id = ?',
+      [id]
+    );
+
+    // ✅ แจ้ง LINE เมื่อแอดมินหลักอนุมัติ (หลังจากเลือกแผนกแล้ว status จะเป็น "รอแผนกรับเรื่อง")
+    await notifyRequestStatusLine(
+      id,
+      'รอแผนกรับเรื่อง',
+      'แอดมินหลักอนุมัติคำร้องแล้ว และส่งต่อให้หน่วยงานดำเนินการ'
+    );
+
+    return res.send('✅ อนุมัติสำเร็จ');
+  } catch (err) {
+    console.error('approve error:', err);
+    return res.status(500).send('❌ อนุมัติไม่สำเร็จ');
+  }
 });
 
-app.post('/reject/:id', (req, res) => {
+app.post('/reject/:id', async (req, res) => {
   const id = req.params.id;
   const { reason } = req.body;
 
-  const sql = 'UPDATE requests SET status = ?, reject_reason = ?, approved = 0, processed = true WHERE id = ?';
-  db.query(sql, ['ไม่อนุมัติ', reason, id], (err, result) => {
-    if (err) return res.status(500).send('เกิดข้อผิดพลาด');
-    
-    res.send('ไม่อนุมัติคำร้องเรียบร้อยแล้ว'); // ✅ ใช้ข้อความตอบกลับแทน redirect
-  });
-});
+  try {
+    await db.promise().query(
+      'UPDATE requests SET status = ?, reject_reason = ?, approved = 0, processed = true WHERE id = ?',
+      ['ไม่อนุมัติ', reason || null, id]
+    );
 
+    // ✅ แจ้ง LINE เมื่อแอดมินหลัก “ไม่อนุมัติ”
+    await notifyRequestStatusLine(
+      id,
+      'ไม่อนุมัติ',
+      reason ? `เหตุผล: ${reason}` : 'แอดมินหลักไม่อนุมัติคำร้องของคุณ'
+    );
+
+    return res.send('ไม่อนุมัติคำร้องเรียบร้อยแล้ว');
+  } catch (err) {
+    console.error('reject error:', err);
+    return res.status(500).send('เกิดข้อผิดพลาด');
+  }
+});
 
 
 
