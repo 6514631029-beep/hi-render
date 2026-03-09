@@ -19,6 +19,22 @@
       --shadow2:0 8px 24px rgba(2,6,23,.06);
       --radius:16px;
       --sidebarW:220px;
+
+      --status-empty-bg:#f8fafc;
+      --status-empty-bd:#cbd5e1;
+      --status-empty-tx:#475569;
+
+      --status-pending-bg:#fff7ed;
+      --status-pending-bd:#fdba74;
+      --status-pending-tx:#9a3412;
+
+      --status-progress-bg:#eff6ff;
+      --status-progress-bd:#93c5fd;
+      --status-progress-tx:#1d4ed8;
+
+      --status-done-bg:#ecfdf5;
+      --status-done-bd:#86efac;
+      --status-done-tx:#166534;
     }
 
     *{ box-sizing:border-box; }
@@ -327,6 +343,44 @@
       word-break:break-word;
     }
 
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:1000;
+      border:1px solid var(--status-empty-bd);
+      background:var(--status-empty-bg);
+      color:var(--status-empty-tx);
+      white-space:nowrap;
+    }
+
+    .status-badge.status-empty{
+      background:var(--status-empty-bg);
+      border-color:var(--status-empty-bd);
+      color:var(--status-empty-tx);
+    }
+
+    .status-badge.status-pending{
+      background:var(--status-pending-bg);
+      border-color:var(--status-pending-bd);
+      color:var(--status-pending-tx);
+    }
+
+    .status-badge.status-progress{
+      background:var(--status-progress-bg);
+      border-color:var(--status-progress-bd);
+      color:var(--status-progress-tx);
+    }
+
+    .status-badge.status-done{
+      background:var(--status-done-bg);
+      border-color:var(--status-done-bd);
+      color:var(--status-done-tx);
+    }
+
     #pagination{
       padding:12px;
       display:flex;
@@ -565,7 +619,7 @@
                 <th>ชื่อ</th>
                 <th>เบอร์</th>
                 <th>รายละเอียด</th>
-                <th>ไฟล์</th>
+                <th>สถานะ</th>
                 <th>แผนที่</th>
                 <th>วันที่เวลา</th>
               </tr>
@@ -601,6 +655,9 @@
 
         <div class="detail-label">แผนก</div>
         <div class="detail-value" id="detailDepartment">-</div>
+
+        <div class="detail-label">สถานะ</div>
+        <div class="detail-value" id="detailStatus">-</div>
 
         <div class="detail-label">วันที่-เวลา</div>
         <div class="detail-value" id="detailDate">-</div>
@@ -682,6 +739,15 @@
   function isTodayBangkok(dateString) {
     if (!dateString) return false;
     return getBangkokDateKey(dateString) === getBangkokDateKey(new Date());
+  }
+
+  function getStatusClass(status) {
+    const s = safeText(status);
+    if (!s) return 'status-empty';
+    if (s === 'รอดำเนินการ') return 'status-pending';
+    if (s === 'กำลังดำเนินการ') return 'status-progress';
+    if (s === 'เสร็จสิ้น') return 'status-done';
+    return 'status-empty';
   }
 
   function updateStats() {
@@ -798,6 +864,7 @@
     document.getElementById('detailName').textContent = safeText(row.name) || '-';
     document.getElementById('detailPhone').textContent = safeText(row.phone) || '-';
     document.getElementById('detailDepartment').textContent = safeText(row.department) || '-';
+    document.getElementById('detailStatus').textContent = safeText(row.status) || 'ยังไม่กำหนด';
     document.getElementById('detailDate').textContent = formatDate(row.created_at);
     document.getElementById('detailMessage').textContent = safeText(row.message) || '-';
     document.getElementById('detailMap').innerHTML = mapHtml;
@@ -827,11 +894,11 @@
     }
 
     rows.forEach(row => {
-      const files = parsePhoto(row.photo);
-      const filesJson = JSON.stringify(files).replace(/'/g, '&#39;');
       const mapLink = row.latitude && row.longitude
         ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
         : '-';
+      const statusText = safeText(row.status) || 'ยังไม่กำหนด';
+      const statusClass = getStatusClass(row.status);
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -842,8 +909,7 @@
           <div class="small-muted">${safeText(row.message).slice(0, 48) || '-'}</div>
         </td>
         <td>
-          <button class="btn link-btn" onclick='showImages(${filesJson})'>📎 ดูไฟล์</button>
-          <div class="file-badge">${files.length} ไฟล์</div>
+          <span class="status-badge ${statusClass}">${statusText}</span>
         </td>
         <td>${mapLink}</td>
         <td>${formatDate(row.created_at)}</td>
