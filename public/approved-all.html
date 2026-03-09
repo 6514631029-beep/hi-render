@@ -6,28 +6,81 @@
   <title>✅ รายการอนุมัติแล้วทั้งหมด</title>
   <link rel="stylesheet" href="/admin-font.css" />
   <style>
-    :root{--bg:#eef3fb;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--navy:#0b2a4a;--navy-2:#133a63;--gold:#c9a227;--line:#e2e8f0;--radius:16px;--shadow:0 12px 30px rgba(2,6,23,.08);--shadow2:0 8px 24px rgba(2,6,23,.06);--sidebarW:220px}
-    *{box-sizing:border-box} html{font-size:20px}
-    body{margin:0;font-size:18px;line-height:1.5;color:var(--ink);background:radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.16), transparent 60%),radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.12), transparent 55%), var(--bg);-webkit-text-size-adjust:100%}
-    .app{display:flex;min-height:100vh}.sidebar{width:var(--sidebarW);background:linear-gradient(180deg,#0b2a4a 0%,#071e35 100%);border-right:1px solid rgba(255,255,255,.10);position:sticky;top:0;height:100vh;overflow-y:auto;padding:12px 10px;box-shadow:6px 0 22px rgba(2,6,23,.06)}
-    .brand{display:flex;align-items:center;gap:10px;padding:10px 10px 14px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:10px;color:#fff}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(201,162,39,.95),rgba(244,227,161,.9));display:flex;align-items:center;justify-content:center;color:#1f2937;font-weight:1000;box-shadow:0 12px 22px rgba(201,162,39,.25)}.brand .title{font-weight:1000;line-height:1.1;font-size:15px}
-    .menu{display:flex;flex-direction:column;gap:8px;padding:8px 4px}.menu-title{font-size:13px;color:rgba(255,255,255,.72);font-weight:900;margin:6px 6px 2px;text-transform:uppercase;letter-spacing:.4px}
-    .side-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:#fff;font-weight:900;text-decoration:none;font-size:15px}.side-link.active{background:rgba(201,162,39,.16);border-color:rgba(201,162,39,.38)}.side-link .label{display:flex;align-items:center;gap:10px;white-space:nowrap}.count{min-width:34px;text-align:center;padding:4px 10px;border-radius:999px;background:rgba(201,162,39,.18);border:1px solid rgba(201,162,39,.35);color:var(--gold);font-weight:1000;font-size:14px}
-    .main{flex:1;min-width:0;display:flex;flex-direction:column}.topbar{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#0a2340 100%);color:#fff;border-bottom:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);padding:14px 18px;overflow:hidden}.topbar::after{content:'';position:absolute;inset:-1px;background:radial-gradient(700px 220px at 30% 0%, rgba(201,162,39,.28), transparent 62%);pointer-events:none}.topbar-row{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.topbar-left h1{margin:0;font-size:21px;font-weight:1000}.topbar-left .sub{margin-top:2px;font-size:14px;opacity:.82;font-weight:800}
-    .content{padding:16px 18px 26px;max-width:1450px;margin:0 auto;width:100%}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow2);overflow:hidden}.card-h{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)}.card-h h2{margin:0;font-size:18px;font-weight:1000}.card-b{padding:14px}.tiny{font-size:14px;color:#64748b;font-weight:800}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}.stat-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow2)}.stat-box .label{font-size:13px;font-weight:900;color:#64748b;margin-bottom:6px}.stat-box .value{font-size:26px;line-height:1;font-weight:1000;color:#0f172a}.stat-box .sub{margin-top:6px;font-size:12px;color:#64748b;font-weight:800}.green{border-color:#bbf7d0;background:#f0fdf4}.blue{border-color:#bfdbfe;background:#f8fbff}.purple{border-color:#ddd6fe;background:#faf5ff}.yellow{border-color:#fde68a;background:#fffdf2}
-    .filters-grid{display:grid;grid-template-columns:minmax(260px,1.5fr) minmax(190px,.9fr) auto;gap:12px;align-items:center}.search,.select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);font-size:16px;background:#fff;outline:none;font-weight:800;font-family:inherit}.select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, #64748b 50%),linear-gradient(135deg, #64748b 50%, transparent 50%);background-position:calc(100% - 22px) calc(50% - 3px),calc(100% - 16px) calc(50% - 3px);background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:42px}
-    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:900;white-space:nowrap;font-size:15px;font-family:inherit}.btn.link-btn{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
-    .filter-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.segmented{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #dbe2ea;background:#fff;color:#334155;padding:9px 14px;border-radius:999px;font-size:14px;font-weight:900;cursor:pointer}.chip.active{background:#0b2a4a;color:#fff;border-color:#0b2a4a;box-shadow:0 8px 18px rgba(11,42,74,.16)}
-    .table-wrap{overflow:auto;background:#fff;border-radius:16px;width:100%}table{width:100%;border-collapse:collapse;min-width:1040px;background:#fff;table-layout:fixed}th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}th{position:sticky;top:0;z-index:4;background:#eef2f7;color:#0f172a;font-size:13px;white-space:nowrap}
-    th:nth-child(1), td:nth-child(1){width:130px} th:nth-child(2), td:nth-child(2){width:130px} th:nth-child(3), td:nth-child(3){width:170px} th:nth-child(4), td:nth-child(4){width:150px} th:nth-child(5), td:nth-child(5){width:110px} th:nth-child(6), td:nth-child(6){width:170px} th:nth-child(7), td:nth-child(7){width:170px}
-    td{font-size:15px;color:#334155} tbody tr:nth-child(even){background:#fbfdff} tbody tr:hover{background:#f3f7ff}.name-cell{font-weight:900;color:#0f172a}.dept-badge{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:1000;border:1px solid transparent}.dept-health{background:#e0f2fe;color:#075985;border-color:#bae6fd}.dept-engineer{background:#fff7ed;color:#9a3412;border-color:#fed7aa}.dept-electric{background:#ecfccb;color:#3f6212;border-color:#bef264}.date-cell{font-weight:800;color:#64748b;line-height:1.4}.file-badge{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:1000;background:#f8fafc;border:1px solid #e2e8f0;color:#334155}.map-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-weight:900;text-decoration:none}
-    #pagination{padding:12px;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);border-top:1px solid var(--line)}.empty-row{padding:24px;color:#64748b;font-weight:900}
-    .detail-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,.52);z-index:10000;align-items:center;justify-content:center;padding:18px}.detail-modal{width:min(920px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 24px 60px rgba(2,6,23,.25)}.detail-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #e2e8f0;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);position:sticky;top:0;z-index:3}.detail-head h3{margin:0;font-size:20px;font-weight:1000;color:#0f172a}.detail-close{border:none;background:#fee2e2;color:#991b1b;width:40px;height:40px;border-radius:12px;font-size:20px;font-weight:1000;cursor:pointer}
-    .detail-body{padding:18px}.detail-grid{display:grid;grid-template-columns:160px 1fr;gap:10px 14px;margin-bottom:16px}.detail-label{color:#475569;font-weight:900}.detail-value{color:#0f172a;font-weight:800;word-break:break-word}.detail-message-box{margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:14px;color:#0f172a;white-space:pre-wrap;word-break:break-word;line-height:1.65;font-weight:700}.detail-file-box{margin-top:8px;background:#ffffff;border:1px solid #dbeafe;border-radius:16px;padding:14px}.detail-file-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.detail-file-meta{color:#334155;font-weight:800;font-size:14px}
-    @media (max-width:1100px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters-grid{grid-template-columns:1fr}}
-    @media (max-width:980px){.sidebar{position:relative;width:100%;height:auto;border-right:0;box-shadow:none}.app{display:block}.content{padding:14px}table{min-width:980px}}
-    @media (max-width:700px){.stats-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr;gap:6px}}
+    :root{
+      --bg:#eef3fb; --card:#fff; --ink:#0f172a; --muted:#64748b;
+      --navy:#0b2a4a; --navy2:#133a63; --gold:#c9a227;
+      --line:#e2e8f0; --ok:#16a34a; --info:#2563eb; --radius:16px;
+      --shadow:0 12px 30px rgba(2,6,23,.08); --shadow2:0 8px 24px rgba(2,6,23,.06);
+      --sidebarW:220px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--ink);font:18px/1.5 system-ui,-apple-system,"Kanit",sans-serif;background:
+      radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+      radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),var(--bg)}
+    .app{display:flex;min-height:100vh}
+    .sidebar{width:var(--sidebarW);background:linear-gradient(180deg,#0b2a4a 0%,#071e35 100%);color:#fff;padding:12px 10px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;gap:10px;align-items:center;padding:10px 10px 14px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:10px}
+    .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(201,162,39,.95),rgba(244,227,161,.9));display:flex;align-items:center;justify-content:center;color:#1f2937;font-weight:1000}
+    .brand .title{font-size:15px;font-weight:1000;line-height:1.1}
+    .menu{display:flex;flex-direction:column;gap:8px;padding:8px 4px}
+    .menu-title{font-size:13px;color:rgba(255,255,255,.72);font-weight:900;margin:6px 6px 2px}
+    .side-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-weight:900;font-size:15px}
+    .side-link.active{background:rgba(201,162,39,.16);border-color:rgba(201,162,39,.38)}
+    .count{min-width:34px;text-align:center;padding:4px 10px;border-radius:999px;background:rgba(201,162,39,.18);border:1px solid rgba(201,162,39,.35);color:var(--gold);font-size:14px;font-weight:1000}
+    .main{flex:1;min-width:0}
+    .topbar{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--navy),var(--navy2) 60%,#0a2340);color:#fff;padding:16px 18px;box-shadow:var(--shadow)}
+    .topbar h1{margin:0;font-size:22px;font-weight:1000}
+    .topbar .sub{margin-top:4px;font-size:14px;opacity:.85;font-weight:800}
+    .content{padding:16px 18px 26px;max-width:1400px;width:100%;margin:0 auto}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+    .stat-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow2)}
+    .stat-box .label{font-size:13px;font-weight:900;color:var(--muted);margin-bottom:6px}
+    .stat-box .value{font-size:26px;line-height:1;font-weight:1000}
+    .stat-box .sub{margin-top:6px;font-size:12px;color:var(--muted);font-weight:800}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow2);overflow:hidden}
+    .card-h{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdff)}
+    .card-h h2{margin:0;font-size:18px;font-weight:1000}
+    .card-b{padding:12px 14px}
+    .toolbar{display:grid;grid-template-columns:1.4fr 220px auto;gap:12px}
+    .search,.select{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);font-size:16px;background:#fff;font-weight:800;outline:none}
+    .filter-chips{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+    .chip{border:1px solid #dbe2ea;background:#fff;color:#334155;padding:8px 12px;border-radius:999px;font-size:14px;font-weight:900;cursor:pointer}
+    .chip.active{background:#0b2a4a;color:#fff;border-color:#0b2a4a;box-shadow:0 8px 18px rgba(11,42,74,.16)}
+    .table-wrap{overflow:auto;background:#fff}
+    table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed}
+    th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+    th{background:#eef2f7;color:#0f172a;font-size:13px;white-space:nowrap}
+    td{font-size:15px;color:#334155}
+    tbody tr:nth-child(even){background:#fbfdff}
+    tbody tr:hover{background:#f3f7ff}
+    th:nth-child(1),td:nth-child(1){width:140px}
+    th:nth-child(2),td:nth-child(2){width:120px}
+    th:nth-child(3),td:nth-child(3){width:160px}
+    th:nth-child(4),td:nth-child(4){width:140px}
+    th:nth-child(5),td:nth-child(5){width:110px}
+    th:nth-child(6),td:nth-child(6){width:180px}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:900;font-size:14px;font-family:inherit}
+    .btn.link-btn{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .badge-dept{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:1000}
+    .dept-health{background:#ecfdf5;color:#166534;border:1px solid #86efac}
+    .dept-engineer{background:#fff7ed;color:#9a3412;border:1px solid #fdba74}
+    .dept-electric{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+    .small-muted{font-size:12px;color:#64748b;margin-top:4px;line-height:1.35;font-weight:700;word-break:break-word}
+    .map-link{display:inline-block;padding:8px 12px;border-radius:10px;text-decoration:none;background:#f8fafc;border:1px solid #dbeafe;color:#1d4ed8;font-weight:900}
+    #pagination{padding:12px;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfdff)}
+    .detail-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,.5);z-index:10000;align-items:center;justify-content:center;padding:16px}
+    .detail-modal{width:min(860px,100%);max-height:85vh;overflow:auto;background:#fff;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 24px 60px rgba(2,6,23,.25)}
+    .detail-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #e2e8f0;background:linear-gradient(180deg,#fff,#f8fbff);position:sticky;top:0}
+    .detail-head h3{margin:0;font-size:20px;font-weight:1000}
+    .detail-close{border:none;background:#fee2e2;color:#991b1b;width:40px;height:40px;border-radius:12px;font-size:20px;font-weight:1000;cursor:pointer}
+    .detail-body{padding:18px}
+    .detail-grid{display:grid;grid-template-columns:160px 1fr;gap:10px 14px;margin-bottom:16px}
+    .detail-label{color:#475569;font-weight:900}.detail-value{color:#0f172a;font-weight:800;word-break:break-word}
+    .detail-message-box,.detail-file-box{margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:14px;word-break:break-word}
+    .detail-file-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    @media (max-width:1100px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:980px){.app{display:block}.sidebar{position:relative;width:100%;height:auto}.toolbar{grid-template-columns:1fr}.filter-chips{justify-content:flex-start}.content{padding:14px}.detail-grid{grid-template-columns:1fr}}
+    @media (max-width:700px){.stats-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -35,53 +88,68 @@
   <aside class="sidebar">
     <div class="brand"><div class="logo">อด</div><div><div class="title">รายการอนุมัติแล้ว</div></div></div>
     <div class="menu">
-      <div class="menu-title">กลับหน้าหลัก</div>
-      <a href="/admin" class="side-link"><span class="label">🏛️ กลับหน้าแอดมินหลัก</span></a>
-      <div class="menu-title">รายการอื่น</div>
-      <a href="/approved-all" class="side-link active"><span class="label">✅ อนุมัติแล้ว</span><span class="count" id="leftApprovedCount">0</span></a>
-      <a href="/rejected" class="side-link"><span class="label">❌ ไม่อนุมัติแล้ว</span></a>
-      <div class="menu-title">ดูตามแผนก</div>
-      <div class="side-link"><span class="label">⚕️ สาธารณสุข</span></div>
-      <div class="side-link"><span class="label">🏗️ กองช่าง</span></div>
-      <div class="side-link"><span class="label">⚡ ไฟฟ้า</span></div>
+      <div class="menu-title">รายการหลัก</div>
+      <a href="/admin" class="side-link"><span>🏛️ กลับหน้าแอดมินหลัก</span></a>
+      <a href="/approved-all" class="side-link active"><span>✅ อนุมัติแล้ว</span><span class="count" id="countApprovedLeft">0</span></a>
+      <a href="/rejected" class="side-link"><span>❌ ไม่อนุมัติแล้ว</span></a>
+      <div class="menu-title">แผนกที่แสดง</div>
+      <div class="side-link"><span>🩺 สาธารณสุข</span></div>
+      <div class="side-link"><span>🏗️ กองช่าง</span></div>
+      <div class="side-link"><span>⚡ ไฟฟ้า</span></div>
     </div>
   </aside>
-
   <main class="main">
-    <header class="topbar"><div class="topbar-row"><div class="topbar-left"><div><h1>✅ รายการอนุมัติแล้วทั้งหมด</h1><div class="sub">ดูข้อมูลคำร้องที่อนุมัติแล้ว พร้อมรายละเอียดและไฟล์แนบ</div></div></div></div></header>
+    <header class="topbar">
+      <h1>✅ รายการคำร้องที่อนุมัติแล้วทั้งหมด</h1>
+      <div class="sub">ยึดโครงแบบ admin-health • กรองซ้อนกันด้วย ค้นหา + แผนก + วันนี้/ทั้งหมด</div>
+    </header>
     <div class="content">
       <div class="stats-grid">
-        <div class="stat-box green"><div class="label">ทั้งหมดที่กำลังแสดง</div><div class="value" id="statAll">0</div><div class="sub">หลังผ่านตัวกรองปัจจุบัน</div></div>
-        <div class="stat-box blue"><div class="label">ของวันนี้</div><div class="value" id="statToday">0</div><div class="sub">อิงตามข้อมูลที่กำลังดู</div></div>
-        <div class="stat-box purple"><div class="label">สาธารณสุข</div><div class="value" id="statHealth">0</div><div class="sub">ในข้อมูลที่กำลังดู</div></div>
-        <div class="stat-box yellow"><div class="label">ไฟฟ้า + กองช่าง</div><div class="value" id="statWork">0</div><div class="sub">รวม 2 แผนกงานภาคสนาม</div></div>
+        <div class="stat-box"><div class="label">ทั้งหมด</div><div class="value" id="statAll">0</div><div class="sub">เฉพาะ 3 แผนก</div></div>
+        <div class="stat-box"><div class="label">คำร้องวันนี้</div><div class="value" id="statToday">0</div><div class="sub">ของข้อมูลที่อนุมัติแล้ว</div></div>
+        <div class="stat-box"><div class="label">สาธารณสุข</div><div class="value" id="statHealth">0</div><div class="sub">รายการอนุมัติแล้ว</div></div>
+        <div class="stat-box"><div class="label">กองช่าง / ไฟฟ้า</div><div class="value" id="statEngElec">0</div><div class="sub">รวม 2 แผนก</div></div>
       </div>
-
-      <div class="card">
-        <div class="card-h"><h2>ค้นหาและกรอง</h2><div class="tiny">ค้นหา + แผนก + วันนี้/ทั้งหมด จะทำงานร่วมกัน</div></div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-h"><h2>ค้นหาและกรอง</h2><div style="font-size:14px;color:#64748b;font-weight:800">เลือกแผนก + วันนี้/ทั้งหมด + ค้นหาชื่อ/เบอร์</div></div>
         <div class="card-b">
-          <div class="filters-grid">
-            <input id="searchInput" class="search" type="text" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="onFilterChange()" />
-            <select id="departmentFilter" class="select" onchange="onFilterChange()">
+          <div class="toolbar">
+            <input id="searchInput" class="search" type="text" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="applyFilters()">
+            <select id="departmentFilter" class="select" onchange="applyFilters()">
               <option value="all">ทุกแผนก</option>
               <option value="สาธารณสุข">สาธารณสุข</option>
               <option value="กองช่าง">กองช่าง</option>
               <option value="ไฟฟ้า">ไฟฟ้า</option>
             </select>
-            <button class="btn" onclick="clearFilters()">ล้างตัวกรอง</button>
+            <div class="filter-chips">
+              <button id="chip-all" class="chip active" onclick="setMode('all')">ทั้งหมด</button>
+              <button id="chip-today" class="chip" onclick="setMode('today')">วันนี้</button>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="card" style="margin-top:12px;">
-        <div class="card-h"><div class="filter-row" style="width:100%;"><h2>รายการคำร้องที่อนุมัติแล้ว</h2><div class="segmented"><button class="chip active" id="chip-all" onclick="setMode('all')">ทั้งหมด</button><button class="chip" id="chip-today" onclick="setMode('today')">วันนี้</button></div></div></div>
+      <div class="card">
+        <div class="card-h"><h2>รายการคำร้องที่อนุมัติแล้ว</h2><div style="font-size:14px;color:#64748b;font-weight:800" id="resultSummary">-</div></div>
         <div class="table-wrap">
-          <table id="dataTable">
-            <thead><tr><th>ชื่อ</th><th>เบอร์</th><th>รายละเอียด</th><th>แผนก</th><th>แผนที่</th><th>วันที่เวลา</th><th>ดูรายละเอียด</th></tr></thead>
+          <table id="data-table">
+            <thead>
+              <tr>
+                <th>ชื่อ</th>
+                <th>เบอร์</th>
+                <th>รายละเอียด</th>
+                <th>แผนก</th>
+                <th>แผนที่</th>
+                <th>วันที่เวลา</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
-        <div id="pagination"><button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button><span id="pageInfo" class="btn" style="cursor:default;">หน้า 1 จาก 1</span><button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button></div>
+        <div id="pagination">
+          <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+          <span id="pageInfo" class="btn" style="cursor:default">หน้า 1 จาก 1</span>
+          <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
+        </div>
       </div>
     </div>
   </main>
@@ -98,131 +166,172 @@
         <div class="detail-label">วันที่-เวลา</div><div class="detail-value" id="detailDate">-</div>
         <div class="detail-label">แผนที่</div><div class="detail-value" id="detailMap">-</div>
       </div>
-      <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
+      <div class="detail-label" style="margin-bottom:8px">ข้อความคำร้อง</div>
       <div class="detail-message-box" id="detailMessage">-</div>
-      <div style="height:14px;"></div>
-      <div class="detail-label" style="margin-bottom:8px;">ไฟล์แนบ</div>
+      <div style="height:14px"></div>
+      <div class="detail-label" style="margin-bottom:8px">ไฟล์แนบจากผู้ใช้</div>
       <div id="detailFilesBox"><div class="detail-message-box">ไม่มีไฟล์แนบ</div></div>
     </div>
   </div>
 </div>
 
 <script>
-let allData = [], filteredData = [], currentPage = 1, VIEW_MODE = 'all', isLoading = false;
-const pageSize = 20;
+  const ALLOWED_DEPARTMENTS = ['สาธารณสุข','กองช่าง','ไฟฟ้า'];
+  let allData = [];
+  let filteredData = [];
+  let currentPage = 1;
+  const pageSize = 20;
+  let MODE = 'all';
+  let isLoading = false;
 
-function escapeHtml(v){return String(v ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-function formatDate(s){if(!s)return '-'; const d=new Date(s); if(isNaN(d)) return '-'; return d.toLocaleString('th-TH',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
-function getBangkokDateKey(x=new Date()){const d=new Date(x); const y=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric'}).format(d); const m=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',month:'2-digit'}).format(d); const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',day:'2-digit'}).format(d); return `${y}-${m}-${day}`;}
-function isTodayBangkok(s){return !!s && getBangkokDateKey(s)===getBangkokDateKey(new Date());}
-function getDepartmentClass(dep){if(dep==='สาธารณสุข')return 'dept-health'; if(dep==='กองช่าง')return 'dept-engineer'; if(dep==='ไฟฟ้า')return 'dept-electric'; return '';}
-function parseFiles(photo){try{if(!photo)return []; if(Array.isArray(photo)) return photo; return JSON.parse(photo);}catch(e){return [];}}
-function getSearchKeyword(){return (document.getElementById('searchInput')?.value || '').trim().toLowerCase();}
-function getDepartmentFilter(){return document.getElementById('departmentFilter')?.value || 'all';}
+  function escapeHtml(value){return String(value ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function formatDate(dateString){ if(!dateString) return '-'; const d=new Date(dateString); if(isNaN(d)) return '-'; return d.toLocaleString('th-TH',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }
+  function getBangkokDateKey(dateInput=new Date()){ const d=new Date(dateInput); const y=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric'}).format(d); const m=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',month:'2-digit'}).format(d); const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',day:'2-digit'}).format(d); return `${y}-${m}-${day}`; }
+  function isTodayBangkok(dateString){ if(!dateString) return false; return getBangkokDateKey(dateString)===getBangkokDateKey(new Date()); }
+  function parseFiles(value){ try{ if(Array.isArray(value)) return value; if(typeof value==='string' && value.trim()) return JSON.parse(value); }catch(e){} return []; }
+  function deptBadge(dept){ if(dept==='สาธารณสุข') return '<span class="badge-dept dept-health">สาธารณสุข</span>'; if(dept==='กองช่าง') return '<span class="badge-dept dept-engineer">กองช่าง</span>'; if(dept==='ไฟฟ้า') return '<span class="badge-dept dept-electric">ไฟฟ้า</span>'; return escapeHtml(dept||'-'); }
 
-function setMode(mode){VIEW_MODE = mode==='today' ? 'today' : 'all'; document.getElementById('chip-all')?.classList.toggle('active', VIEW_MODE==='all'); document.getElementById('chip-today')?.classList.toggle('active', VIEW_MODE==='today'); currentPage=1; applyFilters();}
-function clearFilters(){document.getElementById('searchInput').value=''; document.getElementById('departmentFilter').value='all'; VIEW_MODE='all'; document.getElementById('chip-all').classList.add('active'); document.getElementById('chip-today').classList.remove('active'); currentPage=1; applyFilters();}
-function onFilterChange(){currentPage=1; applyFilters();}
+  function renderDetailFileButtons(files=[], emptyText='ไม่มีไฟล์แนบ'){
+    const box=document.getElementById('detailFilesBox');
+    const valid=(Array.isArray(files)?files:[]).filter(item=> typeof item==='string' ? !!item : !!item?.url);
+    if(!valid.length){ box.innerHTML=`<div class="detail-message-box">${emptyText}</div>`; return; }
+    box.innerHTML=`<div class="detail-file-box"><div class="detail-file-row"><div>จำนวน ${valid.length} ไฟล์</div><button type="button" class="btn link-btn" onclick='showImages(${JSON.stringify(valid)})'>ดูไฟล์ทั้งหมด</button></div></div>`;
+  }
 
-function applyFilters(){
-  const keyword = getSearchKeyword();
-  const department = getDepartmentFilter();
-  let rows = [...allData].filter(r => ['สาธารณสุข','กองช่าง','ไฟฟ้า'].includes(String(r.department || '').trim()));
-  if(department !== 'all') rows = rows.filter(r => String(r.department || '').trim() === department);
-  if(VIEW_MODE === 'today') rows = rows.filter(r => isTodayBangkok(r.created_at));
-  if(keyword) rows = rows.filter(r => String(r.name || '').toLowerCase().includes(keyword) || String(r.phone || '').toLowerCase().includes(keyword));
-  filteredData = rows;
-  updateStats();
-  renderCurrentPage();
-}
-function updateStats(){
-  document.getElementById('statAll').textContent = String(filteredData.length);
-  document.getElementById('statToday').textContent = String(filteredData.filter(r => isTodayBangkok(r.created_at)).length);
-  document.getElementById('statHealth').textContent = String(filteredData.filter(r => r.department === 'สาธารณสุข').length);
-  document.getElementById('statWork').textContent = String(filteredData.filter(r => r.department === 'ไฟฟ้า' || r.department === 'กองช่าง').length);
-  document.getElementById('leftApprovedCount').textContent = String(filteredData.length);
-}
-function renderTable(rows){
-  const tbody = document.querySelector('#dataTable tbody');
-  tbody.innerHTML = '';
-  if(!rows.length){ tbody.innerHTML = '<tr><td colspan="7" class="empty-row">ไม่มีข้อมูลคำร้องที่อนุมัติแล้ว</td></tr>'; return; }
-  rows.forEach(row => {
-    const mapLink = row.latitude && row.longitude ? '<a class="map-link" href="https://www.google.com/maps?q=' + row.latitude + ',' + row.longitude + '" target="_blank">📍 แผนที่</a>' : '-';
-    const files = parseFiles(row.photo);
-    const dept = String(row.department || '-').trim();
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td><div class="name-cell">' + escapeHtml(row.name || '-') + '</div></td>'
-      + '<td>' + escapeHtml(row.phone || '-') + '</td>'
-      + '<td><button class="btn link-btn" onclick="openDetailById(' + Number(row.id) + ')">📄 รายละเอียด</button></td>'
-      + '<td><span class="dept-badge ' + getDepartmentClass(dept) + '">' + escapeHtml(dept || '-') + '</span></td>'
-      + '<td>' + mapLink + '</td>'
-      + '<td><div class="date-cell">' + formatDate(row.created_at) + '</div></td>'
-      + '<td><div style="display:flex;flex-direction:column;gap:8px;align-items:center;"><span class="file-badge">📎 ' + files.length + ' ไฟล์</span><button class="btn" onclick="openDetailById(' + Number(row.id) + ')">ดูรายละเอียด</button></div></td>';
-    tbody.appendChild(tr);
-  });
-}
-function renderCurrentPage(){
-  const totalItems = filteredData.length, totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  if(currentPage > totalPages) currentPage = totalPages;
-  renderTable(filteredData.slice((currentPage-1)*pageSize, (currentPage-1)*pageSize + pageSize));
-  document.getElementById('pageInfo').textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
-  document.getElementById('prevPage').disabled = currentPage === 1;
-  document.getElementById('nextPage').disabled = currentPage === totalPages;
-}
-function changePage(delta){ currentPage += delta; renderCurrentPage(); }
+  function openDetailById(id){
+    const row=allData.find(x=>String(x.id)===String(id));
+    if(!row) return;
+    const files=parseFiles(row.photo);
+    document.getElementById('detailName').textContent=row.name || '-';
+    document.getElementById('detailPhone').textContent=row.phone || '-';
+    document.getElementById('detailDepartment').textContent=row.department || '-';
+    document.getElementById('detailDate').textContent=formatDate(row.created_at);
+    document.getElementById('detailMessage').textContent=row.message || '-';
+    document.getElementById('detailMap').innerHTML=(row.latitude && row.longitude)
+      ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" rel="noopener">📍 เปิดแผนที่</a>`
+      : '-';
+    renderDetailFileButtons(files,'ไม่มีไฟล์แนบ');
+    document.getElementById('detailModal').style.display='flex';
+  }
 
-function renderDetailFileButtons(files=[], emptyText='ไม่มีไฟล์แนบ'){
-  const box = document.getElementById('detailFilesBox');
-  const validFiles = (Array.isArray(files) ? files : []).filter(item => typeof item === 'string' ? !!item : !!item?.url);
-  if(!validFiles.length){ box.innerHTML = '<div class="detail-message-box">' + emptyText + '</div>'; return; }
-  const payload = encodeURIComponent(JSON.stringify(validFiles));
-  box.innerHTML = '<div class="detail-file-box"><div class="detail-file-row"><div class="detail-file-meta">จำนวน ' + validFiles.length + ' ไฟล์</div><button type="button" class="btn link-btn" onclick="showImagesFromEncoded('' + payload + '')">ดูไฟล์ทั้งหมด</button></div></div>';
-}
-function showImagesFromEncoded(encoded){ try{ showImages(JSON.parse(decodeURIComponent(encoded))); }catch(e){ alert('เปิดไฟล์ไม่สำเร็จ'); } }
-function openDetailById(id){
-  const row = allData.find(x => Number(x.id) === Number(id));
-  if(!row) return;
-  const files = parseFiles(row.photo);
-  document.getElementById('detailName').textContent = row.name || '-';
-  document.getElementById('detailPhone').textContent = row.phone || '-';
-  document.getElementById('detailDepartment').textContent = row.department || '-';
-  document.getElementById('detailDate').textContent = formatDate(row.created_at);
-  document.getElementById('detailMessage').textContent = row.message || '-';
-  document.getElementById('detailMap').innerHTML = row.latitude && row.longitude ? '<a class="map-link" href="https://www.google.com/maps?q=' + row.latitude + ',' + row.longitude + '" target="_blank">📍 เปิดแผนที่</a>' : '-';
-  renderDetailFileButtons(files,'ไม่มีไฟล์แนบ');
-  document.getElementById('detailModal').style.display = 'flex';
-}
-function closeDetailModal(e){ if(e && e.target && e.target.id !== 'detailModal') return; document.getElementById('detailModal').style.display = 'none'; document.getElementById('detailFilesBox').innerHTML = '<div class="detail-message-box">ไม่มีไฟล์แนบ</div>'; }
+  function closeDetailModal(e){ if(e && e.target && e.target.id!=='detailModal') return; document.getElementById('detailModal').style.display='none'; }
 
-function showImages(images){
-  const safeImages = (images || []).filter(img => { const rawUrl = typeof img === 'string' ? img : (img?.url || ''); return !!rawUrl; });
-  const win = window.open('', '_blank', 'width=1200,height=800');
-  if(!win){ alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน'); return; }
-  let itemsHtml = '';
-  safeImages.forEach((img, index) => {
-    const rawUrl = typeof img === 'string' ? img : (img?.url || '');
-    const url = encodeURI(rawUrl);
-    const type = (typeof img === 'object' && img?.type) ? img.type : '';
-    const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
-    const preview = isVideo ? '<video controls preload="metadata" class="preview-media"><source src="' + url + '"></video>' : '<img src="' + url + '" loading="lazy" class="preview-media" alt="ไฟล์แนบ ' + (index + 1) + '">';
-    const payload = encodeURIComponent(JSON.stringify({url:url,isVideo:isVideo,index:index+1}));
-    itemsHtml += '<div class="media-card"><div class="media-link" onclick="openMediaViewerFromEncoded('' + payload + '')">' + preview + '</div><div class="media-meta"><span class="media-index">ไฟล์ที่ ' + (index + 1) + '</span><div class="media-actions"><button type="button" class="open-btn" onclick="openMediaViewerFromEncoded('' + payload + '')">เปิดเต็ม</button></div></div></div>';
-  });
-  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ดูไฟล์ทั้งหมด</title><style>*{box-sizing:border-box}body{margin:0;font-family:'Kanit',sans-serif;background:#f1f5f9;color:#0f172a}.topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.title{font-size:18px;font-weight:700;margin:0}.count-badge{background:#155263;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700}.container{padding:16px;max-width:1400px;margin:0 auto}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-items:start}.media-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}.media-link{display:block;text-decoration:none;background:#f8fafc;cursor:pointer}.preview-media{display:block;width:100%;height:220px;object-fit:cover;background:#e2e8f0}.media-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px}.media-index{font-size:13px;color:#475569;font-weight:600}.open-btn{border:none;background:#2563eb;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}.media-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.empty{text-align:center;padding:40px 20px;color:#64748b;background:#fff;border:1px solid #e2e8f0;border-radius:12px}</style></head><body><div class="topbar"><h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1><div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div></div><div class="container">${safeImages.length ? '<div class="grid">' + itemsHtml + '</div>' : '<div class="empty">ไม่มีไฟล์ให้แสดง</div>'}</div><script>function openMediaViewerFromEncoded(encoded){try{const payload=JSON.parse(decodeURIComponent(encoded));openMediaViewer(payload);}catch(e){alert('เปิดไฟล์ไม่สำเร็จ');}} function openMediaViewer(payload){const url=payload&&payload.url;const isVideo=payload&&payload.isVideo;const index=payload&&payload.index;if(!url)return;const viewer=window.open('', '_blank', 'width=1200,height=800');if(!viewer){alert('กรุณาอนุญาต popup');return;}let content='';if(isVideo){content='<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>วิดีโอไฟล์ที่ '+index+'</title><style>body{margin:0;background:#0f172a;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;min-height:100vh}.top{padding:12px 16px;background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.btn{color:#fff;background:#334155;text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:700;font-size:13px}.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:16px}video{width:100%;max-width:1200px;max-height:calc(100vh - 90px);background:black;border-radius:12px;outline:none}</style></head><body><div class="top"><div>🎬 วิดีโอไฟล์ที่ '+index+'</div><div><a class="btn" href="'+url+'" target="_blank" rel="noopener">เปิด URL ตรง</a></div></div><div class="wrap"><video controls autoplay playsinline><source src="'+url+'"></video></div></body></html>';}else{content='<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>รูปภาพไฟล์ที่ '+index+'</title><style>body{margin:0;background:#0f172a;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;min-height:100vh}.top{padding:12px 16px;background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.btn{color:#fff;background:#334155;text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:700;font-size:13px}.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:16px}img{max-width:100%;max-height:calc(100vh - 90px);object-fit:contain;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.35);background:#fff}</style></head><body><div class="top"><div>🖼️ รูปภาพไฟล์ที่ '+index+'</div><div><a class="btn" href="'+url+'" target="_blank" rel="noopener">เปิด URL ตรง</a></div></div><div class="wrap"><img src="'+url+'" alt="ไฟล์ที่ '+index+'"></div></body></html>';}viewer.document.write(content);viewer.document.close();}<\/script></body></html>`;
-  win.document.write(html);
-  win.document.close();
-}
+  function showImages(images){
+    const safeImages=(images||[]).filter(img=>{ const raw=typeof img==='string' ? img : (img?.url || ''); return !!raw; });
+    const win=window.open('', '_blank', 'width=1200,height=800');
+    if(!win){ alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน'); return; }
 
-async function loadData(){
-  const res = await fetch('/data-approved-all?_=' + Date.now());
-  if(!res.ok){ const text = await res.text(); throw new Error(text || ('โหลดข้อมูลไม่สำเร็จ (' + res.status + ')')); }
-  const data = await res.json();
-  allData = Array.isArray(data) ? data : [];
-  applyFilters();
-}
-async function safeLoadData(){ if(isLoading) return; isLoading=true; try{ await loadData(); } catch(e){ console.error('load approved-all error:', e); } finally { isLoading=false; } }
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDetailModal(); });
-window.addEventListener('load', async () => { setMode('all'); await safeLoadData(); });
+    let itemsHtml='';
+    safeImages.forEach((img,index)=>{
+      const rawUrl=typeof img==='string' ? img : (img?.url || '');
+      const url=encodeURI(rawUrl);
+      const type=(typeof img==='object' && img?.type) ? img.type : '';
+      const isVideo=type==='video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
+      const preview=isVideo
+        ? '<video controls preload="metadata" class="preview-media"><source src="'+url+'"></video>'
+        : '<img src="'+url+'" loading="lazy" class="preview-media" alt="ไฟล์แนบ '+(index+1)+'" />';
+      itemsHtml += '<div class="media-card">'
+        + '<a class="media-link" href="'+url+'" target="_blank" rel="noopener">'+preview+'</a>'
+        + '<div class="media-meta">'
+        + '<span class="media-index">ไฟล์ที่ '+(index+1)+'</span>'
+        + '<div class="media-actions"><a class="open-btn" href="'+url+'" target="_blank" rel="noopener">เปิดเต็ม</a></div>'
+        + '</div></div>';
+    });
+
+    const html='<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ดูไฟล์ทั้งหมด</title><style>'
+      + '*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Kanit",sans-serif;background:#f1f5f9;color:#0f172a} .topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.title{font-size:18px;font-weight:700;margin:0}.count-badge{background:#155263;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700}.container{padding:16px;max-width:1400px;margin:0 auto}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-items:start}.media-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}.media-link{display:block;background:#f8fafc}.preview-media{display:block;width:100%;height:220px;object-fit:cover;background:#e2e8f0}.media-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px}.media-index{font-size:13px;color:#475569;font-weight:600}.open-btn{text-decoration:none;border:none;background:#2563eb;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;display:inline-block}.empty{text-align:center;padding:40px 20px;color:#64748b;background:#fff;border:1px solid #e2e8f0;border-radius:12px}</style></head><body>'
+      + '<div class="topbar"><h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1><div class="count-badge">ทั้งหมด '+safeImages.length+' ไฟล์</div></div>'
+      + '<div class="container">'+(safeImages.length ? '<div class="grid">'+itemsHtml+'</div>' : '<div class="empty">ไม่มีไฟล์ให้แสดง</div>')+'</div>'
+      + '</body></html>';
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }
+
+  function updateStats(rows){
+    const base=allData;
+    document.getElementById('statAll').textContent=String(base.length);
+    document.getElementById('statToday').textContent=String(base.filter(r=>isTodayBangkok(r.created_at)).length);
+    document.getElementById('statHealth').textContent=String(base.filter(r=>r.department==='สาธารณสุข').length);
+    document.getElementById('statEngElec').textContent=String(base.filter(r=>r.department==='กองช่าง' || r.department==='ไฟฟ้า').length);
+    document.getElementById('countApprovedLeft').textContent=String(base.length);
+    document.getElementById('resultSummary').textContent=`แสดง ${rows.length} รายการ`;
+  }
+
+  function renderTable(rows){
+    const tbody=document.querySelector('#data-table tbody');
+    tbody.innerHTML='';
+    if(!rows.length){
+      tbody.innerHTML='<tr><td colspan="6" style="padding:22px;color:#64748b;font-weight:900;">ไม่มีข้อมูลคำร้องที่อนุมัติแล้ว</td></tr>';
+      return;
+    }
+    rows.forEach(row=>{
+      const mapLink=(row.latitude && row.longitude)
+        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" rel="noopener">📍 แผนที่</a>`
+        : '-';
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td><div style="font-weight:900">${escapeHtml(row.name || '-')}</div></td>
+        <td>${escapeHtml(row.phone || '-')}</td>
+        <td>
+          <button class="btn link-btn" onclick="openDetailById(${Number(row.id)})">📄 ดูรายละเอียด</button>
+          <div class="small-muted">${escapeHtml((row.message || '-').slice(0,60))}${(row.message || '').length > 60 ? '...' : ''}</div>
+        </td>
+        <td>${deptBadge(row.department)}</td>
+        <td>${mapLink}</td>
+        <td>${formatDate(row.created_at)}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderCurrentPage(){
+    const totalItems=filteredData.length;
+    const totalPages=Math.max(1, Math.ceil(totalItems/pageSize));
+    if(currentPage>totalPages) currentPage=totalPages;
+    const start=(currentPage-1)*pageSize;
+    const pageData=filteredData.slice(start, start+pageSize);
+    renderTable(pageData);
+    document.getElementById('pageInfo').textContent=`หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+    document.getElementById('prevPage').disabled=currentPage===1;
+    document.getElementById('nextPage').disabled=currentPage===totalPages;
+  }
+  function changePage(delta){ currentPage += delta; renderCurrentPage(); }
+
+  function applyFilters(){
+    const keyword=(document.getElementById('searchInput').value || '').trim().toLowerCase();
+    const department=document.getElementById('departmentFilter').value;
+    let rows=[...allData];
+
+    if(department !== 'all') rows=rows.filter(r=>String(r.department || '').trim()===department);
+    if(MODE === 'today') rows=rows.filter(r=>isTodayBangkok(r.created_at));
+    if(keyword) rows=rows.filter(r => String(r.name || '').toLowerCase().includes(keyword) || String(r.phone || '').toLowerCase().includes(keyword));
+
+    filteredData=rows;
+    currentPage=1;
+    updateStats(rows);
+    renderCurrentPage();
+  }
+
+  function setMode(mode){
+    MODE=(mode==='today') ? 'today' : 'all';
+    document.getElementById('chip-all').classList.toggle('active', MODE==='all');
+    document.getElementById('chip-today').classList.toggle('active', MODE==='today');
+    applyFilters();
+  }
+
+  async function loadData(){
+    const res=await fetch('/data-approved-all?_=' + Date.now());
+    if(!res.ok){ const text=await res.text(); throw new Error(text || ('โหลดข้อมูลไม่สำเร็จ (' + res.status + ')')); }
+    const data=await res.json();
+    allData=(Array.isArray(data) ? data : []).filter(row => ALLOWED_DEPARTMENTS.includes(String(row.department || '').trim()));
+    updateStats(allData);
+    applyFilters();
+  }
+
+  async function safeLoadData(){ if(isLoading) return; isLoading=true; try{ await loadData(); } catch(e){ console.error('load approved-all error:', e); } finally{ isLoading=false; } }
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDetailModal(); });
+  window.addEventListener('load', async ()=>{ setMode('all'); await safeLoadData(); });
 </script>
 </body>
 </html>
