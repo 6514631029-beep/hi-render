@@ -1,4 +1,3 @@
-<!-- public/track.html (Mobile-first UX/UI version) -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -7,171 +6,427 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap');
 
     :root{
-      --bg1:#e3f2fd;
-      --bg2:#f5f9ff;
-      --card:#ffffff;
+      --bg1:#eaf4ff;
+      --bg2:#f7fbff;
+      --card:rgba(255,255,255,.88);
+      --card-solid:#ffffff;
       --text:#0f172a;
       --muted:#64748b;
-      --line:#e5e7eb;
+      --line:#e2e8f0;
 
       --primary:#1976d2;
-      --primary2:#1565c0;
+      --primary2:#0f5fb3;
+      --primary3:#dcedff;
 
       --warn:#f59e0b;
       --ok:#16a34a;
       --bad:#ef4444;
+      --indigo:#4f46e5;
 
-      --shadow: 0 10px 26px rgba(2,6,23,.10);
-      --shadow2: 0 6px 16px rgba(2,6,23,.08);
-      --radius: 16px;
+      --shadow:0 18px 40px rgba(15,23,42,.10);
+      --shadow2:0 8px 20px rgba(15,23,42,.08);
+      --radius:20px;
+      --radius-sm:16px;
+      --glass-border:1px solid rgba(255,255,255,.7);
     }
 
     *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    html,body{ min-height:100%; }
     body{
       font-family:'Kanit',sans-serif;
       margin:0;
       color:var(--text);
       background:
-        radial-gradient(1200px 600px at 20% -10%, #dbeafe 0%, transparent 55%),
-        radial-gradient(900px 500px at 90% 0%, #e0f2fe 0%, transparent 50%),
+        radial-gradient(1000px 520px at 0% -10%, #dbeafe 0%, transparent 60%),
+        radial-gradient(800px 480px at 100% 0%, #d9f0ff 0%, transparent 55%),
         linear-gradient(180deg, var(--bg1), var(--bg2));
-      padding: 14px;
-      padding-top: calc(14px + env(safe-area-inset-top));
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      padding:14px;
+      padding-top:calc(14px + env(safe-area-inset-top));
+      padding-bottom:calc(16px + env(safe-area-inset-bottom));
+      overflow-x:hidden;
     }
 
-    /* ===== App Header ===== */
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      border-radius:999px;
+      filter: blur(16px);
+      opacity:.28;
+      z-index:0;
+      pointer-events:none;
+    }
+    body::before{
+      width:180px;height:180px;
+      background:#bfdbfe;
+      top:84px;right:-40px;
+      animation: floatBlob 12s ease-in-out infinite;
+    }
+    body::after{
+      width:140px;height:140px;
+      background:#dbeafe;
+      bottom:80px;left:-36px;
+      animation: floatBlob 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes floatBlob{
+      0%,100%{ transform:translateY(0) translateX(0); }
+      50%{ transform:translateY(-10px) translateX(8px); }
+    }
+
     .app{
+      position:relative;
+      z-index:1;
       width:100%;
-      max-width: 980px;
-      margin: 0 auto;
+      max-width:1060px;
+      margin:0 auto;
     }
 
     .appbar{
-      position: sticky;
-      top: calc(0px + env(safe-area-inset-top));
-      z-index: 50;
+      position:sticky;
+      top:calc(0px + env(safe-area-inset-top));
+      z-index:60;
       display:flex;
       align-items:center;
+      justify-content:space-between;
       gap:10px;
-      padding: 10px 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.78);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,.7);
-      box-shadow: var(--shadow2);
+      padding:12px;
+      border-radius:22px;
+      background:rgba(255,255,255,.72);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      border:var(--glass-border);
+      box-shadow:var(--shadow2);
     }
 
-    .back-btn{
+    .appbar-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .back-btn,
+    .icon-btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
-      padding: 10px 12px;
-      min-width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--text);
+      min-width:46px;
+      width:46px;
+      height:46px;
+      border:none;
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
       text-decoration:none;
-      font-weight:700;
-      line-height: 1;
-      box-shadow: 0 3px 10px rgba(2,6,23,.06);
-      transition: transform .12s ease, opacity .12s ease;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
+      font-size:18px;
+      box-shadow:0 8px 18px rgba(2,6,23,.08);
+      cursor:pointer;
+      transition:transform .12s ease, opacity .12s ease, background .12s ease;
+      -webkit-tap-highlight-color:transparent;
     }
-    .back-btn:active{ transform: scale(.98); opacity:.9; }
+    .back-btn:active,
+    .icon-btn:active,
+    .btn:active,
+    .quick-chip:active,
+    .link-btn:active{ transform:scale(.98); opacity:.92; }
 
-    .titlewrap{ display:flex; flex-direction:column; }
+    .titlewrap{ min-width:0; }
+    .eyebrow{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.7px;
+      color:var(--primary2);
+      text-transform:uppercase;
+      margin-bottom:2px;
+    }
     .title{
       margin:0;
-      font-size: 18px;
-      line-height: 1.15;
-      font-weight: 800;
-      letter-spacing: .2px;
+      font-size:20px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .subtitle{
-      margin:2px 0 0;
-      font-size: 13px;
-      color: var(--muted);
+      margin:4px 0 0;
+      font-size:13px;
+      color:var(--muted);
       font-weight:600;
     }
 
-    /* ===== Search Card ===== */
-    .card{
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,.7);
-    }
-
-    .search-card{
-      margin-top: 14px;
-      padding: 16px;
-    }
-
-    .row{
+    .header-badge{
       display:flex;
-      gap:10px;
       align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:16px;
+      background:linear-gradient(180deg, #eff6ff, #ffffff);
+      border:1px solid #dbeafe;
+      font-size:12px;
+      font-weight:800;
+      color:var(--primary2);
+      white-space:nowrap;
+      box-shadow:0 8px 18px rgba(25,118,210,.10);
     }
 
+    .card{
+      background:var(--card);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:var(--glass-border);
+    }
+
+    .hero-card{
+      margin-top:14px;
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-card::after{
+      content:"";
+      position:absolute;
+      width:160px;
+      height:160px;
+      right:-42px;
+      top:-54px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(25,118,210,.16) 0%, rgba(25,118,210,0) 70%);
+      pointer-events:none;
+    }
+
+    .hero-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+    }
+    .hero-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      line-height:1.2;
+    }
+    .hero-desc{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+      max-width:680px;
+    }
+
+    .quick-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .quick-chip{
+      border:none;
+      cursor:pointer;
+      padding:10px 12px;
+      border-radius:999px;
+      font-family:inherit;
+      font-size:12px;
+      font-weight:800;
+      background:#fff;
+      color:var(--text);
+      box-shadow:0 8px 16px rgba(2,6,23,.06);
+      border:1px solid var(--line);
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .search-shell{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:10px;
+    }
+
+    .input-wrap{
+      position:relative;
+    }
+    .input-icon{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:18px;
+      opacity:.8;
+    }
     input[type="tel"]{
-      flex: 1;
-      padding: 14px 14px;
-      font-size: 16px; /* กัน iOS ซูม */
-      border-radius: 14px;
-      border: 1.5px solid #cfe3ff;
-      background: #f7fbff;
+      width:100%;
+      padding:15px 16px 15px 46px;
+      font-size:16px;
+      border-radius:18px;
+      border:1.5px solid #cfe3ff;
+      background:#f7fbff;
+      color:var(--text);
       outline:none;
-      transition: border-color .15s ease, box-shadow .15s ease;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .15s ease;
     }
     input[type="tel"]:focus{
-      border-color: #8bbcff;
-      box-shadow: 0 0 0 4px rgba(25,118,210,.12);
+      border-color:#7eb6ff;
+      box-shadow:0 0 0 4px rgba(25,118,210,.12);
       background:#fff;
     }
 
     .btn{
       border:none;
       cursor:pointer;
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-weight: 800;
-      white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform .12s ease, opacity .12s ease, background .12s ease;
-      user-select:none;
+      border-radius:18px;
+      padding:14px 18px;
+      font-size:16px;
+      font-weight:800;
+      font-family:inherit;
+      white-space:nowrap;
+      transition:transform .12s ease, opacity .12s ease, background .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color:transparent;
     }
-    .btn:active{ transform: scale(.98); opacity:.92; }
-
     .btn.primary{
-      background: linear-gradient(180deg, #1e88e5, var(--primary2));
+      background:linear-gradient(180deg, #1f8cff, var(--primary2));
       color:#fff;
-      box-shadow: 0 10px 18px rgba(21,101,192,.22);
+      box-shadow:0 12px 22px rgba(21,101,192,.25);
     }
     .btn.ghost{
       background:#fff;
+      color:var(--text);
       border:1px solid var(--line);
-      color: var(--text);
     }
-    .help{
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height:1.35;
+    .btn.subtle{
+      background:#eef6ff;
+      color:var(--primary2);
+      border:1px solid #dbeafe;
     }
 
-    /* ===== Results ===== */
+    .meta-row{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .help{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .auto-badge{
+      display:none;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:#eff6ff;
+      border:1px solid #dbeafe;
+      color:var(--primary2);
+      font-size:12px;
+      font-weight:800;
+    }
+    .auto-badge.show{ display:inline-flex; }
+
+    .toolbar{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .link-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height:46px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.8);
+      color:var(--text);
+      font-weight:800;
+      text-decoration:none;
+      cursor:pointer;
+      box-shadow:0 8px 16px rgba(2,6,23,.05);
+      font-family:inherit;
+      font-size:14px;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+    .summary-card{
+      padding:14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.76);
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:var(--shadow2);
+      min-height:94px;
+    }
+    .summary-label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+    .summary-value{
+      font-size:28px;
+      line-height:1;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    .summary-note{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .summary-total .summary-value{ color:var(--primary2); }
+    .summary-done .summary-value{ color:var(--ok); }
+    .summary-progress .summary-value{ color:var(--indigo); }
+    .summary-pending .summary-value{ color:var(--warn); }
+
     #results{
-      margin-top: 14px;
+      margin-top:14px;
+    }
+
+    .results-head{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      padding:0 2px;
+    }
+    .results-head.show{ display:flex; }
+    .results-title{
+      font-size:15px;
+      font-weight:900;
+      margin:0;
+    }
+    .results-sub{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+      margin-top:2px;
+    }
+
+    .stack{ display:grid; gap:12px; }
+
+    .req-card{
+      overflow:hidden;
+      background:var(--card-solid);
+      border-radius:22px;
+      border:1px solid rgba(226,232,240,.85);
+      box-shadow:var(--shadow);
+      transform:translateY(8px);
+      opacity:0;
+      animation:cardIn .32s ease forwards;
+    }
+    @keyframes cardIn{
+      to{ transform:translateY(0); opacity:1; }
     }
 
     .state{
@@ -179,125 +434,257 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, #fbfdff, #f8fbff);
+    }
+    .req-code{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .req-code strong{
+      font-size:15px;
+      font-weight:900;
+    }
+    .req-code span{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
     }
 
     .chip{
       display:inline-flex;
       align-items:center;
       gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      border: 1px solid rgba(2,6,23,.06);
-      white-space: nowrap;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid rgba(2,6,23,.06);
+      white-space:nowrap;
+      box-shadow:0 6px 14px rgba(2,6,23,.05);
     }
     .chip.ok{ background:#eafaf0; color:#14532d; }
     .chip.warn{ background:#fff7ed; color:#7c2d12; }
     .chip.bad{ background:#fff1f2; color:#7f1d1d; }
     .chip.neutral{ background:#eef2ff; color:#1e3a8a; }
 
-    .req-card{
-      overflow:hidden;
-      margin-top: 12px;
+    .req-body{
+      padding:14px;
     }
 
-    .req-body{
-      padding: 14px;
+    .mini-timeline{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:12px;
+      overflow:auto;
+      padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    .mini-timeline::-webkit-scrollbar{ display:none; }
+    .step{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      color:#64748b;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+    .step.active{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:var(--primary2);
+    }
+    .step.done{
+      background:#ecfdf5;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+    .timeline-sep{
+      color:#94a3b8;
+      font-weight:900;
+      flex:0 0 auto;
     }
 
     .kv{
       display:flex;
       gap:10px;
-      padding: 8px 0;
-      border-bottom: 1px dashed #eef2f7;
+      padding:9px 0;
+      border-bottom:1px dashed #edf2f7;
     }
-    .kv:last-child{ border-bottom: none; padding-bottom: 0; }
+    .kv:last-child{ border-bottom:none; }
     .k{
-      width: 104px;
-      color: var(--muted);
-      font-weight: 800;
-      font-size: 13px;
-      flex: 0 0 104px;
+      width:104px;
+      flex:0 0 104px;
+      color:var(--muted);
+      font-weight:800;
+      font-size:13px;
     }
     .v{
       flex:1;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text);
-      word-break: break-word;
+      min-width:0;
+      font-size:14px;
+      font-weight:600;
+      color:var(--text);
+      word-break:break-word;
     }
-
     .message{
       display:block;
-      padding: 10px 12px;
-      border-radius: 14px;
+      padding:12px 13px;
+      border-radius:16px;
       background:#f8fafc;
-      border: 1px solid #eef2f7;
-      margin-top: 8px;
-      font-weight: 600;
-      color:#0f172a;
-      line-height:1.45;
+      border:1px solid #eef2f7;
+      margin-top:8px;
+      line-height:1.55;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
     }
 
     .section{
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--line);
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid var(--line);
     }
     .section-title{
-      font-weight: 900;
-      margin:0 0 8px;
-      font-size: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin:0 0 10px;
+      font-size:14px;
+      font-weight:900;
+    }
+    .section-tag{
+      font-size:11px;
+      color:var(--primary2);
+      background:#eff6ff;
+      border:1px solid #dbeafe;
+      padding:4px 8px;
+      border-radius:999px;
+      font-weight:800;
     }
 
     .media-grid{
       display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 10px;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+    .thumb-wrap{
+      position:relative;
+      cursor:pointer;
     }
     .thumb{
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      border-radius: 14px;
-      border: 1px solid rgba(2,6,23,.06);
-      box-shadow: 0 6px 14px rgba(2,6,23,.10);
-      cursor:pointer;
+      width:100%;
+      aspect-ratio:4 / 3;
+      object-fit:cover;
+      border-radius:16px;
+      border:1px solid rgba(2,6,23,.06);
+      box-shadow:0 8px 16px rgba(2,6,23,.08);
       background:#fff;
+      transition:transform .14s ease, box-shadow .14s ease;
     }
+    .thumb-wrap:hover .thumb{
+      transform:translateY(-1px);
+      box-shadow:0 12px 20px rgba(2,6,23,.12);
+    }
+    .play-badge,
+    .count-badge{
+      position:absolute;
+      right:8px;
+      border-radius:999px;
+      padding:4px 7px;
+      font-size:11px;
+      font-weight:900;
+      color:#fff;
+      background:rgba(15,23,42,.76);
+      backdrop-filter:blur(8px);
+    }
+    .play-badge{ bottom:8px; }
+    .count-badge{ top:8px; }
 
     .btn.full{
-      width: 100%;
-      margin-top: 10px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-weight: 900;
+      width:100%;
+      margin-top:10px;
+      padding:13px 14px;
+      border-radius:16px;
     }
 
-    .empty, .loading{
-      padding: 18px;
+    .empty,.loading,.inline-note{
+      padding:18px;
       text-align:center;
-      color: var(--muted);
-      font-weight: 700;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .empty strong{ color:var(--text); }
+    .inline-note{
+      text-align:left;
+      background:#f8fafc;
+      border:1px solid #eef2f7;
+      border-radius:16px;
+      color:#475569;
+      padding:12px;
+      font-size:13px;
+      line-height:1.5;
     }
 
-    .divider{
-      height: 10px;
+    .skeleton-card{
+      overflow:hidden;
+      padding:14px;
+      background:#fff;
+      border-radius:22px;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow2);
+    }
+    .skeleton-line,
+    .skeleton-chip,
+    .skeleton-box{
+      background:linear-gradient(90deg, #eef2f7 25%, #f8fafc 37%, #eef2f7 63%);
+      background-size:400% 100%;
+      animation: shimmer 1.15s linear infinite;
+      border-radius:12px;
+    }
+    .skeleton-line{ height:14px; margin-bottom:10px; }
+    .skeleton-chip{ width:120px; height:32px; margin-left:auto; }
+    .skeleton-box{ height:72px; margin-top:12px; }
+    @keyframes shimmer{
+      0%{ background-position:100% 0; }
+      100%{ background-position:0 0; }
     }
 
-    /* ===== Responsive ===== */
-    @media (max-width: 560px){
-      .row{ flex-direction: column; align-items: stretch; }
-      .btn{ width: 100%; }
-      .k{ width: 92px; flex:0 0 92px; }
-      .media-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .title{ font-size: 17px; }
+    .divider{ height:10px; }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:calc(20px + env(safe-area-inset-bottom));
+      transform:translateX(-50%) translateY(12px);
+      background:rgba(15,23,42,.92);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      z-index:100000;
+      box-shadow:0 20px 40px rgba(0,0,0,.25);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
+      max-width:calc(100vw - 28px);
+      text-align:center;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
     }
 
-    /* ===== Media Modal (keep yours, polished) ===== */
     .media-modal{ position:fixed; inset:0; z-index:99999; display:none; }
     .media-modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.72); }
 
@@ -308,11 +695,11 @@
       width:min(96vw, 980px);
       height:min(92vh, 820px);
       background:#fff;
-      border-radius:18px;
+      border-radius:20px;
       overflow:hidden;
       display:flex;
       flex-direction:column;
-      box-shadow: 0 25px 60px rgba(0,0,0,.35);
+      box-shadow:0 25px 60px rgba(0,0,0,.35);
     }
 
     .media-modal__header{
@@ -334,20 +721,19 @@
       border-radius:999px;
       background:#111827;
       color:#fff;
-      font-size: 22px;
+      font-size:22px;
       line-height:44px;
       text-align:center;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.28);
-      transition: transform .12s ease, opacity .12s ease;
-      -webkit-tap-highlight-color: transparent;
+      box-shadow:0 10px 22px rgba(0,0,0,0.28);
+      transition:transform .12s ease, opacity .12s ease;
+      -webkit-tap-highlight-color:transparent;
     }
-    .media-modal__close:active{ transform: scale(.95); opacity:.92; }
 
     .media-modal__body{
       padding:12px;
       overflow:auto;
       -webkit-overflow-scrolling:touch;
-      background: #0b1220;
+      background:#0b1220;
     }
 
     .media-modal__stack{
@@ -366,6 +752,34 @@
       background:#000;
     }
 
+    @media (max-width: 900px){
+      .summary-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .header-badge{ display:none; }
+    }
+
+    @media (max-width: 680px){
+      .hero-top{ flex-direction:column; }
+      .quick-row{ justify-content:flex-start; }
+      .search-shell{ grid-template-columns:1fr; }
+      .toolbar{ display:grid; grid-template-columns:1fr 1fr; }
+      .link-btn{ width:100%; }
+    }
+
+    @media (max-width: 560px){
+      .appbar{ align-items:flex-start; }
+      .title{ font-size:18px; }
+      .subtitle{ font-size:12px; }
+      .hero-card{ padding:16px; }
+      .hero-title{ font-size:17px; }
+      .summary-grid{ grid-template-columns:1fr 1fr; gap:8px; }
+      .summary-card{ min-height:88px; padding:12px; }
+      .summary-value{ font-size:24px; }
+      .k{ width:92px; flex:0 0 92px; }
+      .media-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .state{ flex-direction:column; align-items:flex-start; }
+      .toolbar{ grid-template-columns:1fr; }
+    }
+
     @media (max-width: 768px){
       .media-modal__content{
         left:0 !important;
@@ -377,7 +791,7 @@
       }
       .media-modal__stack img,
       .media-modal__stack video{
-        max-height: calc(100vh - 74px) !important;
+        max-height:calc(100vh - 74px) !important;
       }
     }
   </style>
@@ -385,32 +799,98 @@
 <body>
   <div class="app">
     <div class="appbar">
-      <a href="/choose.html" class="back-btn" aria-label="กลับไปเมนูหลัก">⬅️</a>
-      <div class="titlewrap">
-        <h1 class="title">ติดตามคำร้อง</h1>
-        <div class="subtitle">ค้นหาด้วยเบอร์โทร เพื่อดูสถานะและไฟล์แนบ</div>
+      <div class="appbar-left">
+        <a href="/choose.html" class="back-btn" aria-label="กลับไปเมนูหลัก">⬅️</a>
+        <div class="titlewrap">
+          <div class="eyebrow">Tracking Center</div>
+          <h1 class="title">ติดตามคำร้อง</h1>
+          <div class="subtitle">ดูสถานะ, เวลาอัปเดต และไฟล์แนบจากการดำเนินงาน</div>
+        </div>
+      </div>
+      <div class="header-badge" id="lastSearchBadge">📱 พร้อมค้นหาด้วยเบอร์ล่าสุด</div>
+    </div>
+
+    <div class="card hero-card">
+      <div class="hero-top">
+        <div>
+          <h2 class="hero-title">ค้นหาง่ายบนมือถือ และอ่านผลลัพธ์สบายขึ้น</h2>
+          <p class="hero-desc">
+            ระบบจะใช้เบอร์ที่ล็อกอินล่าสุดให้อัตโนมัติ คุณยังเปลี่ยนเป็นเบอร์อื่นเพื่อค้นหาได้ทันที
+            พร้อมสรุปสถานะด้านบนและการ์ดคำร้องที่อ่านง่ายกว่าเดิม
+          </p>
+        </div>
+        <div class="quick-row">
+          <button type="button" class="quick-chip" id="useSavedBtn">📲 ใช้เบอร์ล่าสุด</button>
+          <button type="button" class="quick-chip" id="copyPhoneBtn">📋 คัดลอกเบอร์</button>
+        </div>
+      </div>
+
+      <form id="trackForm">
+        <div class="search-shell">
+          <div class="input-wrap">
+            <span class="input-icon">📞</span>
+            <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" maxlength="10"
+                   placeholder="เบอร์โทร เช่น 0891234567" />
+          </div>
+          <button type="submit" class="btn primary" id="searchBtn">ค้นหา</button>
+        </div>
+
+        <div class="meta-row">
+          <div class="help" id="helperText">
+            ระบบจะใช้เบอร์ที่ล็อกอินล่าสุดให้อัตโนมัติ และคุณยังพิมพ์ค้นหาด้วยเบอร์อื่นได้
+          </div>
+          <div class="auto-badge" id="autoBadge">✨ ใช้เบอร์ล่าสุดแล้ว</div>
+        </div>
+      </form>
+
+      <div class="toolbar">
+        <button type="button" class="link-btn" id="refreshBtn">🔄 ค้นหาอีกครั้ง</button>
+        <button type="button" class="link-btn" id="clearBtn">🧹 ล้างเบอร์ที่จำไว้</button>
+        <a class="link-btn" href="/choose.html">🏠 กลับเมนูหลัก</a>
       </div>
     </div>
 
-    <div class="card search-card">
-      <form id="trackForm">
-        <div class="row">
-          <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel"
-                 placeholder="เบอร์โทร เช่น 0891234567" />
-          <button type="submit" class="btn primary">ค้นหา</button>
-        </div>
+    <div class="summary-grid" id="summaryGrid" style="display:none">
+      <div class="summary-card summary-total">
+        <div class="summary-label">คำร้องทั้งหมด</div>
+        <div class="summary-value" id="sumTotal">0</div>
+        <div class="summary-note">รายการที่พบจากเบอร์นี้</div>
+      </div>
+      <div class="summary-card summary-done">
+        <div class="summary-label">เสร็จสิ้น</div>
+        <div class="summary-value" id="sumDone">0</div>
+        <div class="summary-note">งานที่ดำเนินการแล้ว</div>
+      </div>
+      <div class="summary-card summary-progress">
+        <div class="summary-label">กำลังดำเนินการ</div>
+        <div class="summary-value" id="sumProgress">0</div>
+        <div class="summary-note">อยู่ระหว่างดำเนินงาน</div>
+      </div>
+      <div class="summary-card summary-pending">
+        <div class="summary-label">รอดำเนินการ/อื่น ๆ</div>
+        <div class="summary-value" id="sumPending">0</div>
+        <div class="summary-note">กำลังรอขั้นตอนถัดไป</div>
+      </div>
+    </div>
 
-        <div class="help">
-          ระบบจะใช้เบอร์ที่ล็อกอินล่าสุดให้อัตโนมัติ และคุณยังพิมพ์ค้นหาด้วยเบอร์อื่นได้
-        </div>
-      </form>
+    <div class="results-head" id="resultsHead">
+      <div>
+        <div class="results-title">รายการคำร้อง</div>
+        <div class="results-sub" id="resultsSub">แสดงผลล่าสุดจากเบอร์โทรที่ค้นหา</div>
+      </div>
+      <button type="button" class="btn subtle" id="scrollTopBtn">⬆️ กลับด้านบน</button>
     </div>
 
     <div id="results"></div>
     <div class="divider"></div>
   </div>
 
+  <div id="toast" class="toast"></div>
+
   <script>
+    let currentRows = [];
+    let currentPhone = '';
+
     function formatDate(dateString) {
       if (!dateString) return 'ไม่ทราบเวลา';
       let s = String(dateString).trim();
@@ -442,49 +922,168 @@
       return encodeURI('/uploads/' + u);
     }
 
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function statusChip(status) {
       const s = (status || '').trim();
       if (!s) return `<span class="chip warn">⏳ รอดำเนินการ</span>`;
       if (s === 'เสร็จสิ้น') return `<span class="chip ok">✅ เสร็จสิ้น</span>`;
       if (s === 'กำลังดำเนินการ') return `<span class="chip neutral">⚙️ กำลังดำเนินการ</span>`;
       if (s === 'ไม่อนุมัติ') return `<span class="chip bad">⛔ ไม่อนุมัติ</span>`;
-      return `<span class="chip neutral">📌 ${s}</span>`;
+      if (s === 'รอแผนกรับเรื่อง') return `<span class="chip warn">📥 รอแผนกรับเรื่อง</span>`;
+      return `<span class="chip neutral">📌 ${escapeHtml(s)}</span>`;
     }
 
-    async function fetchRequests(phone) {
+    function statusStage(status) {
+      const s = (status || '').trim();
+      if (s === 'ไม่อนุมัติ') return 'rejected';
+      if (s === 'เสร็จสิ้น') return 'done';
+      if (s === 'กำลังดำเนินการ') return 'progress';
+      if (s === 'รอดำเนินการ') return 'pending';
+      if (s === 'รอแผนกรับเรื่อง') return 'waiting';
+      return 'waiting';
+    }
+
+    function timelineHtml(status) {
+      const stage = statusStage(status);
+      const items = [
+        { key: 'waiting', label: 'รับคำร้อง' },
+        { key: 'pending', label: 'รอดำเนินการ' },
+        { key: 'progress', label: 'กำลังดำเนินการ' },
+        { key: 'done', label: 'เสร็จสิ้น' }
+      ];
+
+      if (stage === 'rejected') {
+        return `
+          <div class="mini-timeline">
+            <div class="step done">📝 รับคำร้องแล้ว</div>
+            <span class="timeline-sep">›</span>
+            <div class="step active">⛔ ไม่อนุมัติ</div>
+          </div>
+        `;
+      }
+
+      const order = ['waiting', 'pending', 'progress', 'done'];
+      const activeIndex = order.indexOf(stage);
+
+      return `
+        <div class="mini-timeline">
+          ${items.map((item, index) => {
+            const cls = index < activeIndex ? 'step done' : index === activeIndex ? 'step active' : 'step';
+            const icon = index < activeIndex ? '✅' : index === activeIndex ? '📍' : '▫️';
+            return `${index > 0 ? '<span class="timeline-sep">›</span>' : ''}<div class="${cls}">${icon} ${item.label}</div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function renderLoading() {
       const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = `<div class="card"><div class="loading">กำลังค้นหา...</div></div>`;
+      document.getElementById('summaryGrid').style.display = 'none';
+      document.getElementById('resultsHead').classList.remove('show');
+      resultsDiv.innerHTML = `
+        <div class="stack">
+          <div class="skeleton-card">
+            <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="flex:1">
+                <div class="skeleton-line" style="width:58%"></div>
+                <div class="skeleton-line" style="width:36%;margin-bottom:0"></div>
+              </div>
+              <div class="skeleton-chip"></div>
+            </div>
+            <div class="skeleton-line" style="width:100%"></div>
+            <div class="skeleton-line" style="width:78%"></div>
+            <div class="skeleton-box"></div>
+          </div>
+          <div class="skeleton-card">
+            <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="flex:1">
+                <div class="skeleton-line" style="width:62%"></div>
+                <div class="skeleton-line" style="width:34%;margin-bottom:0"></div>
+              </div>
+              <div class="skeleton-chip"></div>
+            </div>
+            <div class="skeleton-line" style="width:92%"></div>
+            <div class="skeleton-line" style="width:64%"></div>
+            <div class="skeleton-box"></div>
+          </div>
+        </div>
+      `;
+    }
 
-      let res, data;
-      try{
-        res = await fetch('/track-requests', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone })
-        });
-        data = await res.json();
-      }catch(err){
-        resultsDiv.innerHTML = `<div class="card"><div class="empty">❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่</div></div>`;
+    function renderSummary(rows) {
+      const total = rows.length;
+      const done = rows.filter(r => (r.status || '').trim() === 'เสร็จสิ้น').length;
+      const progress = rows.filter(r => (r.status || '').trim() === 'กำลังดำเนินการ').length;
+      const pending = total - done - progress;
+
+      document.getElementById('sumTotal').textContent = total;
+      document.getElementById('sumDone').textContent = done;
+      document.getElementById('sumProgress').textContent = progress;
+      document.getElementById('sumPending').textContent = pending;
+      document.getElementById('summaryGrid').style.display = 'grid';
+    }
+
+    function renderEmpty(message) {
+      const resultsDiv = document.getElementById('results');
+      document.getElementById('summaryGrid').style.display = 'none';
+      document.getElementById('resultsHead').classList.remove('show');
+      resultsDiv.innerHTML = `
+        <div class="card">
+          <div class="empty">
+            <div style="font-size:42px;margin-bottom:6px">🔎</div>
+            <strong>${message}</strong>
+            <div style="margin-top:6px">ตรวจสอบเบอร์โทร แล้วลองค้นหาอีกครั้ง</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateHeader(phone, total) {
+      const sub = document.getElementById('resultsSub');
+      const badge = document.getElementById('lastSearchBadge');
+      sub.textContent = `เบอร์ ${phone} • พบ ${total} รายการ`;
+      badge.textContent = total > 0 ? `📌 ค้นหาล่าสุด: ${phone}` : '📱 พร้อมค้นหาด้วยเบอร์ล่าสุด';
+    }
+
+    function renderResults(rows) {
+      currentRows = rows;
+      const resultsDiv = document.getElementById('results');
+      const resultsHead = document.getElementById('resultsHead');
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        renderEmpty('ไม่พบข้อมูลคำร้องของเบอร์นี้');
+        updateHeader(currentPhone || '-', 0);
         return;
       }
 
-      if (!Array.isArray(data) || data.length === 0) {
-        resultsDiv.innerHTML = `<div class="card"><div class="empty">❌ ไม่พบข้อมูลคำร้องของเบอร์นี้</div></div>`;
-        return;
-      }
+      renderSummary(rows);
+      resultsHead.classList.add('show');
+      updateHeader(currentPhone || '-', rows.length);
 
-      resultsDiv.innerHTML = '';
-
-      data.forEach(row => {
+      const cards = rows.map((row, idx) => {
         const photos = parsePhoto(row.photo);
-
         const completedFiles = photos.filter(it => {
           if (!it) return false;
           if (typeof it === 'object') return it.from === 'completed' || it.tag === 'completed';
           return false;
         });
 
-        // เลือกเฉพาะไฟล์ที่แสดงได้ (https หรือ /uploads)
         const safeFiles = completedFiles.filter(it => {
           const raw = typeof it === 'string' ? it : (it?.url || '');
           const u = String(raw).trim();
@@ -493,76 +1092,97 @@
 
         let extraLine = '';
         if (row.status === 'เสร็จสิ้น' && row.completed_at) {
-          extraLine = `<div class="kv">
-            <div class="k">เสร็จสิ้น</div>
-            <div class="v"><span class="chip ok">🕓 ${formatDate(row.completed_at)}</span></div>
-          </div>`;
+          extraLine = `
+            <div class="kv">
+              <div class="k">เสร็จสิ้น</div>
+              <div class="v"><span class="chip ok">🕓 ${formatDate(row.completed_at)}</span></div>
+            </div>`;
         }
 
         let rejectLine = '';
         if (row.status === 'ไม่อนุมัติ' && row.reject_reason) {
-          rejectLine = `<div class="kv">
-            <div class="k">เหตุผล</div>
-            <div class="v"><span class="chip bad">❗ ${row.reject_reason}</span></div>
-          </div>`;
+          rejectLine = `
+            <div class="kv">
+              <div class="k">เหตุผล</div>
+              <div class="v"><span class="chip bad">❗ ${escapeHtml(row.reject_reason)}</span></div>
+            </div>`;
         }
 
-        // Media block
         let mediaBlock = '';
         if (completedFiles.length > 0) {
           if (safeFiles.length === 0) {
             mediaBlock = `
               <div class="section">
-                <div class="section-title">📎 ไฟล์แนบ (เสร็จสิ้น)</div>
-                <div class="help" style="margin-top:6px">
-                  ไฟล์แนบ (เสร็จสิ้น) เป็นไฟล์เก่าในเครื่อง จึงไม่สามารถแสดงบนระบบออนไลน์ได้
+                <div class="section-title">
+                  <span>📎 ไฟล์แนบ (เสร็จสิ้น)</span>
+                  <span class="section-tag">พบ ${completedFiles.length} ไฟล์</span>
+                </div>
+                <div class="inline-note">
+                  ไฟล์แนบ (เสร็จสิ้น) บางรายการเป็นไฟล์เก่าในเครื่อง จึงไม่สามารถแสดงบนระบบออนไลน์ได้
                 </div>
               </div>
             `;
           } else {
-            const thumbs = safeFiles.slice(0, 4).map(it => {
+            const previewFiles = safeFiles.slice(0, 4);
+            const thumbs = previewFiles.map((it, previewIndex) => {
               const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
               const isVideo = (typeof it === 'object' && it.type === 'video') || /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
+              const serialized = JSON.stringify([it]).replace(/'/g, '&apos;');
 
               return isVideo
-                ? `<video muted class="thumb" playsinline onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์")'>
-                     <source src="${url}" type="video/mp4">
-                   </video>`
-                : `<img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์")'>`;
+                ? `<div class="thumb-wrap" onclick='openMediaModal(${serialized},"ไฟล์แนบ")'>
+                     <video muted class="thumb" playsinline preload="metadata">
+                       <source src="${url}">
+                     </video>
+                     <span class="play-badge">▶</span>
+                     ${previewIndex === 3 && safeFiles.length > 4 ? `<span class="count-badge">+${safeFiles.length - 4}</span>` : ''}
+                   </div>`
+                : `<div class="thumb-wrap" onclick='openMediaModal(${serialized},"ไฟล์แนบ")'>
+                     <img class="thumb" src="${url}" alt="ไฟล์แนบคำร้อง">
+                     ${previewIndex === 3 && safeFiles.length > 4 ? `<span class="count-badge">+${safeFiles.length - 4}</span>` : ''}
+                   </div>`;
             }).join('');
+
+            const safeSerialized = JSON.stringify(safeFiles).replace(/'/g, '&apos;');
 
             mediaBlock = `
               <div class="section">
-                <div class="section-title">📎 ไฟล์แนบ (เสร็จสิ้น)</div>
+                <div class="section-title">
+                  <span>📎 ไฟล์แนบ (เสร็จสิ้น)</span>
+                  <span class="section-tag">${safeFiles.length} ไฟล์</span>
+                </div>
                 <div class="media-grid">${thumbs}</div>
-                <button type="button" class="btn ghost full" onclick='showImages(${JSON.stringify(safeFiles)})'>
-                  👁️ ดูไฟล์ทั้งหมด
-                </button>
+                <button type="button" class="btn ghost full" onclick='showImages(${safeSerialized})'>👁️ ดูไฟล์ทั้งหมด</button>
               </div>
             `;
           }
         }
 
-        const card = `
-          <div class="card req-card">
+        return `
+          <div class="req-card" style="animation-delay:${Math.min(idx * 0.04, 0.28)}s">
             <div class="state">
-              <div style="font-weight:900">📄 รหัสคำร้อง: ${row.id}</div>
+              <div class="req-code">
+                <strong>📄 รหัสคำร้อง: ${escapeHtml(row.id)}</strong>
+                <span>ส่งเมื่อ ${formatDate(row.created_at)}</span>
+              </div>
               ${statusChip(row.status)}
             </div>
 
             <div class="req-body">
-              <div class="kv">
-                <div class="k">วันที่ส่ง</div>
-                <div class="v">${formatDate(row.created_at)}</div>
-              </div>
+              ${timelineHtml(row.status)}
 
               ${extraLine}
               ${rejectLine}
 
               <div class="kv">
+                <div class="k">สถานะล่าสุด</div>
+                <div class="v">${statusChip(row.status)}</div>
+              </div>
+
+              <div class="kv">
                 <div class="k">ข้อความ</div>
                 <div class="v">
-                  <span class="message">${row.message || '-'}</span>
+                  <span class="message">${escapeHtml(row.message || '-')}</span>
                 </div>
               </div>
 
@@ -570,41 +1190,129 @@
             </div>
           </div>
         `;
+      }).join('');
 
-        resultsDiv.innerHTML += card;
-      });
+      resultsDiv.innerHTML = `<div class="stack">${cards}</div>`;
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const phoneInput = document.getElementById("phone");
-      const trackForm = document.getElementById("trackForm");
+    async function fetchRequests(phone) {
+      const cleanPhone = String(phone || '').trim();
+      currentPhone = cleanPhone;
+      renderLoading();
 
-      // ล้าง key เก่าจากระบบเดิม เพื่อไม่ให้หน้า track จำเบอร์ค้าง
-      localStorage.removeItem("phone");
+      let res, data;
+      try {
+        res = await fetch('/track-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: cleanPhone })
+        });
+        data = await res.json();
+      } catch (err) {
+        renderEmpty('เชื่อมต่อไม่ได้ กรุณาลองใหม่');
+        return;
+      }
 
-      // ใช้เบอร์เดียวกับหน้า login.html
-      const savedPhone = localStorage.getItem("userPhone");
+      if (!Array.isArray(data)) {
+        renderEmpty('ไม่พบข้อมูลคำร้องของเบอร์นี้');
+        return;
+      }
 
+      renderResults(data);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const phoneInput = document.getElementById('phone');
+      const trackForm = document.getElementById('trackForm');
+      const autoBadge = document.getElementById('autoBadge');
+      const useSavedBtn = document.getElementById('useSavedBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const copyPhoneBtn = document.getElementById('copyPhoneBtn');
+      const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+      localStorage.removeItem('phone');
+
+      const savedPhone = localStorage.getItem('userPhone');
       if (savedPhone) {
         phoneInput.value = savedPhone;
+        autoBadge.classList.add('show');
         fetchRequests(savedPhone);
       }
 
-      trackForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+      phoneInput.addEventListener('input', () => {
+        phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+      });
 
+      trackForm.addEventListener('submit', (e) => {
+        e.preventDefault();
         const phone = phoneInput.value.trim();
 
         if (!/^\d{10}$/.test(phone)) {
-          alert("กรุณากรอกเบอร์โทรให้ถูกต้อง (ต้องมี 10 ตัวเลข)");
+          alert('กรุณากรอกเบอร์โทรให้ถูกต้อง (ต้องมี 10 ตัวเลข)');
           phoneInput.focus();
           return;
         }
 
-        // อัปเดตเบอร์หลักของผู้ใช้ให้เป็นเบอร์ล่าสุด
-        localStorage.setItem("userPhone", phone);
+        localStorage.setItem('userPhone', phone);
         localStorage.removeItem('phone');
+        autoBadge.classList.add('show');
+        showToast('อัปเดตเบอร์สำหรับติดตามแล้ว');
         fetchRequests(phone);
+      });
+
+      useSavedBtn.addEventListener('click', () => {
+        const latest = localStorage.getItem('userPhone');
+        if (!latest) {
+          showToast('ยังไม่มีเบอร์ที่บันทึกล่าสุด');
+          return;
+        }
+        phoneInput.value = latest;
+        autoBadge.classList.add('show');
+        fetchRequests(latest);
+      });
+
+      refreshBtn.addEventListener('click', () => {
+        const phone = phoneInput.value.trim() || localStorage.getItem('userPhone');
+        if (!phone) {
+          showToast('กรุณากรอกเบอร์ก่อนค้นหา');
+          phoneInput.focus();
+          return;
+        }
+        fetchRequests(phone);
+      });
+
+      clearBtn.addEventListener('click', () => {
+        localStorage.removeItem('userPhone');
+        localStorage.removeItem('phone');
+        phoneInput.value = '';
+        currentPhone = '';
+        currentRows = [];
+        autoBadge.classList.remove('show');
+        document.getElementById('results').innerHTML = '';
+        document.getElementById('summaryGrid').style.display = 'none';
+        document.getElementById('resultsHead').classList.remove('show');
+        document.getElementById('lastSearchBadge').textContent = '📱 พร้อมค้นหาด้วยเบอร์ล่าสุด';
+        showToast('ล้างเบอร์ที่จำไว้แล้ว');
+        phoneInput.focus();
+      });
+
+      copyPhoneBtn.addEventListener('click', async () => {
+        const phone = phoneInput.value.trim() || localStorage.getItem('userPhone');
+        if (!phone) {
+          showToast('ยังไม่มีเบอร์ให้คัดลอก');
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(phone);
+          showToast('คัดลอกเบอร์แล้ว');
+        } catch {
+          showToast('คัดลอกไม่ได้ในอุปกรณ์นี้');
+        }
+      });
+
+      scrollTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
   </script>
@@ -634,9 +1342,7 @@
             /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
 
           return isVideo
-            ? `<video controls playsinline preload="metadata">
-                 <source src="${url}">
-               </video>`
+            ? `<video controls playsinline preload="metadata"><source src="${url}"></video>`
             : `<img src="${url}" alt="">`;
         }).join('');
       }
