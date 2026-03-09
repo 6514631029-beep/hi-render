@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>✅ รายการคำร้องที่อนุมัติแล้วทั้งหมด</title>
+  <title>✅ รายการอนุมัติแล้วทั้งหมด</title>
   <link rel="stylesheet" href="/admin-font.css" />
   <style>
     :root{
@@ -15,190 +15,538 @@
       --navy-2:#133a63;
       --gold:#c9a227;
       --line:#e2e8f0;
-      --blue:#2563eb;
-      --blue-soft:#eff6ff;
       --shadow:0 12px 30px rgba(2,6,23,.08);
       --shadow2:0 8px 24px rgba(2,6,23,.06);
-      --radius:18px;
-      --sidebarW:244px;
+      --radius:16px;
+      --sidebarW:220px;
     }
-    *{box-sizing:border-box}
-    html{font-size:20px}
+
+    *{ box-sizing:border-box; }
+    html{ font-size:20px; }
     body{
       margin:0;
       color:var(--ink);
       background:
-        radial-gradient(1100px 480px at 50% -50%, rgba(201,162,39,.14), transparent 60%),
-        radial-gradient(900px 380px at 0% 0%, rgba(11,42,74,.10), transparent 55%),
+        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
         var(--bg);
       -webkit-text-size-adjust:100%;
     }
-    .app{display:flex;min-height:100vh}
+
+    .app{ display:flex; min-height:100vh; }
+
     .sidebar{
       width:var(--sidebarW);
       background:linear-gradient(180deg,#0b2a4a 0%,#071e35 100%);
-      color:#fff;
-      padding:14px 12px;
-      position:sticky;top:0;height:100vh;overflow:auto;
-      border-right:1px solid rgba(255,255,255,.08);
+      border-right:1px solid rgba(255,255,255,.10);
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      padding:12px 10px;
+      box-shadow:6px 0 22px rgba(2,6,23,.06);
     }
+
     .brand{
-      display:flex;align-items:center;gap:12px;padding:10px 10px 16px;
-      border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      margin-bottom:10px;
+      color:#fff;
     }
-    .brand-logo{
-      width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#d9bc4d,#f1dc8e);
-      color:#1f2937;display:flex;align-items:center;justify-content:center;font-weight:1000;
-      box-shadow:0 12px 22px rgba(201,162,39,.25);flex:0 0 auto;
+
+    .brand .logo{
+      width:38px;height:38px;border-radius:12px;
+      background:linear-gradient(135deg,rgba(201,162,39,.95),rgba(244,227,161,.9));
+      display:flex;align-items:center;justify-content:center;
+      color:#1f2937;font-weight:1000;flex:0 0 auto;
+      box-shadow:0 12px 22px rgba(201,162,39,.25);
     }
-    .brand-title{font-size:15px;font-weight:1000;line-height:1.15}
-    .menu-title{font-size:13px;color:rgba(255,255,255,.72);font-weight:900;margin:18px 8px 8px}
+
+    .brand .title{ font-weight:1000; line-height:1.1; font-size:15px; }
+
+    .menu-title{
+      font-size:13px;
+      color:rgba(255,255,255,.72);
+      font-weight:900;
+      margin:12px 8px 6px;
+      text-transform:uppercase;
+      letter-spacing:.35px;
+    }
+
     .side-link{
-      width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
-      padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.1);
-      background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-weight:900;
-      font-size:15px;cursor:pointer;margin-bottom:10px;font-family:inherit;
-      transition:.15s ease;background-clip:padding-box;
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      transition:.15s ease;
+      text-align:left;
+      font-size:15px;
+      text-decoration:none;
+      font-family:inherit;
+      margin-bottom:8px;
     }
-    .side-link:hover{background:rgba(255,255,255,.10)}
-    .side-link.active{background:rgba(201,162,39,.14);border-color:rgba(201,162,39,.34);box-shadow:inset 0 0 0 1px rgba(201,162,39,.08)}
+
+    .side-link:hover{
+      background:rgba(255,255,255,.10);
+      border-color:rgba(255,255,255,.18);
+    }
+
+    .side-link .label{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+
+    .side-link.active{
+      background:rgba(201,162,39,.16);
+      border-color:rgba(201,162,39,.38);
+    }
+
     .count{
-      min-width:40px;text-align:center;padding:4px 10px;border-radius:999px;
-      background:rgba(201,162,39,.18);border:1px solid rgba(201,162,39,.35);color:#f5d76e;font-size:13px;font-weight:1000;
+      min-width:34px;
+      text-align:center;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(201,162,39,.18);
+      border:1px solid rgba(201,162,39,.35);
+      color:var(--gold);
+      font-weight:1000;
+      font-size:14px;
     }
-    .main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+    .main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+
     .topbar{
-      background:linear-gradient(135deg,var(--navy) 0%, var(--navy-2) 70%, #0a2340 100%);
-      color:#fff;box-shadow:var(--shadow);padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.12);
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#0a2340 100%);
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,.14);
+      box-shadow:var(--shadow);
+      padding:14px 18px;
     }
-    .topbar h1{margin:0;font-size:24px;font-weight:1000}
-    .topbar .sub{margin-top:6px;font-size:14px;opacity:.9;font-weight:800}
-    .content{padding:18px 20px 28px;max-width:1440px;width:100%;margin:0 auto}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
-    .stat-box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px 18px;box-shadow:var(--shadow2)}
-    .stat-box .label{font-size:13px;color:var(--muted);font-weight:900;margin-bottom:8px}
-    .stat-box .value{font-size:30px;line-height:1;font-weight:1000;color:var(--ink)}
-    .stat-box .sub{margin-top:8px;font-size:12px;color:var(--muted);font-weight:800}
-    .card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow2);overflow:hidden}
-    .card-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .card-h h2{margin:0;font-size:18px;font-weight:1000}
-    .tiny{font-size:14px;color:var(--muted);font-weight:800}
-    .card-b{padding:14px 16px}
-    .search-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+    .topbar h1{ margin:0; font-size:20px; font-weight:1000; }
+    .topbar .sub{ margin-top:3px; font-size:14px; opacity:.84; font-weight:800; }
+
+    .content{
+      padding:16px 18px 26px;
+      max-width:1400px;
+      margin:0 auto;
+      width:100%;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .stat-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px;
+      box-shadow:var(--shadow2);
+    }
+
+    .stat-box .label{ font-size:13px; font-weight:900; color:#64748b; margin-bottom:6px; }
+    .stat-box .value{ font-size:26px; line-height:1; font-weight:1000; color:#0f172a; }
+    .stat-box .sub{ margin-top:6px; font-size:12px; color:#64748b; font-weight:800; }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow2);
+      overflow:hidden;
+    }
+
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+    }
+
+    .card-h h2{ margin:0; font-size:18px; font-weight:1000; }
+    .card-b{ padding:12px 14px; }
+    .tiny{ font-size:14px; color:#64748b; font-weight:800; }
+
+    .search-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
     .search{
-      flex:1 1 420px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);font-size:16px;
-      background:#fff;outline:none;font-family:inherit;font-weight:800;
+      flex:1;
+      min-width:260px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      font-weight:800;
+      font-family:inherit;
     }
-    .mode-pills{display:flex;gap:10px}
-    .pill{
-      border:1px solid #dbe2ea;background:#fff;color:#334155;border-radius:999px;padding:11px 16px;
-      font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;
+
+    .filter-chips{ display:flex; gap:8px; flex-wrap:wrap; }
+
+    .chip{
+      border:1px solid #dbe2ea;
+      background:#fff;
+      color:#334155;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      font-family:inherit;
     }
-    .pill.active{background:#0b2a4a;color:#fff;border-color:#0b2a4a;box-shadow:0 8px 18px rgba(11,42,74,.16)}
-    .table-wrap{overflow:auto}
-    table{width:100%;border-collapse:collapse;min-width:1050px;table-layout:fixed}
-    th,td{padding:14px 12px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
-    th{background:#eef2f7;color:#0f172a;font-size:13px;font-weight:1000;white-space:nowrap}
-    td{font-size:15px;color:#334155;font-weight:800}
-    tbody tr:nth-child(even){background:#fbfdff}
-    tbody tr:hover{background:#f6f9ff}
-    th:nth-child(1),td:nth-child(1){width:160px}
-    th:nth-child(2),td:nth-child(2){width:140px}
-    th:nth-child(3),td:nth-child(3){width:240px}
-    th:nth-child(4),td:nth-child(4){width:140px}
-    th:nth-child(5),td:nth-child(5){width:130px}
-    th:nth-child(6),td:nth-child(6){width:170px}
-    .btn{padding:10px 14px;border-radius:14px;border:1px solid #bfd7ff;background:var(--blue-soft);color:#1d4ed8;cursor:pointer;font-weight:900;font-family:inherit;font-size:14px}
-    .dept-badge{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:1000}
-    .map-link,.file-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:14px;border:1px solid #bfd7ff;background:#eff6ff;color:#1d4ed8;text-decoration:none;font-weight:900;font-size:14px}
-    .date-cell{line-height:1.45;font-weight:900;color:#475569}
-    .msg-preview{font-size:13px;color:#64748b;font-weight:800;margin-top:6px;line-height:1.4;word-break:break-word}
-    .table-summary{font-size:14px;color:#64748b;font-weight:900}
-    .pagination{padding:14px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line)}
-    .pagination .nav{padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:#fff;color:#334155;font-weight:900;cursor:pointer;font-family:inherit}
-    .pagination .nav:disabled{opacity:.45;cursor:not-allowed}
-    .page-info{padding:10px 16px;border-radius:14px;border:1px solid var(--line);background:#fff;font-size:14px;font-weight:1000}
-    .empty{padding:26px;color:#64748b;font-weight:1000}
 
-    .detail-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:9999;align-items:center;justify-content:center;padding:16px}
-    .detail-modal{width:min(920px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 24px 60px rgba(2,6,23,.25)}
-    .detail-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #e2e8f0;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);position:sticky;top:0;z-index:2}
-    .detail-head h3{margin:0;font-size:22px;font-weight:1000}
-    .detail-close{border:none;background:#fee2e2;color:#991b1b;width:42px;height:42px;border-radius:14px;font-size:22px;font-weight:1000;cursor:pointer}
-    .detail-body{padding:18px}
-    .detail-grid{display:grid;grid-template-columns:170px 1fr;gap:10px 14px;margin-bottom:18px}
-    .detail-label{color:#475569;font-weight:900}
-    .detail-value{color:#0f172a;font-weight:800;word-break:break-word}
-    .detail-message-box,.detail-file-box{margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:14px;line-height:1.65;font-weight:700}
-    .detail-file-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-    .detail-file-meta{font-size:14px;color:#334155;font-weight:900}
+    .chip.active{
+      background:#0b2a4a;
+      color:#fff;
+      border-color:#0b2a4a;
+      box-shadow:0 8px 18px rgba(11,42,74,.16);
+    }
 
-    @media (max-width:1180px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:980px){.app{display:block}.sidebar{position:relative;width:100%;height:auto}.content{padding:14px}.stats-grid{grid-template-columns:1fr 1fr}}
-    @media (max-width:720px){.stats-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}}
+    .table-wrap{ overflow:auto; background:#fff; width:100%; }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:900px;
+      background:#fff;
+      table-layout:fixed;
+    }
+
+    th,td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:#eef2f7 !important;
+      color:#0f172a !important;
+      border-bottom:1px solid #e5e7eb !important;
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    th:nth-child(1), td:nth-child(1){ width:140px; }
+    th:nth-child(2), td:nth-child(2){ width:140px; }
+    th:nth-child(3), td:nth-child(3){ width:200px; }
+    th:nth-child(4), td:nth-child(4){ width:120px; }
+    th:nth-child(5), td:nth-child(5){ width:130px; }
+    th:nth-child(6), td:nth-child(6){ width:180px; }
+
+    td{ font-size:15px; color:#334155; }
+    tbody tr:nth-child(even){ background:#fbfdff; }
+    tbody tr:hover{ background:#f3f7ff; }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      font-size:15px;
+      font-family:inherit;
+    }
+
+    .btn.link-btn{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+
+    .map-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:9px 14px;
+      border-radius:12px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      text-decoration:none;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .file-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#eef6ff;
+      color:#1d4ed8;
+      border:1px solid #bfdbfe;
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .small-muted{
+      font-size:12px;
+      color:#64748b;
+      margin-top:6px;
+      line-height:1.35;
+      font-weight:700;
+      word-break:break-word;
+    }
+
+    #pagination{
+      padding:12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      border-top:1px solid var(--line);
+    }
+
+    #pagination button:disabled{ opacity:.5; cursor:not-allowed; }
+
+    .detail-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.5);
+      z-index:10000;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .detail-modal{
+      width:min(860px,100%);
+      max-height:85vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 24px 60px rgba(2,6,23,.25);
+    }
+
+    .detail-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid #e2e8f0;
+      background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+
+    .detail-head h3{ margin:0; font-size:20px; font-weight:1000; color:#0f172a; }
+
+    .detail-close{
+      border:none;
+      background:#fee2e2;
+      color:#991b1b;
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      font-size:20px;
+      font-weight:1000;
+      cursor:pointer;
+      font-family:inherit;
+    }
+
+    .detail-body{ padding:18px; }
+    .detail-grid{
+      display:grid;
+      grid-template-columns:160px 1fr;
+      gap:10px 14px;
+      margin-bottom:16px;
+    }
+    .detail-label{ color:#475569; font-weight:900; }
+    .detail-value{ color:#0f172a; font-weight:800; word-break:break-word; }
+
+    .detail-message-box{
+      margin-top:8px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:14px;
+      color:#0f172a;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .detail-file-box{
+      margin-top:8px;
+      background:#ffffff;
+      border:1px solid #dbeafe;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .detail-file-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .detail-file-meta{ color:#334155; font-weight:800; font-size:14px; }
+
+    @media (max-width:1100px){
+      .stats-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+
+    @media (max-width:980px){
+      .sidebar{ position:relative; width:100%; height:auto; border-right:0; box-shadow:none; }
+      .app{ display:block; }
+      .content{ padding:14px; }
+      table{ min-width:900px; }
+    }
+
+    @media (max-width:700px){
+      .stats-grid{ grid-template-columns:1fr; }
+      .detail-grid{ grid-template-columns:1fr; gap:6px; }
+    }
   </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-logo">อด</div>
-      <div class="brand-title">รายการอนุมัติแล้ว</div>
+      <div class="logo">อด</div>
+      <div>
+        <div class="title">รายการอนุมัติแล้ว</div>
+      </div>
     </div>
 
-    <div class="menu-title">รายการหลัก</div>
-    <a href="/admin" class="side-link"><span>🏛️ กลับหน้าแอดมินหลัก</span></a>
-    <a href="/approved-all" class="side-link active"><span>✅ อนุมัติแล้ว</span><span class="count" id="countApprovedLeft">0</span></a>
-    <a href="/rejected" class="side-link"><span>❌ ไม่อนุมัติแล้ว</span></a>
+    <div class="menu-title">มุมมอง</div>
 
-    <div class="menu-title">แผนกที่แสดง</div>
-    <button class="side-link dept-link active" id="dept-all" onclick="setDepartment('ทั้งหมด')"><span>📋 ทั้งหมด</span><span class="count" id="countAllDept">0</span></button>
-    <button class="side-link dept-link" id="dept-สาธารณสุข" onclick="setDepartment('สาธารณสุข')"><span>🩺 สาธารณสุข</span><span class="count" id="countHealth">0</span></button>
-    <button class="side-link dept-link" id="dept-กองช่าง" onclick="setDepartment('กองช่าง')"><span>🏗️ กองช่าง</span><span class="count" id="countEngineer">0</span></button>
-    <button class="side-link dept-link" id="dept-ไฟฟ้า" onclick="setDepartment('ไฟฟ้า')"><span>⚡ ไฟฟ้า</span><span class="count" id="countElectric">0</span></button>
+    <a href="/admin" class="side-link">
+      <span class="label">🏛️ กลับหน้าแอดมินหลัก</span>
+    </a>
+
+    <a href="/approved-all" class="side-link active">
+      <span class="label">✅ อนุมัติแล้ว</span>
+      <span class="count" id="count-approved-left">0</span>
+    </a>
+
+    <a href="/rejected" class="side-link">
+      <span class="label">❌ ไม่อนุมัติแล้ว</span>
+    </a>
+
+    <div class="menu-title">เลือกแผนก</div>
+
+    <button id="dept-all" class="side-link dept-link active" onclick="setDepartment('all')">
+      <span class="label">📋 ทั้งหมด</span>
+      <span class="count" id="count-all-left">0</span>
+    </button>
+
+    <button id="dept-health" class="side-link dept-link" onclick="setDepartment('สาธารณสุข')">
+      <span class="label">🏥 สาธารณสุข</span>
+      <span class="count" id="count-health-left">0</span>
+    </button>
+
+    <button id="dept-engineer" class="side-link dept-link" onclick="setDepartment('กองช่าง')">
+      <span class="label">🏗️ กองช่าง</span>
+      <span class="count" id="count-engineer-left">0</span>
+    </button>
+
+    <button id="dept-electric" class="side-link dept-link" onclick="setDepartment('ไฟฟ้า')">
+      <span class="label">⚡ ไฟฟ้า</span>
+      <span class="count" id="count-electric-left">0</span>
+    </button>
   </aside>
 
   <main class="main">
     <header class="topbar">
       <h1>✅ รายการคำร้องที่อนุมัติแล้วทั้งหมด</h1>
-      <div class="sub">ค้นหา + แผนกด้านซ้าย + วันนี้/ทั้งหมด</div>
+      <div class="sub">กรองด้วยแผนกจากเมนูด้านซ้าย และเลือกดูข้อมูลวันนี้หรือทั้งหมด</div>
     </header>
 
     <div class="content">
-      <div class="stats-grid">
+      <div class="stats-grid" style="margin-bottom:12px;">
         <div class="stat-box">
           <div class="label">ทั้งหมด</div>
           <div class="value" id="statAll">0</div>
           <div class="sub">เฉพาะ 3 แผนก</div>
         </div>
+
         <div class="stat-box">
           <div class="label">คำร้องวันนี้</div>
           <div class="value" id="statToday">0</div>
-          <div class="sub">ของข้อมูลที่อนุมัติแล้ว</div>
+          <div class="sub">อนุมัติแล้วที่ส่งวันนี้</div>
         </div>
+
         <div class="stat-box">
           <div class="label">สาธารณสุข</div>
           <div class="value" id="statHealth">0</div>
           <div class="sub">รายการอนุมัติแล้ว</div>
         </div>
+
         <div class="stat-box">
           <div class="label">กองช่าง / ไฟฟ้า</div>
-          <div class="value" id="statOther2">0</div>
+          <div class="value" id="statOther">0</div>
           <div class="sub">รวม 2 แผนก</div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:14px;">
+      <div class="card" style="margin-bottom:12px;">
         <div class="card-h">
-          <h2>ค้นหาและกรอง</h2>
-          <div class="tiny">เลือกแผนกจากด้านซ้าย และกรองด้วย วันนี้/ทั้งหมด ร่วมกับค้นหาชื่อ/เบอร์</div>
+          <h2>ค้นหา</h2>
+          <div class="tiny">ค้นหาชื่อ/เบอร์ และกรองร่วมกับแผนก + วันนี้/ทั้งหมด</div>
         </div>
+
         <div class="card-b">
           <div class="search-row">
-            <input id="searchInput" class="search" type="text" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="applyFilters()" />
-            <div class="mode-pills">
-              <button class="pill active" id="mode-all" onclick="setMode('all')">ทั้งหมด</button>
-              <button class="pill" id="mode-today" onclick="setMode('today')">วันนี้</button>
+            <input
+              type="text"
+              id="searchInput"
+              class="search"
+              placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
+              oninput="filterData()"
+            />
+
+            <div class="filter-chips">
+              <button class="chip active" id="chip-all" onclick="setViewMode('all')">ทั้งหมด</button>
+              <button class="chip" id="chip-today" onclick="setViewMode('today')">วันนี้</button>
             </div>
           </div>
         </div>
@@ -207,27 +555,29 @@
       <div class="card">
         <div class="card-h">
           <h2>รายการคำร้องที่อนุมัติแล้ว</h2>
-          <div class="table-summary" id="tableSummary">แสดง 0 รายการ</div>
+          <div class="tiny" id="resultSummary">แสดง 0 รายการ</div>
         </div>
+
         <div class="table-wrap">
-          <table>
+          <table id="data-table">
             <thead>
               <tr>
                 <th>ชื่อ</th>
                 <th>เบอร์</th>
                 <th>รายละเอียด</th>
-                <th>แผนก</th>
+                <th>ไฟล์</th>
                 <th>แผนที่</th>
                 <th>วันที่เวลา</th>
               </tr>
             </thead>
-            <tbody id="tbody"></tbody>
+            <tbody></tbody>
           </table>
         </div>
-        <div class="pagination">
-          <button class="nav" id="prevBtn" onclick="changePage(-1)">ก่อนหน้า</button>
-          <div class="page-info" id="pageInfo">หน้า 1 จาก 1</div>
-          <button class="nav" id="nextBtn" onclick="changePage(1)">ถัดไป</button>
+
+        <div id="pagination">
+          <button id="prevPage" onclick="changePage(-1)" class="btn">ก่อนหน้า</button>
+          <span id="pageInfo" class="btn" style="cursor:default;">หน้า 1 จาก 1</span>
+          <button id="nextPage" onclick="changePage(1)" class="btn">ถัดไป</button>
         </div>
       </div>
     </div>
@@ -240,19 +590,34 @@
       <h3>รายละเอียดคำร้อง</h3>
       <button class="detail-close" onclick="closeDetailModal()">×</button>
     </div>
+
     <div class="detail-body">
       <div class="detail-grid">
-        <div class="detail-label">ชื่อ</div><div class="detail-value" id="detailName">-</div>
-        <div class="detail-label">เบอร์โทร</div><div class="detail-value" id="detailPhone">-</div>
-        <div class="detail-label">แผนก</div><div class="detail-value" id="detailDepartment">-</div>
-        <div class="detail-label">วันที่-เวลา</div><div class="detail-value" id="detailDate">-</div>
-        <div class="detail-label">แผนที่</div><div class="detail-value" id="detailMap">-</div>
+        <div class="detail-label">ชื่อ</div>
+        <div class="detail-value" id="detailName">-</div>
+
+        <div class="detail-label">เบอร์โทร</div>
+        <div class="detail-value" id="detailPhone">-</div>
+
+        <div class="detail-label">แผนก</div>
+        <div class="detail-value" id="detailDepartment">-</div>
+
+        <div class="detail-label">วันที่-เวลา</div>
+        <div class="detail-value" id="detailDate">-</div>
+
+        <div class="detail-label">แผนที่</div>
+        <div class="detail-value" id="detailMap">-</div>
       </div>
+
       <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
       <div class="detail-message-box" id="detailMessage">-</div>
-      <div style="height:14px"></div>
+
+      <div style="height:14px;"></div>
+
       <div class="detail-label" style="margin-bottom:8px;">ไฟล์แนบ</div>
-      <div id="detailFilesBox"><div class="detail-message-box">ไม่มีไฟล์แนบ</div></div>
+      <div id="detailFilesBox">
+        <div class="detail-message-box">ไม่มีไฟล์แนบ</div>
+      </div>
     </div>
   </div>
 </div>
@@ -261,158 +626,227 @@
   let allData = [];
   let filteredData = [];
   let currentPage = 1;
-  const pageSize = 12;
-  let currentMode = 'all';
-  let currentDepartment = 'ทั้งหมด';
-  let isLoading = false;
+  const pageSize = 20;
+  let ACTIVE_DEPARTMENT = 'all';
+  let VIEW_MODE = 'all';
 
-  function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  function safeText(value) {
+    return String(value ?? '').trim();
   }
 
-  function parseFiles(val) {
+  function parsePhoto(val) {
     if (!val) return [];
-    try { return Array.isArray(val) ? val : JSON.parse(val); }
-    catch { return []; }
+    try {
+      return Array.isArray(val) ? val : JSON.parse(val);
+    } catch {
+      return [];
+    }
   }
 
-  function normalizeRawDate(input) {
-    if (!input) return null;
-    if (input instanceof Date) return isNaN(input) ? null : input;
-    let s = String(input).trim();
-    if (!s) return null;
-    s = s.replace(' ', 'T');
-    const hasTZ = /([zZ]|[+\-]\d{2}:?\d{2})$/.test(s);
-    if (!hasTZ && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) s += '+07:00';
-    const d = new Date(s);
-    return isNaN(d) ? null : d;
+  function normalizeDateString(dateString) {
+    if (!dateString) return '';
+    let s = String(dateString).trim().replace(' ', 'T');
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) {
+      s += '+07:00';
+    }
+    return s;
   }
 
   function formatDate(dateString) {
-    const d = normalizeRawDate(dateString);
-    if (!d) return '-';
+    const s = normalizeDateString(dateString);
+    if (!s) return '-';
+    const d = new Date(s);
+    if (isNaN(d)) return String(dateString);
     return d.toLocaleString('th-TH', {
       timeZone: 'Asia/Bangkok',
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
       hour12: false
     });
   }
 
-  function bangkokDateKey(dateLike) {
-    const d = normalizeRawDate(dateLike);
-    if (!d) return '';
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit'
-    }).formatToParts(d);
-    const get = type => parts.find(p => p.type === type)?.value || '';
-    return `${get('year')}-${get('month')}-${get('day')}`;
+  function getBangkokDateKey(dateInput = new Date()) {
+    const d = dateInput instanceof Date ? dateInput : new Date(normalizeDateString(dateInput));
+    if (isNaN(d)) return '';
+
+    const y = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric' }).format(d);
+    const m = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', month: '2-digit' }).format(d);
+    const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', day: '2-digit' }).format(d);
+    return `${y}-${m}-${day}`;
   }
 
-  function isTodayBangkok(dateLike) {
-    const nowKey = bangkokDateKey(new Date());
-    return bangkokDateKey(dateLike) === nowKey;
-  }
-
-  function updateSidebarActive() {
-    document.querySelectorAll('.dept-link').forEach(el => el.classList.remove('active'));
-    const current = document.getElementById(`dept-${currentDepartment}`) || document.getElementById('dept-all');
-    if (current) current.classList.add('active');
-  }
-
-  function updateModeUI() {
-    document.getElementById('mode-all')?.classList.toggle('active', currentMode === 'all');
-    document.getElementById('mode-today')?.classList.toggle('active', currentMode === 'today');
-  }
-
-  function setDepartment(dept) {
-    currentDepartment = dept;
-    currentPage = 1;
-    updateSidebarActive();
-    applyFilters();
-  }
-
-  function setMode(mode) {
-    currentMode = mode === 'today' ? 'today' : 'all';
-    currentPage = 1;
-    updateModeUI();
-    applyFilters();
+  function isTodayBangkok(dateString) {
+    if (!dateString) return false;
+    return getBangkokDateKey(dateString) === getBangkokDateKey(new Date());
   }
 
   function updateStats() {
-    const base = allData.filter(r => ['สาธารณสุข', 'กองช่าง', 'ไฟฟ้า'].includes(String(r.department || '').trim()));
-    const total = base.length;
-    const today = base.filter(r => isTodayBangkok(r.created_at)).length;
-    const health = base.filter(r => String(r.department).trim() === 'สาธารณสุข').length;
-    const engineer = base.filter(r => String(r.department).trim() === 'กองช่าง').length;
-    const electric = base.filter(r => String(r.department).trim() === 'ไฟฟ้า').length;
+    const rows = allData.filter(row => ['สาธารณสุข', 'กองช่าง', 'ไฟฟ้า'].includes(safeText(row.department)));
+
+    const total = rows.length;
+    const today = rows.filter(row => isTodayBangkok(row.created_at)).length;
+    const health = rows.filter(row => safeText(row.department) === 'สาธารณสุข').length;
+    const engineer = rows.filter(row => safeText(row.department) === 'กองช่าง').length;
+    const electric = rows.filter(row => safeText(row.department) === 'ไฟฟ้า').length;
 
     document.getElementById('statAll').textContent = total;
     document.getElementById('statToday').textContent = today;
     document.getElementById('statHealth').textContent = health;
-    document.getElementById('statOther2').textContent = engineer + electric;
+    document.getElementById('statOther').textContent = engineer + electric;
 
-    document.getElementById('countApprovedLeft').textContent = total;
-    document.getElementById('countAllDept').textContent = total;
-    document.getElementById('countHealth').textContent = health;
-    document.getElementById('countEngineer').textContent = engineer;
-    document.getElementById('countElectric').textContent = electric;
+    document.getElementById('count-approved-left').textContent = total;
+    document.getElementById('count-all-left').textContent = total;
+    document.getElementById('count-health-left').textContent = health;
+    document.getElementById('count-engineer-left').textContent = engineer;
+    document.getElementById('count-electric-left').textContent = electric;
   }
 
-  function applyFilters() {
+  function setDepartment(department) {
+    ACTIVE_DEPARTMENT = department;
+    currentPage = 1;
+
+    document.querySelectorAll('.dept-link').forEach(el => el.classList.remove('active'));
+
+    if (department === 'สาธารณสุข') document.getElementById('dept-health').classList.add('active');
+    else if (department === 'กองช่าง') document.getElementById('dept-engineer').classList.add('active');
+    else if (department === 'ไฟฟ้า') document.getElementById('dept-electric').classList.add('active');
+    else document.getElementById('dept-all').classList.add('active');
+
+    filterData();
+  }
+
+  function setViewMode(mode) {
+    VIEW_MODE = mode;
+    currentPage = 1;
+
+    document.getElementById('chip-all').classList.toggle('active', mode === 'all');
+    document.getElementById('chip-today').classList.toggle('active', mode === 'today');
+
+    filterData();
+  }
+
+  function getKeywordFilteredRows(rows) {
     const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
 
-    let rows = allData.filter(r => ['สาธารณสุข', 'กองช่าง', 'ไฟฟ้า'].includes(String(r.department || '').trim()));
+    return rows.filter(row =>
+      (!keyword) ||
+      safeText(row.name).toLowerCase().includes(keyword) ||
+      safeText(row.phone).toLowerCase().includes(keyword)
+    );
+  }
 
-    if (currentDepartment !== 'ทั้งหมด') {
-      rows = rows.filter(r => String(r.department || '').trim() === currentDepartment);
+  function filterData() {
+    let rows = allData.filter(row => ['สาธารณสุข', 'กองช่าง', 'ไฟฟ้า'].includes(safeText(row.department)));
+
+    if (ACTIVE_DEPARTMENT !== 'all') {
+      rows = rows.filter(row => safeText(row.department) === ACTIVE_DEPARTMENT);
     }
 
-    if (currentMode === 'today') {
-      rows = rows.filter(r => isTodayBangkok(r.created_at));
+    if (VIEW_MODE === 'today') {
+      rows = rows.filter(row => isTodayBangkok(row.created_at));
     }
 
-    if (keyword) {
-      rows = rows.filter(r =>
-        String(r.name || '').toLowerCase().includes(keyword) ||
-        String(r.phone || '').toLowerCase().includes(keyword)
-      );
-    }
-
-    filteredData = rows;
+    filteredData = getKeywordFilteredRows(rows);
     renderCurrentPage();
+    updateSummary();
+  }
 
-    const deptLabel = currentDepartment === 'ทั้งหมด' ? 'ทุกแผนก' : currentDepartment;
-    const modeLabel = currentMode === 'today' ? 'วันนี้' : 'ทั้งหมด';
-    document.getElementById('tableSummary').textContent = `แสดง ${filteredData.length} รายการ • ${deptLabel} • ${modeLabel}`;
+  function updateSummary() {
+    const depLabel = ACTIVE_DEPARTMENT === 'all' ? 'ทุกแผนก' : ACTIVE_DEPARTMENT;
+    const modeLabel = VIEW_MODE === 'today' ? 'วันนี้' : 'ทั้งหมด';
+    document.getElementById('resultSummary').textContent = `แสดง ${filteredData.length} รายการ • ${depLabel} • ${modeLabel}`;
+  }
+
+  function renderDetailFileButtons(files = [], emptyText = 'ไม่มีไฟล์แนบ') {
+    const box = document.getElementById('detailFilesBox');
+    if (!box) return;
+
+    const validFiles = (Array.isArray(files) ? files : []).filter(item => {
+      if (typeof item === 'string') return !!item;
+      return !!item?.url;
+    });
+
+    if (!validFiles.length) {
+      box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
+      return;
+    }
+
+    const json = JSON.stringify(validFiles).replace(/'/g, '&#39;');
+    box.innerHTML = `
+      <div class="detail-file-box">
+        <div class="detail-file-row">
+          <div class="detail-file-meta">จำนวน ${validFiles.length} ไฟล์</div>
+          <button type="button" class="btn link-btn" onclick='showImages(${json})'>ดูไฟล์ทั้งหมด</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function openDetailById(id) {
+    const row = allData.find(x => String(x.id) === String(id));
+    if (!row) return;
+
+    const files = parsePhoto(row.photo);
+    const mapHtml = row.latitude && row.longitude
+      ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 เปิดแผนที่</a>`
+      : '-';
+
+    document.getElementById('detailName').textContent = safeText(row.name) || '-';
+    document.getElementById('detailPhone').textContent = safeText(row.phone) || '-';
+    document.getElementById('detailDepartment').textContent = safeText(row.department) || '-';
+    document.getElementById('detailDate').textContent = formatDate(row.created_at);
+    document.getElementById('detailMessage').textContent = safeText(row.message) || '-';
+    document.getElementById('detailMap').innerHTML = mapHtml;
+
+    renderDetailFileButtons(files, 'ไม่มีไฟล์แนบ');
+    document.getElementById('detailModal').style.display = 'flex';
+  }
+
+  function closeDetailModal(e) {
+    if (e && e.target && e.target.id !== 'detailModal') return;
+    document.getElementById('detailModal').style.display = 'none';
+    document.getElementById('detailFilesBox').innerHTML = `<div class="detail-message-box">ไม่มีไฟล์แนบ</div>`;
   }
 
   function renderTable(rows) {
-    const tbody = document.getElementById('tbody');
+    const tbody = document.querySelector('#data-table tbody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">ไม่มีข้อมูลคำร้องที่อนุมัติแล้ว</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">ไม่มีข้อมูลคำร้องที่อนุมัติแล้ว</td>
+        </tr>
+      `;
       return;
     }
 
     rows.forEach(row => {
+      const files = parsePhoto(row.photo);
+      const filesJson = JSON.stringify(files).replace(/'/g, '&#39;');
       const mapLink = row.latitude && row.longitude
         ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
         : '-';
 
-      const preview = escapeHtml(String(row.message || '-').slice(0, 50));
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${escapeHtml(row.name || '-')}</td>
-        <td>${escapeHtml(row.phone || '-')}</td>
+        <td><div style="font-weight:900;">${safeText(row.name || '-')}</div></td>
+        <td>${safeText(row.phone || '-')}</td>
         <td>
-          <button class="btn" onclick="openDetailById(${Number(row.id)})">📄 ดูรายละเอียด</button>
-          <div class="msg-preview">${preview}</div>
+          <button class="btn link-btn" onclick="openDetailById(${row.id})">📄 ดูรายละเอียด</button>
+          <div class="small-muted">${safeText(row.message).slice(0, 48) || '-'}</div>
         </td>
-        <td><span class="dept-badge">${escapeHtml(row.department || '-')}</span></td>
+        <td>
+          <button class="btn link-btn" onclick='showImages(${filesJson})'>📎 ดูไฟล์</button>
+          <div class="file-badge">${files.length} ไฟล์</div>
+        </td>
         <td>${mapLink}</td>
-        <td><div class="date-cell">${formatDate(row.created_at)}</div></td>
+        <td>${formatDate(row.created_at)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -422,12 +856,20 @@
     const totalItems = filteredData.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
     if (currentPage > totalPages) currentPage = totalPages;
+
     const start = (currentPage - 1) * pageSize;
-    const pageRows = filteredData.slice(start, start + pageSize);
-    renderTable(pageRows);
-    document.getElementById('pageInfo').textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
-    document.getElementById('prevBtn').disabled = currentPage === 1;
-    document.getElementById('nextBtn').disabled = currentPage === totalPages;
+    const end = start + pageSize;
+    const pageData = filteredData.slice(start, end);
+
+    renderTable(pageData);
+
+    const info = document.getElementById('pageInfo');
+    if (info) info.textContent = `หน้า ${currentPage} จาก ${totalPages} (ทั้งหมด ${totalItems} รายการ)`;
+
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
   }
 
   function changePage(delta) {
@@ -435,50 +877,10 @@
     renderCurrentPage();
   }
 
-  function renderDetailFileButtons(files = [], emptyText = 'ไม่มีไฟล์แนบ') {
-    const box = document.getElementById('detailFilesBox');
-    const valid = (Array.isArray(files) ? files : []).filter(f => typeof f === 'string' ? !!f : !!f?.url);
-    if (!valid.length) {
-      box.innerHTML = `<div class="detail-message-box">${emptyText}</div>`;
-      return;
-    }
-    box.innerHTML = `
-      <div class="detail-file-box">
-        <div class="detail-file-row">
-          <div class="detail-file-meta">จำนวน ${valid.length} ไฟล์</div>
-          <button type="button" class="btn" onclick='showImages(${JSON.stringify(valid)})'>ดูไฟล์ทั้งหมด</button>
-        </div>
-      </div>
-    `;
-  }
-
-  function openDetailById(id) {
-    const row = allData.find(x => Number(x.id) === Number(id));
-    if (!row) return;
-    const files = parseFiles(row.photo);
-
-    document.getElementById('detailName').textContent = row.name || '-';
-    document.getElementById('detailPhone').textContent = row.phone || '-';
-    document.getElementById('detailDepartment').textContent = row.department || '-';
-    document.getElementById('detailDate').textContent = formatDate(row.created_at);
-    document.getElementById('detailMessage').textContent = row.message || '-';
-    document.getElementById('detailMap').innerHTML = row.latitude && row.longitude
-      ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 เปิดแผนที่</a>`
-      : '-';
-
-    renderDetailFileButtons(files, 'ไม่มีไฟล์แนบ');
-    document.getElementById('detailModal').style.display = 'flex';
-  }
-
-  function closeDetailModal(e) {
-    if (e && e.target && e.target.id !== 'detailModal') return;
-    document.getElementById('detailModal').style.display = 'none';
-  }
-
   function showImages(images) {
-    const safe = (images || []).filter(img => {
-      const raw = typeof img === 'string' ? img : (img?.url || '');
-      return !!raw;
+    const safeImages = (images || []).filter(img => {
+      const rawUrl = typeof img === 'string' ? img : (img?.url || '');
+      return !!rawUrl;
     });
 
     const win = window.open('', '_blank', 'width=1200,height=800');
@@ -487,42 +889,65 @@
       return;
     }
 
-    let gridHtml = '';
-    safe.forEach((img, index) => {
+    const itemsHtml = safeImages.map((img, index) => {
       const rawUrl = typeof img === 'string' ? img : (img?.url || '');
       const url = encodeURI(rawUrl);
       const type = (typeof img === 'object' && img?.type) ? img.type : '';
       const isVideo = type === 'video' || /\.(mp4|mov|avi|webm|m4v)(\?|$)/i.test(url);
-      const preview = isVideo
-        ? `<video controls preload="metadata" class="preview-media"><source src="${url}"></video>`
-        : `<img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}">`;
 
-      gridHtml += `
+      const mediaHtml = isVideo
+        ? `<video controls preload="metadata" class="preview-media"><source src="${url}">เบราว์เซอร์ไม่รองรับวิดีโอ</video>`
+        : `<img src="${url}" loading="lazy" class="preview-media" alt="ไฟล์แนบ ${index + 1}" />`;
+
+      return `
         <div class="media-card">
-          <a class="media-link" href="${url}" target="_blank" rel="noopener">${preview}</a>
+          <a class="media-link" href="${url}" target="_blank" rel="noopener">${mediaHtml}</a>
           <div class="media-meta">
             <span class="media-index">ไฟล์ที่ ${index + 1}</span>
-            <div class="media-actions"><a class="open-btn" href="${url}" target="_blank" rel="noopener">เปิดเต็ม</a></div>
+            <div class="media-actions">
+              <a class="open-btn" href="${url}" target="_blank" rel="noopener">เปิดเต็ม</a>
+            </div>
           </div>
         </div>
       `;
-    });
+    }).join('');
 
-    const html = `<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ดูไฟล์ทั้งหมด</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Kanit,sans-serif;background:#f1f5f9;color:#0f172a}.topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.title{font-size:18px;font-weight:700;margin:0}.count-badge{background:#155263;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700}.container{padding:16px;max-width:1400px;margin:0 auto}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-items:start}.media-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}.media-link{display:block;text-decoration:none;background:#f8fafc}.preview-media{display:block;width:100%;height:220px;object-fit:cover;background:#e2e8f0}.media-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px}.media-index{font-size:13px;color:#475569;font-weight:600}.open-btn{border:none;background:#2563eb;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none}.empty{text-align:center;padding:40px 20px;color:#64748b;background:#fff;border:1px solid #e2e8f0;border-radius:12px}
-</style>
-</head>
-<body>
-<div class="topbar"><h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1><div class="count-badge">ทั้งหมด ${safe.length} ไฟล์</div></div>
-<div class="container">${safe.length ? `<div class="grid">${gridHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}</div>
-</body>
-</html>`;
+    const html = `
+      <!DOCTYPE html>
+      <html lang="th">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>ดูไฟล์ทั้งหมด</title>
+        <style>
+          * { box-sizing: border-box; }
+          body { margin: 0; font-family: 'Kanit', sans-serif; background: #f1f5f9; color: #0f172a; }
+          .topbar { position: sticky; top: 0; z-index: 10; background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+          .title { font-size: 18px; font-weight: 700; margin: 0; }
+          .count-badge { background: #155263; color: #fff; padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+          .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
+          .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+          .media-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+          .media-link { display: block; text-decoration: none; background: #f8fafc; }
+          .preview-media { display: block; width: 100%; height: 220px; object-fit: cover; background: #e2e8f0; }
+          .media-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; }
+          .media-index { font-size: 13px; color: #475569; font-weight: 600; }
+          .open-btn { border: none; background: #2563eb; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration:none; }
+          .media-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+          .empty { text-align: center; padding: 40px 20px; color: #64748b; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="topbar">
+          <h1 class="title">🖼️ ดูไฟล์ทั้งหมด</h1>
+          <div class="count-badge">ทั้งหมด ${safeImages.length} ไฟล์</div>
+        </div>
+        <div class="container">
+          ${safeImages.length ? `<div class="grid">${itemsHtml}</div>` : `<div class="empty">ไม่มีไฟล์ให้แสดง</div>`}
+        </div>
+      </body>
+      </html>
+    `;
 
     win.document.open();
     win.document.write(html);
@@ -530,33 +955,30 @@
   }
 
   async function loadData() {
-    const res = await fetch('/data-approved-all?_=' + Date.now());
+    const res = await fetch(`/data-approved-all?_=${Date.now()}`);
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(text || ('โหลดข้อมูลไม่สำเร็จ (' + res.status + ')'));
+      throw new Error(text || 'โหลดข้อมูลไม่สำเร็จ');
     }
+
     const data = await res.json();
     allData = Array.isArray(data) ? data : [];
     updateStats();
-    applyFilters();
-  }
-
-  async function safeLoadData() {
-    if (isLoading) return;
-    isLoading = true;
-    try { await loadData(); }
-    catch (e) { console.error('load approved-all error:', e); }
-    finally { isLoading = false; }
+    filterData();
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeDetailModal();
+    if (e.key === 'Escape') {
+      closeDetailModal();
+    }
   });
 
   window.addEventListener('load', async () => {
-    updateSidebarActive();
-    updateModeUI();
-    await safeLoadData();
+    try {
+      await loadData();
+    } catch (e) {
+      console.error('approved-all load error:', e);
+    }
   });
 </script>
 </body>

@@ -2370,9 +2370,37 @@ app.get('/data-other-all', (req, res) => {
   });
 });
 app.get('/data-approved-all', (req, res) => {
-  const sql = 'SELECT * FROM requests WHERE approved = 1 ORDER BY id DESC';
+  const sql = `
+    SELECT
+      id,
+      name,
+      phone,
+      address,
+      category,
+      message,
+      latitude,
+      longitude,
+      photo,
+      department,
+      status,
+      approved,
+      processed,
+      reject_reason,
+      dept_reason,
+      dept_accept,
+      routed_to,
+      DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+      DATE_FORMAT(completed_at, '%Y-%m-%d %H:%i:%s') AS completed_at
+    FROM requests
+    WHERE approved = 1
+    ORDER BY id DESC
+  `;
+
   db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+    if (err) {
+      console.error('data-approved-all error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json(results);
   });
 });
