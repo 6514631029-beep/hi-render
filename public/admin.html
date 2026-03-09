@@ -975,7 +975,33 @@
 <div id="reject-modal" class="modal-overlay">
   <div class="modal-box">
     <h3>📣 กรุณาระบุเหตุผลไม่อนุมัติ</h3>
-    <textarea id="reject-reason"></textarea>
+    <p class="reject-subtitle">
+      เลือกเหตุผลสำเร็จรูปได้ทันที หรือพิมพ์รายละเอียดเพิ่มเติมเองในช่องด้านล่าง
+    </p>
+
+    <div class="reject-preset-wrap">
+      <div class="reject-preset-title">เหตุผลสำเร็จรูป</div>
+      <div class="reject-preset-list" id="rejectPresetList">
+        <button type="button" class="reject-chip" data-text="ไม่อยู่ในพื้นที่รับผิดชอบ">ไม่อยู่ในพื้นที่รับผิดชอบ</button>
+        <button type="button" class="reject-chip" data-text="ไม่อยู่ในอำนาจหน้าที่ของหน่วยงาน">ไม่อยู่ในอำนาจหน้าที่ของหน่วยงาน</button>
+        <button type="button" class="reject-chip" data-text="ข้อมูลไม่ครบถ้วน">ข้อมูลไม่ครบถ้วน</button>
+        <button type="button" class="reject-chip" data-text="รายละเอียดไม่ชัดเจน">รายละเอียดไม่ชัดเจน</button>
+        <button type="button" class="reject-chip" data-text="เรื่องซ้ำกับคำร้องเดิม">เรื่องซ้ำกับคำร้องเดิม</button>
+        <button type="button" class="reject-chip" data-text="ส่งผิดหน่วยงาน">ส่งผิดหน่วยงาน</button>
+        <button type="button" class="reject-chip" data-text="ติดต่อผู้ร้องไม่ได้">ติดต่อผู้ร้องไม่ได้</button>
+        <button type="button" class="reject-chip" data-text="กรุณาติดต่อหน่วยงานที่เกี่ยวข้องโดยตรง">กรุณาติดต่อหน่วยงานที่เกี่ยวข้องโดยตรง</button>
+      </div>
+    </div>
+
+    <div class="reject-toolbar">
+      <div class="reject-toolbar-title">ข้อความเหตุผล</div>
+      <div class="reject-toolbar-actions">
+        <button type="button" class="reject-mini-btn" onclick="clearRejectReason()">ล้างข้อความ</button>
+        <button type="button" class="reject-mini-btn" onclick="appendRejectSuggestion('กรุณาตรวจสอบข้อมูลและส่งคำร้องใหม่อีกครั้ง')">เพิ่มข้อความแนะนำ</button>
+      </div>
+    </div>
+
+    <textarea id="reject-reason" placeholder="พิมพ์เหตุผลไม่อนุมัติ หรือคลิกเหตุผลสำเร็จรูปด้านบน..."></textarea>
 
     <div class="modal-actions">
       <button onclick="submitReject()" class="btn danger">ส่ง</button>
@@ -1586,6 +1612,7 @@
   function openRejectReasonModal(id) {
     currentRejectId = id;
     document.getElementById('reject-reason').value = '';
+    document.querySelectorAll('.reject-chip').forEach(chip => chip.classList.remove('active'));
     document.getElementById('reject-modal').style.display = 'flex';
   }
 
