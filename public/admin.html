@@ -646,49 +646,146 @@
       display:none;
       position:fixed;
       inset:0;
-      background-color:rgba(0,0,0,0.45);
+      background-color:rgba(15,23,42,.48);
       z-index:9999;
       justify-content:center;
       align-items:center;
-      padding:16px;
+      padding:20px;
     }
 
     .modal-box{
-      background:white;
+      background:#fff;
       padding:24px;
-      border-radius:16px;
-      width:90%;
-      max-width:460px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      text-align:center;
+      border-radius:18px;
+      width:100%;
+      max-width:720px;
+      box-shadow: 0 18px 48px rgba(2,6,23,.20);
+      text-align:left;
     }
 
     .modal-box h3{
+      margin:0 0 8px;
+      font-size:24px;
+      text-align:left;
+      color:#0f172a;
+    }
+
+    .reject-subtitle{
       margin:0 0 16px;
-      font-size:20px;
-      text-align:center;
+      font-size:14px;
+      color:#64748b;
+      line-height:1.6;
+    }
+
+    .reject-preset-wrap{
+      margin-bottom:16px;
+    }
+
+    .reject-preset-title{
+      font-size:15px;
+      font-weight:800;
+      color:#1e293b;
+      margin-bottom:10px;
+    }
+
+    .reject-preset-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .reject-chip{
+      border:1px solid #cbd5e1;
+      background:#f8fafc;
+      color:#0f172a;
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:15px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.18s ease;
+      user-select:none;
+      font-family:inherit;
+    }
+
+    .reject-chip:hover{
+      background:#eaf2ff;
+      border-color:#93c5fd;
+      color:#0b5ed7;
+    }
+
+    .reject-chip.active{
+      background:#dbeafe;
+      border-color:#60a5fa;
+      color:#0b5ed7;
+      box-shadow:0 0 0 3px rgba(59,130,246,.12);
+    }
+
+    .reject-toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin:14px 0 8px;
+      flex-wrap:wrap;
+    }
+
+    .reject-toolbar-title{
+      font-size:15px;
+      font-weight:800;
+      color:#1e293b;
+    }
+
+    .reject-toolbar-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .reject-mini-btn{
+      border:1px solid #cbd5e1;
+      background:#fff;
+      color:#334155;
+      border-radius:10px;
+      padding:8px 12px;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      font-family:inherit;
+    }
+
+    .reject-mini-btn:hover{
+      background:#f8fafc;
     }
 
     .modal-box textarea{
       width:100%;
       max-width:100%;
       box-sizing:border-box;
-      padding:12px;
-      border-radius:10px;
-      border:1.5px solid #ccc;
-      font-size:16px;
+      padding:14px;
+      border-radius:12px;
+      border:1.5px solid #cbd5e1;
+      font-size:15px;
       resize:vertical;
-      transition:border 0.2s;
+      transition:border .2s, box-shadow .2s;
       font-family:inherit;
-      min-height:110px;
+      min-height:140px;
+      line-height:1.65;
+      color:#0f172a;
+      background:#fff;
+    }
+
+    .modal-box textarea:focus{
+      outline:none;
+      border-color:#60a5fa;
+      box-shadow:0 0 0 4px rgba(59,130,246,.12);
     }
 
     .modal-actions{
-      margin-top:20px;
-      text-align:center;
+      margin-top:18px;
       display:flex;
       gap:10px;
-      justify-content:center;
+      justify-content:flex-end;
       flex-wrap:wrap;
     }
 
@@ -878,6 +975,7 @@
         </div>
 
         <div class="topbar-actions">
+          <div id="view-mode-badge" class="top-pill">โหมด: คำร้องทั้งหมด</div>
         </div>
       </div>
     </header>
@@ -984,12 +1082,6 @@
       <div class="reject-preset-list" id="rejectPresetList">
         <button type="button" class="reject-chip" data-text="ไม่อยู่ในพื้นที่รับผิดชอบ">ไม่อยู่ในพื้นที่รับผิดชอบ</button>
         <button type="button" class="reject-chip" data-text="ไม่อยู่ในอำนาจหน้าที่ของหน่วยงาน">ไม่อยู่ในอำนาจหน้าที่ของหน่วยงาน</button>
-        <button type="button" class="reject-chip" data-text="ข้อมูลไม่ครบถ้วน">ข้อมูลไม่ครบถ้วน</button>
-        <button type="button" class="reject-chip" data-text="รายละเอียดไม่ชัดเจน">รายละเอียดไม่ชัดเจน</button>
-        <button type="button" class="reject-chip" data-text="เรื่องซ้ำกับคำร้องเดิม">เรื่องซ้ำกับคำร้องเดิม</button>
-        <button type="button" class="reject-chip" data-text="ส่งผิดหน่วยงาน">ส่งผิดหน่วยงาน</button>
-        <button type="button" class="reject-chip" data-text="ติดต่อผู้ร้องไม่ได้">ติดต่อผู้ร้องไม่ได้</button>
-        <button type="button" class="reject-chip" data-text="กรุณาติดต่อหน่วยงานที่เกี่ยวข้องโดยตรง">กรุณาติดต่อหน่วยงานที่เกี่ยวข้องโดยตรง</button>
       </div>
     </div>
 
@@ -997,7 +1089,6 @@
       <div class="reject-toolbar-title">ข้อความเหตุผล</div>
       <div class="reject-toolbar-actions">
         <button type="button" class="reject-mini-btn" onclick="clearRejectReason()">ล้างข้อความ</button>
-        <button type="button" class="reject-mini-btn" onclick="appendRejectSuggestion('กรุณาตรวจสอบข้อมูลและส่งคำร้องใหม่อีกครั้ง')">เพิ่มข้อความแนะนำ</button>
       </div>
     </div>
 
@@ -1609,6 +1700,55 @@
     }
   }
 
+  function appendRejectSuggestion(text) {
+    const textarea = document.getElementById('reject-reason');
+    if (!textarea) return;
+
+    const current = textarea.value.trim();
+    if (!current) {
+      textarea.value = text;
+    } else {
+      const lines = current.split('\n').map(v => v.trim()).filter(Boolean);
+      if (!lines.includes(text)) {
+        textarea.value = current + '\n' + text;
+      }
+    }
+
+    textarea.focus();
+  }
+
+  function clearRejectReason() {
+    const textarea = document.getElementById('reject-reason');
+    if (textarea) textarea.value = '';
+    document.querySelectorAll('.reject-chip').forEach(chip => chip.classList.remove('active'));
+  }
+
+  function bindRejectPresetButtons() {
+    document.querySelectorAll('.reject-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const text = chip.dataset.text || '';
+        chip.classList.toggle('active');
+
+        const textarea = document.getElementById('reject-reason');
+        if (!textarea) return;
+
+        let lines = textarea.value
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean);
+
+        if (chip.classList.contains('active')) {
+          if (!lines.includes(text)) lines.push(text);
+        } else {
+          lines = lines.filter(v => v !== text);
+        }
+
+        textarea.value = lines.join('\n');
+        textarea.focus();
+      });
+    });
+  }
+
   function openRejectReasonModal(id) {
     currentRejectId = id;
     document.getElementById('reject-reason').value = '';
@@ -1912,6 +2052,7 @@
   });
 
   window.addEventListener('load', async () => {
+    bindRejectPresetButtons();
     updateViewModeUI();
     await safeLoadData();
     setInterval(() => {
