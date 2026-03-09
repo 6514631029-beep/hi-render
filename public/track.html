@@ -401,7 +401,7 @@
         </div>
 
         <div class="help">
-          เคล็ดลับ: ถ้าเคยค้นหาแล้ว ระบบจะจำเบอร์ไว้และเปิดผลลัพธ์ให้โดยอัตโนมัติ
+          ระบบจะใช้เบอร์ที่ล็อกอินล่าสุดให้อัตโนมัติ และคุณยังพิมพ์ค้นหาด้วยเบอร์อื่นได้
         </div>
       </form>
     </div>
@@ -576,20 +576,36 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      const savedPhone = localStorage.getItem("phone");
+      const phoneInput = document.getElementById("phone");
+      const trackForm = document.getElementById("trackForm");
+
+      // ล้าง key เก่าจากระบบเดิม เพื่อไม่ให้หน้า track จำเบอร์ค้าง
+      localStorage.removeItem("phone");
+
+      // ใช้เบอร์เดียวกับหน้า login.html
+      const savedPhone = localStorage.getItem("userPhone");
 
       if (savedPhone) {
-        // ถ้ามีเบอร์อยู่แล้ว → ซ่อนฟอร์ม กดค้นหาให้อัตโนมัติ
-        document.getElementById("trackForm").style.display = "none";
+        phoneInput.value = savedPhone;
         fetchRequests(savedPhone);
-      } else {
-        document.getElementById('trackForm').addEventListener('submit', (e) => {
-          e.preventDefault();
-          const phone = document.getElementById('phone').value.trim();
-          localStorage.setItem("phone", phone);
-          fetchRequests(phone);
-        });
       }
+
+      trackForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const phone = phoneInput.value.trim();
+
+        if (!/^\d{10}$/.test(phone)) {
+          alert("กรุณากรอกเบอร์โทรให้ถูกต้อง (ต้องมี 10 ตัวเลข)");
+          phoneInput.focus();
+          return;
+        }
+
+        // อัปเดตเบอร์หลักของผู้ใช้ให้เป็นเบอร์ล่าสุด
+        localStorage.setItem("userPhone", phone);
+        localStorage.removeItem('phone');
+        fetchRequests(phone);
+      });
     });
   </script>
 
