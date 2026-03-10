@@ -1365,16 +1365,25 @@
     function getAgingInfo(row) {
       const ageDays = getAgeDays(row?.created_at);
       const isToday = isTodayBangkok(row?.created_at);
+      const status = String(row?.status || '').trim();
 
       if (VIEW_MODE === 'inbox') {
         if (ageDays >= 3) return { level: 'urgent', ageDays, isToday };
         if (ageDays >= 1) return { level: 'stale', ageDays, isToday };
         return { level: 'normal', ageDays, isToday };
-      } else {
+      }
+
+      if (status === 'รอดำเนินการ') {
         if (ageDays >= 7) return { level: 'urgent', ageDays, isToday };
+        return { level: 'normal', ageDays, isToday };
+      }
+
+      if (status === 'กำลังดำเนินการ') {
         if (ageDays >= 3) return { level: 'stale', ageDays, isToday };
         return { level: 'normal', ageDays, isToday };
       }
+
+      return { level: 'normal', ageDays, isToday };
     }
 
     function getAgingBadgeHtml(row) {
@@ -1430,6 +1439,12 @@
 
       const staleRows = allEngineerData.filter(row => getAgingInfo(row).level === 'stale');
       const urgentRows = allEngineerData.filter(row => getAgingInfo(row).level === 'urgent');
+      const pendingUrgentRows = VIEW_MODE === 'work'
+        ? allEngineerData.filter(row => String(row?.status || '').trim() === 'รอดำเนินการ' && getAgingInfo(row).level === 'urgent')
+        : [];
+      const progressStaleRows = VIEW_MODE === 'work'
+        ? allEngineerData.filter(row => String(row?.status || '').trim() === 'กำลังดำเนินการ' && getAgingInfo(row).level === 'stale')
+        : [];
 
       const todayLabel = document.getElementById('statTodayLabel');
       const todayValue = document.getElementById('statTodayValue');
@@ -1455,15 +1470,18 @@
       if (newValue) newValue.textContent = String(VIEW_MODE === 'inbox' ? newCount : todayCount);
       if (newSub) newSub.textContent = VIEW_MODE === 'inbox' ? 'ยังไม่เคยเปิดดู' : 'ในโหมดงานของแผนก';
 
-      if (staleLabel) staleLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox ค้าง' : 'งานค้าง';
-      if (staleValue) staleValue.textContent = String(staleRows.length);
+      if (staleLabel) staleLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox ค้าง' : 'กำลังดำเนินการค้าง';
+      if (staleValue) staleValue.textContent = String(VIEW_MODE === 'inbox' ? staleRows.length : progressStaleRows.length);
       if (staleSub) staleSub.textContent = VIEW_MODE === 'inbox' ? 'เกิน 1 วัน' : 'เกิน 3 วัน';
 
-      if (urgentLabel) urgentLabel.textContent = 'งานเร่งด่วน';
-      if (urgentValue) urgentValue.textContent = String(urgentRows.length);
-      if (urgentSub) urgentSub.textContent = VIEW_MODE === 'inbox' ? 'Inbox เกิน 3 วัน' : 'งานเกิน 7 วัน';
+      if (urgentLabel) urgentLabel.textContent = VIEW_MODE === 'inbox' ? 'งานเร่งด่วน' : 'รอดำเนินการค้าง';
+      if (urgentValue) urgentValue.textContent = String(VIEW_MODE === 'inbox' ? urgentRows.length : pendingUrgentRows.length);
+      if (urgentSub) urgentSub.textContent = VIEW_MODE === 'inbox' ? 'Inbox เกิน 3 วัน' : 'เกิน 7 วัน';
 
-      updateAlertBanner(staleRows.length, urgentRows.length);
+      updateAlertBanner(
+        VIEW_MODE === 'inbox' ? staleRows.length : progressStaleRows.length,
+        VIEW_MODE === 'inbox' ? urgentRows.length : pendingUrgentRows.length
+      );
     }
 
     function updateAlertBanner(staleCount, urgentCount) {
@@ -1472,13 +1490,30 @@
       const desc = document.getElementById('alertBannerDesc');
       if (!banner || !title || !desc) return;
 
+      if (VIEW_MODE !== 'inbox') {
+        const parts = [];
+        if (urgentCount > 0) parts.push(`รอดำเนินการเกิน 7 วัน ${urgentCount} รายการ`);
+        if (staleCount > 0) parts.push(`กำลังดำเนินการเกิน 3 วัน ${staleCount} รายการ`);
+
+        if (parts.length > 0) {
+          banner.style.display = 'block';
+          banner.classList.remove('warn');
+          title.textContent = '🚨 แจ้งเตือนงานค้าง';
+          desc.textContent = parts.join(' • ');
+          return;
+        }
+
+        banner.style.display = 'none';
+        title.textContent = '';
+        desc.textContent = '';
+        return;
+      }
+
       if (urgentCount > 0) {
         banner.style.display = 'block';
         banner.classList.remove('warn');
         title.textContent = '🚨 พบงานเร่งด่วน';
-        desc.textContent = VIEW_MODE === 'inbox'
-          ? `มี Inbox ค้างเกิน 3 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 1 วันอีก ${staleCount} รายการ`
-          : `มีงานของแผนกค้างเกิน 7 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 3 วันอีก ${staleCount} รายการ`;
+        desc.textContent = `มี Inbox ค้างเกิน 3 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 1 วันอีก ${staleCount} รายการ`;
         return;
       }
 
@@ -1486,9 +1521,7 @@
         banner.style.display = 'block';
         banner.classList.add('warn');
         title.textContent = '⚠️ พบงานค้าง';
-        desc.textContent = VIEW_MODE === 'inbox'
-          ? `มี Inbox ค้างเกิน 1 วัน จำนวน ${staleCount} รายการ`
-          : `มีงานของแผนกค้างเกิน 3 วัน จำนวน ${staleCount} รายการ`;
+        desc.textContent = `มี Inbox ค้างเกิน 1 วัน จำนวน ${staleCount} รายการ`;
         return;
       }
 
@@ -1524,7 +1557,9 @@
         allEngineerData = markRowsAsNew(allEngineerData);
         checkAndPlayNewAlert();
       } else {
-        allEngineerData = allEngineerData.map(row => ({ ...row, __isNew: false }));
+        allEngineerData = allEngineerData
+          .filter(row => String(row?.status || '').trim() !== 'เสร็จสิ้น')
+          .map(row => ({ ...row, __isNew: false }));
       }
 
       applyCurrentFilters();
@@ -2293,7 +2328,16 @@
 
       if (res.ok) {
         alert('✅ อัปเดตสถานะเรียบร้อย');
-        await safeLoadData();
+
+        allEngineerData = allEngineerData
+          .map(row => String(normalizeRowId(row)) === String(id) ? { ...row, status } : row)
+          .filter(row => VIEW_MODE === 'inbox' || String(row?.status || '').trim() !== 'เสร็จสิ้น');
+
+        filteredData = filteredData
+          .map(row => String(normalizeRowId(row)) === String(id) ? { ...row, status } : row)
+          .filter(row => VIEW_MODE === 'inbox' || String(row?.status || '').trim() !== 'เสร็จสิ้น');
+
+        applyCurrentFilters();
         await updateCounters();
       } else {
         const txt = await res.text().catch(()=> '');
@@ -2348,7 +2392,9 @@
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
           alert(data.message || '✅ บันทึกสำเร็จ');
-          await safeLoadData();
+          allEngineerData = allEngineerData.filter(row => String(normalizeRowId(row)) !== String(pendingCompleteId));
+          filteredData = filteredData.filter(row => String(normalizeRowId(row)) !== String(pendingCompleteId));
+          applyCurrentFilters();
           await updateCounters();
         }
       } catch (err) {
@@ -2394,7 +2440,9 @@
         ]);
 
         const inboxCount = Array.isArray(inboxData) ? inboxData.length : 0;
-        const workCount  = Array.isArray(allData) ? allData.length : 0;
+        const workCount  = Array.isArray(allData)
+          ? allData.filter(row => String(row?.status || '').trim() !== 'เสร็จสิ้น').length
+          : 0;
 
         const pending    = Array.isArray(pAll) ? pAll.length : 0;
         const inProgress = Array.isArray(iAll) ? iAll.length : 0;
