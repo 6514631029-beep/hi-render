@@ -184,6 +184,7 @@
       margin-top:12px;
       text-align:center;
       line-height:1.4;
+      white-space:pre-line;
     }
 
     .success-modal{
@@ -337,6 +338,10 @@
       box.textContent = "";
     }
 
+    function setInfo(text) {
+      document.getElementById("liffInfo").textContent = text;
+    }
+
     function showSuccessModal({ icon = "✅", title = "สำเร็จ", text = "", closeAfter = false } = {}) {
       document.getElementById("modalIcon").textContent = icon;
       document.getElementById("modalTitle").textContent = title;
@@ -371,34 +376,80 @@
       window.location.href = "https://line.me/R/oaMessage/@300ifqgu";
     }
 
-    async function initLiff() {
+    function getLineUserIdSafely() {
       try {
-        await liff.init({ liffId: LIFF_ID });
+        if (lineUserId) return lineUserId;
 
-        if (!liff.isInClient()) {
-          setStatus("❌ กรุณาเปิดหน้านี้จากในแอป LINE โดยกดจากเมนูในแชต OA เท่านั้น", "err");
-          document.getElementById("liffInfo").textContent = "กรุณาเปิดผ่านแอป LINE";
-          return;
+        const decoded = window.liff?.getDecodedIDToken?.();
+        if (decoded?.sub) {
+          lineUserId = decoded.sub;
+          return lineUserId;
         }
 
+        const context = window.liff?.getContext?.();
+        if (context?.userId) {
+          lineUserId = context.userId;
+          return lineUserId;
+        }
+      } catch (e) {
+        console.error("getLineUserIdSafely error:", e);
+      }
+
+      return null;
+    }
+
+    async function initLiff() {
+      try {
+        setInfo("กำลังเชื่อมต่อ LINE...");
+        clearStatus();
+
+        await liff.init({ liffId: LIFF_ID });
+
         if (!liff.isLoggedIn()) {
+          setInfo("กำลังเข้าสู่ระบบ LINE...");
           liff.login();
           return;
         }
-
-        const profile = await liff.getProfile();
-        lineUserId = profile.userId;
 
         const savedPhone = localStorage.getItem(PHONE_STORAGE_KEY) || "";
         if (savedPhone) {
           document.getElementById("phone").value = normalizePhoneInput(savedPhone);
         }
 
-        document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE สำเร็จแล้ว";
+        try {
+          const profile = await liff.getProfile();
+          if (profile?.userId) {
+            lineUserId = profile.userId;
+          }
+        } catch (profileErr) {
+          console.warn("getProfile failed, fallback will be used:", profileErr);
+        }
+
+        const finalUserId = getLineUserIdSafely();
+        const inClient = liff.isInClient();
+
+        if (finalUserId) {
+          setInfo(
+            inClient
+              ? "เชื่อมต่อ LINE สำเร็จแล้ว"
+              : "เชื่อมต่อ LINE สำเร็จแล้ว\n(เปิดผ่านเบราว์เซอร์ได้ แต่แนะนำให้เปิดจากในแอป LINE)"
+          );
+
+          if (!inClient) {
+            setStatus("ℹ️ หน้านี้เปิดนอกแอป LINE ได้ แต่ถ้าเกิดปัญหา แนะนำให้กดจากเมนูในแชต LINE OA อีกครั้ง", "warn");
+          }
+          return;
+        }
+
+        setInfo(inClient ? "เชื่อมต่อ LINE ไม่สมบูรณ์" : "กรุณาเปิดผ่านแอป LINE อีกครั้ง");
+        setStatus(
+          "❌ ยังดึงข้อมูลบัญชี LINE ไม่สำเร็จ\nกรุณาปิดหน้านี้ แล้วกดเมนูผูกบัญชีจากในแชต LINE OA ใหม่อีกครั้ง",
+          "err"
+        );
       } catch (err) {
         console.error(err);
         setStatus("❌ เปิดหน้า LIFF ไม่สำเร็จ\nกรุณาเปิดจากในแอป LINE แล้วลองอีกครั้ง", "err");
-        document.getElementById("liffInfo").textContent = "เชื่อมต่อ LINE ไม่สำเร็จ";
+        setInfo("เชื่อมต่อ LINE ไม่สำเร็จ");
       }
     }
 
@@ -414,8 +465,10 @@
         return;
       }
 
-      if (!lineUserId) {
-        setStatus("❌ ยังไม่พบ LINE user กรุณาลองเปิดหน้านี้จากใน LINE อีกครั้ง", "err");
+      const currentUserId = getLineUserIdSafely();
+      if (!currentUserId) {
+        setStatus("❌ ยังไม่พบ LINE user กรุณาปิดหน้านี้ แล้วเปิดจากเมนูผูกบัญชีใน LINE อีกครั้ง", "err");
+        setInfo("ยังไม่พบ LINE user");
         return;
       }
 
@@ -425,7 +478,7 @@
         const res = await fetch("/api/line/bind-phone", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone, lineUserId })
+          body: JSON.stringify({ phone, lineUserId: currentUserId })
         });
 
         const data = await res.json();
