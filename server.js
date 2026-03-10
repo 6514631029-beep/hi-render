@@ -311,6 +311,19 @@ async function linkRichMenuToUser(lineUserId, richMenuId) {
   console.log('[LINE richmenu link success]', { lineUserId, richMenuId });
   return true;
 }
+
+async function relinkGuestRichMenu(lineUserId) {
+  if (!lineUserId) return false;
+
+  const guestRichMenuId = process.env.LINE_RICHMENU_GUEST_ID;
+  if (!guestRichMenuId) {
+    console.log('[LINE guest richmenu skip] missing LINE_RICHMENU_GUEST_ID');
+    return false;
+  }
+
+  return await linkRichMenuToUser(lineUserId, guestRichMenuId);
+}
+
 async function hasLineLink(lineUserId) {
   if (!lineUserId) return false;
 
@@ -320,26 +333,6 @@ async function hasLineLink(lineUserId) {
   );
 
   return rows.length > 0;
-}
-async function syncRichMenuForUser(lineUserId) {
-  if (!lineUserId) return false;
-
-  const linked = await hasLineLink(lineUserId);
-  const richMenuId = linked
-    ? process.env.LINE_RICHMENU_LINKED_ID
-    : process.env.LINE_RICHMENU_GUEST_ID;
-
-  if (!richMenuId) {
-    console.log('[LINE richmenu sync skip]', {
-      lineUserId,
-      linked,
-      hasGuest: !!process.env.LINE_RICHMENU_GUEST_ID,
-      hasLinked: !!process.env.LINE_RICHMENU_LINKED_ID
-    });
-    return false;
-  }
-
-  return linkRichMenuToUser(lineUserId, richMenuId);
 }
 
 function toJpgCloudinary(url = '') {
@@ -498,9 +491,15 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
 
       if (ev.type === 'follow' && userId) {
         try {
-          await syncRichMenuForUser(userId);
+          const linked = await hasLineLink(userId);
+          await linkRichMenuToUser(
+            userId,
+            linked
+              ? process.env.LINE_RICHMENU_LINKED_ID
+              : process.env.LINE_RICHMENU_GUEST_ID
+          );
         } catch (e) {
-          console.error('follow rich menu error:', e);
+          console.error('link rich menu from follow event error:', e);
         }
         continue;
       }
@@ -602,6 +601,7 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         const rows = await getLatestRequestsByLineUserId(userId, limit, offset);
 
         if (!rows.length) {
+          await relinkGuestRichMenu(userId);
           await replyLineMessage(
             replyToken,
             '📭 ยังไม่พบคำร้องที่ผูกกับ LINE นี้\n\nหากคุณเพิ่งส่งคำร้อง กรุณากลับไปหน้าส่งคำร้องสำเร็จ แล้วกดผูก LINE ก่อน'
@@ -628,6 +628,7 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         const latest = await getLatestSingleRequestByLineUserId(userId);
 
         if (!latest) {
+          await relinkGuestRichMenu(userId);
           await replyLineMessage(
             replyToken,
             '📭 ยังไม่พบคำร้องล่าสุดของคุณ\n\nหากคุณเพิ่งส่งคำร้อง กรุณาผูก LINE ก่อน'
@@ -654,6 +655,10 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         const detail = await getRequestDetailForLineUser(userId, requestId);
 
         if (!detail) {
+          const linked = await hasLineLink(userId);
+          if (!linked) {
+            await relinkGuestRichMenu(userId);
+          }
           await replyLineMessage(
             replyToken,
             `❌ ไม่พบคำร้องเลข #${requestId}\nหรือคำร้องนี้ไม่ได้ผูกกับ LINE ของคุณ`
@@ -678,12 +683,10 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         const rows = await getLatestRequestsByLineUserId(userId, limit, offset);
 
         if (!rows.length) {
-          try {
-            await syncRichMenuForUser(userId);
-          } catch (e) {
-            console.error('sync guest rich menu on more error:', e);
+          const linked = await hasLineLink(userId);
+          if (!linked) {
+            await relinkGuestRichMenu(userId);
           }
-
           await replyLineMessage(replyToken, '📭 ไม่พบคำร้องเพิ่มเติมแล้ว');
           continue;
         }
@@ -747,6 +750,23 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
     return res.status(500).send('Server error');
   }
 });
+
+app.post('/api/line/force-guest-menu', express.json(), async (req, res) => {
+  try {
+    const { lineUserId } = req.body || {};
+
+    if (!lineUserId) {
+      return res.status(400).json({ ok: false, message: 'missing lineUserId' });
+    }
+
+    const ok = await relinkGuestRichMenu(lineUserId);
+    return res.json({ ok });
+  } catch (e) {
+    console.error('force guest menu error:', e);
+    return res.status(500).json({ ok: false, message: 'failed' });
+  }
+});
+
 async function getLineUserIdByPhone(phone) {
   const normalizedPhone = normalizeThaiPhone(phone || '');
   if (!normalizedPhone) return null;
@@ -1324,22 +1344,6 @@ app.get('/line/bind-info', async (req, res) => {
   } catch (e) {
     console.error('bind-info error:', e);
     return res.status(500).json({ ok:false });
-  }
-});
-app.post('/api/line/reset-richmenu', async (req, res) => {
-  try {
-    const { lineUserId } = req.body || {};
-
-    if (!lineUserId) {
-      return res.status(400).json({ ok: false, message: 'missing lineUserId' });
-    }
-
-    await linkRichMenuToUser(lineUserId, process.env.LINE_RICHMENU_GUEST_ID);
-
-    return res.json({ ok: true });
-  } catch (e) {
-    console.error('reset rich menu error:', e);
-    return res.status(500).json({ ok: false });
   }
 });
 app.post('/api/line/bind-phone', async (req, res) => {
