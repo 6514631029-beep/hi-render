@@ -620,7 +620,7 @@
                 <th>เบอร์</th>
                 <th>รายละเอียด</th>
                 <th>สถานะ</th>
-                <th>แผนที่</th>
+                <th>แผนก</th>
                 <th>วันที่เวลา</th>
               </tr>
             </thead>
@@ -880,43 +880,41 @@
   }
 
   function renderTable(rows) {
-    const tbody = document.querySelector('#data-table tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+  const tbody = document.querySelector('#data-table tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
 
-    if (!rows.length) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">ไม่มีข้อมูลคำร้องที่อนุมัติแล้ว</td>
-        </tr>
-      `;
-      return;
-    }
-
-    rows.forEach(row => {
-      const mapLink = row.latitude && row.longitude
-        ? `<a class="map-link" href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank">📍 แผนที่</a>`
-        : '-';
-      const statusText = safeText(row.status) || 'ยังไม่กำหนด';
-      const statusClass = getStatusClass(row.status);
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><div style="font-weight:900;">${safeText(row.name || '-')}</div></td>
-        <td>${safeText(row.phone || '-')}</td>
-        <td>
-          <button class="btn link-btn" onclick="openDetailById(${row.id})">📄 ดูรายละเอียด</button>
-          <div class="small-muted">${safeText(row.message).slice(0, 48) || '-'}</div>
-        </td>
-        <td>
-          <span class="status-badge ${statusClass}">${statusText}</span>
-        </td>
-        <td>${mapLink}</td>
-        <td>${formatDate(row.created_at)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+  if (!rows.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">ไม่มีข้อมูลคำร้องที่อนุมัติแล้ว</td>
+      </tr>
+    `;
+    return;
   }
+
+  rows.forEach(row => {
+    const departmentText = safeText(row.department) || '-';
+    const statusText = safeText(row.status) || 'ยังไม่กำหนด';
+    const statusClass = getStatusClass(row.status);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div style="font-weight:900;">${safeText(row.name || '-')}</div></td>
+      <td>${safeText(row.phone || '-')}</td>
+      <td>
+        <button class="btn link-btn" onclick="openDetailById(${row.id})">📄 ดูรายละเอียด</button>
+        <div class="small-muted">${safeText(row.message).slice(0, 48) || '-'}</div>
+      </td>
+      <td>
+        <span class="status-badge ${statusClass}">${statusText}</span>
+      </td>
+      <td>${departmentText}</td>
+      <td>${formatDate(row.created_at)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
   function renderCurrentPage() {
     const totalItems = filteredData.length;
