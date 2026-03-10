@@ -1,20 +1,16 @@
 {
-  "name": "ระบบจัดการคำร้อง – ไฟฟ้า",
-  "short_name": "Admin-Electric",
+  "name": "ระบบจัดการคำร้อง – งานไฟฟ้า",
+  "short_name": "Electric Admin",
   "start_url": "/admin-electric-login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#155263",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
       "src": "/icons/electric-icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "/admin-electric-login"
 }
