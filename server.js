@@ -3671,7 +3671,14 @@ async function exportElectricBucketExcelFile(res, title, tableName) {
 // Export Routes - Electric
 // ======================================
 app.get('/export-electric-excel-all', async (req, res) => {
-  exportElectricExcelFile(res, 'รายงานคำร้อง-ไฟฟ้า-ทั้งหมด');
+  exportElectricExcelFile(
+    res,
+    'รายงานคำร้อง-ไฟฟ้า-ทั้งหมด',
+    `WHERE department = ?
+       AND dept_accept = 1
+       AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`,
+    ['ไฟฟ้า']
+  );
 });
 
 app.get('/export-electric-excel-pending', async (req, res) => {
@@ -4125,7 +4132,14 @@ app.get('/export-engineer-excel', async (req, res) => {
 });
 
 app.get('/export-engineer-excel-all', async (req, res) => {
-  exportEngineerExcelFile(res, 'รายงานคำร้อง-กองช่าง-ทั้งหมด');
+  exportEngineerExcelFile(
+    res,
+    'รายงานคำร้อง-กองช่าง-ทั้งหมด',
+    `WHERE department = ?
+       AND dept_accept = 1
+       AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`,
+    ['กองช่าง']
+  );
 });
 
 app.get('/export-engineer-excel-pending', async (req, res) => {
@@ -4327,7 +4341,14 @@ async function exportHealthBucketExcelFile(res, title, tableName) {
 }
 // Excel ทั้งหมด
 app.get('/export-health-excel-all', async (req, res) => {
-  exportHealthExcelFile(res, 'รายงานคำร้อง-สาธารณสุข-ทั้งหมด');
+  exportHealthExcelFile(
+    res,
+    'รายงานคำร้อง-สาธารณสุข-ทั้งหมด',
+    `WHERE department = ?
+       AND dept_accept = 1
+       AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`,
+    ['สาธารณสุข']
+  );
 });
 
 app.get('/export-health-excel-pending', async (req, res) => {
