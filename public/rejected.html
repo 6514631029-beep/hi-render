@@ -13,18 +13,15 @@
       --muted:#64748b;
       --navy:#0b2a4a;
       --navy-2:#133a63;
-      --gold:#c9a227;
       --line:#e2e8f0;
       --shadow:0 12px 30px rgba(2,6,23,.08);
       --shadow2:0 8px 24px rgba(2,6,23,.06);
       --radius:16px;
       --sidebarW:220px;
-
       --danger-bg:#fef2f2;
       --danger-bd:#fecaca;
       --danger-tx:#b91c1c;
     }
-
     *{ box-sizing:border-box; }
     html{ font-size:20px; }
     body{
@@ -36,31 +33,18 @@
         var(--bg);
       -webkit-text-size-adjust:100%;
     }
-
     .app{ display:flex; min-height:100vh; }
-
     .sidebar{
       width:var(--sidebarW);
       background:linear-gradient(180deg,#0b2a4a 0%,#071e35 100%);
       border-right:1px solid rgba(255,255,255,.10);
-      position:sticky;
-      top:0;
-      height:100vh;
-      overflow:auto;
-      padding:12px 10px;
-      box-shadow:6px 0 22px rgba(2,6,23,.06);
+      position:sticky; top:0; height:100vh; overflow:auto;
+      padding:12px 10px; box-shadow:6px 0 22px rgba(2,6,23,.06);
     }
-
     .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 10px 14px;
-      border-bottom:1px solid rgba(255,255,255,.12);
-      margin-bottom:10px;
-      color:#fff;
+      display:flex; align-items:center; gap:10px; padding:10px 10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:10px; color:#fff;
     }
-
     .brand .logo{
       width:38px;height:38px;border-radius:12px;
       background:linear-gradient(135deg,#fca5a5,#fee2e2);
@@ -68,411 +52,162 @@
       color:#7f1d1d;font-weight:1000;flex:0 0 auto;
       box-shadow:0 12px 22px rgba(239,68,68,.22);
     }
-
     .brand .title{ font-weight:1000; line-height:1.1; font-size:15px; }
-
     .menu-title{
-      font-size:13px;
-      color:rgba(255,255,255,.72);
-      font-weight:900;
-      margin:12px 8px 6px;
-      text-transform:uppercase;
-      letter-spacing:.35px;
+      font-size:13px; color:rgba(255,255,255,.72); font-weight:900;
+      margin:12px 8px 6px; text-transform:uppercase; letter-spacing:.35px;
     }
-
     .side-link{
-      width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      padding:10px 11px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.06);
-      color:#fff;
-      font-weight:900;
-      cursor:pointer;
-      transition:.15s ease;
-      text-align:left;
-      font-size:15px;
-      text-decoration:none;
-      font-family:inherit;
-      margin-bottom:8px;
+      width:100%; display:flex; align-items:center; justify-content:space-between;
+      gap:8px; padding:10px 11px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.06);
+      color:#fff; font-weight:900; cursor:pointer; transition:.15s ease;
+      text-align:left; font-size:15px; text-decoration:none; font-family:inherit; margin-bottom:8px;
     }
-
-    .side-link:hover{
-      background:rgba(255,255,255,.10);
-      border-color:rgba(255,255,255,.18);
-    }
-
-    .side-link .label{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      white-space:nowrap;
-    }
-
-    .side-link.active{
-      background:rgba(239,68,68,.14);
-      border-color:rgba(248,113,113,.38);
-    }
-
+    .side-link:hover{ background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.18); }
+    .side-link .label{ display:flex; align-items:center; gap:10px; white-space:nowrap; }
+    .side-link.active{ background:rgba(239,68,68,.14); border-color:rgba(248,113,113,.38); }
     .count{
-      min-width:34px;
-      text-align:center;
-      padding:4px 10px;
-      border-radius:999px;
-      background:rgba(239,68,68,.14);
-      border:1px solid rgba(248,113,113,.30);
-      color:#fecaca;
-      font-weight:1000;
-      font-size:14px;
+      min-width:34px; text-align:center; padding:4px 10px; border-radius:999px;
+      background:rgba(239,68,68,.14); border:1px solid rgba(248,113,113,.30);
+      color:#fecaca; font-weight:1000; font-size:14px;
     }
-
     .main{ flex:1; min-width:0; display:flex; flex-direction:column; }
-
     .topbar{
-      position:sticky;
-      top:0;
-      z-index:20;
+      position:sticky; top:0; z-index:20;
       background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#0a2340 100%);
-      color:#fff;
-      border-bottom:1px solid rgba(255,255,255,.14);
-      box-shadow:var(--shadow);
-      padding:14px 18px;
+      color:#fff; border-bottom:1px solid rgba(255,255,255,.14);
+      box-shadow:var(--shadow); padding:14px 18px;
     }
-
     .topbar h1{ margin:0; font-size:20px; font-weight:1000; }
     .topbar .sub{ margin-top:3px; font-size:14px; opacity:.84; font-weight:800; }
-
-    .content{
-      padding:16px 18px 26px;
-      max-width:1400px;
-      margin:0 auto;
-      width:100%;
-    }
-
-    .stats-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:12px;
-      margin-bottom:12px;
-    }
-
+    .content{ padding:16px 18px 26px; max-width:1400px; margin:0 auto; width:100%; }
+    .stats-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
     .stat-box{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px 14px;
-      box-shadow:var(--shadow2);
+      background:#fff; border:1px solid var(--line); border-radius:16px;
+      padding:14px 14px; box-shadow:var(--shadow2);
     }
-
     .stat-box .label{ font-size:13px; font-weight:900; color:#64748b; margin-bottom:6px; }
     .stat-box .value{ font-size:26px; line-height:1; font-weight:1000; color:#0f172a; }
     .stat-box .sub{ margin-top:6px; font-size:12px; color:#64748b; font-weight:800; }
-
     .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow2);
-      overflow:hidden;
+      background:var(--card); border:1px solid var(--line);
+      border-radius:var(--radius); box-shadow:var(--shadow2); overflow:hidden;
     }
-
     .card-h{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      padding:12px 14px; border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      flex-wrap:wrap; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
     }
-
     .card-h h2{ margin:0; font-size:18px; font-weight:1000; }
     .card-b{ padding:12px 14px; }
     .tiny{ font-size:14px; color:#64748b; font-weight:800; }
-
     .search-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
     }
-
     .search{
-      flex:1;
-      min-width:260px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      font-size:16px;
-      outline:none;
-      background:#fff;
-      font-weight:800;
-      font-family:inherit;
+      flex:1; min-width:260px; padding:12px 12px; border-radius:14px;
+      border:1px solid var(--line); font-size:16px; outline:none;
+      background:#fff; font-weight:800; font-family:inherit;
     }
-
     .filter-chips{ display:flex; gap:8px; flex-wrap:wrap; }
-
     .chip{
-      border:1px solid #dbe2ea;
-      background:#fff;
-      color:#334155;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:14px;
-      font-weight:900;
-      cursor:pointer;
-      font-family:inherit;
+      border:1px solid #dbe2ea; background:#fff; color:#334155;
+      padding:8px 12px; border-radius:999px; font-size:14px; font-weight:900;
+      cursor:pointer; font-family:inherit;
     }
-
     .chip.active{
-      background:#991b1b;
-      color:#fff;
-      border-color:#991b1b;
+      background:#991b1b; color:#fff; border-color:#991b1b;
       box-shadow:0 8px 18px rgba(153,27,27,.16);
     }
-
     .table-wrap{ overflow:auto; background:#fff; width:100%; }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:980px;
-      background:#fff;
-      table-layout:fixed;
-    }
-
-    th,td{
-      padding:12px 10px;
-      border-bottom:1px solid var(--line);
-      text-align:center;
-      vertical-align:middle;
-    }
-
+    table{ width:100%; border-collapse:collapse; min-width:860px; background:#fff; table-layout:fixed; }
+    th,td{ padding:12px 10px; border-bottom:1px solid var(--line); text-align:center; vertical-align:middle; }
     th{
-      position:sticky;
-      top:0;
-      z-index:5;
-      background:#eef2f7 !important;
-      color:#0f172a !important;
-      border-bottom:1px solid #e5e7eb !important;
-      font-size:13px;
-      white-space:nowrap;
+      position:sticky; top:0; z-index:5; background:#eef2f7 !important; color:#0f172a !important;
+      border-bottom:1px solid #e5e7eb !important; font-size:13px; white-space:nowrap;
     }
-
     th:nth-child(1), td:nth-child(1){ width:130px; }
     th:nth-child(2), td:nth-child(2){ width:130px; }
     th:nth-child(3), td:nth-child(3){ width:210px; }
     th:nth-child(4), td:nth-child(4){ width:120px; }
-    th:nth-child(5), td:nth-child(5){ width:120px; }
-    th:nth-child(6), td:nth-child(6){ width:220px; }
-    th:nth-child(7), td:nth-child(7){ width:170px; }
-
+    th:nth-child(5), td:nth-child(5){ width:220px; }
+    th:nth-child(6), td:nth-child(6){ width:170px; }
     td{ font-size:15px; color:#334155; }
     tbody tr:nth-child(even){ background:#fbfdff; }
     tbody tr:hover{ background:#fff7f7; }
-
     .btn{
-      padding:10px 14px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#fff;
-      cursor:pointer;
-      font-weight:900;
-      white-space:nowrap;
-      font-size:15px;
-      font-family:inherit;
+      padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:#fff;
+      cursor:pointer; font-weight:900; white-space:nowrap; font-size:15px; font-family:inherit;
     }
-
-    .btn.link-btn{
-      background:#eff6ff;
-      border-color:#bfdbfe;
-      color:#1d4ed8;
-    }
-
+    .btn.link-btn{ background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
     .map-link{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      padding:9px 14px;
-      border-radius:12px;
-      border:1px solid #bfdbfe;
-      background:#eff6ff;
-      color:#1d4ed8;
-      text-decoration:none;
-      font-weight:900;
-      white-space:nowrap;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px;
+      padding:9px 14px; border-radius:12px; border:1px solid #bfdbfe;
+      background:#eff6ff; color:#1d4ed8; text-decoration:none; font-weight:900; white-space:nowrap;
     }
-
     .small-muted{
-      font-size:12px;
-      color:#64748b;
-      margin-top:6px;
-      line-height:1.35;
-      font-weight:700;
-      word-break:break-word;
+      font-size:12px; color:#64748b; margin-top:6px; line-height:1.35;
+      font-weight:700; word-break:break-word;
     }
-
     .status-badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:7px 12px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:1000;
-      border:1px solid var(--danger-bd);
-      background:var(--danger-bg);
-      color:var(--danger-tx);
-      white-space:nowrap;
+      display:inline-flex; align-items:center; justify-content:center; padding:7px 12px;
+      border-radius:999px; font-size:13px; font-weight:1000;
+      border:1px solid var(--danger-bd); background:var(--danger-bg); color:var(--danger-tx); white-space:nowrap;
     }
-
     .reason-pill{
-      display:inline-block;
-      max-width:100%;
-      padding:8px 12px;
-      border-radius:12px;
-      background:#fff7f7;
-      border:1px solid #fecaca;
-      color:#991b1b;
-      font-weight:900;
-      font-size:13px;
-      word-break:break-word;
-      line-height:1.4;
+      display:inline-block; max-width:100%; padding:8px 12px; border-radius:12px;
+      background:#fff7f7; border:1px solid #fecaca; color:#991b1b; font-weight:900;
+      font-size:13px; word-break:break-word; line-height:1.4;
     }
-
     #pagination{
-      padding:12px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
-      border-top:1px solid var(--line);
+      padding:12px; display:flex; justify-content:center; align-items:center; gap:8px;
+      flex-wrap:wrap; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); border-top:1px solid var(--line);
     }
-
     #pagination button:disabled{ opacity:.5; cursor:not-allowed; }
-
     .detail-overlay{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(2,6,23,.5);
-      z-index:10000;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
+      display:none; position:fixed; inset:0; background:rgba(2,6,23,.5); z-index:10000;
+      align-items:center; justify-content:center; padding:16px;
     }
-
     .detail-modal{
-      width:min(900px,100%);
-      max-height:85vh;
-      overflow:auto;
-      background:#fff;
-      border-radius:20px;
-      border:1px solid #e2e8f0;
-      box-shadow:0 24px 60px rgba(2,6,23,.25);
+      width:min(900px,100%); max-height:85vh; overflow:auto; background:#fff;
+      border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 24px 60px rgba(2,6,23,.25);
     }
-
     .detail-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:16px 18px;
-      border-bottom:1px solid #e2e8f0;
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      padding:16px 18px; border-bottom:1px solid #e2e8f0;
       background:linear-gradient(180deg,#ffffff 0%,#fff7f7 100%);
-      position:sticky;
-      top:0;
-      z-index:5;
+      position:sticky; top:0; z-index:5;
     }
-
     .detail-head h3{ margin:0; font-size:20px; font-weight:1000; color:#0f172a; }
-
     .detail-close{
-      border:none;
-      background:#fee2e2;
-      color:#991b1b;
-      width:40px;
-      height:40px;
-      border-radius:12px;
-      font-size:20px;
-      font-weight:1000;
-      cursor:pointer;
-      font-family:inherit;
+      border:none; background:#fee2e2; color:#991b1b; width:40px; height:40px;
+      border-radius:12px; font-size:20px; font-weight:1000; cursor:pointer; font-family:inherit;
     }
-
     .detail-body{ padding:18px; }
-    .detail-grid{
-      display:grid;
-      grid-template-columns:160px 1fr;
-      gap:10px 14px;
-      margin-bottom:16px;
-    }
+    .detail-grid{ display:grid; grid-template-columns:160px 1fr; gap:10px 14px; margin-bottom:16px; }
     .detail-label{ color:#475569; font-weight:900; }
     .detail-value{ color:#0f172a; font-weight:800; word-break:break-word; }
-
     .detail-message-box{
-      margin-top:8px;
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
-      border-radius:16px;
-      padding:14px;
-      color:#0f172a;
-      white-space:pre-wrap;
-      word-break:break-word;
-      line-height:1.65;
-      font-weight:700;
+      margin-top:8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px;
+      padding:14px; color:#0f172a; white-space:pre-wrap; word-break:break-word; line-height:1.65; font-weight:700;
     }
-
     .detail-reason-box{
-      margin-top:8px;
-      background:#fff7f7;
-      border:1px solid #fecaca;
-      border-radius:16px;
-      padding:14px;
-      color:#991b1b;
-      white-space:pre-wrap;
-      word-break:break-word;
-      line-height:1.65;
-      font-weight:800;
+      margin-top:8px; background:#fff7f7; border:1px solid #fecaca; border-radius:16px;
+      padding:14px; color:#991b1b; white-space:pre-wrap; word-break:break-word; line-height:1.65; font-weight:800;
     }
-
-    .detail-file-box{
-      margin-top:8px;
-      background:#ffffff;
-      border:1px solid #dbeafe;
-      border-radius:16px;
-      padding:14px;
-    }
-
+    .detail-file-box{ margin-top:8px; background:#ffffff; border:1px solid #dbeafe; border-radius:16px; padding:14px; }
     .detail-file-row{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
+      display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
     }
-
     .detail-file-meta{ color:#334155; font-weight:800; font-size:14px; }
-
-    @media (max-width:1100px){
-      .stats-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
-    }
-
+    @media (max-width:1100px){ .stats-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media (max-width:980px){
       .sidebar{ position:relative; width:100%; height:auto; border-right:0; box-shadow:none; }
       .app{ display:block; }
       .content{ padding:14px; }
-      table{ min-width:980px; }
+      table{ min-width:860px; }
     }
-
     @media (max-width:700px){
       .stats-grid{ grid-template-columns:1fr; }
       .detail-grid{ grid-template-columns:1fr; gap:6px; }
@@ -484,9 +219,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="logo">ไม</div>
-      <div>
-        <div class="title">รายการไม่อนุมัติ</div>
-      </div>
+      <div><div class="title">รายการไม่อนุมัติ</div></div>
     </div>
 
     <div class="menu-title">มุมมอง</div>
@@ -503,34 +236,12 @@
       <span class="label">❌ ไม่อนุมัติแล้ว</span>
       <span class="count" id="count-rejected-left">0</span>
     </a>
-
-    <div class="menu-title">เลือกแผนก</div>
-
-    <button id="dept-all" class="side-link dept-link active" onclick="setDepartment('all')">
-      <span class="label">📋 ทั้งหมด</span>
-      <span class="count" id="count-all-left">0</span>
-    </button>
-
-    <button id="dept-health" class="side-link dept-link" onclick="setDepartment('สาธารณสุข')">
-      <span class="label">🏥 สาธารณสุข</span>
-      <span class="count" id="count-health-left">0</span>
-    </button>
-
-    <button id="dept-engineer" class="side-link dept-link" onclick="setDepartment('กองช่าง')">
-      <span class="label">🏗️ กองช่าง</span>
-      <span class="count" id="count-engineer-left">0</span>
-    </button>
-
-    <button id="dept-electric" class="side-link dept-link" onclick="setDepartment('ไฟฟ้า')">
-      <span class="label">⚡ ไฟฟ้า</span>
-      <span class="count" id="count-electric-left">0</span>
-    </button>
   </aside>
 
   <main class="main">
     <header class="topbar">
       <h1>❌ รายการคำร้องที่ไม่อนุมัติ</h1>
-      <div class="sub">กรองด้วยแผนกจากเมนูด้านซ้าย และเลือกดูข้อมูลวันนี้หรือทั้งหมด</div>
+      <div class="sub">ค้นหาข้อมูล และเลือกดูข้อมูลวันนี้หรือทั้งหมด</div>
     </header>
 
     <div class="content">
@@ -548,34 +259,21 @@
         </div>
 
         <div class="stat-box">
-          <div class="label">สาธารณสุข</div>
-          <div class="value" id="statHealth">0</div>
-          <div class="sub">รายการไม่อนุมัติ</div>
-        </div>
-
-        <div class="stat-box">
-          <div class="label">กองช่าง / ไฟฟ้า</div>
-          <div class="value" id="statOther">0</div>
-          <div class="sub">รวม 2 แผนก</div>
+          <div class="label">ค้นหาตามชื่อ/เบอร์</div>
+          <div class="value" id="statFiltered">0</div>
+          <div class="sub">ตามตัวกรองที่เลือก</div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom:12px;">
         <div class="card-h">
           <h2>ค้นหา</h2>
-          <div class="tiny">ค้นหาชื่อ/เบอร์ และกรองร่วมกับแผนก + วันนี้/ทั้งหมด</div>
+          <div class="tiny">ค้นหาชื่อ/เบอร์ และเลือกดูข้อมูลวันนี้หรือทั้งหมด</div>
         </div>
 
         <div class="card-b">
           <div class="search-row">
-            <input
-              type="text"
-              id="searchInput"
-              class="search"
-              placeholder="🔎 ค้นหาชื่อหรือเบอร์..."
-              oninput="filterData()"
-            />
-
+            <input type="text" id="searchInput" class="search" placeholder="🔎 ค้นหาชื่อหรือเบอร์..." oninput="filterData()" />
             <div class="filter-chips">
               <button class="chip active" id="chip-all" onclick="setViewMode('all')">ทั้งหมด</button>
               <button class="chip" id="chip-today" onclick="setViewMode('today')">วันนี้</button>
@@ -598,7 +296,6 @@
                 <th>เบอร์</th>
                 <th>รายละเอียด</th>
                 <th>สถานะ</th>
-                <th>แผนก</th>
                 <th>เหตุผลไม่อนุมัติ</th>
                 <th>วันที่เวลา</th>
               </tr>
@@ -626,23 +323,11 @@
 
     <div class="detail-body">
       <div class="detail-grid">
-        <div class="detail-label">ชื่อ</div>
-        <div class="detail-value" id="detailName">-</div>
-
-        <div class="detail-label">เบอร์โทร</div>
-        <div class="detail-value" id="detailPhone">-</div>
-
-        <div class="detail-label">แผนก</div>
-        <div class="detail-value" id="detailDepartment">-</div>
-
-        <div class="detail-label">สถานะ</div>
-        <div class="detail-value" id="detailStatus">-</div>
-
-        <div class="detail-label">วันที่-เวลา</div>
-        <div class="detail-value" id="detailDate">-</div>
-
-        <div class="detail-label">แผนที่</div>
-        <div class="detail-value" id="detailMap">-</div>
+        <div class="detail-label">ชื่อ</div><div class="detail-value" id="detailName">-</div>
+        <div class="detail-label">เบอร์โทร</div><div class="detail-value" id="detailPhone">-</div>
+        <div class="detail-label">สถานะ</div><div class="detail-value" id="detailStatus">-</div>
+        <div class="detail-label">วันที่-เวลา</div><div class="detail-value" id="detailDate">-</div>
+        <div class="detail-label">แผนที่</div><div class="detail-value" id="detailMap">-</div>
       </div>
 
       <div class="detail-label" style="margin-bottom:8px;">ข้อความคำร้อง</div>
@@ -656,9 +341,7 @@
       <div style="height:14px;"></div>
 
       <div class="detail-label" style="margin-bottom:8px;">ไฟล์แนบ</div>
-      <div id="detailFilesBox">
-        <div class="detail-message-box">ไม่มีไฟล์แนบ</div>
-      </div>
+      <div id="detailFilesBox"><div class="detail-message-box">ไม่มีไฟล์แนบ</div></div>
     </div>
   </div>
 </div>
@@ -668,28 +351,19 @@
   let filteredData = [];
   let currentPage = 1;
   const pageSize = 20;
-  let ACTIVE_DEPARTMENT = 'all';
   let VIEW_MODE = 'all';
 
-  function safeText(value) {
-    return String(value ?? '').trim();
-  }
+  function safeText(value) { return String(value ?? '').trim(); }
 
   function parsePhoto(val) {
     if (!val) return [];
-    try {
-      return Array.isArray(val) ? val : JSON.parse(val);
-    } catch {
-      return [];
-    }
+    try { return Array.isArray(val) ? val : JSON.parse(val); } catch { return []; }
   }
 
   function normalizeDateString(dateString) {
     if (!dateString) return '';
     let s = String(dateString).trim().replace(' ', 'T');
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) {
-      s += '+07:00';
-    }
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) s += '+07:00';
     return s;
   }
 
@@ -700,20 +374,14 @@
     if (isNaN(d)) return String(dateString);
     return d.toLocaleString('th-TH', {
       timeZone: 'Asia/Bangkok',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
     });
   }
 
   function getBangkokDateKey(dateInput = new Date()) {
     const d = dateInput instanceof Date ? dateInput : new Date(normalizeDateString(dateInput));
     if (isNaN(d)) return '';
-
     const y = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric' }).format(d);
     const m = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', month: '2-digit' }).format(d);
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', day: '2-digit' }).format(d);
@@ -727,52 +395,25 @@
 
   function updateStats() {
     const rows = Array.isArray(allData) ? allData : [];
-
     const total = rows.length;
     const today = rows.filter(row => isTodayBangkok(row.created_at)).length;
-    const health = rows.filter(row => safeText(row.department) === 'สาธารณสุข').length;
-    const engineer = rows.filter(row => safeText(row.department) === 'กองช่าง').length;
-    const electric = rows.filter(row => safeText(row.department) === 'ไฟฟ้า').length;
 
     document.getElementById('statAll').textContent = total;
     document.getElementById('statToday').textContent = today;
-    document.getElementById('statHealth').textContent = health;
-    document.getElementById('statOther').textContent = engineer + electric;
-
+    document.getElementById('statFiltered').textContent = filteredData.length;
     document.getElementById('count-rejected-left').textContent = total;
-    document.getElementById('count-all-left').textContent = total;
-    document.getElementById('count-health-left').textContent = health;
-    document.getElementById('count-engineer-left').textContent = engineer;
-    document.getElementById('count-electric-left').textContent = electric;
-  }
-
-  function setDepartment(department) {
-    ACTIVE_DEPARTMENT = department;
-    currentPage = 1;
-
-    document.querySelectorAll('.dept-link').forEach(el => el.classList.remove('active'));
-
-    if (department === 'สาธารณสุข') document.getElementById('dept-health').classList.add('active');
-    else if (department === 'กองช่าง') document.getElementById('dept-engineer').classList.add('active');
-    else if (department === 'ไฟฟ้า') document.getElementById('dept-electric').classList.add('active');
-    else document.getElementById('dept-all').classList.add('active');
-
-    filterData();
   }
 
   function setViewMode(mode) {
     VIEW_MODE = mode;
     currentPage = 1;
-
     document.getElementById('chip-all').classList.toggle('active', mode === 'all');
     document.getElementById('chip-today').classList.toggle('active', mode === 'today');
-
     filterData();
   }
 
   function getKeywordFilteredRows(rows) {
     const keyword = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-
     return rows.filter(row =>
       (!keyword) ||
       safeText(row.name).toLowerCase().includes(keyword) ||
@@ -782,24 +423,16 @@
 
   function filterData() {
     let rows = Array.isArray(allData) ? [...allData] : [];
-
-    if (ACTIVE_DEPARTMENT !== 'all') {
-      rows = rows.filter(row => safeText(row.department) === ACTIVE_DEPARTMENT);
-    }
-
-    if (VIEW_MODE === 'today') {
-      rows = rows.filter(row => isTodayBangkok(row.created_at));
-    }
-
+    if (VIEW_MODE === 'today') rows = rows.filter(row => isTodayBangkok(row.created_at));
     filteredData = getKeywordFilteredRows(rows);
-    renderCurrentPage();
     updateSummary();
+    renderCurrentPage();
+    updateStats();
   }
 
   function updateSummary() {
-    const depLabel = ACTIVE_DEPARTMENT === 'all' ? 'ทุกแผนก' : ACTIVE_DEPARTMENT;
     const modeLabel = VIEW_MODE === 'today' ? 'วันนี้' : 'ทั้งหมด';
-    document.getElementById('resultSummary').textContent = `แสดง ${filteredData.length} รายการ • ${depLabel} • ${modeLabel}`;
+    document.getElementById('resultSummary').textContent = `แสดง ${filteredData.length} รายการ • ${modeLabel}`;
   }
 
   function renderDetailFileButtons(files = [], emptyText = 'ไม่มีไฟล์แนบ') {
@@ -838,7 +471,6 @@
 
     document.getElementById('detailName').textContent = safeText(row.name) || '-';
     document.getElementById('detailPhone').textContent = safeText(row.phone) || '-';
-    document.getElementById('detailDepartment').textContent = safeText(row.department) || 'ยังไม่ระบุ';
     document.getElementById('detailStatus').textContent = safeText(row.status) || 'ไม่อนุมัติ';
     document.getElementById('detailDate').textContent = formatDate(row.created_at);
     document.getElementById('detailMessage').textContent = safeText(row.message) || '-';
@@ -863,16 +495,14 @@
     if (!rows.length) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" style="padding:22px; color:#64748b; font-weight:900;">ไม่มีข้อมูลคำร้องที่ไม่อนุมัติ</td>
+          <td colspan="6" style="padding:22px; color:#64748b; font-weight:900;">ไม่มีข้อมูลคำร้องที่ไม่อนุมัติ</td>
         </tr>
       `;
       return;
     }
 
     rows.forEach(row => {
-      const departmentText = safeText(row.department) || 'ยังไม่ระบุ';
       const reasonText = safeText(row.reason || row.reject_reason) || '-';
-
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><div style="font-weight:900;">${safeText(row.name || '-')}</div></td>
@@ -881,10 +511,7 @@
           <button class="btn link-btn" onclick="openDetailById(${row.id})">📄 ดูรายละเอียด</button>
           <div class="small-muted">${safeText(row.message).slice(0, 48) || '-'}</div>
         </td>
-        <td>
-          <span class="status-badge">ไม่อนุมัติ</span>
-        </td>
-        <td>${departmentText}</td>
+        <td><span class="status-badge">ไม่อนุมัติ</span></td>
         <td><span class="reason-pill">${reasonText}</span></td>
         <td>${formatDate(row.created_at)}</td>
       `;
@@ -924,10 +551,7 @@
     });
 
     const win = window.open('', '_blank', 'width=1200,height=800');
-    if (!win) {
-      alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน');
-      return;
-    }
+    if (!win) { alert('เบราว์เซอร์บล็อก popup กรุณาอนุญาต popup ก่อน'); return; }
 
     const itemsHtml = safeImages.map((img, index) => {
       const rawUrl = typeof img === 'string' ? img : (img?.url || '');
@@ -1003,22 +627,16 @@
 
     const data = await res.json();
     allData = Array.isArray(data) ? data : [];
+    filteredData = [...allData];
+    updateSummary();
+    renderCurrentPage();
     updateStats();
-    filterData();
   }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeDetailModal();
-    }
-  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetailModal(); });
 
   window.addEventListener('load', async () => {
-    try {
-      await loadData();
-    } catch (e) {
-      console.error('rejected load error:', e);
-    }
+    try { await loadData(); } catch (e) { console.error('rejected load error:', e); }
   });
 </script>
 </body>
