@@ -2525,5 +2525,79 @@
     
   </script>
 
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.error('Service Worker register failed:', err);
+        });
+      });
+    }
+
+    let deferredInstallPrompt = null;
+
+    function createDesktopInstallButton() {
+      if (document.getElementById('desktopInstallBtn')) return document.getElementById('desktopInstallBtn');
+
+      const btn = document.createElement('button');
+      btn.id = 'desktopInstallBtn';
+      btn.type = 'button';
+      btn.textContent = 'ติดตั้งหน้า Desktop';
+      btn.style.position = 'fixed';
+      btn.style.right = '18px';
+      btn.style.bottom = '18px';
+      btn.style.zIndex = '9999';
+      btn.style.border = '0';
+      btn.style.borderRadius = '999px';
+      btn.style.padding = '12px 16px';
+      btn.style.fontSize = '15px';
+      btn.style.fontWeight = '700';
+      btn.style.cursor = 'pointer';
+      btn.style.boxShadow = '0 10px 24px rgba(2,6,23,.20)';
+      btn.style.background = 'linear-gradient(135deg, #0b2a4a, #155263)';
+      btn.style.color = '#fff';
+      btn.style.display = 'none';
+
+      btn.addEventListener('click', async () => {
+        try {
+          if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            btn.style.display = 'none';
+            return;
+          }
+
+          alert('ถ้าไม่เห็นปุ่มติดตั้งอัตโนมัติ ให้กดเมนู ⋮ ของเบราว์เซอร์ แล้วเลือก Install app หรือ Create shortcut');
+        } catch (err) {
+          console.error('Install prompt error:', err);
+        }
+      });
+
+      document.body.appendChild(btn);
+      return btn;
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btn = createDesktopInstallButton();
+      btn.style.display = 'inline-flex';
+      btn.style.alignItems = 'center';
+      btn.style.justifyContent = 'center';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      const btn = document.getElementById('desktopInstallBtn');
+      if (btn) btn.style.display = 'none';
+    });
+
+    window.addEventListener('load', () => {
+      createDesktopInstallButton();
+    });
+  </script>
+
 </body>
 </html>

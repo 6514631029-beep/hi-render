@@ -1,12 +1,16 @@
 {
   "name": "ระบบจัดการคำร้อง – กองช่าง",
   "short_name": "Admin-Engineer",
-  "start_url": "/admin-engineer",
+  "start_url": "/admin-engineer-login",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#15563b",
+  "theme_color": "#155263",
   "icons": [
-    
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
     {
       "src": "/icons/icon-engineer-512.png",
       "sizes": "512x512",
