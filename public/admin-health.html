@@ -1273,6 +1273,31 @@
       return String(row?.original_id || row?.id || '');
     }
 
+    function normalizeStatus(status) {
+      return String(status || '').trim();
+    }
+
+    function isCompletedStatus(status) {
+      return normalizeStatus(status) === 'เสร็จสิ้น';
+    }
+
+    function isPendingStatus(status) {
+      return normalizeStatus(status) === 'รอดำเนินการ';
+    }
+
+    function isInProgressStatus(status) {
+      return normalizeStatus(status) === 'กำลังดำเนินการ';
+    }
+
+    function isUnsetStatus(status) {
+      const s = normalizeStatus(status);
+      return !s;
+    }
+
+    function isOpenWorkStatus(status) {
+      return isUnsetStatus(status) || isPendingStatus(status) || isInProgressStatus(status);
+    }
+
     function markRowsAsNew(rows = []) {
       const seenKey = getSeenKey();
       const activeNewKey = getActiveNewKey();
@@ -1370,11 +1395,23 @@
         if (ageDays >= 3) return { level: 'urgent', ageDays, isToday };
         if (ageDays >= 1) return { level: 'stale', ageDays, isToday };
         return { level: 'normal', ageDays, isToday };
-      } else {
+      }
+
+      const status = normalizeStatus(row?.status);
+
+      if (isPendingStatus(status)) {
+        if (ageDays >= 14) return { level: 'urgent', ageDays, isToday };
+        if (ageDays >= 7) return { level: 'stale', ageDays, isToday };
+        return { level: 'normal', ageDays, isToday };
+      }
+
+      if (isInProgressStatus(status)) {
         if (ageDays >= 7) return { level: 'urgent', ageDays, isToday };
         if (ageDays >= 3) return { level: 'stale', ageDays, isToday };
         return { level: 'normal', ageDays, isToday };
       }
+
+      return { level: 'normal', ageDays, isToday };
     }
 
     function getAgingBadgeHtml(row) {
@@ -1430,6 +1467,8 @@
 
       const staleRows = allHealthData.filter(row => getAgingInfo(row).level === 'stale');
       const urgentRows = allHealthData.filter(row => getAgingInfo(row).level === 'urgent');
+      const pendingOverRows = allHealthData.filter(row => isPendingStatus(row.status) && getAgeDays(row.created_at) >= 7);
+      const inprogressOverRows = allHealthData.filter(row => isInProgressStatus(row.status) && getAgeDays(row.created_at) >= 3);
 
       const todayLabel = document.getElementById('statTodayLabel');
       const todayValue = document.getElementById('statTodayValue');
@@ -1455,13 +1494,23 @@
       if (newValue) newValue.textContent = String(VIEW_MODE === 'inbox' ? newCount : todayCount);
       if (newSub) newSub.textContent = VIEW_MODE === 'inbox' ? 'ยังไม่เคยเปิดดู' : 'ในโหมดงานของแผนก';
 
-      if (staleLabel) staleLabel.textContent = VIEW_MODE === 'inbox' ? 'Inbox ค้าง' : 'งานค้าง';
-      if (staleValue) staleValue.textContent = String(staleRows.length);
-      if (staleSub) staleSub.textContent = VIEW_MODE === 'inbox' ? 'เกิน 1 วัน' : 'เกิน 3 วัน';
+      if (VIEW_MODE === 'inbox') {
+        if (staleLabel) staleLabel.textContent = 'Inbox ค้าง';
+        if (staleValue) staleValue.textContent = String(staleRows.length);
+        if (staleSub) staleSub.textContent = 'เกิน 1 วัน';
 
-      if (urgentLabel) urgentLabel.textContent = 'งานเร่งด่วน';
-      if (urgentValue) urgentValue.textContent = String(urgentRows.length);
-      if (urgentSub) urgentSub.textContent = VIEW_MODE === 'inbox' ? 'Inbox เกิน 3 วัน' : 'งานเกิน 7 วัน';
+        if (urgentLabel) urgentLabel.textContent = 'งานเร่งด่วน';
+        if (urgentValue) urgentValue.textContent = String(urgentRows.length);
+        if (urgentSub) urgentSub.textContent = 'Inbox เกิน 3 วัน';
+      } else {
+        if (staleLabel) staleLabel.textContent = 'รอดำเนินการค้าง';
+        if (staleValue) staleValue.textContent = String(pendingOverRows.length);
+        if (staleSub) staleSub.textContent = 'เกิน 7 วัน';
+
+        if (urgentLabel) urgentLabel.textContent = 'กำลังดำเนินการค้าง';
+        if (urgentValue) urgentValue.textContent = String(inprogressOverRows.length);
+        if (urgentSub) urgentSub.textContent = 'เกิน 3 วัน';
+      }
 
       updateAlertBanner(staleRows.length, urgentRows.length);
     }
@@ -1472,23 +1521,40 @@
       const desc = document.getElementById('alertBannerDesc');
       if (!banner || !title || !desc) return;
 
-      if (urgentCount > 0) {
-        banner.style.display = 'block';
-        banner.classList.remove('warn');
-        title.textContent = '🚨 พบงานเร่งด่วน';
-        desc.textContent = VIEW_MODE === 'inbox'
-          ? `มี Inbox ค้างเกิน 3 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 1 วันอีก ${staleCount} รายการ`
-          : `มีงานของแผนกค้างเกิน 7 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 3 วันอีก ${staleCount} รายการ`;
+      if (VIEW_MODE === 'inbox') {
+        if (urgentCount > 0) {
+          banner.style.display = 'block';
+          banner.classList.remove('warn');
+          title.textContent = '🚨 พบงานเร่งด่วน';
+          desc.textContent = `มี Inbox ค้างเกิน 3 วัน จำนวน ${urgentCount} รายการ และค้างเกิน 1 วันอีก ${staleCount} รายการ`;
+          return;
+        }
+
+        if (staleCount > 0) {
+          banner.style.display = 'block';
+          banner.classList.add('warn');
+          title.textContent = '⚠️ พบงานค้าง';
+          desc.textContent = `มี Inbox ค้างเกิน 1 วัน จำนวน ${staleCount} รายการ`;
+          return;
+        }
+
+        banner.style.display = 'none';
+        title.textContent = '';
+        desc.textContent = '';
         return;
       }
 
-      if (staleCount > 0) {
+      const pendingOver = allHealthData.filter(row => isPendingStatus(row.status) && getAgeDays(row.created_at) >= 7).length;
+      const inprogressOver = allHealthData.filter(row => isInProgressStatus(row.status) && getAgeDays(row.created_at) >= 3).length;
+
+      if (pendingOver > 0 || inprogressOver > 0) {
         banner.style.display = 'block';
         banner.classList.add('warn');
-        title.textContent = '⚠️ พบงานค้าง';
-        desc.textContent = VIEW_MODE === 'inbox'
-          ? `มี Inbox ค้างเกิน 1 วัน จำนวน ${staleCount} รายการ`
-          : `มีงานของแผนกค้างเกิน 3 วัน จำนวน ${staleCount} รายการ`;
+        title.textContent = '⚠️ แจ้งเตือนงานค้าง';
+        const parts = [];
+        if (pendingOver > 0) parts.push(`รอดำเนินการค้างเกิน 7 วัน ${pendingOver} รายการ`);
+        if (inprogressOver > 0) parts.push(`กำลังดำเนินการค้างเกิน 3 วัน ${inprogressOver} รายการ`);
+        desc.textContent = parts.join(' • ');
         return;
       }
 
@@ -1524,7 +1590,9 @@
         allHealthData = markRowsAsNew(allHealthData);
         checkAndPlayNewAlert();
       } else {
-        allHealthData = allHealthData.map(row => ({ ...row, __isNew: false }));
+        allHealthData = allHealthData
+          .filter(row => isOpenWorkStatus(row.status))
+          .map(row => ({ ...row, __isNew: false }));
       }
 
       applyCurrentFilters();
@@ -1735,7 +1803,11 @@
       const tbody = document.getElementById('data-body');
       tbody.innerHTML = '';
 
-      data.forEach(row => {
+      const safeData = VIEW_MODE === 'work'
+        ? (Array.isArray(data) ? data.filter(row => isOpenWorkStatus(row.status)) : [])
+        : (Array.isArray(data) ? data : []);
+
+      safeData.forEach(row => {
         let files = [];
         try {
           if (row.photo && typeof row.photo === 'string') files = JSON.parse(row.photo);
@@ -1852,7 +1924,7 @@
         }
       });
 
-      if (!data.length) {
+      if (!safeData.length) {
         const emptyText = FILTER_MODE === 'today'
           ? 'ไม่มีข้อมูลคำร้องของวันนี้'
           : FILTER_MODE === 'stale'
@@ -2292,8 +2364,11 @@
       });
 
       if (res.ok) {
+        allHealthData = allHealthData
+          .map(row => String(normalizeRowId(row)) === String(id) ? { ...row, status } : row)
+          .filter(row => VIEW_MODE === 'work' ? isOpenWorkStatus(row.status) : true);
         alert('✅ อัปเดตสถานะเรียบร้อย');
-        await safeLoadData();
+        applyCurrentFilters();
         await updateCounters();
       } else {
         const txt = await res.text().catch(()=> '');
@@ -2347,8 +2422,9 @@
         if (!res.ok || data.success === false) {
           alert(data.message || '❌ อัปโหลดไม่สำเร็จ');
         } else {
+          allHealthData = allHealthData.filter(row => String(normalizeRowId(row)) !== String(pendingCompleteId));
           alert(data.message || '✅ บันทึกสำเร็จ');
-          await safeLoadData();
+          applyCurrentFilters();
           await updateCounters();
         }
       } catch (err) {
@@ -2394,7 +2470,7 @@
         ]);
 
         const inboxCount = Array.isArray(inboxData) ? inboxData.length : 0;
-        const workCount  = Array.isArray(allData) ? allData.length : 0;
+        const workCount  = Array.isArray(allData) ? allData.filter(row => isOpenWorkStatus(row.status)).length : 0;
 
         const pending    = Array.isArray(pAll) ? pAll.length : 0;
         const inProgress = Array.isArray(iAll) ? iAll.length : 0;
