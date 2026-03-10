@@ -311,6 +311,36 @@ async function linkRichMenuToUser(lineUserId, richMenuId) {
   console.log('[LINE richmenu link success]', { lineUserId, richMenuId });
   return true;
 }
+async function hasLineLink(lineUserId) {
+  if (!lineUserId) return false;
+
+  const [rows] = await db.promise().query(
+    'SELECT id FROM line_links WHERE line_user_id = ? LIMIT 1',
+    [lineUserId]
+  );
+
+  return rows.length > 0;
+}
+async function syncRichMenuForUser(lineUserId) {
+  if (!lineUserId) return false;
+
+  const linked = await hasLineLink(lineUserId);
+  const richMenuId = linked
+    ? process.env.LINE_RICHMENU_LINKED_ID
+    : process.env.LINE_RICHMENU_GUEST_ID;
+
+  if (!richMenuId) {
+    console.log('[LINE richmenu sync skip]', {
+      lineUserId,
+      linked,
+      hasGuest: !!process.env.LINE_RICHMENU_GUEST_ID,
+      hasLinked: !!process.env.LINE_RICHMENU_LINKED_ID
+    });
+    return false;
+  }
+
+  return linkRichMenuToUser(lineUserId, richMenuId);
+}
 
 function toJpgCloudinary(url = '') {
   // แปลง Cloudinary URL ให้เป็น .jpg (แบบง่ายสุด)
@@ -464,12 +494,22 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
     const events = payload.events || [];
 
     for (const ev of events) {
+      const userId = ev.source?.userId;
+
+      if (ev.type === 'follow' && userId) {
+        try {
+          await syncRichMenuForUser(userId);
+        } catch (e) {
+          console.error('follow rich menu error:', e);
+        }
+        continue;
+      }
+
       if (ev.type !== 'message') continue;
       if (ev.message?.type !== 'text') continue;
 
       const text = (ev.message.text || '').trim();
       const replyToken = ev.replyToken;
-      const userId = ev.source?.userId;
 
       // =========================
       // 1) BIND / ผูก LINE
@@ -638,6 +678,12 @@ app.post('/line/webhook', express.raw({ type: 'application/json' }), async (req,
         const rows = await getLatestRequestsByLineUserId(userId, limit, offset);
 
         if (!rows.length) {
+          try {
+            await syncRichMenuForUser(userId);
+          } catch (e) {
+            console.error('sync guest rich menu on more error:', e);
+          }
+
           await replyLineMessage(replyToken, '📭 ไม่พบคำร้องเพิ่มเติมแล้ว');
           continue;
         }
@@ -1278,6 +1324,22 @@ app.get('/line/bind-info', async (req, res) => {
   } catch (e) {
     console.error('bind-info error:', e);
     return res.status(500).json({ ok:false });
+  }
+});
+app.post('/api/line/reset-richmenu', async (req, res) => {
+  try {
+    const { lineUserId } = req.body || {};
+
+    if (!lineUserId) {
+      return res.status(400).json({ ok: false, message: 'missing lineUserId' });
+    }
+
+    await linkRichMenuToUser(lineUserId, process.env.LINE_RICHMENU_GUEST_ID);
+
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('reset rich menu error:', e);
+    return res.status(500).json({ ok: false });
   }
 });
 app.post('/api/line/bind-phone', async (req, res) => {
