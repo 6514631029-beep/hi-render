@@ -2559,65 +2559,89 @@ app.get('/track.html', (req, res) => {
 // ✅ endpoint ใหม่สำหรับดึงข้อมูล "กำลังดำเนินการ"
 // ดึงจากตาราง inprogress (แนะนำ)
 
-app.get('/data-in-progress', (req, res) => {
-  const department = req.query.department;
-
-  let sql = 'SELECT * FROM inprogress';
-  const params = [];
-
-  if (department) {
-    sql += ' WHERE department = ?';
-    params.push(department);
-  }
-
-  sql += ' ORDER BY created_at DESC';
-
-  db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
-});
-
-// ดึงข้อมูลจาก pending
 app.get('/data-pending', (req, res) => {
-  const department = req.query.department;
+  const { department } = req.query;
 
-  let sql = 'SELECT * FROM pending';
+  let sql = `
+    SELECT *
+    FROM requests
+    WHERE status = 'รอดำเนินการ'
+      AND dept_accept = 1
+  `;
   const params = [];
 
   if (department) {
-    sql += ' WHERE department = ?';
+    sql += ` AND department = ?`;
     params.push(department);
   }
 
-  sql += ' ORDER BY created_at DESC';
+  sql += ` ORDER BY id DESC`;
 
   db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      console.error('data-pending error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json(results);
   });
 });
 
+app.get('/data-in-progress', (req, res) => {
+  const { department } = req.query;
 
-// Completed
+  let sql = `
+    SELECT *
+    FROM requests
+    WHERE status = 'กำลังดำเนินการ'
+      AND dept_accept = 1
+  `;
+  const params = [];
+
+  if (department) {
+    sql += ` AND department = ?`;
+    params.push(department);
+  }
+
+  sql += ` ORDER BY id DESC`;
+
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error('data-in-progress error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
 app.get('/data-completed', (req, res) => {
-  const department = req.query.department;
+  const { department } = req.query;
 
-  let sql = 'SELECT * FROM completed';
+  let sql = `
+    SELECT *
+    FROM requests
+    WHERE status = 'เสร็จสิ้น'
+      AND dept_accept = 1
+  `;
   const params = [];
 
   if (department) {
-    sql += ' WHERE department = ?';
+    sql += ` AND department = ?`;
     params.push(department);
   }
 
-  sql += ' ORDER BY created_at DESC';
+  sql += ` ORDER BY id DESC`;
 
   db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      console.error('data-completed error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json(results);
   });
 });
+
+
+
 app.get('/export-health-excel', async (req, res) => {
   try {
     const sql = `
