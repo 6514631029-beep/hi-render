@@ -2404,7 +2404,13 @@ app.get('/data-approved-all', (req, res) => {
       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
       DATE_FORMAT(completed_at, '%Y-%m-%d %H:%i:%s') AS completed_at
     FROM requests
-    WHERE approved = 1
+    WHERE department IN ('สาธารณสุข', 'กองช่าง', 'ไฟฟ้า')
+      AND (
+        approved = 1
+        OR dept_accept = 1
+        OR status IN ('รอแผนกรับเรื่อง', 'รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น')
+      )
+      AND status NOT IN ('ไม่อนุมัติ', 'รอแอดมินหลัก')
     ORDER BY id DESC
   `;
 
@@ -2416,6 +2422,8 @@ app.get('/data-approved-all', (req, res) => {
     res.json(results);
   });
 });
+
+
 app.get('/data-health-inbox', (req, res) => {
   db.query(
     `SELECT * FROM requests
