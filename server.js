@@ -3667,41 +3667,126 @@ async function exportElectricBucketExcelFile(res, title, tableName) {
   }
 }
 
+
+function bangkokDateOnly(input = new Date()) {
+  const d = new Date(input);
+  const y = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric' }).format(d);
+  const m = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', month: '2-digit' }).format(d);
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', day: '2-digit' }).format(d);
+  return `${y}-${m}-${day}`;
+}
+
+function buildAdminExcelFilters(req, opts = {}) {
+  const { q = '', filter = 'all', status = 'all', departmentType = 'general' } = opts;
+  const safeQ = String(q || '').trim().toLowerCase();
+  const safeFilter = ['all', 'today', 'stale'].includes(String(filter || '').trim())
+    ? String(filter || '').trim()
+    : 'all';
+
+  const clauses = ['AND dept_accept = 1'];
+  const params = [];
+
+  if (status === 'open') {
+    clauses.push(`AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`);
+  } else if (status === 'pending') {
+    clauses.push(`AND status = 'รอดำเนินการ'`);
+  } else if (status === 'inprogress') {
+    clauses.push(`AND status = 'กำลังดำเนินการ'`);
+  } else if (status === 'completed') {
+    clauses.push(`AND status = 'เสร็จสิ้น'`);
+  }
+
+  if (safeQ) {
+    clauses.push(`AND (LOWER(COALESCE(name, '')) LIKE ? OR LOWER(COALESCE(phone, '')) LIKE ?)`);
+    params.push(`%${safeQ}%`, `%${safeQ}%`);
+  }
+
+  if (safeFilter === 'today') {
+    clauses.push(`AND DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?`);
+    params.push(bangkokDateOnly(new Date()));
+  } else if (safeFilter === 'stale') {
+    if (status === 'pending') {
+      clauses.push(`AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= ?`);
+      params.push(7);
+    } else if (status === 'inprogress') {
+      clauses.push(`AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= ?`);
+      params.push(3);
+    } else if (status === 'open') {
+      if (departmentType === 'health') {
+        clauses.push(`AND ((status = 'รอดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 7) OR (status = 'กำลังดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 3))`);
+      } else {
+        clauses.push(`AND ((status = 'รอดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 7) OR (status = 'กำลังดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 3))`);
+      }
+    }
+  }
+
+  return { extraWhere: clauses.join('\n      '), params };
+}
+
 // ======================================
 // Export Routes - Electric
 // ======================================
 app.get('/export-electric-excel-all', async (req, res) => {
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'open',
+    departmentType: 'electric'
+  });
+
   exportElectricExcelFile(
     res,
     'รายงานคำร้อง-ไฟฟ้า-ทั้งหมด',
-    `WHERE department = ?
-       AND dept_accept = 1
-       AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`,
-    ['ไฟฟ้า']
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-electric-excel-pending', async (req, res) => {
-  exportElectricBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'pending',
+    departmentType: 'electric'
+  });
+
+  exportElectricExcelFile(
     res,
     'รายงานคำร้อง-ไฟฟ้า-รอดำเนินการ',
-    'pending'
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-electric-excel-inprogress', async (req, res) => {
-  exportElectricBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'inprogress',
+    departmentType: 'electric'
+  });
+
+  exportElectricExcelFile(
     res,
     'รายงานคำร้อง-ไฟฟ้า-กำลังดำเนินการ',
-    'inprogress'
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-electric-excel-completed', async (req, res) => {
-  exportElectricBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'completed',
+    departmentType: 'electric'
+  });
+
+  exportElectricExcelFile(
     res,
     'รายงานคำร้อง-ไฟฟ้า-เสร็จสิ้น',
-    'completed'
+    extraWhere,
+    params
   );
 });
 
@@ -4132,37 +4217,66 @@ app.get('/export-engineer-excel', async (req, res) => {
 });
 
 app.get('/export-engineer-excel-all', async (req, res) => {
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'open',
+    departmentType: 'engineer'
+  });
+
   exportEngineerExcelFile(
     res,
     'รายงานคำร้อง-กองช่าง-ทั้งหมด',
-    `WHERE department = ?
-       AND dept_accept = 1
-       AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`,
-    ['กองช่าง']
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-engineer-excel-pending', async (req, res) => {
-  exportEngineerBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'pending',
+    departmentType: 'engineer'
+  });
+
+  exportEngineerExcelFile(
     res,
     'รายงานคำร้อง-กองช่าง-รอดำเนินการ',
-    'pending'
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-engineer-excel-inprogress', async (req, res) => {
-  exportEngineerBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'inprogress',
+    departmentType: 'engineer'
+  });
+
+  exportEngineerExcelFile(
     res,
     'รายงานคำร้อง-กองช่าง-กำลังดำเนินการ',
-    'inprogress'
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-engineer-excel-completed', async (req, res) => {
-  exportEngineerBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'completed',
+    departmentType: 'engineer'
+  });
+
+  exportEngineerExcelFile(
     res,
     'รายงานคำร้อง-กองช่าง-เสร็จสิ้น',
-    'completed'
+    extraWhere,
+    params
   );
 });
 
@@ -4341,37 +4455,66 @@ async function exportHealthBucketExcelFile(res, title, tableName) {
 }
 // Excel ทั้งหมด
 app.get('/export-health-excel-all', async (req, res) => {
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'open',
+    departmentType: 'health'
+  });
+
   exportHealthExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-ทั้งหมด',
-    `WHERE department = ?
-       AND dept_accept = 1
-       AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`,
-    ['สาธารณสุข']
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-health-excel-pending', async (req, res) => {
-  exportHealthBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'pending',
+    departmentType: 'health'
+  });
+
+  exportHealthExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-รอดำเนินการ',
-    'pending'
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-health-excel-inprogress', async (req, res) => {
-  exportHealthBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'inprogress',
+    departmentType: 'health'
+  });
+
+  exportHealthExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-กำลังดำเนินการ',
-    'inprogress'
+    extraWhere,
+    params
   );
 });
 
 app.get('/export-health-excel-completed', async (req, res) => {
-  exportHealthBucketExcelFile(
+  const { extraWhere, params } = buildAdminExcelFilters(req, {
+    q: req.query.q,
+    filter: req.query.filter,
+    status: 'completed',
+    departmentType: 'health'
+  });
+
+  exportHealthExcelFile(
     res,
     'รายงานคำร้อง-สาธารณสุข-เสร็จสิ้น',
-    'completed'
+    extraWhere,
+    params
   );
 });
 

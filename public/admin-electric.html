@@ -2507,20 +2507,28 @@
       }
     });
   
+    function buildExportParams() {
+      const q = document.getElementById('searchInput')?.value?.trim() || '';
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (typeof FILTER_MODE !== 'undefined' && FILTER_MODE) params.set('filter', FILTER_MODE);
+      return params.toString() ? `?${params.toString()}` : '';
+    }
+
     function exportHealthExcelAll() {
-      window.open('/export-electric-excel-all', '_blank');
+      window.open('/export-electric-excel-all' + buildExportParams(), '_blank');
     }
 
     function exportHealthExcelPending() {
-      window.open('/export-electric-excel-pending', '_blank');
+      window.open('/export-electric-excel-pending' + buildExportParams(), '_blank');
     }
 
     function exportHealthExcelInprogress() {
-      window.open('/export-electric-excel-inprogress', '_blank');
+      window.open('/export-electric-excel-inprogress' + buildExportParams(), '_blank');
     }
 
     function exportHealthExcelCompleted() {
-      window.open('/export-electric-excel-completed', '_blank');
+      window.open('/export-electric-excel-completed' + buildExportParams(), '_blank');
     }
     
   </script>
