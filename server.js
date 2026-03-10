@@ -2318,47 +2318,59 @@ if (targetItem.public_id) {
   }
 });
 
-app.get('/data-engineer-all', (req, res) => {
-  const sql = `
-    SELECT * FROM requests
-    WHERE department = ?
-      AND dept_accept = 1
-      AND status <> 'รอแผนกรับเรื่อง'
-    ORDER BY id DESC
-  `;
-
-  db.query(sql, ['กองช่าง'], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(results);
-  });
-});
-
 app.get('/data-health-all', (req, res) => {
   const sql = `
-    SELECT * FROM requests
+    SELECT *
+    FROM requests
     WHERE department = ?
       AND dept_accept = 1
-      AND status <> 'รอแผนกรับเรื่อง'
+      AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')
     ORDER BY id DESC
   `;
 
   db.query(sql, ['สาธารณสุข'], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+    if (err) {
+      console.error('data-health-all error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json(results);
   });
 });
 
 app.get('/data-electric-all', (req, res) => {
   const sql = `
-    SELECT * FROM requests
+    SELECT *
+    FROM requests
     WHERE department = ?
       AND dept_accept = 1
-      AND status <> 'รอแผนกรับเรื่อง'
+      AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')
     ORDER BY id DESC
   `;
 
   db.query(sql, ['ไฟฟ้า'], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+    if (err) {
+      console.error('data-electric-all error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+app.get('/data-engineer-all', (req, res) => {
+  const sql = `
+    SELECT *
+    FROM requests
+    WHERE department = ?
+      AND dept_accept = 1
+      AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')
+    ORDER BY id DESC
+  `;
+
+  db.query(sql, ['กองช่าง'], (err, results) => {
+    if (err) {
+      console.error('data-engineer-all error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json(results);
   });
 });
