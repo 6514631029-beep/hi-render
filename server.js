@@ -3686,14 +3686,16 @@ function buildAdminExcelFilters(req, opts = {}) {
   const clauses = ['AND dept_accept = 1'];
   const params = [];
 
-  if (status === 'open') {
-    clauses.push(`AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`);
-  } else if (status === 'pending') {
+  if (status === 'pending') {
     clauses.push(`AND status = 'รอดำเนินการ'`);
   } else if (status === 'inprogress') {
     clauses.push(`AND status = 'กำลังดำเนินการ'`);
   } else if (status === 'completed') {
     clauses.push(`AND status = 'เสร็จสิ้น'`);
+  } else if (status === 'open') {
+    clauses.push(`AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ')`);
+  } else if (status === 'all') {
+    clauses.push(`AND status IN ('รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น')`);
   }
 
   if (safeQ) {
@@ -3712,11 +3714,15 @@ function buildAdminExcelFilters(req, opts = {}) {
       clauses.push(`AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= ?`);
       params.push(3);
     } else if (status === 'open') {
-      if (departmentType === 'health') {
-        clauses.push(`AND ((status = 'รอดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 7) OR (status = 'กำลังดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 3))`);
-      } else {
-        clauses.push(`AND ((status = 'รอดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 7) OR (status = 'กำลังดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 3))`);
-      }
+      clauses.push(`AND ((status = 'รอดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 7) OR (status = 'กำลังดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 3))`);
+    } else if (status === 'all') {
+      clauses.push(`AND (
+        (status = 'รอดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 7)
+        OR
+        (status = 'กำลังดำเนินการ' AND TIMESTAMPDIFF(DAY, created_at, NOW()) >= 3)
+        OR
+        (status = 'เสร็จสิ้น')
+      )`);
     }
   }
 
@@ -3730,7 +3736,7 @@ app.get('/export-electric-excel-all', async (req, res) => {
   const { extraWhere, params } = buildAdminExcelFilters(req, {
     q: req.query.q,
     filter: req.query.filter,
-    status: 'open',
+    status: 'all',
     departmentType: 'electric'
   });
 
@@ -4220,7 +4226,7 @@ app.get('/export-engineer-excel-all', async (req, res) => {
   const { extraWhere, params } = buildAdminExcelFilters(req, {
     q: req.query.q,
     filter: req.query.filter,
-    status: 'open',
+    status: 'all',
     departmentType: 'engineer'
   });
 
@@ -4458,7 +4464,7 @@ app.get('/export-health-excel-all', async (req, res) => {
   const { extraWhere, params } = buildAdminExcelFilters(req, {
     q: req.query.q,
     filter: req.query.filter,
-    status: 'open',
+    status: 'all',
     departmentType: 'health'
   });
 
