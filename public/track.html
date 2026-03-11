@@ -8,23 +8,22 @@
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap');
 
     :root{
-      --bg:#eef5ff;
-      --bg-soft:#f7fbff;
+      --bg:#f4f7fb;
       --card:#ffffff;
       --text:#0f172a;
       --muted:#64748b;
-      --line:#dbe6f3;
-      --primary:#1565c0;
-      --primary-2:#1e88e5;
-      --primary-soft:#e9f3ff;
+      --line:#e2e8f0;
+      --primary:#155263;
+      --primary-2:#1b6f86;
+      --primary-soft:#e8f6fb;
       --ok:#16a34a;
       --ok-soft:#ecfdf3;
       --warn:#f59e0b;
       --warn-soft:#fff8eb;
       --danger:#dc2626;
       --danger-soft:#fff1f2;
-      --shadow:0 10px 30px rgba(15, 23, 42, .08);
-      --radius:22px;
+      --shadow:0 14px 34px rgba(15, 23, 42, .08);
+      --radius:20px;
       --radius-sm:16px;
     }
 
@@ -35,158 +34,127 @@
       font-family:'Kanit',sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 420px at 0% -10%, #dcecff 0%, transparent 60%),
-        radial-gradient(700px 420px at 100% 0%, #e8f4ff 0%, transparent 58%),
-        linear-gradient(180deg,#eef5ff 0%, #f8fbff 100%);
+        radial-gradient(900px 400px at 0% -10%, #deeff7 0%, transparent 55%),
+        linear-gradient(180deg,#f4f7fb 0%, #eef4f8 100%);
       padding:14px;
       padding-top:calc(14px + env(safe-area-inset-top));
-      padding-bottom:calc(26px + env(safe-area-inset-bottom));
+      padding-bottom:calc(24px + env(safe-area-inset-bottom));
     }
 
     .app{max-width:760px;margin:0 auto}
 
     .hero{
-      background:rgba(255,255,255,.84);
-      backdrop-filter: blur(10px);
-      border:1px solid rgba(255,255,255,.75);
-      box-shadow:var(--shadow);
-      border-radius:28px;
-      padding:16px;
+      background:linear-gradient(180deg, rgba(21,82,99,.98), rgba(17,65,79,.98));
+      color:#fff;
+      border-radius:26px;
+      padding:18px;
+      box-shadow:0 18px 40px rgba(21,82,99,.25);
     }
-
-    .hero-top{display:flex;align-items:center;gap:12px}
+    .hero-top{display:flex;gap:12px;align-items:flex-start}
     .back-btn{
-      width:48px;height:48px;border-radius:16px;border:1px solid var(--line);
+      width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.18);
       display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
-      background:#fff;color:var(--text);font-size:22px;font-weight:800;flex:0 0 auto;
-      box-shadow:0 6px 18px rgba(15,23,42,.06)
+      color:#fff;background:rgba(255,255,255,.08);font-size:22px;font-weight:800;flex:0 0 auto;
     }
-    .eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--primary);text-transform:uppercase}
-    h1{margin:2px 0 0;font-size:28px;line-height:1.05}
-    .sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.45;font-weight:600}
-
-    .search-wrap{
-      margin-top:14px;
-      position:sticky;
-      top:calc(12px + env(safe-area-inset-top));
-      z-index:25;
-    }
+    .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;opacity:.8}
+    h1{margin:4px 0 0;font-size:28px;line-height:1.05}
+    .sub{margin:8px 0 0;font-size:14px;line-height:1.5;opacity:.9}
 
     .search-card{
-      background:rgba(255,255,255,.92);
-      backdrop-filter:blur(10px);
-      border:1px solid rgba(255,255,255,.82);
-      border-radius:24px;
-      box-shadow:0 12px 28px rgba(15,23,42,.10);
-      padding:14px;
+      margin-top:14px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.85);box-shadow:var(--shadow);border-radius:24px;padding:14px;
+      position:sticky;top:calc(10px + env(safe-area-inset-top));z-index:20;
     }
-
+    .field-label{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:8px}
     .phone-box{
-      display:flex;align-items:center;gap:10px;
-      background:var(--bg-soft);border:1.5px solid #d6e6f9;
+      display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #d7e0ea;
       border-radius:18px;padding:12px 14px;
     }
-    .phone-icon{font-size:23px;opacity:.8}
+    .phone-icon{font-size:21px}
     input[type="tel"]{
-      width:100%;border:none;outline:none;background:transparent;color:var(--text);
-      font-size:18px;font-weight:700;padding:0;margin:0;font-family:'Kanit',sans-serif;
+      width:100%;border:none;outline:none;background:transparent;padding:0;margin:0;
+      font-family:'Kanit',sans-serif;font-size:18px;font-weight:700;color:var(--text);
     }
     input[type="tel"]::placeholder{color:#9aa9bc;font-weight:500}
-
     .main-btn{
-      width:100%;margin-top:12px;border:none;border-radius:18px;
-      background:linear-gradient(180deg,var(--primary-2),var(--primary));
-      color:#fff;font-size:22px;font-weight:800;padding:15px 16px;
-      box-shadow:0 14px 28px rgba(21,101,192,.24);
+      width:100%;margin-top:12px;border:none;border-radius:18px;padding:15px 16px;
+      background:linear-gradient(180deg,var(--primary-2),var(--primary));color:#fff;
+      font-family:'Kanit',sans-serif;font-size:20px;font-weight:800;box-shadow:0 14px 28px rgba(21,82,99,.18);
     }
+    .helper-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .ghost-btn{
+      border:1px solid var(--line);background:#fff;color:var(--text);border-radius:999px;
+      padding:10px 14px;font-family:'Kanit',sans-serif;font-size:14px;font-weight:800;
+    }
+    .hint{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.45;font-weight:600}
 
-    .action-row{
-      display:flex;gap:8px;overflow:auto;margin-top:12px;padding-bottom:2px;
-      scrollbar-width:none;
+    .focus-card{
+      margin-top:14px;background:#fff;border:1px solid rgba(255,255,255,.9);border-radius:22px;
+      box-shadow:var(--shadow);padding:14px;
     }
-    .action-row::-webkit-scrollbar{display:none}
-    .pill-btn{
-      border:none;background:#fff;color:var(--text);border:1px solid var(--line);
-      border-radius:999px;padding:11px 14px;font-weight:800;font-size:14px;white-space:nowrap;
-      box-shadow:0 4px 12px rgba(15,23,42,.04)
+    .focus-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .focus-title{font-size:15px;font-weight:900}
+    .focus-note{font-size:12px;color:var(--muted);font-weight:700}
+    .status-empty{
+      margin-top:10px;border-radius:18px;padding:16px;border:1px dashed #dbe5ef;
+      color:var(--muted);font-weight:700;background:#f8fafc;text-align:center;
     }
-    .pill-btn.primary{background:var(--primary-soft);color:var(--primary);border-color:#cfe4ff}
+    .status-hero{
+      margin-top:10px;border-radius:20px;padding:16px;background:#f8fafc;border:1px solid #e6edf4;
+    }
+    .status-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800}
+    .status-chip.ok{background:var(--ok-soft);color:#166534}
+    .status-chip.warn{background:var(--warn-soft);color:#92400e}
+    .status-chip.bad{background:var(--danger-soft);color:#991b1b}
+    .status-chip.neutral{background:var(--primary-soft);color:var(--primary)}
+    .status-title{margin-top:12px;font-size:24px;line-height:1.15;font-weight:900}
+    .status-desc{margin-top:6px;color:var(--muted);font-size:14px;line-height:1.5;font-weight:600}
+    .key-grid{margin-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .key-box{background:#fff;border:1px solid #e7edf4;border-radius:16px;padding:12px}
+    .key-box .k{font-size:12px;color:var(--muted);font-weight:800}
+    .key-box .v{margin-top:5px;font-size:15px;line-height:1.4;font-weight:800}
 
-    .hint{margin-top:10px;font-size:13px;color:var(--muted);line-height:1.45;font-weight:600}
-
-    .summary{
-      margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+    .section-head{
+      margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
-    .stat{
-      background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.82);
-      border-radius:18px;padding:12px;box-shadow:var(--shadow)
-    }
-    .stat .n{font-size:22px;font-weight:900;line-height:1}
-    .stat .t{margin-top:4px;font-size:12px;color:var(--muted);font-weight:800}
-    .stat.ok .n{color:var(--ok)}
-    .stat.warn .n{color:var(--warn)}
-    .stat.neutral .n{color:var(--primary)}
-
-    .result-head{
-      margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-    }
-    .result-head h2{margin:0;font-size:18px}
-    .mini-note{font-size:12px;color:var(--muted);font-weight:700}
+    .section-head h2{margin:0;font-size:18px}
+    .section-note{font-size:12px;color:var(--muted);font-weight:700}
 
     #results{margin-top:12px}
     .empty,.loading{
-      background:#fff;border-radius:22px;padding:22px 16px;text-align:center;
-      border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--muted);font-weight:700
+      background:#fff;border-radius:22px;padding:24px 16px;text-align:center;
+      border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow);color:var(--muted);font-weight:700;
     }
-
-    .skeleton{display:grid;gap:12px}
-    .sk-card{background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow)}
-    .sk-line,.sk-pill{background:linear-gradient(90deg,#edf2f7,#f7fbff,#edf2f7);background-size:200% 100%;animation:shine 1.2s linear infinite}
-    .sk-line{height:14px;border-radius:999px;margin:10px 0}
-    .sk-pill{height:28px;width:120px;border-radius:999px}
-    @keyframes shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
+    .list{display:grid;gap:12px}
     .req-card{
-      background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.82);
-      border-radius:24px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px
+      background:#fff;border:1px solid rgba(255,255,255,.88);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;
     }
-    .req-top{padding:14px 14px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .req-id{font-size:14px;color:var(--muted);font-weight:800}
-    .req-title{font-size:20px;font-weight:900;line-height:1.1;margin-top:2px}
-
-    .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap}
-    .chip.ok{background:var(--ok-soft);color:#166534}
-    .chip.warn{background:var(--warn-soft);color:#92400e}
-    .chip.bad{background:var(--danger-soft);color:#991b1b}
-    .chip.neutral{background:#edf4ff;color:#1d4ed8}
-
-    .timeline{
-      display:flex;gap:8px;overflow:auto;padding:0 14px 12px;scrollbar-width:none
-    }
-    .timeline::-webkit-scrollbar{display:none}
+    .req-main{padding:14px}
+    .req-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .req-id{font-size:13px;color:var(--muted);font-weight:800}
+    .req-title{margin-top:4px;font-size:19px;line-height:1.15;font-weight:900}
+    .step-line{display:flex;gap:8px;overflow:auto;padding:0 14px 12px;scrollbar-width:none}
+    .step-line::-webkit-scrollbar{display:none}
     .step{
-      min-width:max-content;padding:8px 10px;border-radius:999px;background:#f8fbff;border:1px solid #e2ebf7;
-      color:#5b6b82;font-size:12px;font-weight:800
+      min-width:max-content;padding:8px 10px;border-radius:999px;background:#f8fafc;border:1px solid #e4ebf3;
+      color:#5b6b82;font-size:12px;font-weight:800;
     }
-    .step.active{background:var(--primary-soft);border-color:#cfe4ff;color:var(--primary)}
-    .step.done{background:var(--ok-soft);border-color:#cdeed9;color:#166534}
-    .step.bad{background:var(--danger-soft);border-color:#ffd4db;color:#991b1b}
+    .step.active{background:var(--primary-soft);border-color:#cde7f2;color:var(--primary)}
+    .step.done{background:var(--ok-soft);border-color:#d3f1df;color:#166534}
+    .step.bad{background:var(--danger-soft);border-color:#ffd6dd;color:#991b1b}
 
-    .body{padding:0 14px 14px}
-    .item{padding:11px 0;border-top:1px dashed #e8eef6}
-    .label{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:6px}
-    .value{font-size:15px;font-weight:700;line-height:1.45}
-    .message{
-      background:#f8fbff;border:1px solid #e4eef8;border-radius:16px;padding:12px 13px;
-      font-size:15px;line-height:1.5;font-weight:600
-    }
+    .mini-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+    .detail-box{background:#f8fafc;border:1px solid #e6edf4;border-radius:16px;padding:12px}
+    .detail-box .k{font-size:12px;color:var(--muted);font-weight:800}
+    .detail-box .v{margin-top:5px;font-size:15px;font-weight:700;line-height:1.45}
+    .message{white-space:pre-wrap}
 
-    .media-section{margin-top:12px;padding-top:12px;border-top:1px solid #edf2f7}
+    .media-section{margin-top:12px;padding-top:12px;border-top:1px dashed #e7edf4}
     .media-title{font-size:14px;font-weight:900;margin-bottom:10px}
     .media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .thumb-wrap{position:relative}
     .thumb{
-      width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:18px;border:1px solid rgba(15,23,42,.06);
+      width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:16px;border:1px solid rgba(15,23,42,.06);
       background:#fff;box-shadow:0 8px 18px rgba(15,23,42,.08)
     }
     .thumb-badge{
@@ -195,12 +163,12 @@
     }
     .full-btn{
       width:100%;margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:16px;
-      padding:12px 14px;font-weight:900;font-size:15px;color:var(--text)
+      padding:12px 14px;font-family:'Kanit',sans-serif;font-weight:900;font-size:15px;color:var(--text)
     }
 
     .toast{
       position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
-      background:rgba(15,23,42,.9);color:#fff;padding:12px 16px;border-radius:999px;font-size:13px;font-weight:800;
+      background:rgba(15,23,42,.92);color:#fff;padding:12px 16px;border-radius:999px;font-size:13px;font-weight:800;
       opacity:0;pointer-events:none;transition:.18s ease;z-index:999999;max-width:88vw;text-align:center
     }
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -215,23 +183,16 @@
     .media-modal__stack{display:flex;flex-direction:column;gap:12px}
     .media-modal__stack img,.media-modal__stack video{width:100%;max-height:76vh;object-fit:contain;border-radius:18px;background:#000}
 
-    @media (min-width: 761px){
-      .search-card{padding:16px}
-      .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
-      .action-row{margin-top:0;justify-content:flex-end;flex-wrap:wrap;overflow:visible}
+    @media (min-width:761px){
+      .mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       .media-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     }
-
-    @media (max-width: 520px){
+    @media (max-width:520px){
       body{padding:12px}
       h1{font-size:24px}
       .sub{font-size:13px}
-      .summary{gap:8px}
-      .stat{padding:10px}
-      .stat .n{font-size:20px}
-      .result-head{margin-top:16px}
-      .main-btn{font-size:20px}
-      .req-title{font-size:18px}
+      .status-title{font-size:21px}
+      .req-title{font-size:17px}
     }
   </style>
 </head>
@@ -241,46 +202,42 @@
       <div class="hero-top">
         <a href="/choose.html" class="back-btn" aria-label="กลับ">←</a>
         <div>
-          <div class="eyebrow">Tracking Center</div>
+          <div class="eyebrow">Tracking</div>
           <h1>ติดตามคำร้อง</h1>
-          <div class="sub">ดูสถานะล่าสุด เวลาอัปเดต และไฟล์จากการดำเนินงาน แบบอ่านง่ายบนโทรศัพท์</div>
+          <div class="sub">กรอกเบอร์โทรเพื่อดูสถานะล่าสุดของคำร้องแบบอ่านง่ายบนมือถือ เน้นให้เห็นว่าตอนนี้เรื่องของคุณอยู่ขั้นตอนไหน</div>
         </div>
       </div>
     </section>
 
-    <div class="search-wrap">
-      <section class="search-card">
-        <form id="trackForm">
-          <div class="toolbar">
-            <div>
-              <div class="phone-box">
-                <div class="phone-icon">📞</div>
-                <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="0891234567">
-              </div>
-              <button type="submit" class="main-btn">ค้นหาคำร้อง</button>
-            </div>
-
-            <div class="action-row">
-              <button type="button" class="pill-btn primary" id="useSavedBtn">✨ ใช้เบอร์ล่าสุด</button>
-              <button type="button" class="pill-btn" id="refreshBtn">🔄 รีเฟรช</button>
-              <button type="button" class="pill-btn" id="copyBtn">📋 คัดลอก</button>
-              <button type="button" class="pill-btn" id="clearBtn">🧹 ล้างเบอร์</button>
-            </div>
-          </div>
-        </form>
-        <div class="hint">ระบบจะใช้เบอร์ที่ล็อกอินล่าสุดให้อัตโนมัติ และคุณยังพิมพ์ค้นหาด้วยเบอร์อื่นได้ทันที</div>
-      </section>
-    </div>
-
-    <section class="summary" id="summaryBar">
-      <div class="stat neutral"><div class="n" id="sumTotal">0</div><div class="t">คำร้องทั้งหมด</div></div>
-      <div class="stat warn"><div class="n" id="sumProgress">0</div><div class="t">ยังไม่เสร็จ</div></div>
-      <div class="stat ok"><div class="n" id="sumDone">0</div><div class="t">เสร็จสิ้น</div></div>
+    <section class="search-card">
+      <form id="trackForm">
+        <div class="field-label">ค้นหาด้วยเบอร์โทรศัพท์</div>
+        <div class="phone-box">
+          <div class="phone-icon">📞</div>
+          <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="0891234567">
+        </div>
+        <button type="submit" class="main-btn">ตรวจสอบสถานะ</button>
+        <div class="helper-row">
+          <button type="button" class="ghost-btn" id="useSavedBtn">ใช้เบอร์ล่าสุด</button>
+          <button type="button" class="ghost-btn" id="clearBtn">ล้างเบอร์</button>
+        </div>
+      </form>
+      <div class="hint">ระบบจะจำเบอร์ล่าสุดไว้ให้ เพื่อให้กลับมาเช็กสถานะได้ง่ายขึ้น</div>
     </section>
 
-    <div class="result-head">
-      <h2>ผลการค้นหา</h2>
-      <div class="mini-note" id="lastSearchNote">ยังไม่ได้ค้นหา</div>
+    <section class="focus-card">
+      <div class="focus-head">
+        <div>
+          <div class="focus-title">สถานะล่าสุด</div>
+          <div class="focus-note" id="lastSearchNote">ยังไม่ได้ค้นหา</div>
+        </div>
+      </div>
+      <div id="statusHero" class="status-empty">กรอกเบอร์โทรแล้วกด “ตรวจสอบสถานะ” เพื่อดูความคืบหน้าล่าสุด</div>
+    </section>
+
+    <div class="section-head">
+      <h2>รายการคำร้อง</h2>
+      <div class="section-note" id="listCountNote">0 รายการ</div>
     </div>
 
     <div id="results"></div>
@@ -302,12 +259,6 @@
   </div>
 
   <script>
-    const summaryEls = {
-      total: document.getElementById('sumTotal'),
-      progress: document.getElementById('sumProgress'),
-      done: document.getElementById('sumDone')
-    };
-
     function showToast(msg){
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -347,13 +298,51 @@
       return encodeURI('/uploads/' + u);
     }
 
-    function statusChip(status) {
+    function getStatusMeta(status) {
       const s = (status || '').trim();
-      if (!s) return `<span class="chip warn">⏳ รอดำเนินการ</span>`;
-      if (s === 'เสร็จสิ้น') return `<span class="chip ok">✅ เสร็จสิ้น</span>`;
-      if (s === 'กำลังดำเนินการ') return `<span class="chip neutral">⚙️ กำลังดำเนินการ</span>`;
-      if (s === 'ไม่อนุมัติ') return `<span class="chip bad">⛔ ไม่อนุมัติ</span>`;
-      return `<span class="chip neutral">📌 ${s}</span>`;
+      if (!s) {
+        return {
+          cls: 'warn',
+          chip: '⏳ รอดำเนินการ',
+          title: 'คำร้องของคุณกำลังรอดำเนินการ',
+          desc: 'เจ้าหน้าที่ได้รับเรื่องแล้ว และกำลังรอเข้าสู่ขั้นตอนการดำเนินงาน'
+        };
+      }
+      if (s === 'เสร็จสิ้น') {
+        return {
+          cls: 'ok',
+          chip: '✅ เสร็จสิ้น',
+          title: 'คำร้องนี้ดำเนินการเสร็จแล้ว',
+          desc: 'งานนี้เสร็จเรียบร้อยแล้ว คุณสามารถดูวันเวลาที่ปิดงานและไฟล์ประกอบได้ด้านล่าง'
+        };
+      }
+      if (s === 'กำลังดำเนินการ') {
+        return {
+          cls: 'neutral',
+          chip: '⚙️ กำลังดำเนินการ',
+          title: 'คำร้องนี้กำลังดำเนินการ',
+          desc: 'เจ้าหน้าที่กำลังลงมือแก้ไขหรือดำเนินงานตามคำร้องของคุณ'
+        };
+      }
+      if (s === 'ไม่อนุมัติ') {
+        return {
+          cls: 'bad',
+          chip: '⛔ ไม่อนุมัติ',
+          title: 'คำร้องนี้ไม่ได้รับการอนุมัติ',
+          desc: 'ระบบแสดงผลว่าเรื่องนี้ไม่ผ่านการอนุมัติ กรุณาดูเหตุผลประกอบด้านล่าง'
+        };
+      }
+      return {
+        cls: 'neutral',
+        chip: `📌 ${s}`,
+        title: s,
+        desc: 'สถานะล่าสุดของคำร้อง'
+      };
+    }
+
+    function statusChip(status) {
+      const meta = getStatusMeta(status);
+      return `<span class="status-chip ${meta.cls}">${meta.chip}</span>`;
     }
 
     function timelineSteps(status){
@@ -372,32 +361,53 @@
       `;
     }
 
-    function renderLoading(){
-      document.getElementById('results').innerHTML = `
-        <div class="skeleton">
-          <div class="sk-card"><div class="sk-pill"></div><div class="sk-line" style="width:88%"></div><div class="sk-line" style="width:64%"></div><div class="sk-line" style="width:96%"></div></div>
-          <div class="sk-card"><div class="sk-pill"></div><div class="sk-line" style="width:78%"></div><div class="sk-line" style="width:58%"></div><div class="sk-line" style="width:90%"></div></div>
-        </div>`;
+    function buildStatusHero(row, total) {
+      const target = document.getElementById('statusHero');
+      if (!row) {
+        target.className = 'status-empty';
+        target.innerHTML = 'ไม่พบข้อมูลคำร้องของเบอร์นี้';
+        return;
+      }
+      const meta = getStatusMeta(row.status);
+      const rejectHtml = row.status === 'ไม่อนุมัติ' && row.reject_reason
+        ? `<div class="key-box"><div class="k">เหตุผล</div><div class="v">${row.reject_reason}</div></div>`
+        : '';
+      target.className = 'status-hero';
+      target.innerHTML = `
+        ${statusChip(row.status)}
+        <div class="status-title">${meta.title}</div>
+        <div class="status-desc">${meta.desc}</div>
+        <div class="key-grid">
+          <div class="key-box"><div class="k">เลขคำร้องล่าสุด</div><div class="v">#${row.id}</div></div>
+          <div class="key-box"><div class="k">พบทั้งหมด</div><div class="v">${total} รายการ</div></div>
+          <div class="key-box"><div class="k">วันที่ส่งคำร้อง</div><div class="v">${formatDate(row.created_at)}</div></div>
+          ${row.completed_at ? `<div class="key-box"><div class="k">วันที่เสร็จสิ้น</div><div class="v">${formatDate(row.completed_at)}</div></div>` : ''}
+          ${rejectHtml}
+        </div>
+      `;
     }
 
-    function updateSummary(data){
-      const total = data.length;
-      const done = data.filter(r => (r.status || '').trim() === 'เสร็จสิ้น').length;
-      const rejected = data.filter(r => (r.status || '').trim() === 'ไม่อนุมัติ').length;
-      const progress = Math.max(0, total - done - rejected);
-      summaryEls.total.textContent = total;
-      summaryEls.done.textContent = done;
-      summaryEls.progress.textContent = progress;
+    function renderLoading(){
+      document.getElementById('results').innerHTML = `<div class="loading">กำลังค้นหาข้อมูลคำร้อง...</div>`;
+    }
+
+    function normalizeRows(data) {
+      return [...data].sort((a, b) => {
+        const ta = new Date(a.completed_at || a.updated_at || a.created_at || 0).getTime();
+        const tb = new Date(b.completed_at || b.updated_at || b.created_at || 0).getTime();
+        return tb - ta;
+      });
     }
 
     async function fetchRequests(phone) {
       const resultsDiv = document.getElementById('results');
       document.getElementById('lastSearchNote').textContent = `กำลังค้นหา ${phone}`;
+      document.getElementById('listCountNote').textContent = '0 รายการ';
       renderLoading();
 
-      let res, data;
+      let data;
       try{
-        res = await fetch('/track-requests', {
+        const res = await fetch('/track-requests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone })
@@ -406,22 +416,26 @@
       }catch(err){
         resultsDiv.innerHTML = `<div class="empty">❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่</div>`;
         document.getElementById('lastSearchNote').textContent = 'เชื่อมต่อไม่สำเร็จ';
-        updateSummary([]);
+        buildStatusHero(null, 0);
         return;
       }
 
       if (!Array.isArray(data) || data.length === 0) {
         resultsDiv.innerHTML = `<div class="empty">ไม่พบข้อมูลคำร้องของเบอร์นี้</div>`;
         document.getElementById('lastSearchNote').textContent = `ไม่พบข้อมูลของ ${phone}`;
-        updateSummary([]);
+        document.getElementById('listCountNote').textContent = '0 รายการ';
+        buildStatusHero(null, 0);
         return;
       }
 
-      updateSummary(data);
-      document.getElementById('lastSearchNote').textContent = `พบ ${data.length} รายการ • เบอร์ ${phone}`;
-      resultsDiv.innerHTML = '';
+      const rows = normalizeRows(data);
+      buildStatusHero(rows[0], rows.length);
+      document.getElementById('lastSearchNote').textContent = `เบอร์ ${phone}`;
+      document.getElementById('listCountNote').textContent = `${rows.length} รายการ`;
+      resultsDiv.innerHTML = '<div class="list"></div>';
+      const list = resultsDiv.querySelector('.list');
 
-      data.forEach(row => {
+      rows.forEach(row => {
         const photos = parsePhoto(row.photo);
         const completedFiles = photos.filter(it => it && typeof it === 'object' && (it.from === 'completed' || it.tag === 'completed'));
         const safeFiles = completedFiles.filter(it => {
@@ -429,82 +443,68 @@
           const u = String(raw).trim();
           return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
         });
-
-        let extraLine = '';
-        if (row.status === 'เสร็จสิ้น' && row.completed_at) {
-          extraLine = `
-            <div class="item">
-              <div class="label">วันที่เสร็จสิ้น</div>
-              <div class="value">${formatDate(row.completed_at)}</div>
-            </div>`;
-        }
-
-        let rejectLine = '';
-        if (row.status === 'ไม่อนุมัติ' && row.reject_reason) {
-          rejectLine = `
-            <div class="item">
-              <div class="label">เหตุผลที่ไม่อนุมัติ</div>
-              <div class="value">${row.reject_reason}</div>
-            </div>`;
-        }
+        const meta = getStatusMeta(row.status);
 
         let mediaBlock = '';
         if (completedFiles.length > 0) {
           if (safeFiles.length === 0) {
             mediaBlock = `
               <div class="media-section">
-                <div class="media-title">📎 ไฟล์แนบจากการดำเนินงาน</div>
-                <div class="value" style="color:var(--muted)">ไฟล์แนบชุดนี้เป็นไฟล์เก่าในเครื่อง จึงยังแสดงบนระบบออนไลน์ไม่ได้</div>
+                <div class="media-title">ไฟล์ประกอบการดำเนินงาน</div>
+                <div class="detail-box"><div class="v" style="color:var(--muted)">ไฟล์ชุดนี้เป็นไฟล์เก่าในเครื่อง จึงยังแสดงบนระบบออนไลน์ไม่ได้</div></div>
               </div>`;
           } else {
             const thumbs = safeFiles.slice(0, 4).map((it, idx) => {
               const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
               const isVideo = (typeof it === 'object' && it.type === 'video') || /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
               return isVideo
-                ? `<div class="thumb-wrap"><video muted playsinline class="thumb" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์แนบ")'><source src="${url}" type="video/mp4"></video><div class="thumb-badge">วิดีโอ</div></div>`
-                : `<div class="thumb-wrap"><img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์แนบ")'><div class="thumb-badge">รูป ${idx+1}</div></div>`;
+                ? `<div class="thumb-wrap"><video muted playsinline class="thumb" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์ประกอบ")'><source src="${url}" type="video/mp4"></video><div class="thumb-badge">วิดีโอ</div></div>`
+                : `<div class="thumb-wrap"><img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์ประกอบ")'><div class="thumb-badge">รูป ${idx+1}</div></div>`;
             }).join('');
 
             mediaBlock = `
               <div class="media-section">
-                <div class="media-title">📎 ไฟล์แนบจากการดำเนินงาน</div>
+                <div class="media-title">ไฟล์ประกอบการดำเนินงาน</div>
                 <div class="media-grid">${thumbs}</div>
                 <button type="button" class="full-btn" onclick='showImages(${JSON.stringify(safeFiles)})'>ดูไฟล์ทั้งหมด (${safeFiles.length})</button>
               </div>`;
           }
         }
 
+        const rejectBlock = row.status === 'ไม่อนุมัติ' && row.reject_reason
+          ? `<div class="detail-box"><div class="k">เหตุผลที่ไม่อนุมัติ</div><div class="v">${row.reject_reason}</div></div>`
+          : '';
+
+        const completedBlock = row.status === 'เสร็จสิ้น' && row.completed_at
+          ? `<div class="detail-box"><div class="k">วันที่เสร็จสิ้น</div><div class="v">${formatDate(row.completed_at)}</div></div>`
+          : '';
+
         const card = `
           <article class="req-card">
-            <div class="req-top">
-              <div>
-                <div class="req-id">รหัสคำร้อง #${row.id}</div>
-                <div class="req-title">${row.status === 'เสร็จสิ้น' ? 'งานนี้ดำเนินการเสร็จแล้ว' : row.status === 'กำลังดำเนินการ' ? 'กำลังดำเนินการ' : row.status === 'ไม่อนุมัติ' ? 'รายการนี้ไม่อนุมัติ' : 'รอดำเนินการ'}</div>
+            <div class="req-main">
+              <div class="req-top">
+                <div>
+                  <div class="req-id">เลขคำร้อง #${row.id}</div>
+                  <div class="req-title">${meta.title}</div>
+                </div>
+                ${statusChip(row.status)}
               </div>
-              ${statusChip(row.status)}
             </div>
 
-            <div class="timeline">${timelineSteps(row.status)}</div>
+            <div class="step-line">${timelineSteps(row.status)}</div>
 
-            <div class="body">
-              <div class="item">
-                <div class="label">วันที่ส่งคำร้อง</div>
-                <div class="value">${formatDate(row.created_at)}</div>
+            <div class="req-main">
+              <div class="mini-grid">
+                <div class="detail-box"><div class="k">วันที่ส่งคำร้อง</div><div class="v">${formatDate(row.created_at)}</div></div>
+                ${completedBlock}
+                ${rejectBlock}
+                <div class="detail-box" style="grid-column:1/-1"><div class="k">รายละเอียดคำร้อง</div><div class="v message">${row.message || '-'}</div></div>
               </div>
-
-              ${extraLine}
-              ${rejectLine}
-
-              <div class="item">
-                <div class="label">รายละเอียด</div>
-                <div class="message">${row.message || '-'}</div>
-              </div>
-
               ${mediaBlock}
             </div>
           </article>`;
 
-        resultsDiv.insertAdjacentHTML('beforeend', card);
+        list.insertAdjacentHTML('beforeend', card);
       });
     }
 
@@ -540,31 +540,14 @@
         showToast('ใช้เบอร์ล่าสุดแล้ว');
       });
 
-      document.getElementById('refreshBtn').addEventListener('click', () => {
-        const phone = phoneInput.value.trim() || localStorage.getItem('userPhone');
-        if (!phone) return showToast('ยังไม่มีเบอร์สำหรับรีเฟรช');
-        fetchRequests(phone);
-        showToast('รีเฟรชข้อมูลแล้ว');
-      });
-
-      document.getElementById('copyBtn').addEventListener('click', async () => {
-        const phone = phoneInput.value.trim();
-        if (!phone) return showToast('ยังไม่มีเบอร์ให้คัดลอก');
-        try {
-          await navigator.clipboard.writeText(phone);
-          showToast('คัดลอกเบอร์แล้ว');
-        } catch {
-          showToast('คัดลอกไม่สำเร็จ');
-        }
-      });
-
       document.getElementById('clearBtn').addEventListener('click', () => {
         localStorage.removeItem('userPhone');
         localStorage.removeItem('phone');
         phoneInput.value = '';
         document.getElementById('results').innerHTML = '<div class="empty">ล้างเบอร์แล้ว คุณสามารถค้นหาด้วยเบอร์ใหม่ได้ทันที</div>';
         document.getElementById('lastSearchNote').textContent = 'ล้างเบอร์ที่จำไว้แล้ว';
-        updateSummary([]);
+        document.getElementById('listCountNote').textContent = '0 รายการ';
+        buildStatusHero(null, 0);
         showToast('ล้างเบอร์ที่จำไว้แล้ว');
       });
     });
