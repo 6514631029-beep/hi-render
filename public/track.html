@@ -8,23 +8,29 @@
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap');
 
     :root{
-      --bg:#f4f7fb;
+      --bg:#fffaf2;
+      --bg2:#f4fbff;
       --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line:#e2e8f0;
-      --primary:#155263;
-      --primary-2:#1b6f86;
-      --primary-soft:#e8f6fb;
-      --ok:#16a34a;
-      --ok-soft:#ecfdf3;
-      --warn:#f59e0b;
-      --warn-soft:#fff8eb;
+      --text:#17324d;
+      --muted:#6f849b;
+      --line:#d8e6f2;
+      --primary:#16a3b8;
+      --primary-2:#38c7d8;
+      --primary-soft:#e7fbff;
+      --peach:#fff1df;
+      --yellow:#fff7d6;
+      --pink:#ffe8f0;
+      --green:#22a06b;
+      --green-soft:#e9fbf2;
+      --orange:#e68a1f;
+      --orange-soft:#fff3e2;
+      --blue:#3b82f6;
+      --blue-soft:#edf4ff;
       --danger:#dc2626;
-      --danger-soft:#fff1f2;
-      --shadow:0 14px 34px rgba(15, 23, 42, .08);
-      --radius:20px;
-      --radius-sm:16px;
+      --danger-soft:#fff0f0;
+      --shadow:0 14px 40px rgba(23, 50, 77, .10);
+      --radius:26px;
+      --radius-sm:18px;
     }
 
     *{box-sizing:border-box}
@@ -34,141 +40,175 @@
       font-family:'Kanit',sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 400px at 0% -10%, #deeff7 0%, transparent 55%),
-        linear-gradient(180deg,#f4f7fb 0%, #eef4f8 100%);
+        radial-gradient(800px 340px at 0% 0%, #fff0c8 0%, transparent 58%),
+        radial-gradient(860px 360px at 100% 0%, #dff8ff 0%, transparent 58%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
       padding:14px;
       padding-top:calc(14px + env(safe-area-inset-top));
-      padding-bottom:calc(24px + env(safe-area-inset-bottom));
+      padding-bottom:calc(28px + env(safe-area-inset-bottom));
     }
 
     .app{max-width:760px;margin:0 auto}
 
     .hero{
-      background:linear-gradient(180deg, rgba(21,82,99,.98), rgba(17,65,79,.98));
-      color:#fff;
-      border-radius:26px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(255,255,255,.95);
+      box-shadow:var(--shadow);
+      border-radius:30px;
       padding:18px;
-      box-shadow:0 18px 40px rgba(21,82,99,.25);
+      position:relative;
+      overflow:hidden;
     }
-    .hero-top{display:flex;gap:12px;align-items:flex-start}
+    .hero::before,
+    .hero::after{
+      content:"";position:absolute;border-radius:999px;z-index:0;opacity:.9;
+    }
+    .hero::before{width:180px;height:180px;background:#fff4bf;top:-80px;right:-60px}
+    .hero::after{width:160px;height:160px;background:#dff8ff;bottom:-90px;left:-70px}
+
+    .hero-top,.search-card,.summary,.result-head,#results{position:relative;z-index:1}
+    .hero-top{display:flex;align-items:center;gap:12px}
     .back-btn{
-      width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.18);
+      width:48px;height:48px;border-radius:16px;border:1px solid #e7eef6;
       display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
-      color:#fff;background:rgba(255,255,255,.08);font-size:22px;font-weight:800;flex:0 0 auto;
+      background:#fff;color:var(--text);font-size:22px;font-weight:800;flex:0 0 auto;
+      box-shadow:0 8px 20px rgba(23,50,77,.08)
     }
-    .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;opacity:.8}
-    h1{margin:4px 0 0;font-size:28px;line-height:1.05}
-    .sub{margin:8px 0 0;font-size:14px;line-height:1.5;opacity:.9}
+    .eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--primary);text-transform:uppercase}
+    h1{margin:2px 0 0;font-size:28px;line-height:1.05}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.5;font-weight:600}
 
+    .search-wrap{margin-top:14px;position:sticky;top:calc(12px + env(safe-area-inset-top));z-index:20}
     .search-card{
-      margin-top:14px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
-      border:1px solid rgba(255,255,255,.85);box-shadow:var(--shadow);border-radius:24px;padding:14px;
-      position:sticky;top:calc(10px + env(safe-area-inset-top));z-index:20;
+      background:rgba(255,255,255,.93);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.95);
+      border-radius:28px;
+      box-shadow:0 16px 32px rgba(23,50,77,.10);
+      padding:15px;
     }
-    .field-label{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:8px}
+    .search-label{font-size:14px;font-weight:900;color:#58708b;margin-bottom:10px}
     .phone-box{
-      display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #d7e0ea;
-      border-radius:18px;padding:12px 14px;
+      display:flex;align-items:center;gap:10px;
+      background:linear-gradient(180deg,#f9fcff,#f3f9ff);border:2px solid #d7e6f3;
+      border-radius:20px;padding:14px 15px;
     }
-    .phone-icon{font-size:21px}
+    .phone-icon{font-size:24px}
     input[type="tel"]{
-      width:100%;border:none;outline:none;background:transparent;padding:0;margin:0;
-      font-family:'Kanit',sans-serif;font-size:18px;font-weight:700;color:var(--text);
+      width:100%;border:none;outline:none;background:transparent;color:var(--text);
+      font-size:20px;font-weight:800;padding:0;margin:0;font-family:'Kanit',sans-serif;
     }
-    input[type="tel"]::placeholder{color:#9aa9bc;font-weight:500}
+    input[type="tel"]::placeholder{color:#9ab0c4;font-weight:600}
+
     .main-btn{
-      width:100%;margin-top:12px;border:none;border-radius:18px;padding:15px 16px;
-      background:linear-gradient(180deg,var(--primary-2),var(--primary));color:#fff;
-      font-family:'Kanit',sans-serif;font-size:20px;font-weight:800;box-shadow:0 14px 28px rgba(21,82,99,.18);
+      width:100%;margin-top:12px;border:none;border-radius:20px;
+      background:linear-gradient(180deg,var(--primary-2),var(--primary));
+      color:#fff;font-size:22px;font-weight:800;padding:16px;
+      box-shadow:0 16px 30px rgba(22,163,184,.24);
     }
-    .helper-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .ghost-btn{
-      border:1px solid var(--line);background:#fff;color:var(--text);border-radius:999px;
-      padding:10px 14px;font-family:'Kanit',sans-serif;font-size:14px;font-weight:800;
-    }
-    .hint{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.45;font-weight:600}
 
-    .focus-card{
-      margin-top:14px;background:#fff;border:1px solid rgba(255,255,255,.9);border-radius:22px;
-      box-shadow:var(--shadow);padding:14px;
+    .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .pill-btn{
+      border:none;background:#fff;color:var(--text);border:1.5px solid var(--line);
+      border-radius:999px;padding:12px 16px;font-weight:800;font-size:15px;white-space:nowrap;
+      box-shadow:0 4px 12px rgba(23,50,77,.04)
     }
-    .focus-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .focus-title{font-size:15px;font-weight:900}
-    .focus-note{font-size:12px;color:var(--muted);font-weight:700}
-    .status-empty{
-      margin-top:10px;border-radius:18px;padding:16px;border:1px dashed #dbe5ef;
-      color:var(--muted);font-weight:700;background:#f8fafc;text-align:center;
-    }
-    .status-hero{
-      margin-top:10px;border-radius:20px;padding:16px;background:#f8fafc;border:1px solid #e6edf4;
-    }
-    .status-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800}
-    .status-chip.ok{background:var(--ok-soft);color:#166534}
-    .status-chip.warn{background:var(--warn-soft);color:#92400e}
-    .status-chip.bad{background:var(--danger-soft);color:#991b1b}
-    .status-chip.neutral{background:var(--primary-soft);color:var(--primary)}
-    .status-title{margin-top:12px;font-size:24px;line-height:1.15;font-weight:900}
-    .status-desc{margin-top:6px;color:var(--muted);font-size:14px;line-height:1.5;font-weight:600}
-    .key-grid{margin-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .key-box{background:#fff;border:1px solid #e7edf4;border-radius:16px;padding:12px}
-    .key-box .k{font-size:12px;color:var(--muted);font-weight:800}
-    .key-box .v{margin-top:5px;font-size:15px;line-height:1.4;font-weight:800}
+    .pill-btn.primary{background:var(--primary-soft);color:#0e7d8e;border-color:#c9f3f8}
 
-    .section-head{
-      margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    .hint{margin-top:10px;font-size:13px;color:var(--muted);line-height:1.45;font-weight:600}
+
+    .summary{margin-top:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .stat{
+      border-radius:20px;padding:14px 12px;box-shadow:var(--shadow);background:#fff;border:1px solid rgba(255,255,255,.85)
     }
-    .section-head h2{margin:0;font-size:18px}
-    .section-note{font-size:12px;color:var(--muted);font-weight:700}
+    .stat:nth-child(1){background:linear-gradient(180deg,#fff7e5,#fff)}
+    .stat:nth-child(2){background:linear-gradient(180deg,#ecfbff,#fff)}
+    .stat:nth-child(3){background:linear-gradient(180deg,#edfdf3,#fff)}
+    .stat .n{font-size:24px;font-weight:900;line-height:1}
+    .stat .t{margin-top:5px;font-size:12px;color:var(--muted);font-weight:800}
+    .stat.neutral .n{color:#d98816}
+    .stat.warn .n{color:#0f93a6}
+    .stat.ok .n{color:var(--green)}
+
+    .result-head{margin-top:20px;display:flex;align-items:end;justify-content:space-between;gap:12px}
+    .result-head h2{margin:0;font-size:20px}
+    .mini-note{font-size:13px;color:var(--muted);font-weight:800}
 
     #results{margin-top:12px}
     .empty,.loading{
-      background:#fff;border-radius:22px;padding:24px 16px;text-align:center;
-      border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow);color:var(--muted);font-weight:700;
+      background:#fff;border-radius:24px;padding:22px 16px;text-align:center;
+      border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow);color:var(--muted);font-weight:700
     }
-    .list{display:grid;gap:12px}
+
+    .skeleton{display:grid;gap:12px}
+    .sk-card{background:#fff;border-radius:24px;padding:16px;box-shadow:var(--shadow)}
+    .sk-line,.sk-pill{background:linear-gradient(90deg,#edf2f7,#fefefe,#edf2f7);background-size:200% 100%;animation:shine 1.2s linear infinite}
+    .sk-line{height:14px;border-radius:999px;margin:10px 0}
+    .sk-pill{height:32px;width:120px;border-radius:999px}
+    @keyframes shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
     .req-card{
-      background:#fff;border:1px solid rgba(255,255,255,.88);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;
+      background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.96);
+      border-radius:26px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;
+      padding:14px;
     }
-    .req-main{padding:14px}
-    .req-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .req-id{font-size:13px;color:var(--muted);font-weight:800}
-    .req-title{margin-top:4px;font-size:19px;line-height:1.15;font-weight:900}
-    .step-line{display:flex;gap:8px;overflow:auto;padding:0 14px 12px;scrollbar-width:none}
-    .step-line::-webkit-scrollbar{display:none}
-    .step{
-      min-width:max-content;padding:8px 10px;border-radius:999px;background:#f8fafc;border:1px solid #e4ebf3;
-      color:#5b6b82;font-size:12px;font-weight:800;
+    .req-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .req-id{font-size:15px;color:#7d90a7;font-weight:900}
+    .req-title{font-size:27px;font-weight:900;line-height:1.08;margin-top:4px}
+    .req-sub{font-size:14px;color:var(--muted);font-weight:700;margin-top:4px}
+
+    .chip{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:999px;font-size:14px;font-weight:900;white-space:nowrap}
+    .chip.ok{background:var(--green-soft);color:#12774d}
+    .chip.warn{background:var(--orange-soft);color:#b8610d}
+    .chip.bad{background:var(--danger-soft);color:#a91d1d}
+    .chip.neutral{background:var(--blue-soft);color:#2259c7}
+
+    .highlight-status{
+      margin-top:14px;border-radius:22px;padding:16px;
+      background:linear-gradient(180deg,#fdfefe,#f8fcff);border:2px solid #e4edf6;
     }
-    .step.active{background:var(--primary-soft);border-color:#cde7f2;color:var(--primary)}
-    .step.done{background:var(--ok-soft);border-color:#d3f1df;color:#166534}
-    .step.bad{background:var(--danger-soft);border-color:#ffd6dd;color:#991b1b}
+    .highlight-status.ok{background:linear-gradient(180deg,#f1fff8,#ffffff);border-color:#d6f3e2}
+    .highlight-status.warn{background:linear-gradient(180deg,#fff9ef,#ffffff);border-color:#ffe7c2}
+    .highlight-status.neutral{background:linear-gradient(180deg,#f2f8ff,#ffffff);border-color:#dce8fb}
+    .highlight-status.bad{background:linear-gradient(180deg,#fff2f2,#ffffff);border-color:#ffd7d7}
+    .highlight-label{font-size:13px;font-weight:900;color:#7a8fa4}
+    .highlight-value{margin-top:4px;font-size:22px;font-weight:900;line-height:1.15}
+    .highlight-note{margin-top:4px;font-size:14px;color:var(--muted);font-weight:700}
 
-    .mini-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
-    .detail-box{background:#f8fafc;border:1px solid #e6edf4;border-radius:16px;padding:12px}
-    .detail-box .k{font-size:12px;color:var(--muted);font-weight:800}
-    .detail-box .v{margin-top:5px;font-size:15px;font-weight:700;line-height:1.45}
-    .message{white-space:pre-wrap}
+    .info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+    .info-box{
+      border-radius:20px;padding:14px;background:linear-gradient(180deg,#f7fbff,#ffffff);border:2px solid #e4edf6;
+    }
+    .info-box.wide{grid-column:1 / -1}
+    .label{font-size:13px;color:#7b8fa5;font-weight:900;margin-bottom:8px}
+    .value{font-size:16px;font-weight:800;line-height:1.45;word-break:break-word}
+    .message{
+      background:transparent;border:none;border-radius:0;padding:0;
+      font-size:16px;line-height:1.55;font-weight:700;color:var(--text)
+    }
 
-    .media-section{margin-top:12px;padding-top:12px;border-top:1px dashed #e7edf4}
-    .media-title{font-size:14px;font-weight:900;margin-bottom:10px}
+    .media-section{margin-top:14px;padding-top:14px;border-top:1px dashed #dbe8f3}
+    .media-title{font-size:15px;font-weight:900;margin-bottom:10px}
     .media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .thumb-wrap{position:relative}
     .thumb{
-      width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:16px;border:1px solid rgba(15,23,42,.06);
+      width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:18px;border:1px solid rgba(15,23,42,.06);
       background:#fff;box-shadow:0 8px 18px rgba(15,23,42,.08)
     }
     .thumb-badge{
-      position:absolute;right:8px;bottom:8px;background:rgba(15,23,42,.72);color:#fff;
+      position:absolute;right:8px;bottom:8px;background:rgba(23,50,77,.78);color:#fff;
       font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px
     }
     .full-btn{
-      width:100%;margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:16px;
-      padding:12px 14px;font-family:'Kanit',sans-serif;font-weight:900;font-size:15px;color:var(--text)
+      width:100%;margin-top:10px;background:linear-gradient(180deg,#fff7e7,#fff);
+      border:1.5px solid #ffe1a8;border-radius:16px;
+      padding:12px 14px;font-weight:900;font-size:15px;color:#8f5a00
     }
 
     .toast{
       position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
-      background:rgba(15,23,42,.92);color:#fff;padding:12px 16px;border-radius:999px;font-size:13px;font-weight:800;
+      background:rgba(23,50,77,.95);color:#fff;padding:12px 16px;border-radius:999px;font-size:13px;font-weight:800;
       opacity:0;pointer-events:none;transition:.18s ease;z-index:999999;max-width:88vw;text-align:center
     }
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -183,16 +223,23 @@
     .media-modal__stack{display:flex;flex-direction:column;gap:12px}
     .media-modal__stack img,.media-modal__stack video{width:100%;max-height:76vh;object-fit:contain;border-radius:18px;background:#000}
 
-    @media (min-width:761px){
-      .mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media (min-width: 761px){
+      .search-card{padding:16px}
       .media-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     }
-    @media (max-width:520px){
+
+    @media (max-width: 520px){
       body{padding:12px}
-      h1{font-size:24px}
+      h1{font-size:25px}
       .sub{font-size:13px}
-      .status-title{font-size:21px}
-      .req-title{font-size:17px}
+      .summary{gap:8px}
+      .stat{padding:12px 10px}
+      .stat .n{font-size:22px}
+      .req-title{font-size:22px}
+      .info-grid{grid-template-columns:1fr}
+      .main-btn{font-size:21px}
+      .chip{font-size:13px;padding:9px 12px}
+      .highlight-value{font-size:20px}
     }
   </style>
 </head>
@@ -202,42 +249,41 @@
       <div class="hero-top">
         <a href="/choose.html" class="back-btn" aria-label="กลับ">←</a>
         <div>
-          <div class="eyebrow">Tracking</div>
+          <div class="eyebrow">Tracking Center</div>
           <h1>ติดตามคำร้อง</h1>
-          <div class="sub">กรอกเบอร์โทรเพื่อดูสถานะล่าสุดของคำร้องแบบอ่านง่ายบนมือถือ เน้นให้เห็นว่าตอนนี้เรื่องของคุณอยู่ขั้นตอนไหน</div>
+          <div class="sub">เช็กสถานะคำร้องแบบอ่านง่ายบนมือถือ เห็นสถานะหลักชัด ๆ และดูรายการย้อนหลังได้ในหน้าเดียว</div>
         </div>
       </div>
     </section>
 
-    <section class="search-card">
-      <form id="trackForm">
-        <div class="field-label">ค้นหาด้วยเบอร์โทรศัพท์</div>
-        <div class="phone-box">
-          <div class="phone-icon">📞</div>
-          <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="0891234567">
-        </div>
-        <button type="submit" class="main-btn">ตรวจสอบสถานะ</button>
-        <div class="helper-row">
-          <button type="button" class="ghost-btn" id="useSavedBtn">ใช้เบอร์ล่าสุด</button>
-          <button type="button" class="ghost-btn" id="clearBtn">ล้างเบอร์</button>
-        </div>
-      </form>
-      <div class="hint">ระบบจะจำเบอร์ล่าสุดไว้ให้ เพื่อให้กลับมาเช็กสถานะได้ง่ายขึ้น</div>
+    <div class="search-wrap">
+      <section class="search-card">
+        <form id="trackForm">
+          <div class="search-label">ค้นหาด้วยเบอร์โทรศัพท์</div>
+          <div class="phone-box">
+            <div class="phone-icon">📞</div>
+            <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="0891234567">
+          </div>
+          <button type="submit" class="main-btn">ตรวจสอบสถานะ</button>
+
+          <div class="action-row">
+            <button type="button" class="pill-btn primary" id="useSavedBtn">✨ ใช้เบอร์ล่าสุด</button>
+            <button type="button" class="pill-btn" id="clearBtn">🧹 ล้างเบอร์</button>
+          </div>
+        </form>
+        <div class="hint">ระบบจะจำเบอร์ล่าสุดไว้ให้ เพื่อให้กลับมาเช็กสถานะได้ง่ายขึ้น</div>
+      </section>
+    </div>
+
+    <section class="summary" id="summaryBar">
+      <div class="stat neutral"><div class="n" id="sumTotal">0</div><div class="t">คำร้องทั้งหมด</div></div>
+      <div class="stat warn"><div class="n" id="sumProgress">0</div><div class="t">กำลังติดตาม</div></div>
+      <div class="stat ok"><div class="n" id="sumDone">0</div><div class="t">เสร็จสิ้นแล้ว</div></div>
     </section>
 
-    <section class="focus-card">
-      <div class="focus-head">
-        <div>
-          <div class="focus-title">สถานะล่าสุด</div>
-          <div class="focus-note" id="lastSearchNote">ยังไม่ได้ค้นหา</div>
-        </div>
-      </div>
-      <div id="statusHero" class="status-empty">กรอกเบอร์โทรแล้วกด “ตรวจสอบสถานะ” เพื่อดูความคืบหน้าล่าสุด</div>
-    </section>
-
-    <div class="section-head">
+    <div class="result-head">
       <h2>รายการคำร้อง</h2>
-      <div class="section-note" id="listCountNote">0 รายการ</div>
+      <div class="mini-note" id="lastSearchNote">ยังไม่ได้ค้นหา</div>
     </div>
 
     <div id="results"></div>
@@ -259,6 +305,12 @@
   </div>
 
   <script>
+    const summaryEls = {
+      total: document.getElementById('sumTotal'),
+      progress: document.getElementById('sumProgress'),
+      done: document.getElementById('sumDone')
+    };
+
     function showToast(msg){
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -298,116 +350,82 @@
       return encodeURI('/uploads/' + u);
     }
 
-    function getStatusMeta(status) {
+    function statusMeta(status) {
       const s = (status || '').trim();
       if (!s) {
         return {
-          cls: 'warn',
-          chip: '⏳ รอดำเนินการ',
-          title: 'คำร้องของคุณกำลังรอดำเนินการ',
-          desc: 'เจ้าหน้าที่ได้รับเรื่องแล้ว และกำลังรอเข้าสู่ขั้นตอนการดำเนินงาน'
+          chip: `<span class="chip warn">📌 รอแผนกรับเรื่อง</span>`,
+          boxClass: 'warn',
+          title: 'รอแผนกรับเรื่อง',
+          note: 'คำร้องของคุณถูกส่งเข้าระบบแล้ว และกำลังรอหน่วยงานรับเรื่อง'
         };
       }
       if (s === 'เสร็จสิ้น') {
         return {
-          cls: 'ok',
-          chip: '✅ เสร็จสิ้น',
-          title: 'คำร้องนี้ดำเนินการเสร็จแล้ว',
-          desc: 'งานนี้เสร็จเรียบร้อยแล้ว คุณสามารถดูวันเวลาที่ปิดงานและไฟล์ประกอบได้ด้านล่าง'
+          chip: `<span class="chip ok">✅ เสร็จสิ้น</span>`,
+          boxClass: 'ok',
+          title: 'ดำเนินการเสร็จสิ้นแล้ว',
+          note: 'หน่วยงานดำเนินการเสร็จแล้ว คุณสามารถดูไฟล์แนบผลการดำเนินงานได้'
         };
       }
       if (s === 'กำลังดำเนินการ') {
         return {
-          cls: 'neutral',
-          chip: '⚙️ กำลังดำเนินการ',
-          title: 'คำร้องนี้กำลังดำเนินการ',
-          desc: 'เจ้าหน้าที่กำลังลงมือแก้ไขหรือดำเนินงานตามคำร้องของคุณ'
+          chip: `<span class="chip neutral">⚙️ กำลังดำเนินการ</span>`,
+          boxClass: 'neutral',
+          title: 'กำลังดำเนินการ',
+          note: 'หน่วยงานกำลังลงมือดำเนินการตามคำร้องของคุณ'
         };
       }
       if (s === 'ไม่อนุมัติ') {
         return {
-          cls: 'bad',
-          chip: '⛔ ไม่อนุมัติ',
-          title: 'คำร้องนี้ไม่ได้รับการอนุมัติ',
-          desc: 'ระบบแสดงผลว่าเรื่องนี้ไม่ผ่านการอนุมัติ กรุณาดูเหตุผลประกอบด้านล่าง'
+          chip: `<span class="chip bad">⛔ ไม่อนุมัติ</span>`,
+          boxClass: 'bad',
+          title: 'คำร้องนี้ไม่อนุมัติ',
+          note: 'รายการนี้ถูกปฏิเสธ กรุณาดูเหตุผลประกอบด้านล่าง'
+        };
+      }
+      if (s === 'รอดำเนินการ') {
+        return {
+          chip: `<span class="chip warn">⏳ รอดำเนินการ</span>`,
+          boxClass: 'warn',
+          title: 'รอดำเนินการ',
+          note: 'หน่วยงานรับเรื่องแล้ว และรอคิวดำเนินการ'
         };
       }
       return {
-        cls: 'neutral',
-        chip: `📌 ${s}`,
+        chip: `<span class="chip neutral">📍 ${s}</span>`,
+        boxClass: 'neutral',
         title: s,
-        desc: 'สถานะล่าสุดของคำร้อง'
+        note: 'สถานะล่าสุดของคำร้อง'
       };
     }
 
-    function statusChip(status) {
-      const meta = getStatusMeta(status);
-      return `<span class="status-chip ${meta.cls}">${meta.chip}</span>`;
-    }
-
-    function timelineSteps(status){
-      const s = (status || '').trim();
-      if (s === 'ไม่อนุมัติ') {
-        return `
-          <div class="step done">รับคำร้อง</div>
-          <div class="step bad">ไม่อนุมัติ</div>
-        `;
-      }
-      return `
-        <div class="step done">รับคำร้อง</div>
-        <div class="step ${!s ? 'active' : 'done'}">รอดำเนินการ</div>
-        <div class="step ${s === 'กำลังดำเนินการ' ? 'active' : (s === 'เสร็จสิ้น' ? 'done' : '')}">กำลังดำเนินการ</div>
-        <div class="step ${s === 'เสร็จสิ้น' ? 'done active' : ''}">เสร็จสิ้น</div>
-      `;
-    }
-
-    function buildStatusHero(row, total) {
-      const target = document.getElementById('statusHero');
-      if (!row) {
-        target.className = 'status-empty';
-        target.innerHTML = 'ไม่พบข้อมูลคำร้องของเบอร์นี้';
-        return;
-      }
-      const meta = getStatusMeta(row.status);
-      const rejectHtml = row.status === 'ไม่อนุมัติ' && row.reject_reason
-        ? `<div class="key-box"><div class="k">เหตุผล</div><div class="v">${row.reject_reason}</div></div>`
-        : '';
-      target.className = 'status-hero';
-      target.innerHTML = `
-        ${statusChip(row.status)}
-        <div class="status-title">${meta.title}</div>
-        <div class="status-desc">${meta.desc}</div>
-        <div class="key-grid">
-          <div class="key-box"><div class="k">เลขคำร้องล่าสุด</div><div class="v">#${row.id}</div></div>
-          <div class="key-box"><div class="k">พบทั้งหมด</div><div class="v">${total} รายการ</div></div>
-          <div class="key-box"><div class="k">วันที่ส่งคำร้อง</div><div class="v">${formatDate(row.created_at)}</div></div>
-          ${row.completed_at ? `<div class="key-box"><div class="k">วันที่เสร็จสิ้น</div><div class="v">${formatDate(row.completed_at)}</div></div>` : ''}
-          ${rejectHtml}
-        </div>
-      `;
-    }
-
     function renderLoading(){
-      document.getElementById('results').innerHTML = `<div class="loading">กำลังค้นหาข้อมูลคำร้อง...</div>`;
+      document.getElementById('results').innerHTML = `
+        <div class="skeleton">
+          <div class="sk-card"><div class="sk-pill"></div><div class="sk-line" style="width:88%"></div><div class="sk-line" style="width:64%"></div><div class="sk-line" style="width:96%"></div></div>
+          <div class="sk-card"><div class="sk-pill"></div><div class="sk-line" style="width:78%"></div><div class="sk-line" style="width:58%"></div><div class="sk-line" style="width:90%"></div></div>
+        </div>`;
     }
 
-    function normalizeRows(data) {
-      return [...data].sort((a, b) => {
-        const ta = new Date(a.completed_at || a.updated_at || a.created_at || 0).getTime();
-        const tb = new Date(b.completed_at || b.updated_at || b.created_at || 0).getTime();
-        return tb - ta;
-      });
+    function updateSummary(data){
+      const total = data.length;
+      const done = data.filter(r => (r.status || '').trim() === 'เสร็จสิ้น').length;
+      const rejected = data.filter(r => (r.status || '').trim() === 'ไม่อนุมัติ').length;
+      const progress = Math.max(0, total - done - rejected);
+      summaryEls.total.textContent = total;
+      summaryEls.done.textContent = done;
+      summaryEls.progress.textContent = progress;
     }
 
     async function fetchRequests(phone) {
       const resultsDiv = document.getElementById('results');
       document.getElementById('lastSearchNote').textContent = `กำลังค้นหา ${phone}`;
-      document.getElementById('listCountNote').textContent = '0 รายการ';
       renderLoading();
 
-      let data;
+      let res, data;
       try{
-        const res = await fetch('/track-requests', {
+        res = await fetch('/track-requests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone })
@@ -416,26 +434,22 @@
       }catch(err){
         resultsDiv.innerHTML = `<div class="empty">❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่</div>`;
         document.getElementById('lastSearchNote').textContent = 'เชื่อมต่อไม่สำเร็จ';
-        buildStatusHero(null, 0);
+        updateSummary([]);
         return;
       }
 
       if (!Array.isArray(data) || data.length === 0) {
         resultsDiv.innerHTML = `<div class="empty">ไม่พบข้อมูลคำร้องของเบอร์นี้</div>`;
         document.getElementById('lastSearchNote').textContent = `ไม่พบข้อมูลของ ${phone}`;
-        document.getElementById('listCountNote').textContent = '0 รายการ';
-        buildStatusHero(null, 0);
+        updateSummary([]);
         return;
       }
 
-      const rows = normalizeRows(data);
-      buildStatusHero(rows[0], rows.length);
-      document.getElementById('lastSearchNote').textContent = `เบอร์ ${phone}`;
-      document.getElementById('listCountNote').textContent = `${rows.length} รายการ`;
-      resultsDiv.innerHTML = '<div class="list"></div>';
-      const list = resultsDiv.querySelector('.list');
+      updateSummary(data);
+      document.getElementById('lastSearchNote').textContent = `พบ ${data.length} รายการ`;
+      resultsDiv.innerHTML = '';
 
-      rows.forEach(row => {
+      data.forEach(row => {
         const photos = parsePhoto(row.photo);
         const completedFiles = photos.filter(it => it && typeof it === 'object' && (it.from === 'completed' || it.tag === 'completed'));
         const safeFiles = completedFiles.filter(it => {
@@ -443,68 +457,90 @@
           const u = String(raw).trim();
           return /^https?:\/\//i.test(u) || u.startsWith('uploads/') || u.startsWith('/uploads/');
         });
-        const meta = getStatusMeta(row.status);
+
+        const meta = statusMeta(row.status);
+
+        let extraLine = '';
+        if (row.status === 'เสร็จสิ้น' && row.completed_at) {
+          extraLine = `
+            <div class="info-box">
+              <div class="label">วันที่เสร็จสิ้น</div>
+              <div class="value">${formatDate(row.completed_at)}</div>
+            </div>`;
+        }
+
+        let rejectLine = '';
+        if (row.status === 'ไม่อนุมัติ' && row.reject_reason) {
+          rejectLine = `
+            <div class="info-box wide">
+              <div class="label">เหตุผลที่ไม่อนุมัติ</div>
+              <div class="value">${row.reject_reason}</div>
+            </div>`;
+        }
 
         let mediaBlock = '';
         if (completedFiles.length > 0) {
           if (safeFiles.length === 0) {
             mediaBlock = `
               <div class="media-section">
-                <div class="media-title">ไฟล์ประกอบการดำเนินงาน</div>
-                <div class="detail-box"><div class="v" style="color:var(--muted)">ไฟล์ชุดนี้เป็นไฟล์เก่าในเครื่อง จึงยังแสดงบนระบบออนไลน์ไม่ได้</div></div>
+                <div class="media-title">📎 ไฟล์แนบจากการดำเนินงาน</div>
+                <div class="value" style="color:var(--muted)">ไฟล์แนบชุดนี้เป็นไฟล์เก่าในเครื่อง จึงยังแสดงบนระบบออนไลน์ไม่ได้</div>
               </div>`;
           } else {
             const thumbs = safeFiles.slice(0, 4).map((it, idx) => {
               const url = typeof it === 'string' ? normUrl(it) : normUrl(it.url);
               const isVideo = (typeof it === 'object' && it.type === 'video') || /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
               return isVideo
-                ? `<div class="thumb-wrap"><video muted playsinline class="thumb" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์ประกอบ")'><source src="${url}" type="video/mp4"></video><div class="thumb-badge">วิดีโอ</div></div>`
-                : `<div class="thumb-wrap"><img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์ประกอบ")'><div class="thumb-badge">รูป ${idx+1}</div></div>`;
+                ? `<div class="thumb-wrap"><video muted playsinline class="thumb" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์แนบ")'><source src="${url}" type="video/mp4"></video><div class="thumb-badge">วิดีโอ</div></div>`
+                : `<div class="thumb-wrap"><img class="thumb" src="${url}" alt="" onclick='openMediaModal(${JSON.stringify([it])},"ไฟล์แนบ")'><div class="thumb-badge">รูป ${idx+1}</div></div>`;
             }).join('');
 
             mediaBlock = `
               <div class="media-section">
-                <div class="media-title">ไฟล์ประกอบการดำเนินงาน</div>
+                <div class="media-title">📎 ไฟล์แนบจากการดำเนินงาน</div>
                 <div class="media-grid">${thumbs}</div>
                 <button type="button" class="full-btn" onclick='showImages(${JSON.stringify(safeFiles)})'>ดูไฟล์ทั้งหมด (${safeFiles.length})</button>
               </div>`;
           }
         }
 
-        const rejectBlock = row.status === 'ไม่อนุมัติ' && row.reject_reason
-          ? `<div class="detail-box"><div class="k">เหตุผลที่ไม่อนุมัติ</div><div class="v">${row.reject_reason}</div></div>`
-          : '';
-
-        const completedBlock = row.status === 'เสร็จสิ้น' && row.completed_at
-          ? `<div class="detail-box"><div class="k">วันที่เสร็จสิ้น</div><div class="v">${formatDate(row.completed_at)}</div></div>`
-          : '';
-
         const card = `
           <article class="req-card">
-            <div class="req-main">
-              <div class="req-top">
-                <div>
-                  <div class="req-id">เลขคำร้อง #${row.id}</div>
-                  <div class="req-title">${meta.title}</div>
-                </div>
-                ${statusChip(row.status)}
+            <div class="req-top">
+              <div>
+                <div class="req-id">เลขคำร้อง #${row.id}</div>
+                <div class="req-title">${meta.title}</div>
+                <div class="req-sub">สถานะล่าสุดของคำร้อง</div>
+              </div>
+              ${meta.chip}
+            </div>
+
+            <div class="highlight-status ${meta.boxClass}">
+              <div class="highlight-label">สถานะตอนนี้</div>
+              <div class="highlight-value">${meta.title}</div>
+              <div class="highlight-note">${meta.note}</div>
+            </div>
+
+            <div class="info-grid">
+              <div class="info-box">
+                <div class="label">วันที่ส่งคำร้อง</div>
+                <div class="value">${formatDate(row.created_at)}</div>
+              </div>
+
+              ${extraLine || `<div class="info-box"><div class="label">เบอร์ที่ใช้ติดตาม</div><div class="value">${row.phone || '-'}</div></div>`}
+
+              ${rejectLine}
+
+              <div class="info-box wide">
+                <div class="label">รายละเอียดคำร้อง</div>
+                <div class="message">${row.message || '-'}</div>
               </div>
             </div>
 
-            <div class="step-line">${timelineSteps(row.status)}</div>
-
-            <div class="req-main">
-              <div class="mini-grid">
-                <div class="detail-box"><div class="k">วันที่ส่งคำร้อง</div><div class="v">${formatDate(row.created_at)}</div></div>
-                ${completedBlock}
-                ${rejectBlock}
-                <div class="detail-box" style="grid-column:1/-1"><div class="k">รายละเอียดคำร้อง</div><div class="v message">${row.message || '-'}</div></div>
-              </div>
-              ${mediaBlock}
-            </div>
+            ${mediaBlock}
           </article>`;
 
-        list.insertAdjacentHTML('beforeend', card);
+        resultsDiv.insertAdjacentHTML('beforeend', card);
       });
     }
 
@@ -546,8 +582,7 @@
         phoneInput.value = '';
         document.getElementById('results').innerHTML = '<div class="empty">ล้างเบอร์แล้ว คุณสามารถค้นหาด้วยเบอร์ใหม่ได้ทันที</div>';
         document.getElementById('lastSearchNote').textContent = 'ล้างเบอร์ที่จำไว้แล้ว';
-        document.getElementById('listCountNote').textContent = '0 รายการ';
-        buildStatusHero(null, 0);
+        updateSummary([]);
         showToast('ล้างเบอร์ที่จำไว้แล้ว');
       });
     });
