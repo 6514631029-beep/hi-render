@@ -48,7 +48,7 @@
       padding-bottom:calc(28px + env(safe-area-inset-bottom));
     }
 
-    .app{max-width:760px;margin:0 auto}
+    .app{max-width:860px;margin:0 auto}
 
     .hero{
       background:rgba(255,255,255,.88);
@@ -77,13 +77,13 @@
     }
     .eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--primary);text-transform:uppercase}
     h1{margin:2px 0 0;font-size:28px;line-height:1.05}
-    .sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.5;font-weight:600}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.55;font-weight:600;max-width:620px}
 
-    .search-wrap{margin-top:14px;position:sticky;top:calc(12px + env(safe-area-inset-top));z-index:20}
+    .search-wrap{margin-top:14px;position:sticky;top:calc(10px + env(safe-area-inset-top));z-index:20}
     .search-card{
-      background:rgba(255,255,255,.93);
+      background:rgba(255,255,255,.95);
       backdrop-filter:blur(12px);
-      border:1px solid rgba(255,255,255,.95);
+      border:1px solid rgba(255,255,255,.98);
       border-radius:28px;
       box-shadow:0 16px 32px rgba(23,50,77,.10);
       padding:15px;
@@ -131,7 +131,7 @@
     .stat.warn .n{color:#0f93a6}
     .stat.ok .n{color:var(--green)}
 
-    .result-head{margin-top:20px;display:flex;align-items:end;justify-content:space-between;gap:12px}
+    .result-head{margin-top:22px;display:flex;align-items:end;justify-content:space-between;gap:12px}
     .result-head h2{margin:0;font-size:20px}
     .mini-note{font-size:13px;color:var(--muted);font-weight:800}
 
@@ -176,7 +176,7 @@
     .highlight-value{margin-top:4px;font-size:22px;font-weight:900;line-height:1.15}
     .highlight-note{margin-top:4px;font-size:14px;color:var(--muted);font-weight:700}
 
-    .info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+    .info-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
     .info-box{
       border-radius:20px;padding:14px;background:linear-gradient(180deg,#f7fbff,#ffffff);border:2px solid #e4edf6;
     }
@@ -223,23 +223,41 @@
     .media-modal__stack{display:flex;flex-direction:column;gap:12px}
     .media-modal__stack img,.media-modal__stack video{width:100%;max-height:76vh;object-fit:contain;border-radius:18px;background:#000}
 
+    @media (min-width: 700px){
+      .search-card{padding:16px 18px}
+      .info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .info-box.wide{grid-column:1 / -1}
+    }
+
     @media (min-width: 761px){
-      .search-card{padding:16px}
       .media-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     }
 
     @media (max-width: 520px){
       body{padding:12px}
-      h1{font-size:25px}
+      .hero{padding:16px;border-radius:26px}
+      .back-btn{width:44px;height:44px;border-radius:14px;font-size:20px}
+      h1{font-size:24px}
       .sub{font-size:13px}
-      .summary{gap:8px}
-      .stat{padding:12px 10px}
+      .search-card{border-radius:24px;padding:14px}
+      .phone-box{padding:13px 14px;border-radius:18px}
+      input[type="tel"]{font-size:18px}
+      .main-btn{font-size:20px;padding:15px;border-radius:18px}
+      .action-row{gap:8px}
+      .pill-btn{flex:1;justify-content:center;padding:11px 14px;font-size:14px}
+      .summary{grid-template-columns:1fr;gap:8px}
+      .stat{padding:12px 12px;border-radius:18px}
       .stat .n{font-size:22px}
+      .result-head{align-items:flex-start;flex-direction:column}
+      .req-card{padding:13px;border-radius:22px}
+      .req-top{flex-direction:column;align-items:flex-start}
       .req-title{font-size:22px}
-      .info-grid{grid-template-columns:1fr}
       .main-btn{font-size:21px}
       .chip{font-size:13px;padding:9px 12px}
+      .highlight-status{padding:14px;border-radius:18px}
       .highlight-value{font-size:20px}
+      .info-box{border-radius:16px;padding:13px}
+      .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
   </style>
 </head>
@@ -251,7 +269,7 @@
         <div>
           <div class="eyebrow">Tracking Center</div>
           <h1>ติดตามคำร้อง</h1>
-          <div class="sub">เช็กสถานะคำร้องแบบอ่านง่ายบนมือถือ เห็นสถานะหลักชัด ๆ และดูรายการย้อนหลังได้ในหน้าเดียว</div>
+          <div class="sub">เช็กสถานะคำร้องได้ง่ายทั้งมือถือและคอมพิวเตอร์ โดยเน้นให้เห็นสถานะล่าสุดชัด อ่านสบาย และดูย้อนหลังได้ในหน้าเดียว</div>
         </div>
       </div>
     </section>
@@ -526,9 +544,7 @@
                 <div class="label">วันที่ส่งคำร้อง</div>
                 <div class="value">${formatDate(row.created_at)}</div>
               </div>
-
-              ${extraLine || `<div class="info-box"><div class="label">เบอร์ที่ใช้ติดตาม</div><div class="value">${row.phone || '-'}</div></div>`}
-
+              ${extraLine}
               ${rejectLine}
 
               <div class="info-box wide">
