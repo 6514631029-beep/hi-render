@@ -363,8 +363,8 @@
 
       <button type="button" class="use-location-btn" onclick="useMyLocation()">📍 ใช้ตำแหน่งของฉัน</button>
 
-      <input type="hidden" name="latitude" id="latitude" required>
-      <input type="hidden" name="longitude" id="longitude" required>
+      <input type="hidden" name="latitude" id="latitude">
+      <input type="hidden" name="longitude" id="longitude">
 
       <label>ชื่อ:</label>
       <input type="text" name="name" required>
@@ -555,13 +555,7 @@
       const latitude = (latitudeInput.value || '').trim();
       const longitude = (longitudeInput.value || '').trim();
 
-      if (!latitude || !longitude) {
-        e.preventDefault();
-        markError(mapEl);
-        showAlertModal('กรุณากด "ใช้ตำแหน่งของฉัน"\nหรือปักหมุดบนแผนที่ก่อนส่งคำร้อง');
-        focusField(mapEl);
-        return;
-      }
+      
 
       if (!name) {
         e.preventDefault();

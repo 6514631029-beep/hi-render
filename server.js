@@ -1738,7 +1738,7 @@ app.post('/submit', (req, res) => {
       const dept_accept = null;   // ให้เป็น NULL ตอนส่งใหม่
       const dept_reason = null;   // ยังไม่มีเหตุผลตอนส่ง
 
-      if (!name || !phone || !address || !message || latitude == null || longitude == null) {
+      if (!name || !phone || !address || !message) {
         return res.status(400).send('❌ ข้อมูลไม่ครบ');
       }
 
