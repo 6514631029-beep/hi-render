@@ -719,6 +719,62 @@
       padding:16px;
     }
 
+
+
+    .eta-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.55);
+      z-index:10020;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .eta-modal{
+      width:min(100%, 620px);
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 30px 70px rgba(2,6,23,.28);
+      overflow:hidden;
+      border:1px solid rgba(226,232,240,.95);
+    }
+    .eta-head{
+      padding:18px 20px 12px;
+      background:linear-gradient(135deg, rgba(11,42,74,.98), rgba(19,58,99,.98));
+      color:#fff;
+    }
+    .eta-head h3{ margin:0; font-size:22px; line-height:1.2; font-weight:1000; }
+    .eta-head p{ margin:6px 0 0; color:rgba(255,255,255,.82); font-size:14px; }
+    .eta-body{ padding:18px 20px 20px; }
+    .eta-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; margin-bottom:14px; }
+    .eta-option{
+      border:1px solid #dbe6f3; background:#f8fbff; border-radius:16px; padding:14px;
+      cursor:pointer; text-align:left; transition:.18s ease; font-family:inherit; color:#0f172a;
+    }
+    .eta-option:hover{ transform:translateY(-1px); border-color:#93c5fd; background:#eef6ff; }
+    .eta-option.active{ border-color:#2563eb; background:#eff6ff; box-shadow:0 0 0 3px rgba(37,99,235,.10); }
+    .eta-option .eta-title{ display:block; font-weight:900; font-size:18px; margin-bottom:2px; }
+    .eta-option .eta-sub{ display:block; color:#64748b; font-size:13px; line-height:1.35; }
+    .eta-custom-wrap{ display:none; margin:10px 0 14px; }
+    .eta-custom-wrap.show{ display:block; }
+    .eta-label{ display:block; font-weight:900; margin:0 0 8px; color:#0f172a; }
+    .eta-input,.eta-textarea{
+      width:100%; border:1px solid #cbd5e1; border-radius:14px; padding:12px 14px; font:inherit; outline:none; background:#fff;
+    }
+    .eta-input:focus,.eta-textarea:focus{ border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.18); }
+    .eta-textarea{ min-height:105px; resize:vertical; }
+    .eta-preview{
+      margin-top:14px; padding:12px 14px; border-radius:14px; background:#f8fafc; border:1px dashed #cbd5e1;
+      color:#334155; white-space:pre-line; min-height:54px;
+    }
+    .eta-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:16px; flex-wrap:wrap; }
+    @media (max-width: 640px){
+      .eta-grid{ grid-template-columns:1fr; }
+      .eta-head h3{ font-size:20px; }
+      .eta-body{ padding:16px; }
+    }
+
     .detail-modal{
       width:min(860px, 100%);
       max-height:85vh;
@@ -1140,6 +1196,57 @@
     </div>
   </div>
 
+
+
+  <div id="etaModal" class="eta-overlay" onclick="closeEtaModal(event)">
+    <div class="eta-modal" onclick="event.stopPropagation()">
+      <div class="eta-head">
+        <h3 id="etaModalTitle">กำหนดการเบื้องต้น</h3>
+        <p id="etaModalSubtitle">เลือกช่วงเวลาและเพิ่มหมายเหตุสำหรับแจ้งผู้ใช้</p>
+      </div>
+      <div class="eta-body">
+        <div class="eta-grid" id="etaOptionGrid">
+          <button type="button" class="eta-option" data-value="ภายใน 1-3 วัน" onclick="selectEtaOption(this)">
+            <span class="eta-title">ภายใน 1-3 วัน</span>
+            <span class="eta-sub">เหมาะกับงานตรวจสอบหรือประสานงานเร็ว</span>
+          </button>
+          <button type="button" class="eta-option" data-value="ภายใน 1-5 วัน" onclick="selectEtaOption(this)">
+            <span class="eta-title">ภายใน 1-5 วัน</span>
+            <span class="eta-sub">เหมาะกับงานทั่วไปที่ต้องจัดคิว</span>
+          </button>
+          <button type="button" class="eta-option" data-value="ภายใน 1 สัปดาห์" onclick="selectEtaOption(this)">
+            <span class="eta-title">ภายใน 1 สัปดาห์</span>
+            <span class="eta-sub">เหมาะกับงานที่ต้องลงพื้นที่หรือรอประสาน</span>
+          </button>
+          <button type="button" class="eta-option" data-value="ภายใน 1 เดือน" onclick="selectEtaOption(this)">
+            <span class="eta-title">ภายใน 1 เดือน</span>
+            <span class="eta-sub">เหมาะกับงานที่ใช้เวลานานหรือรอวัสดุ</span>
+          </button>
+          <button type="button" class="eta-option" data-value="__custom__" onclick="selectEtaOption(this)">
+            <span class="eta-title">กำหนดเอง</span>
+            <span class="eta-sub">ระบุช่วงเวลาหรือข้อความเองตามเคส</span>
+          </button>
+        </div>
+
+        <div id="etaCustomWrap" class="eta-custom-wrap">
+          <label class="eta-label" for="etaCustomInput">กำหนดการเอง</label>
+          <input id="etaCustomInput" class="eta-input" type="text" placeholder="เช่น ภายในวันจันทร์นี้ หรือ หลังจากจัดซื้อวัสดุแล้ว" />
+        </div>
+
+        <label class="eta-label" for="etaRemarkInput">หมายเหตุเพิ่มเติม (ไม่บังคับ)</label>
+        <textarea id="etaRemarkInput" class="eta-textarea" placeholder="เช่น รอเจ้าหน้าที่ลงพื้นที่ / รอวัสดุอุปกรณ์ / งานเร่งด่วน"></textarea>
+
+        <div id="etaPreview" class="eta-preview">กรุณาเลือกกำหนดการเบื้องต้น</div>
+
+        <div class="eta-actions">
+          <button type="button" class="btn" onclick="cancelEtaModal()">ยกเลิก</button>
+          <button type="button" class="btn primary" onclick="confirmEtaModal()">ยืนยันและส่งแจ้งเตือน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div id="completeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:#fff; width:95%; max-width:520px; border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.2);">
       <h3 style="margin:0 0 8px">แนบรูป/วิดีโอ (ไม่บังคับ)</h3>
@@ -1169,6 +1276,8 @@
     let isLoading = false;
     let typingTimer = null;
     let pendingCompleteId = null;
+    let etaModalResolver = null;
+    let selectedEtaPreset = '';
 
     let soundEnabled = localStorage.getItem('health_sound_enabled') === 'true';
     let lastNewCount = 0;
@@ -2360,51 +2469,27 @@
     async function acceptDept(id) {
       if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
 
-      const optionsText =
-    `เลือกรูปแบบกำหนดเวลา:
-    1 = ภายใน 1-3 วัน
-    2 = ภายใน 1-5 วัน
-    3 = ภายใน 1 สัปดาห์
-    4 = ภายใน 1 เดือน
-    5 = กำหนดเอง`;
-
-      const choice = prompt(optionsText, '1');
-      if (choice === null) return;
-
-      let etaText = '';
-
-      if (choice === '1') {
-        etaText = 'ภายใน 1-3 วัน';
-      } else if (choice === '2') {
-        etaText = 'ภายใน 1-5 วัน';
-      } else if (choice === '3') {
-        etaText = 'ภายใน 1 สัปดาห์';
-      } else if (choice === '4') {
-        etaText = 'ภายใน 1 เดือน';
-      } else if (choice === '5') {
-        const custom = prompt('กรอกกำหนดการเบื้องต้นที่ต้องการแจ้งผู้ใช้', '');
-        if (custom === null) return;
-        etaText = custom.trim();
-      } else {
-        alert('❌ กรุณาเลือก 1, 2, 3, 4 หรือ 5');
-        return;
-      }
-
-      if (!etaText) {
-        alert('❌ กรุณาระบุกำหนดเวลา');
-        return;
-      }
+      const etaPayload = await openEtaModal({
+        title: 'รับเรื่องและกำหนดเวลารอดำเนินการ',
+        subtitle: 'เลือกช่วงเวลาและใส่หมายเหตุเพิ่มเติมเพื่อแจ้งผู้ใช้ผ่าน LINE'
+      });
+      if (!etaPayload) return;
 
       const res = await fetch(`/dept-accept/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ etaText })
+        body: JSON.stringify(etaPayload)
       });
 
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         clearNewById(id);
-        alert(`✅ รับเรื่องแล้ว\nกำหนดการเบื้องต้น: ${etaText}`);
+        const summary = [
+          '✅ รับเรื่องแล้ว',
+          `กำหนดการเบื้องต้น: ${etaPayload.etaText}`,
+          etaPayload.remarkText ? `หมายเหตุ: ${etaPayload.remarkText}` : ''
+        ].filter(Boolean).join('\n');
+        alert(summary);
         await setView('work');
         await updateCounters();
       } else {
@@ -2433,17 +2518,43 @@
     }
 
     async function setStatus(id, status) {
+      let payload = { status };
+
+      if (status === 'รอดำเนินการ' || status === 'กำลังดำเนินการ') {
+        const etaPayload = await openEtaModal({
+          title: status === 'รอดำเนินการ'
+            ? 'กำหนดเวลาสำหรับสถานะรอดำเนินการ'
+            : 'กำหนดเวลาสำหรับสถานะกำลังดำเนินการ',
+          subtitle: status === 'รอดำเนินการ'
+            ? 'เลือกช่วงเวลาและหมายเหตุสำหรับแจ้งผู้ใช้ว่าคำร้องกำลังรอดำเนินการ'
+            : 'เลือกช่วงเวลาและหมายเหตุสำหรับแจ้งผู้ใช้ว่าหน่วยงานกำลังดำเนินการอยู่'
+        });
+        if (!etaPayload) {
+          await safeLoadData();
+          return;
+        }
+        payload = { status, ...etaPayload };
+      }
+
       const res = await fetch(`/set-status/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
         allHealthData = allHealthData
-          .map(row => String(normalizeRowId(row)) === String(id) ? { ...row, status } : row)
+          .map(row => String(normalizeRowId(row)) === String(id)
+            ? { ...row, status, eta_text: payload.etaText || null }
+            : row)
           .filter(row => VIEW_MODE === 'work' ? isOpenWorkStatus(row.status) : true);
-        alert('✅ อัปเดตสถานะเรียบร้อย');
+
+        const summary = [
+          '✅ อัปเดตสถานะเรียบร้อย',
+          payload.etaText ? `กำหนดการเบื้องต้น: ${payload.etaText}` : '',
+          payload.remarkText ? `หมายเหตุ: ${payload.remarkText}` : ''
+        ].filter(Boolean).join('\n');
+        alert(summary);
         applyCurrentFilters();
         await updateCounters();
       } else {
@@ -2464,6 +2575,96 @@
         openCompleteModal();
       } else {
         setStatus(id, value);
+      }
+    }
+
+
+    function openEtaModal({ title = 'กำหนดการเบื้องต้น', subtitle = 'เลือกช่วงเวลาและเพิ่มหมายเหตุสำหรับแจ้งผู้ใช้' } = {}) {
+      const modal = document.getElementById('etaModal');
+      const titleEl = document.getElementById('etaModalTitle');
+      const subEl = document.getElementById('etaModalSubtitle');
+      const customWrap = document.getElementById('etaCustomWrap');
+      const customInput = document.getElementById('etaCustomInput');
+      const remarkInput = document.getElementById('etaRemarkInput');
+
+      selectedEtaPreset = '';
+      document.querySelectorAll('#etaOptionGrid .eta-option').forEach(btn => btn.classList.remove('active'));
+      customWrap.classList.remove('show');
+      customInput.value = '';
+      remarkInput.value = '';
+      titleEl.textContent = title;
+      subEl.textContent = subtitle;
+      updateEtaPreview();
+      modal.style.display = 'flex';
+
+      return new Promise((resolve) => {
+        etaModalResolver = resolve;
+      });
+    }
+
+    function selectEtaOption(btn) {
+      document.querySelectorAll('#etaOptionGrid .eta-option').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+      selectedEtaPreset = btn.dataset.value || '';
+
+      const customWrap = document.getElementById('etaCustomWrap');
+      const customInput = document.getElementById('etaCustomInput');
+      if (selectedEtaPreset === '__custom__') {
+        customWrap.classList.add('show');
+        setTimeout(() => customInput.focus(), 30);
+      } else {
+        customWrap.classList.remove('show');
+        customInput.value = '';
+      }
+      updateEtaPreview();
+    }
+
+    function getEtaModalValue() {
+      const customInput = document.getElementById('etaCustomInput');
+      const remarkInput = document.getElementById('etaRemarkInput');
+      const etaText = selectedEtaPreset === '__custom__' ? customInput.value.trim() : selectedEtaPreset;
+      const remarkText = remarkInput.value.trim();
+      return { etaText, remarkText };
+    }
+
+    function updateEtaPreview() {
+      const preview = document.getElementById('etaPreview');
+      const { etaText, remarkText } = getEtaModalValue();
+      if (!etaText) {
+        preview.textContent = 'กรุณาเลือกกำหนดการเบื้องต้น';
+        return;
+      }
+      preview.textContent = [
+        `กำหนดการเบื้องต้น: ${etaText}`,
+        remarkText ? `หมายเหตุ: ${remarkText}` : ''
+      ].filter(Boolean).join('\n');
+    }
+
+    function closeEtaModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      cancelEtaModal();
+    }
+
+    function cancelEtaModal() {
+      const modal = document.getElementById('etaModal');
+      modal.style.display = 'none';
+      if (etaModalResolver) {
+        etaModalResolver(null);
+        etaModalResolver = null;
+      }
+    }
+
+    function confirmEtaModal() {
+      const modal = document.getElementById('etaModal');
+      const { etaText, remarkText } = getEtaModalValue();
+      if (!etaText) {
+        alert('กรุณาเลือกกำหนดการเบื้องต้นก่อน');
+        return;
+      }
+      modal.style.display = 'none';
+      if (etaModalResolver) {
+        etaModalResolver({ etaText, remarkText });
+        etaModalResolver = null;
       }
     }
 
@@ -2601,13 +2802,24 @@
       safeLoadData();
     }, 15000);
 
+    document.addEventListener('input', (e) => {
+      if (e.target && (e.target.id === 'etaCustomInput' || e.target.id === 'etaRemarkInput')) {
+        updateEtaPreview();
+      }
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const modal = document.getElementById('detailModal');
         if (modal && modal.style.display === 'flex') closeDetailModal();
 
         const c = document.getElementById('completeModal');
-        if (c && c.style.display === 'flex') closeCompleteModal();
+        if (c && c.style.display === 'flex') {
+          closeCompleteModal();
+          return;
+        }
+        const eta = document.getElementById('etaModal');
+        if (eta && eta.style.display === 'flex') cancelEtaModal();
       }
     });
   
