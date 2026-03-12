@@ -301,7 +301,39 @@
       position:relative;
       z-index:2;
     }
+      .dash-link-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 18px;
+      border-radius:16px;
+      border:1px solid rgba(201,162,39,.35);
+      background:linear-gradient(135deg,#fff8dc,#f4e3a1);
+      color:#7a5b00;
+      text-decoration:none;
+      font-weight:800;
+      box-shadow:0 10px 24px rgba(201,162,39,.18);
+      transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      white-space:nowrap;
+    }
+    .dash-link-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(201,162,39,.24);
+      filter:brightness(1.01);
+    }
+    .dash-link-btn .icon{
+      font-size:18px;
+      line-height:1;
+    }
 
+    @media (max-width: 768px){
+      .dash-link-btn{
+        width:100%;
+        justify-content:center;
+        padding:12px 14px;
+        border-radius:14px;
+      }
+    }
     .sound-btn{
       border:1px solid rgba(255,255,255,.18);
       background: rgba(255,255,255,.10);
@@ -979,9 +1011,12 @@
           </div>
 
           <div class="topbar-actions">
-            <button id="soundToggleBtn" class="sound-btn off" onclick="toggleSoundAlert()">
-              🔕 เสียงแจ้งเตือนปิด
-            </button>
+            <a href="/dashboard-health.html" class="dash-link-btn">
+              <span class="icon">📊</span>
+              <span>Dashboard คะแนน</span>
+            </a>
+
+            <button id="soundToggleBtn" class="sound-btn" type="button">🔔 เสียงแจ้งเตือนเปิด</button>
           </div>
         </div>
       </header>
