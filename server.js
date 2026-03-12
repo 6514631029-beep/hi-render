@@ -464,7 +464,8 @@ function mapCategoryToDept(category) {
   const map = {
     'ขยะ': 'สาธารณสุข',
     'ไฟฟ้า': 'ไฟฟ้า',
-    'ถนน/เสาไฟชำรุด': 'กองช่าง'
+    'ถนน/เสาไฟชำรุด': 'กองช่าง',
+    'อื่นๆ': 'อื่นๆ'
   };
   return map[(category || '').trim()] || null;
 }
