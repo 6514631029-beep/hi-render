@@ -176,6 +176,17 @@
     .highlight-value{margin-top:4px;font-size:22px;font-weight:900;line-height:1.15}
     .highlight-note{margin-top:4px;font-size:14px;color:var(--muted);font-weight:700}
 
+
+    .eta-card{
+      margin-top:12px;border-radius:20px;padding:14px 16px;
+      background:linear-gradient(180deg,#fffdf6,#ffffff);
+      border:2px solid #f3e5bd;
+      box-shadow:0 8px 20px rgba(23,50,77,.05);
+    }
+    .eta-kicker{font-size:12px;font-weight:900;color:#9a7a27;letter-spacing:.02em}
+    .eta-main{margin-top:4px;font-size:24px;font-weight:900;line-height:1.15;color:#2a3d57}
+    .eta-remark{margin-top:8px;font-size:15px;line-height:1.55;color:#445b73;font-weight:700}
+
     .info-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
     .info-box{
       border-radius:20px;padding:14px;background:linear-gradient(180deg,#f7fbff,#ffffff);border:2px solid #e4edf6;
@@ -187,17 +198,6 @@
       background:transparent;border:none;border-radius:0;padding:0;
       font-size:16px;line-height:1.55;font-weight:700;color:var(--text)
     }
-
-    .eta-box{
-      margin-top:12px;
-      border-radius:20px;
-      padding:14px;
-      background:linear-gradient(180deg,#fff8e9,#ffffff);
-      border:2px solid #ffe7b4;
-    }
-    .eta-box .eta-title{font-size:13px;color:#8b6a21;font-weight:900;margin-bottom:8px}
-    .eta-box .eta-value{font-size:17px;font-weight:900;line-height:1.45;color:#7b4d00}
-    .eta-box .eta-hint{margin-top:6px;font-size:13px;color:#9a7b33;font-weight:700;line-height:1.5}
 
     .media-section{margin-top:14px;padding-top:14px;border-top:1px dashed #dbe8f3}
     .media-title{font-size:15px;font-weight:900;margin-bottom:10px}
@@ -268,8 +268,6 @@
       .highlight-status{padding:14px;border-radius:18px}
       .highlight-value{font-size:20px}
       .info-box{border-radius:16px;padding:13px}
-      .eta-box{border-radius:16px;padding:13px}
-      .eta-box .eta-value{font-size:16px}
       .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
 
@@ -722,7 +720,8 @@
       return encodeURI('/uploads/' + u);
     }
 
-   function buildEtaBlock(row) {
+
+    function buildEtaBlock(row) {
       const rawEtaText = String(row.eta_text || '').trim();
       if (!rawEtaText) return '';
 
@@ -744,26 +743,11 @@
 
       etaText = etaText || rawEtaText;
 
-      let title = 'กำหนดการเบื้องต้น';
-      let hint = 'เป็นกำหนดการล่าสุดที่หน่วยงานแจ้งไว้';
-
-      if (row.status === 'รอดำเนินการ') {
-        title = 'กำหนดการรอดำเนินการ';
-        hint = 'หน่วยงานรับเรื่องแล้วและกำลังรอดำเนินการ';
-      } else if (row.status === 'กำลังดำเนินการ') {
-        title = 'กำหนดการระหว่างดำเนินการ';
-        hint = 'หน่วยงานกำลังดำเนินการตามคำร้องของคุณ';
-      } else if (row.status === 'เสร็จสิ้น') {
-        title = 'กำหนดการล่าสุดก่อนปิดงาน';
-        hint = 'กำหนดการล่าสุดที่เคยแจ้งไว้ก่อนงานเสร็จ';
-      }
-
       return `
         <div class="eta-card">
-          <div class="eta-title">${title}</div>
-          <div class="eta-value">${escapeHtml(etaText)}</div>
+          <div class="eta-kicker">กำหนดการล่าสุด</div>
+          <div class="eta-main">${escapeHtml(etaText)}</div>
           ${remarkText ? `<div class="eta-remark"><strong>หมายเหตุล่าสุด:</strong> ${escapeHtml(remarkText)}</div>` : ''}
-          <div class="eta-hint">${hint}</div>
         </div>
       `;
     }
@@ -877,7 +861,6 @@
         });
 
         const meta = statusMeta(row.status);
-        const etaBlock = buildEtaBlock(row);
 
         let extraLine = '';
         if (row.status === 'เสร็จสิ้น' && row.completed_at) {
@@ -942,7 +925,7 @@
               <div class="highlight-note">${meta.note}</div>
             </div>
 
-            ${etaBlock}
+            ${buildEtaBlock(row)}
 
             <div class="info-grid">
               <div class="info-box">
