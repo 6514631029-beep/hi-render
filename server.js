@@ -2135,7 +2135,7 @@ function removeFromOtherBuckets(originalId, keepTable, cb) {
 app.post('/set-status/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { status } = req.body;
+    const { status, etaText } = req.body;
 
     if (!status) {
       return res.status(400).json({ success: false, message: '❌ ต้องระบุ status' });
@@ -2149,10 +2149,17 @@ app.post('/set-status/:id', async (req, res) => {
       });
     }
 
-    // 1) update ใน requests
+    let finalEtaText = null;
+
+    if (status === 'รอดำเนินการ') {
+      finalEtaText = (etaText || '').trim() || null;
+    } else {
+      finalEtaText = null;
+    }
+
     await db.promise().query(
-      'UPDATE requests SET status = ? WHERE id = ?',
-      [status, id]
+      'UPDATE requests SET status = ?, eta_text = ? WHERE id = ?',
+      [status, finalEtaText, id]
     );
 
     // 2) ดึงแถวล่าสุด
@@ -2179,6 +2186,9 @@ app.post('/set-status/:id', async (req, res) => {
     let extraText = '';
     if (status === 'รอดำเนินการ') {
       extraText = 'คำร้องของคุณอยู่ระหว่างรอการดำเนินงานจากหน่วยงาน';
+      if (finalEtaText) {
+        extraText += `\nกำหนดการเบื้องต้น: ${finalEtaText}`;
+      }
     } else if (status === 'กำลังดำเนินการ') {
       extraText = 'ขณะนี้หน่วยงานกำลังดำเนินการตามคำร้องของคุณ';
     }
