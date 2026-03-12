@@ -259,6 +259,107 @@
       .info-box{border-radius:16px;padding:13px}
       .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
+
+    .rating-section{
+      margin-top:16px;
+      padding:16px;
+      border:1px solid #e5e7eb;
+      border-radius:18px;
+      background:linear-gradient(180deg,#fffdf6,#ffffff);
+    }
+    .rating-title{
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+    .rating-sub{
+      color:#64748b;
+      font-size:14px;
+      margin-bottom:12px;
+    }
+    .star-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .star-btn{
+      border:none;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-size:24px;
+      line-height:1;
+      transition:.2s ease;
+    }
+    .star-btn:hover{
+      transform:translateY(-1px);
+      border-color:#f59e0b;
+    }
+    .star-btn.active{
+      background:#fff7ed;
+      border-color:#f59e0b;
+    }
+    .rating-textarea{
+      width:100%;
+      min-height:90px;
+      resize:vertical;
+      border:1px solid #dbe2ea;
+      border-radius:14px;
+      padding:12px 14px;
+      font:inherit;
+      outline:none;
+      box-sizing:border-box;
+      background:#fff;
+    }
+    .rating-textarea:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 3px rgba(59,130,246,.12);
+    }
+    .rating-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .rating-submit{
+      border:none;
+      background:#0b2a4a;
+      color:#fff;
+      padding:10px 16px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .rating-submit:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+    .rating-note{
+      font-size:13px;
+      color:#64748b;
+    }
+    .rating-view{
+      margin-top:16px;
+      padding:16px;
+      border:1px solid #dbeafe;
+      border-radius:18px;
+      background:linear-gradient(180deg,#f8fbff,#ffffff);
+    }
+    .rating-view .score{
+      font-size:20px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+    .rating-view .comment{
+      color:#334155;
+      white-space:pre-wrap;
+    }
+
   </style>
 </head>
 <body>
@@ -323,11 +424,139 @@
   </div>
 
   <script>
+
     const summaryEls = {
       total: document.getElementById('sumTotal'),
       progress: document.getElementById('sumProgress'),
       done: document.getElementById('sumDone')
     };
+
+    let ratingDraft = {};
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function starText(score){
+      const s = Number(score) || 0;
+      return '★'.repeat(s) + '☆'.repeat(5 - s);
+    }
+
+    function setRatingStar(requestId, score){
+      ratingDraft[requestId] = ratingDraft[requestId] || { rating: 0, comment: '' };
+      ratingDraft[requestId].rating = score;
+
+      const wrap = document.getElementById(`rating-stars-${requestId}`);
+      if (!wrap) return;
+
+      [...wrap.querySelectorAll('.star-btn')].forEach(btn => {
+        const val = Number(btn.dataset.value);
+        btn.classList.toggle('active', val <= score);
+      });
+    }
+
+    async function submitRating(requestId){
+      const textarea = document.getElementById(`rating-comment-${requestId}`);
+      const submitBtn = document.getElementById(`rating-submit-${requestId}`);
+      const state = ratingDraft[requestId] || {};
+      const rating = Number(state.rating || 0);
+      const comment = textarea ? textarea.value.trim() : '';
+
+      if (!rating || rating < 1 || rating > 5) {
+        showToast('กรุณาเลือกคะแนน 1-5 ดาว');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'กำลังบันทึก...';
+
+      try{
+        const res = await fetch(`/rate-request/${requestId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating, comment })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'บันทึกคะแนนไม่สำเร็จ');
+        }
+
+        showToast('ส่งคะแนนเรียบร้อยแล้ว');
+
+        const section = document.getElementById(`rating-section-${requestId}`);
+        if (section) {
+          section.outerHTML = `
+            <div class="rating-view" id="rating-view-${requestId}">
+              <div class="rating-title">⭐ คุณประเมินคำร้องนี้แล้ว</div>
+              <div class="score">${starText(rating)} (${rating}/5)</div>
+              <div class="comment">${escapeHtml(comment || 'ไม่มีความคิดเห็นเพิ่มเติม')}</div>
+            </div>
+          `;
+        }
+      } catch(err){
+        showToast(err.message || 'เกิดข้อผิดพลาดในการบันทึกคะแนน');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'ส่งคะแนน';
+      }
+    }
+
+    function buildRatingBlock(row){
+      const alreadyRated = row.rating !== null && row.rating !== undefined && row.rating !== '';
+      const canRateNow =
+        (row.status || '').trim() === 'เสร็จสิ้น' &&
+        Number(row.can_rate) === 1 &&
+        !alreadyRated;
+
+      if (alreadyRated) {
+        return `
+          <div class="rating-view" id="rating-view-${row.id}">
+            <div class="rating-title">⭐ คุณประเมินคำร้องนี้แล้ว</div>
+            <div class="score">${starText(row.rating)} (${Number(row.rating)}/5)</div>
+            <div class="comment">${escapeHtml(row.rating_comment || 'ไม่มีความคิดเห็นเพิ่มเติม')}</div>
+          </div>
+        `;
+      }
+
+      if (!canRateNow) return '';
+
+      return `
+        <div class="rating-section" id="rating-section-${row.id}">
+          <div class="rating-title">ให้คะแนนความพึงพอใจ</div>
+          <div class="rating-sub">หลังงานเสร็จแล้ว คุณสามารถให้คะแนนการดำเนินงานได้ 1 ครั้ง</div>
+
+          <div class="star-row" id="rating-stars-${row.id}">
+            <button type="button" class="star-btn" data-value="1" onclick="setRatingStar(${row.id},1)">★</button>
+            <button type="button" class="star-btn" data-value="2" onclick="setRatingStar(${row.id},2)">★</button>
+            <button type="button" class="star-btn" data-value="3" onclick="setRatingStar(${row.id},3)">★</button>
+            <button type="button" class="star-btn" data-value="4" onclick="setRatingStar(${row.id},4)">★</button>
+            <button type="button" class="star-btn" data-value="5" onclick="setRatingStar(${row.id},5)">★</button>
+          </div>
+
+          <textarea
+            id="rating-comment-${row.id}"
+            class="rating-textarea"
+            placeholder="พิมพ์ความคิดเห็นเพิ่มเติมได้ เช่น ดำเนินงานรวดเร็ว เจ้าหน้าที่ติดตามงานดี"
+          ></textarea>
+
+          <div class="rating-actions">
+            <button
+              type="button"
+              class="rating-submit"
+              id="rating-submit-${row.id}"
+              onclick="submitRating(${row.id})"
+            >ส่งคะแนน</button>
+            <div class="rating-note">ให้คะแนนได้ 1 ครั้งต่อคำร้อง</div>
+          </div>
+        </div>
+      `;
+    }
 
     function showToast(msg){
       const toast = document.getElementById('toast');
@@ -522,6 +751,8 @@
           }
         }
 
+        const ratingBlock = buildRatingBlock(row);
+
         const card = `
           <article class="req-card">
             <div class="req-top">
@@ -554,6 +785,7 @@
             </div>
 
             ${mediaBlock}
+            ${ratingBlock}
           </article>`;
 
         resultsDiv.insertAdjacentHTML('beforeend', card);
