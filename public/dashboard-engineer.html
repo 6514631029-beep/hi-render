@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <link rel="manifest" href="/manifest-engineer.json">
+  <meta name="theme-color" content="#155263">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>📊 Dashboard ความพึงพอใจ - กองช่าง</title>
+  <link rel="stylesheet" href="/admin-font.css" />
+  <style>
+    :root{
+      --bg:#eef3fb;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --navy:#0b2a4a;
+      --navy2:#133a63;
+      --gold:#c9a227;
+      --gold2:#f4e3a1;
+      --line:#e2e8f0;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --info:#2563eb;
+      --danger:#dc2626;
+      --shadow:0 12px 30px rgba(2,6,23,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:inherit;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 500px at 50% -50%, rgba(201,162,39,.18), transparent 60%),
+        radial-gradient(900px 400px at 0% 0%, rgba(11,42,74,.14), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:1280px; margin:0 auto; padding:20px;}
+    .topbar{
+      background:linear-gradient(135deg,var(--navy) 0%, var(--navy2) 60%, #0a2340 100%);
+      color:#fff;
+      border-radius:22px;
+      padding:18px 20px;
+      box-shadow:var(--shadow);
+      display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    }
+    .title{display:flex; align-items:center; gap:14px;}
+    .logo{
+      width:54px; height:54px; border-radius:16px; flex:0 0 auto;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg, rgba(201,162,39,.95), rgba(244,227,161,.92));
+      color:#1f2937; font-size:28px; box-shadow:0 12px 22px rgba(201,162,39,.25);
+    }
+    h1{margin:0; font-size:28px; line-height:1.15}
+    .sub{opacity:.9; margin-top:4px; font-size:15px}
+    .actions{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      border:none; cursor:pointer; text-decoration:none;
+      padding:12px 16px; border-radius:14px; font-weight:900; font-size:15px;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn.primary{background:#fff; color:var(--navy)}
+    .btn.secondary{background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.18)}
+    .grid{display:grid; gap:18px; margin-top:18px}
+    .hero{grid-template-columns:1.1fr .9fr}
+    .card{
+      background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:18px;
+    }
+    .card h2{margin:0 0 12px; font-size:20px}
+    .muted{color:var(--muted)}
+    .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+    .kpi{
+      border:1px solid var(--line); border-radius:16px; padding:16px;
+      background:linear-gradient(180deg,#fff,#f8fbff);
+    }
+    .kpi .label{font-size:14px; color:var(--muted); font-weight:800}
+    .kpi .value{font-size:32px; font-weight:1000; margin-top:8px}
+    .kpi .note{font-size:13px; margin-top:6px}
+    .ring-wrap{display:flex; align-items:center; justify-content:center; min-height:320px;}
+    .ring{
+      --pct:0;
+      width:270px; height:270px; border-radius:50%;
+      background:conic-gradient(var(--ok) calc(var(--pct) * 1%), #e2e8f0 0);
+      display:grid; place-items:center;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+    }
+    .ring::before{
+      content:""; width:192px; height:192px; border-radius:50%; background:#fff;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .ring-center{position:absolute; text-align:center; pointer-events:none}
+    .ring-center .big{font-size:48px; font-weight:1000; color:var(--ok); line-height:1}
+    .ring-center .small{font-size:15px; color:var(--muted); margin-top:8px; font-weight:900}
+    .status-bars{display:grid; gap:14px}
+    .status-row{display:grid; gap:8px}
+    .status-meta{display:flex; justify-content:space-between; gap:12px; font-weight:900; font-size:15px}
+    .bar{height:16px; background:#edf2f7; border-radius:999px; overflow:hidden; border:1px solid #dbe4ef}
+    .fill{height:100%; border-radius:999px}
+    .fill.pending{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+    .fill.progress{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+    .fill.done{background:linear-gradient(90deg,#16a34a,#4ade80)}
+    .section-title{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px}
+    .section-title .left{font-weight:1000; font-size:20px}
+    .badge{padding:8px 12px; border-radius:999px; font-weight:1000; font-size:14px}
+    .badge.gold{background:#fff8dc; color:#8a6500; border:1px solid #f1d784}
+    .score-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+    .score-card{
+      border-radius:18px; padding:18px; border:1px solid var(--line);
+      background:linear-gradient(180deg,#fff,#f8fbff);
+    }
+    .score-card .t{font-size:14px; color:var(--muted); font-weight:900}
+    .score-card .v{font-size:34px; font-weight:1000; margin-top:8px}
+    .score-card .s{margin-top:6px; font-size:13px; color:var(--muted)}
+    .stars-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:16px}
+    .star-card{
+      border:1px solid var(--line); background:#fff; border-radius:18px; padding:16px; text-align:center;
+      cursor:pointer; transition:.18s transform,.18s box-shadow,.18s border-color;
+      box-shadow:0 8px 20px rgba(2,6,23,.04);
+    }
+    .star-card:hover{transform:translateY(-2px); box-shadow:0 14px 24px rgba(2,6,23,.08); border-color:#f0d37a}
+    .star-emoji{font-size:28px}
+    .star-title{font-size:15px; font-weight:1000; margin-top:8px}
+    .star-count{font-size:30px; font-weight:1000; color:var(--navy); margin-top:6px}
+    .star-hint{font-size:12px; color:var(--muted); margin-top:6px}
+    .reviews{
+      margin-top:18px;
+      border:1px solid var(--line); border-radius:18px; overflow:hidden;
+      background:#fff;
+    }
+    .review-head,.review-row{
+      display:grid; grid-template-columns:1.1fr .55fr 1fr .8fr; gap:12px; align-items:start;
+      padding:14px 16px;
+    }
+    .review-head{background:#f8fafc; font-weight:1000; color:#334155; border-bottom:1px solid var(--line)}
+    .review-row{border-bottom:1px solid #eef2f7}
+    .review-row:last-child{border-bottom:none}
+    .pill{display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 10px; font-weight:1000; font-size:13px; background:#fff8dc; color:#8a6500; border:1px solid #f1d784}
+    .empty{
+      text-align:center; padding:38px 18px; color:var(--muted);
+      border:1px dashed #cbd5e1; border-radius:18px; background:#fff;
+    }
+    .modal{
+      position:fixed; inset:0; background:rgba(2,6,23,.45); display:none; align-items:center; justify-content:center;
+      padding:18px; z-index:200;
+    }
+    .modal.open{display:flex}
+    .modal-card{
+      width:min(980px,100%); max-height:85vh; overflow:auto;
+      background:#fff; border-radius:22px; box-shadow:0 30px 60px rgba(2,6,23,.25); border:1px solid var(--line);
+    }
+    .modal-top{
+      position:sticky; top:0; background:#fff; z-index:3;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:16px 18px; border-bottom:1px solid var(--line);
+    }
+    .modal-list{padding:16px; display:grid; gap:12px}
+    .person-card{
+      border:1px solid var(--line); border-radius:16px; padding:14px; background:#fbfdff;
+      display:grid; gap:8px;
+    }
+    .person-top{display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap}
+    .person-name{font-size:17px; font-weight:1000}
+    .person-msg{color:#334155}
+    .person-meta{font-size:13px; color:var(--muted)}
+    .footer-note{margin-top:10px; color:var(--muted); font-size:13px}
+    @media (max-width: 1100px){
+      .hero,.score-grid,.stars-grid,.kpis{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 760px){
+      .wrap{padding:14px}
+      .hero,.score-grid,.stars-grid,.kpis{grid-template-columns:1fr}
+      .review-head,.review-row{grid-template-columns:1fr}
+      .ring{width:220px;height:220px}
+      .ring::before{width:155px;height:155px}
+      .ring-center .big{font-size:38px}
+      h1{font-size:23px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <div class="logo">📊</div>
+        <div>
+          <h1>Dashboard สรุปผลแผนกกองช่าง</h1>
+          <div class="sub">สรุปสถานะงานและความพึงพอใจของผู้ใช้จากข้อมูลในระบบ</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="/admin-engineer.html">🏛️ กลับหน้าแผนก</a>
+        <button class="btn secondary" type="button" onclick="loadDashboard()">🔄 รีเฟรช</button>
+      </div>
+    </div>
+
+    <div class="grid hero">
+      <section class="card">
+        <div class="section-title">
+          <div class="left">ภาพรวมสถานะงาน</div>
+          <span class="badge gold" id="totalBadge">รวม 0 งาน</span>
+        </div>
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">รอดำเนินการ</div>
+            <div class="value" id="pendingCount">0</div>
+            <div class="note" id="pendingPctText">0% ของงานทั้งหมด</div>
+          </div>
+          <div class="kpi">
+            <div class="label">กำลังดำเนินการ</div>
+            <div class="value" id="progressCount">0</div>
+            <div class="note" id="progressPctText">0% ของงานทั้งหมด</div>
+          </div>
+          <div class="kpi">
+            <div class="label">เสร็จสิ้นแล้ว</div>
+            <div class="value" id="doneCount">0</div>
+            <div class="note" id="donePctText">0% ของงานทั้งหมด</div>
+          </div>
+        </div>
+        <div class="status-bars" style="margin-top:18px;">
+          <div class="status-row">
+            <div class="status-meta"><span>⏳ รอดำเนินการ</span><span id="pendingMeta">0 งาน • 0%</span></div>
+            <div class="bar"><div class="fill pending" id="pendingBar" style="width:0%"></div></div>
+          </div>
+          <div class="status-row">
+            <div class="status-meta"><span>⚙️ กำลังดำเนินการ</span><span id="progressMeta">0 งาน • 0%</span></div>
+            <div class="bar"><div class="fill progress" id="progressBar" style="width:0%"></div></div>
+          </div>
+          <div class="status-row">
+            <div class="status-meta"><span>✅ เสร็จสิ้นแล้ว</span><span id="doneMeta">0 งาน • 0%</span></div>
+            <div class="bar"><div class="fill done" id="doneBar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="footer-note">คิดเปอร์เซ็นต์จากงานทั้งหมดของแผนกกองช่างในระบบ</div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <div class="left">อัตราความสำเร็จของงาน</div>
+          <span class="badge gold" id="doneBadge">0%</span>
+        </div>
+        <div class="ring-wrap" style="position:relative;">
+          <div class="ring" id="successRing" style="--pct:0"></div>
+          <div class="ring-center">
+            <div class="big" id="donePctBig">0%</div>
+            <div class="small">งานเสร็จสิ้นแล้ว<br>จากงานทั้งหมด</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="section-title">
+        <div class="left">ความพึงพอใจของผู้ใช้</div>
+        <span class="badge gold" id="ratedBadge">มีการให้คะแนน 0 งาน</span>
+      </div>
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="t">คะแนนเฉลี่ย</div>
+          <div class="v" id="avgRating">0.0/5</div>
+          <div class="s">เฉพาะงานที่เสร็จสิ้นและมีการให้คะแนน</div>
+        </div>
+        <div class="score-card">
+          <div class="t">ความพึงพอใจ</div>
+          <div class="v" id="satisfactionPct">0%</div>
+          <div class="s">คิดจากสูตร (คะแนนเฉลี่ย ÷ 5) × 100</div>
+        </div>
+        <div class="score-card">
+          <div class="t">งานที่ถูกให้คะแนนแล้ว</div>
+          <div class="v" id="ratedCount">0</div>
+          <div class="s">กดการ์ดดาวเพื่อดูรายชื่อผู้ใช้ของแต่ละระดับ</div>
+        </div>
+      </div>
+
+      <div class="stars-grid" id="starsGrid"></div>
+      <div class="footer-note">กดการ์ด 5–1 ดาวเพื่อดูว่าใครให้คะแนนระดับนั้นบ้าง</div>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="section-title">
+        <div class="left">รีวิวล่าสุด</div>
+        <span class="badge gold">ล่าสุด 8 รายการ</span>
+      </div>
+      <div id="latestReviews"></div>
+    </section>
+  </div>
+
+  <div class="modal" id="starModal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <div>
+          <div style="font-size:22px;font-weight:1000;" id="modalTitle">รายการผู้ใช้</div>
+          <div class="muted" id="modalSubtitle">กดจากการ์ดดาวเพื่อดูรายละเอียด</div>
+        </div>
+        <button class="btn primary" type="button" onclick="forceCloseModal()">ปิด</button>
+      </div>
+      <div class="modal-list" id="modalList"></div>
+    </div>
+  </div>
+
+  <script>
+    const DEPARTMENT = 'กองช่าง';
+    let ratingBuckets = {1:[],2:[],3:[],4:[],5:[]};
+
+    function round1(num){ return (Math.round(num * 10) / 10).toFixed(1); }
+    function pct(part, total){ return total ? (part / total) * 100 : 0; }
+    function fmtPct(n){ return `${Math.round(n)}%`; }
+
+    function maskName(name='ไม่ระบุ'){
+      const s = String(name).trim();
+      if (!s) return 'ไม่ระบุ';
+      if (s.length <= 2) return s[0] + '*';
+      return s.slice(0,2) + '*'.repeat(Math.max(1, s.length - 2));
+    }
+    function maskPhone(phone=''){
+      const digits = String(phone || '').trim();
+      if (!digits) return 'ไม่ระบุเบอร์';
+      if (digits.length < 7) return digits;
+      return `${digits.slice(0,3)}***${digits.slice(-3)}`;
+    }
+    function starText(n){
+      return ({5:'พึงพอใจมาก',4:'ดีมาก',3:'ปานกลาง',2:'ควรปรับปรุง',1:'ไม่พึงพอใจ'})[n] || '';
+    }
+    function escapeHtml(str=''){
+      return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+    function toThaiDate(value){
+      if (!value) return '-';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return '-';
+      return d.toLocaleString('th-TH', { timeZone:'Asia/Bangkok', dateStyle:'medium', timeStyle:'short' });
+    }
+
+    async function fetchJson(url){
+      const res = await fetch(url, { cache:'no-store' });
+      if (!res.ok) throw new Error(`โหลดข้อมูลไม่สำเร็จ: ${url}`);
+      return res.json();
+    }
+
+    function renderStatus({pending,inprogress,completed}){
+      const total = pending.length + inprogress.length + completed.length;
+      const pendingP = pct(pending.length, total);
+      const progressP = pct(inprogress.length, total);
+      const doneP = pct(completed.length, total);
+
+      document.getElementById('totalBadge').textContent = `รวม ${total} งาน`;
+      document.getElementById('doneBadge').textContent = fmtPct(doneP);
+      document.getElementById('pendingCount').textContent = pending.length;
+      document.getElementById('progressCount').textContent = inprogress.length;
+      document.getElementById('doneCount').textContent = completed.length;
+      document.getElementById('pendingPctText').textContent = `${fmtPct(pendingP)} ของงานทั้งหมด`;
+      document.getElementById('progressPctText').textContent = `${fmtPct(progressP)} ของงานทั้งหมด`;
+      document.getElementById('donePctText').textContent = `${fmtPct(doneP)} ของงานทั้งหมด`;
+      document.getElementById('pendingMeta').textContent = `${pending.length} งาน • ${fmtPct(pendingP)}`;
+      document.getElementById('progressMeta').textContent = `${inprogress.length} งาน • ${fmtPct(progressP)}`;
+      document.getElementById('doneMeta').textContent = `${completed.length} งาน • ${fmtPct(doneP)}`;
+      document.getElementById('pendingBar').style.width = `${pendingP}%`;
+      document.getElementById('progressBar').style.width = `${progressP}%`;
+      document.getElementById('doneBar').style.width = `${doneP}%`;
+      document.getElementById('donePctBig').textContent = fmtPct(doneP);
+      document.getElementById('successRing').style.setProperty('--pct', doneP.toFixed(2));
+    }
+
+    function renderRatings(completed){
+      const rated = completed.filter(r => Number(r.rating) >= 1 && Number(r.rating) <= 5);
+      ratingBuckets = {1:[],2:[],3:[],4:[],5:[]};
+      rated.forEach(row => ratingBuckets[Number(row.rating)].push(row));
+
+      const ratedCount = rated.length;
+      const avg = ratedCount ? rated.reduce((sum, r) => sum + Number(r.rating), 0) / ratedCount : 0;
+      const satisfaction = ratedCount ? (avg / 5) * 100 : 0;
+
+      document.getElementById('avgRating').textContent = `${round1(avg)}/5`;
+      document.getElementById('satisfactionPct').textContent = fmtPct(satisfaction);
+      document.getElementById('ratedCount').textContent = ratedCount;
+      document.getElementById('ratedBadge').textContent = `มีการให้คะแนน ${ratedCount} งาน`;
+
+      const starsGrid = document.getElementById('starsGrid');
+      const order = [5,4,3,2,1];
+      starsGrid.innerHTML = order.map(star => {
+        const count = ratingBuckets[star].length;
+        return `
+          <button class="star-card" type="button" onclick="openStarModal(${star})">
+            <div class="star-emoji">${'⭐'.repeat(star)}</div>
+            <div class="star-title">${star} ดาว</div>
+            <div class="star-count">${count}</div>
+            <div class="star-hint">${starText(star)}</div>
+          </button>
+        `;
+      }).join('');
+
+      const latestWrap = document.getElementById('latestReviews');
+      if (!ratedCount){
+        latestWrap.innerHTML = `<div class="empty">ยังไม่มีการให้คะแนนในงานเสร็จสิ้นของแผนกนี้</div>`;
+        return;
+      }
+
+      const latest = [...rated].sort((a,b) => new Date(b.rating_created_at || b.created_at) - new Date(a.rating_created_at || a.created_at)).slice(0,8);
+      latestWrap.innerHTML = `
+        <div class="reviews">
+          <div class="review-head">
+            <div>ผู้ใช้</div>
+            <div>คะแนน</div>
+            <div>ความคิดเห็น</div>
+            <div>วันที่</div>
+          </div>
+          ${latest.map(row => `
+            <div class="review-row">
+              <div>
+                <div style="font-weight:1000;">${escapeHtml(maskName(row.name))}</div>
+                <div class="muted" style="font-size:13px;">${escapeHtml(maskPhone(row.phone))}</div>
+              </div>
+              <div><span class="pill">⭐ ${Number(row.rating)} ดาว</span></div>
+              <div>${escapeHtml(row.rating_comment || 'ไม่ได้ระบุความคิดเห็น')}</div>
+              <div>${escapeHtml(toThaiDate(row.rating_created_at || row.created_at))}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function openStarModal(star){
+      const list = ratingBuckets[star] || [];
+      document.getElementById('modalTitle').textContent = `ผู้ใช้ที่ให้ ${star} ดาว`;
+      document.getElementById('modalSubtitle').textContent = `${starText(star)} • ทั้งหมด ${list.length} รายการ`;
+      const modalList = document.getElementById('modalList');
+
+      if (!list.length){
+        modalList.innerHTML = `<div class="empty">ยังไม่มีผู้ใช้ที่ให้ ${star} ดาว</div>`;
+      } else {
+        modalList.innerHTML = list
+          .sort((a,b) => new Date(b.rating_created_at || b.created_at) - new Date(a.rating_created_at || a.created_at))
+          .map(row => `
+            <div class="person-card">
+              <div class="person-top">
+                <div class="person-name">${escapeHtml(maskName(row.name))} <span class="muted">(${escapeHtml(maskPhone(row.phone))})</span></div>
+                <span class="pill">⭐ ${Number(row.rating)} ดาว</span>
+              </div>
+              <div class="person-msg">${escapeHtml(row.rating_comment || 'ไม่ได้ระบุความคิดเห็น')}</div>
+              <div class="person-meta">วันที่ให้คะแนน: ${escapeHtml(toThaiDate(row.rating_created_at || row.created_at))}</div>
+              <div class="person-meta">เรื่องที่ร้องเรียน: ${escapeHtml(row.message || '-')}</div>
+            </div>
+          `).join('');
+      }
+
+      document.getElementById('starModal').classList.add('open');
+    }
+    function forceCloseModal(){ document.getElementById('starModal').classList.remove('open'); }
+    function closeModal(e){ if (e.target.id === 'starModal') forceCloseModal(); }
+
+    async function loadDashboard(){
+      try{
+        const dep = encodeURIComponent(DEPARTMENT);
+        const [pending, inprogress, completed] = await Promise.all([
+          fetchJson(`/data-pending?department=${dep}`),
+          fetchJson(`/data-in-progress?department=${dep}`),
+          fetchJson(`/data-completed?department=${dep}`),
+        ]);
+
+        renderStatus({ pending, inprogress, completed });
+        renderRatings(completed);
+      }catch(err){
+        console.error(err);
+        document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed;left:12px;right:12px;bottom:12px;background:#7f1d1d;color:#fff;padding:12px 14px;border-radius:14px;z-index:999;font-weight:800;">โหลด dashboard ไม่สำเร็จ กรุณาตรวจสอบ route ใน server และลองใหม่อีกครั้ง</div>`);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
