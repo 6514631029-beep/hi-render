@@ -1807,18 +1807,25 @@ app.post('/submit', (req, res) => {
 app.post('/dept-accept/:id', async (req, res) => {
   try {
     const id = req.params.id;
+    const etaText = (req.body?.etaText || '').trim();
+    const remarkText = (req.body?.remarkText || '').trim();
+
+    let finalEtaText = etaText || '';
+    if (remarkText) {
+      finalEtaText += `\nหมายเหตุ: ${remarkText}`;
+    }
+    finalEtaText = finalEtaText.trim() || null;
 
     await db.promise().query(
-      "UPDATE requests SET dept_accept = 1, status = 'รอดำเนินการ' WHERE id = ?",
-      [id]
+      "UPDATE requests SET dept_accept = 1, status = 'รอดำเนินการ', eta_text = ? WHERE id = ?",
+      [finalEtaText, id]
     );
 
-    // ✅ แจ้ง LINE เมื่อหน่วยงานรับเรื่อง
-    await notifyRequestStatusLine(
-      id,
-      'รอดำเนินการ',
-      'หน่วยงานรับเรื่องของคุณแล้ว และกำลังเข้าสู่ขั้นตอนดำเนินการ'
-    );
+    let extraText = 'หน่วยงานรับเรื่องของคุณแล้ว และกำลังเข้าสู่ขั้นตอนดำเนินการ';
+    if (etaText) extraText += `\nกำหนดการเบื้องต้น: ${etaText}`;
+    if (remarkText) extraText += `\nหมายเหตุ: ${remarkText}`;
+
+    await notifyRequestStatusLine(id, 'รอดำเนินการ', extraText);
 
     return res.json({ ok: true });
   } catch (e) {
@@ -2135,13 +2142,12 @@ function removeFromOtherBuckets(originalId, keepTable, cb) {
 app.post('/set-status/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { status } = req.body;
+    const { status, etaText, remarkText } = req.body;
 
     if (!status) {
       return res.status(400).json({ success: false, message: '❌ ต้องระบุ status' });
     }
 
-    // กันพลาด: "เสร็จสิ้น" ต้องใช้ /complete-with-media/:id
     if (status === 'เสร็จสิ้น') {
       return res.status(400).json({
         success: false,
@@ -2149,25 +2155,36 @@ app.post('/set-status/:id', async (req, res) => {
       });
     }
 
-    // 1) update ใน requests
+    let finalEtaText = null;
+
+    if (status === 'รอดำเนินการ' || status === 'กำลังดำเนินการ') {
+      const cleanEta = (etaText || '').trim();
+      const cleanRemark = (remarkText || '').trim();
+
+      finalEtaText = cleanEta || '';
+      if (cleanRemark) {
+        finalEtaText += `\nหมายเหตุ: ${cleanRemark}`;
+      }
+      finalEtaText = finalEtaText.trim() || null;
+    } else {
+      finalEtaText = null;
+    }
+
     await db.promise().query(
-      'UPDATE requests SET status = ? WHERE id = ?',
-      [status, id]
+      'UPDATE requests SET status = ?, eta_text = ? WHERE id = ?',
+      [status, finalEtaText, id]
     );
 
-    // 2) ดึงแถวล่าสุด
     const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
     if (!rows || rows.length === 0) {
       return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
     }
     const r = rows[0];
 
-    // 3) map status -> bucket table
     let bucket = null;
     if (status === 'รอดำเนินการ') bucket = 'pending';
     if (status === 'กำลังดำเนินการ') bucket = 'inprogress';
 
-    // 4) upsert เข้า bucket + ลบออกจาก bucket อื่น
     if (bucket) {
       await new Promise((resolve, reject) => {
         upsertToBucket(bucket, r, (err) => (err ? reject(err) : resolve()));
@@ -2175,12 +2192,18 @@ app.post('/set-status/:id', async (req, res) => {
       await new Promise((resolve) => removeFromOtherBuckets(r.id, bucket, resolve));
     }
 
-    // ✅ 5) แจ้ง LINE เมื่อเปลี่ยนสถานะ
     let extraText = '';
     if (status === 'รอดำเนินการ') {
       extraText = 'คำร้องของคุณอยู่ระหว่างรอการดำเนินงานจากหน่วยงาน';
     } else if (status === 'กำลังดำเนินการ') {
       extraText = 'ขณะนี้หน่วยงานกำลังดำเนินการตามคำร้องของคุณ';
+    }
+
+    if ((etaText || '').trim()) {
+      extraText += `\nกำหนดการเบื้องต้น: ${(etaText || '').trim()}`;
+    }
+    if ((remarkText || '').trim()) {
+      extraText += `\nหมายเหตุ: ${(remarkText || '').trim()}`;
     }
 
     await notifyRequestStatusLine(id, status, extraText);
