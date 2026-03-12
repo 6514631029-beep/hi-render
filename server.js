@@ -1813,8 +1813,7 @@ app.post('/dept-accept/:id', async (req, res) => {
 
     let finalEtaText = etaText || '';
     if (remarkText) {
-      finalEtaText += `
-หมายเหตุ: ${remarkText}`;
+      finalEtaText += `\nหมายเหตุ: ${remarkText}`;
     }
     finalEtaText = finalEtaText.trim() || null;
 
@@ -1824,10 +1823,8 @@ app.post('/dept-accept/:id', async (req, res) => {
     );
 
     let extraText = 'หน่วยงานรับเรื่องของคุณแล้ว และกำลังเข้าสู่ขั้นตอนดำเนินการ';
-    if (etaText) extraText += `
-กำหนดการเบื้องต้น: ${etaText}`;
-    if (remarkText) extraText += `
-หมายเหตุ: ${remarkText}`;
+    if (etaText) extraText += `\nกำหนดการเบื้องต้น: ${etaText}`;
+    if (remarkText) extraText += `\nหมายเหตุ: ${remarkText}`;
 
     await notifyRequestStatusLine(id, 'รอดำเนินการ', extraText);
 
@@ -2167,8 +2164,7 @@ app.post('/set-status/:id', async (req, res) => {
 
       finalEtaText = cleanEta || '';
       if (cleanRemark) {
-        finalEtaText += `
-หมายเหตุ: ${cleanRemark}`;
+        finalEtaText += `\nหมายเหตุ: ${cleanRemark}`;
       }
       finalEtaText = finalEtaText.trim() || null;
     } else {
@@ -2205,12 +2201,10 @@ app.post('/set-status/:id', async (req, res) => {
     }
 
     if ((etaText || '').trim()) {
-      extraText += `
-กำหนดการเบื้องต้น: ${(etaText || '').trim()}`;
+      extraText += `\nกำหนดการเบื้องต้น: ${(etaText || '').trim()}`;
     }
     if ((remarkText || '').trim()) {
-      extraText += `
-หมายเหตุ: ${(remarkText || '').trim()}`;
+      extraText += `\nหมายเหตุ: ${(remarkText || '').trim()}`;
     }
 
     await notifyRequestStatusLine(id, status, extraText);
