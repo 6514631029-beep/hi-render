@@ -2568,13 +2568,20 @@ app.get('/track', (req, res) => {
   const phone = req.query.phone;
   const sql = `
     SELECT
-      id, message, status, reject_reason, photo,
+      id,
+      message,
+      status,
+      reject_reason,
+      photo,
+      can_rate,
+      rating,
+      rating_comment,
       DATE_FORMAT(created_at,  '%Y-%m-%d %H:%i:%s') AS created_at,
-      DATE_FORMAT(completed_at,'%Y-%m-%d %H:%i:%s') AS completed_at
+      DATE_FORMAT(completed_at,'%Y-%m-%d %H:%i:%s') AS completed_at,
+      DATE_FORMAT(rating_created_at,'%Y-%m-%d %H:%i:%s') AS rating_created_at
     FROM requests
     WHERE phone = ?
     ORDER BY created_at DESC
-    LIMIT 1
   `;
   db.query(sql, [phone], (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
