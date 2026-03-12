@@ -2567,6 +2567,36 @@ app.get('/data-sp-all', (req, res) => {
 app.get('/track', (req, res) => {
   const phone = req.query.phone;
   const sql = `
+  SELECT
+    id,
+    message,
+    status,
+    reject_reason,
+    photo,
+    can_rate,
+    rating,
+    rating_comment,
+    DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+    DATE_FORMAT(completed_at, '%Y-%m-%d %H:%i:%s') AS completed_at,
+    DATE_FORMAT(rating_created_at, '%Y-%m-%d %H:%i:%s') AS rating_created_at
+  FROM requests
+  WHERE phone = ?
+  ORDER BY created_at DESC
+  LIMIT 1
+`;
+  db.query(sql, [phone], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (results.length === 0) return res.status(404).json({ error: 'ไม่พบข้อมูล' });
+    res.json(results[0]);
+  });
+});
+
+// POST /track-requests (รายการทั้งหมดของเบอร์นั้น)
+app.post('/track-requests', (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ error: 'กรุณาระบุเบอร์โทร' });
+
+  const sql = `
     SELECT
       id,
       message,
@@ -2583,33 +2613,12 @@ app.get('/track', (req, res) => {
     WHERE phone = ?
     ORDER BY created_at DESC
   `;
-  db.query(sql, [phone], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (results.length === 0) return res.status(404).json({ error: 'ไม่พบข้อมูล' });
-    res.json(results[0]);
-  });
-});
 
-// POST /track-requests (รายการทั้งหมดของเบอร์นั้น)
-app.post('/track-requests', (req, res) => {
-  const { phone } = req.body;
-  if (!phone) return res.status(400).json({ error: 'กรุณาระบุเบอร์โทร' });
-
-  const sql = `
-    SELECT
-      id, message, status, reject_reason, photo,
-      DATE_FORMAT(created_at,  '%Y-%m-%d %H:%i:%s') AS created_at,
-      DATE_FORMAT(completed_at,'%Y-%m-%d %H:%i:%s') AS completed_at
-    FROM requests
-    WHERE phone = ?
-    ORDER BY created_at DESC
-  `;
   db.query(sql, [phone], (err, results) => {
     if (err) return res.status(500).json({ error: 'เกิดข้อผิดพลาดในระบบ' });
     res.json(results);
   });
 });
-
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
