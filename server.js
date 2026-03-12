@@ -2237,7 +2237,9 @@ app.post('/complete-with-media/:id', (req, res) => {
       const merged = [...list, ...uploadedExtra];
 
       await db.promise().query(
-        `UPDATE requests SET status='เสร็จสิ้น', photo=?, completed_at=NOW() WHERE id=?`,
+        `UPDATE requests 
+         SET status='เสร็จสิ้น', photo=?, completed_at=NOW(), can_rate=1
+         WHERE id=?`,
         [JSON.stringify(merged), id]
       );
 
@@ -2279,10 +2281,7 @@ app.post('/complete-with-media/:id', (req, res) => {
                 `คำร้องของคุณดำเนินการเสร็จเรียบร้อยแล้ว\nขอบคุณที่แจ้งเรื่องครับ`;
 
               await pushLineMessage(lineUserId, msg);
-              
 
-
-              
               const trackUrl = `${process.env.BASE_URL || 'https://hi-render.onrender.com'}/track.html`;
 
               let linkMsg =
