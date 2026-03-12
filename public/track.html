@@ -188,6 +188,17 @@
       font-size:16px;line-height:1.55;font-weight:700;color:var(--text)
     }
 
+    .eta-box{
+      margin-top:12px;
+      border-radius:20px;
+      padding:14px;
+      background:linear-gradient(180deg,#fff8e9,#ffffff);
+      border:2px solid #ffe7b4;
+    }
+    .eta-box .eta-title{font-size:13px;color:#8b6a21;font-weight:900;margin-bottom:8px}
+    .eta-box .eta-value{font-size:17px;font-weight:900;line-height:1.45;color:#7b4d00}
+    .eta-box .eta-hint{margin-top:6px;font-size:13px;color:#9a7b33;font-weight:700;line-height:1.5}
+
     .media-section{margin-top:14px;padding-top:14px;border-top:1px dashed #dbe8f3}
     .media-title{font-size:15px;font-weight:900;margin-bottom:10px}
     .media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -257,6 +268,8 @@
       .highlight-status{padding:14px;border-radius:18px}
       .highlight-value{font-size:20px}
       .info-box{border-radius:16px;padding:13px}
+      .eta-box{border-radius:16px;padding:13px}
+      .eta-box .eta-value{font-size:16px}
       .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
 
@@ -709,6 +722,52 @@
       return encodeURI('/uploads/' + u);
     }
 
+   function buildEtaBlock(row) {
+      const rawEtaText = String(row.eta_text || '').trim();
+      if (!rawEtaText) return '';
+
+      const parts = rawEtaText
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      let etaText = '';
+      let remarkText = '';
+
+      parts.forEach(part => {
+        if (/^หมายเหตุ\s*:/i.test(part)) {
+          remarkText = part.replace(/^หมายเหตุ\s*:/i, '').trim();
+        } else if (!etaText) {
+          etaText = part;
+        }
+      });
+
+      etaText = etaText || rawEtaText;
+
+      let title = 'กำหนดการเบื้องต้น';
+      let hint = 'เป็นกำหนดการล่าสุดที่หน่วยงานแจ้งไว้';
+
+      if (row.status === 'รอดำเนินการ') {
+        title = 'กำหนดการรอดำเนินการ';
+        hint = 'หน่วยงานรับเรื่องแล้วและกำลังรอดำเนินการ';
+      } else if (row.status === 'กำลังดำเนินการ') {
+        title = 'กำหนดการระหว่างดำเนินการ';
+        hint = 'หน่วยงานกำลังดำเนินการตามคำร้องของคุณ';
+      } else if (row.status === 'เสร็จสิ้น') {
+        title = 'กำหนดการล่าสุดก่อนปิดงาน';
+        hint = 'กำหนดการล่าสุดที่เคยแจ้งไว้ก่อนงานเสร็จ';
+      }
+
+      return `
+        <div class="eta-card">
+          <div class="eta-title">${title}</div>
+          <div class="eta-value">${escapeHtml(etaText)}</div>
+          ${remarkText ? `<div class="eta-remark"><strong>หมายเหตุล่าสุด:</strong> ${escapeHtml(remarkText)}</div>` : ''}
+          <div class="eta-hint">${hint}</div>
+        </div>
+      `;
+    }
+
     function statusMeta(status) {
       const s = (status || '').trim();
       if (!s) {
@@ -818,6 +877,7 @@
         });
 
         const meta = statusMeta(row.status);
+        const etaBlock = buildEtaBlock(row);
 
         let extraLine = '';
         if (row.status === 'เสร็จสิ้น' && row.completed_at) {
@@ -881,6 +941,8 @@
               <div class="highlight-value">${meta.title}</div>
               <div class="highlight-note">${meta.note}</div>
             </div>
+
+            ${etaBlock}
 
             <div class="info-grid">
               <div class="info-box">

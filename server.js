@@ -2615,6 +2615,7 @@ app.post('/track-requests', (req, res) => {
       id,
       message,
       status,
+      eta_text,
       reject_reason,
       photo,
       can_rate,
