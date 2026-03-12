@@ -464,8 +464,7 @@ function mapCategoryToDept(category) {
   const map = {
     'ขยะ': 'สาธารณสุข',
     'ไฟฟ้า': 'ไฟฟ้า',
-    'ถนน/เสาไฟชำรุด': 'กองช่าง',
-    'อื่นๆ': 'อื่นๆ'
+    'ถนน/เสาไฟชำรุด': 'กองช่าง'
   };
   return map[(category || '').trim()] || null;
 }
@@ -2146,12 +2145,13 @@ function removeFromOtherBuckets(originalId, keepTable, cb) {
 app.post('/set-status/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { status, etaText, remarkText } = req.body;
+    const { status } = req.body;
 
     if (!status) {
       return res.status(400).json({ success: false, message: '❌ ต้องระบุ status' });
     }
 
+    // กันพลาด: "เสร็จสิ้น" ต้องใช้ /complete-with-media/:id
     if (status === 'เสร็จสิ้น') {
       return res.status(400).json({
         success: false,
@@ -2159,37 +2159,25 @@ app.post('/set-status/:id', async (req, res) => {
       });
     }
 
-    let finalEtaText = null;
-
-    if (status === 'รอดำเนินการ' || status === 'กำลังดำเนินการ') {
-      const cleanEta = (etaText || '').trim();
-      const cleanRemark = (remarkText || '').trim();
-
-      finalEtaText = cleanEta || '';
-      if (cleanRemark) {
-        finalEtaText += `
-หมายเหตุ: ${cleanRemark}`;
-      }
-      finalEtaText = finalEtaText.trim() || null;
-    } else {
-      finalEtaText = null;
-    }
-
+    // 1) update ใน requests
     await db.promise().query(
-      'UPDATE requests SET status = ?, eta_text = ? WHERE id = ?',
-      [status, finalEtaText, id]
+      'UPDATE requests SET status = ? WHERE id = ?',
+      [status, id]
     );
 
+    // 2) ดึงแถวล่าสุด
     const [rows] = await db.promise().query('SELECT * FROM requests WHERE id = ?', [id]);
     if (!rows || rows.length === 0) {
       return res.status(404).json({ success: false, message: '❌ ไม่พบคำร้องนี้' });
     }
     const r = rows[0];
 
+    // 3) map status -> bucket table
     let bucket = null;
     if (status === 'รอดำเนินการ') bucket = 'pending';
     if (status === 'กำลังดำเนินการ') bucket = 'inprogress';
 
+    // 4) upsert เข้า bucket + ลบออกจาก bucket อื่น
     if (bucket) {
       await new Promise((resolve, reject) => {
         upsertToBucket(bucket, r, (err) => (err ? reject(err) : resolve()));
@@ -2197,20 +2185,12 @@ app.post('/set-status/:id', async (req, res) => {
       await new Promise((resolve) => removeFromOtherBuckets(r.id, bucket, resolve));
     }
 
+    // ✅ 5) แจ้ง LINE เมื่อเปลี่ยนสถานะ
     let extraText = '';
     if (status === 'รอดำเนินการ') {
       extraText = 'คำร้องของคุณอยู่ระหว่างรอการดำเนินงานจากหน่วยงาน';
     } else if (status === 'กำลังดำเนินการ') {
       extraText = 'ขณะนี้หน่วยงานกำลังดำเนินการตามคำร้องของคุณ';
-    }
-
-    if ((etaText || '').trim()) {
-      extraText += `
-กำหนดการเบื้องต้น: ${(etaText || '').trim()}`;
-    }
-    if ((remarkText || '').trim()) {
-      extraText += `
-หมายเหตุ: ${(remarkText || '').trim()}`;
     }
 
     await notifyRequestStatusLine(id, status, extraText);
@@ -2470,6 +2450,26 @@ app.get('/data-engineer-all', (req, res) => {
   });
 });
 
+
+app.get('/data-other-inbox', (req, res) => {
+  const sql = `
+    SELECT *
+    FROM requests
+    WHERE department = ?
+      AND (dept_accept IS NULL OR dept_accept = '')
+      AND status = 'รอแผนกรับเรื่อง'
+    ORDER BY id DESC
+  `;
+
+  db.query(sql, ['อื่นๆ'], (err, results) => {
+    if (err) {
+      console.error('data-other-inbox error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
 app.get('/data-other-all', (req, res) => {
   const sql = `
     SELECT *
@@ -2511,7 +2511,7 @@ app.get('/data-approved-all', (req, res) => {
       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
       DATE_FORMAT(completed_at, '%Y-%m-%d %H:%i:%s') AS completed_at
     FROM requests
-    WHERE department IN ('สาธารณสุข', 'กองช่าง', 'ไฟฟ้า', 'อื่นๆ')
+    WHERE department IN ('สาธารณสุข', 'กองช่าง', 'ไฟฟ้า')
       AND (
         approved = 1
         OR dept_accept = 1
@@ -2561,20 +2561,6 @@ app.get('/data-engineer-inbox', (req, res) => {
   db.query(
     `SELECT * FROM requests
      WHERE department='กองช่าง'
-       AND status='รอแผนกรับเรื่อง'
-       AND dept_accept IS NULL
-     ORDER BY id DESC`,
-    (err, results) => {
-      if (err) return res.status(500).json({ error: 'Database error' });
-      res.json(results);
-    }
-  );
-});
-
-app.get('/data-other-inbox', (req, res) => {
-  db.query(
-    `SELECT * FROM requests
-     WHERE department='อื่นๆ'
        AND status='รอแผนกรับเรื่อง'
        AND dept_accept IS NULL
      ORDER BY id DESC`,
@@ -4593,162 +4579,6 @@ app.get('/export-health-excel-completed', async (req, res) => {
     extraWhere,
     params
   );
-});
-
-
-async function exportOtherExcelFile(res, title, whereClause = '', params = []) {
-  try {
-    const sql = `
-      SELECT *
-      FROM requests
-      WHERE department = 'อื่นๆ'
-      ${whereClause || ''}
-      ORDER BY created_at DESC
-    `;
-
-    db.query(sql, params, async (err, results) => {
-      if (err) {
-        console.error('Export other excel error:', err);
-        return res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
-      }
-
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('งานอื่นๆ');
-
-      worksheet.mergeCells('A1:Q1');
-      worksheet.getCell('A1').value = title;
-      worksheet.getCell('A1').font = { bold: true, size: 18 };
-      worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-
-      worksheet.mergeCells('A2:Q2');
-      worksheet.getCell('A2').value = `วันที่ออกรายงาน: ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}`;
-      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
-      worksheet.getCell('A2').font = { size: 12, italic: true };
-
-      worksheet.addRow([]);
-
-      worksheet.columns = [
-        { header: 'ลำดับ', key: 'no', width: 10 },
-        { header: 'รหัสคำร้อง', key: 'id', width: 14 },
-        { header: 'ชื่อผู้แจ้ง', key: 'name', width: 22 },
-        { header: 'เบอร์โทร', key: 'phone', width: 18 },
-        { header: 'ที่อยู่', key: 'address', width: 28 },
-        { header: 'ประเภทเรื่อง', key: 'category', width: 18 },
-        { header: 'รายละเอียด', key: 'message', width: 40 },
-        { header: 'แผนก', key: 'department', width: 16 },
-        { header: 'สถานะ', key: 'status', width: 20 },
-        { header: 'กำหนดการล่าสุด', key: 'eta_text', width: 28 },
-        { header: 'คะแนน', key: 'rating', width: 12 },
-        { header: 'ความคิดเห็น', key: 'rating_comment', width: 28 },
-        { header: 'ละติจูด', key: 'latitude', width: 15 },
-        { header: 'ลองจิจูด', key: 'longitude', width: 15 },
-        { header: 'ลิงก์แผนที่', key: 'map_link', width: 34 },
-        { header: 'วันที่แจ้ง', key: 'created_at_text', width: 24 },
-        { header: 'วันที่เสร็จสิ้น', key: 'completed_at_text', width: 24 }
-      ];
-
-      const headerRowNumber = 4;
-      const headerRow = worksheet.getRow(headerRowNumber);
-      headerRow.values = worksheet.columns.map(col => col.header);
-      headerRow.eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '155263' } };
-        cell.border = {
-          top: { style: 'thin', color: { argb: 'CCCCCC' } },
-          left: { style: 'thin', color: { argb: 'CCCCCC' } },
-          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
-          right: { style: 'thin', color: { argb: 'CCCCCC' } }
-        };
-      });
-
-      results.forEach((row, index) => {
-        const mapLink = (row.latitude && row.longitude)
-          ? `https://maps.google.com/?q=${row.latitude},${row.longitude}`
-          : '';
-
-        const excelRow = worksheet.addRow({
-          no: index + 1,
-          id: row.id || '',
-          name: row.name || '',
-          phone: row.phone || '',
-          address: row.address || '',
-          category: row.category || '',
-          message: row.message || '',
-          department: row.department || '',
-          status: row.status || '',
-          eta_text: row.eta_text || '',
-          rating: row.rating || '',
-          rating_comment: row.rating_comment || '',
-          latitude: row.latitude || '',
-          longitude: row.longitude || '',
-          map_link: mapLink,
-          created_at_text: row.created_at ? new Date(row.created_at).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }) : '',
-          completed_at_text: row.completed_at ? new Date(row.completed_at).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }) : ''
-        });
-
-        excelRow.eachCell((cell) => {
-          cell.alignment = { vertical: 'top', wrapText: true };
-          cell.border = {
-            top: { style: 'thin', color: { argb: 'DDDDDD' } },
-            left: { style: 'thin', color: { argb: 'DDDDDD' } },
-            bottom: { style: 'thin', color: { argb: 'DDDDDD' } },
-            right: { style: 'thin', color: { argb: 'DDDDDD' } }
-          };
-        });
-      });
-
-      worksheet.views = [{ state: 'frozen', ySplit: 4 }];
-      const fileName = `${title}.xlsx`;
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(fileName)}"`);
-      await workbook.xlsx.write(res);
-      res.end();
-    });
-  } catch (error) {
-    console.error('Export other excel fatal error:', error);
-    res.status(500).send('เกิดข้อผิดพลาดในการสร้างไฟล์ Excel');
-  }
-}
-
-app.get('/export-other-excel-all', async (req, res) => {
-  const { extraWhere, params } = buildAdminExcelFilters(req, {
-    q: req.query.q,
-    filter: req.query.filter,
-    status: 'all',
-    departmentType: 'other'
-  });
-  exportOtherExcelFile(res, 'รายงานคำร้อง-อื่นๆ-ทั้งหมด', extraWhere, params);
-});
-
-app.get('/export-other-excel-pending', async (req, res) => {
-  const { extraWhere, params } = buildAdminExcelFilters(req, {
-    q: req.query.q,
-    filter: req.query.filter,
-    status: 'pending',
-    departmentType: 'other'
-  });
-  exportOtherExcelFile(res, 'รายงานคำร้อง-อื่นๆ-รอดำเนินการ', extraWhere, params);
-});
-
-app.get('/export-other-excel-inprogress', async (req, res) => {
-  const { extraWhere, params } = buildAdminExcelFilters(req, {
-    q: req.query.q,
-    filter: req.query.filter,
-    status: 'inprogress',
-    departmentType: 'other'
-  });
-  exportOtherExcelFile(res, 'รายงานคำร้อง-อื่นๆ-กำลังดำเนินการ', extraWhere, params);
-});
-
-app.get('/export-other-excel-completed', async (req, res) => {
-  const { extraWhere, params } = buildAdminExcelFilters(req, {
-    q: req.query.q,
-    filter: req.query.filter,
-    status: 'completed',
-    departmentType: 'other'
-  });
-  exportOtherExcelFile(res, 'รายงานคำร้อง-อื่นๆ-เสร็จสิ้น', extraWhere, params);
 });
 
 app.post('/rate-request/:id', async (req, res) => {
