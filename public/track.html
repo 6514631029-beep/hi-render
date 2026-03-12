@@ -260,63 +260,116 @@
       .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
 
-    .rating-section{
+    .rating-section,
+    .rating-view{
       margin-top:16px;
-      padding:16px;
-      border:1px solid #e5e7eb;
-      border-radius:18px;
-      background:linear-gradient(180deg,#fffdf6,#ffffff);
+      padding:18px;
+      border-radius:22px;
+      background:linear-gradient(180deg,#fffdf8 0%, #ffffff 100%);
+      border:1px solid #f2e7cc;
+      box-shadow:0 12px 28px rgba(23,50,77,.07);
+    }
+    .rating-view{
+      background:linear-gradient(180deg,#fffaf0 0%, #ffffff 100%);
+    }
+    .rating-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
     }
     .rating-title{
-      font-weight:800;
+      font-weight:900;
       color:#0f172a;
-      margin-bottom:6px;
+      font-size:18px;
+      margin:0;
     }
     .rating-sub{
       color:#64748b;
       font-size:14px;
-      margin-bottom:12px;
+      line-height:1.5;
+      margin-top:4px;
+      margin-bottom:0;
+    }
+    .rating-badge{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#fff7df;
+      color:#b76b00;
+      font-size:13px;
+      font-weight:900;
+      border:1px solid #ffe2a7;
+    }
+    .rating-stars-wrap{
+      margin-top:14px;
+      padding:14px 14px 10px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid #f1e7d1;
     }
     .star-row{
       display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
+      align-items:center;
+      gap:2px;
+      flex-wrap:nowrap;
+      margin-bottom:8px;
     }
     .star-btn{
       border:none;
-      background:#fff;
-      border:1px solid #e5e7eb;
-      border-radius:14px;
-      padding:10px 12px;
+      background:transparent;
       cursor:pointer;
-      font-size:24px;
+      font-size:38px;
       line-height:1;
-      transition:.2s ease;
+      color:#d9dee7;
+      padding:2px;
+      transition:transform .15s ease, color .15s ease, text-shadow .15s ease;
     }
     .star-btn:hover{
-      transform:translateY(-1px);
-      border-color:#f59e0b;
+      transform:translateY(-1px) scale(1.04);
     }
     .star-btn.active{
-      background:#fff7ed;
-      border-color:#f59e0b;
+      color:#f6b400;
+      text-shadow:0 4px 10px rgba(246,180,0,.18);
+    }
+    .rating-selected{
+      font-size:15px;
+      font-weight:800;
+      color:#e06a12;
+      min-height:24px;
+    }
+    .rating-selected.is-empty{
+      color:#94a3b8;
+    }
+    .rating-scale{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:8px;
+      font-size:12px;
+      color:#94a3b8;
+      font-weight:700;
     }
     .rating-textarea{
       width:100%;
-      min-height:90px;
+      min-height:96px;
       resize:vertical;
-      border:1px solid #dbe2ea;
-      border-radius:14px;
-      padding:12px 14px;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:13px 14px;
       font:inherit;
       outline:none;
       box-sizing:border-box;
       background:#fff;
+      margin-top:12px;
     }
     .rating-textarea:focus{
-      border-color:#93c5fd;
-      box-shadow:0 0 0 3px rgba(59,130,246,.12);
+      border-color:#f5c24f;
+      box-shadow:0 0 0 3px rgba(245,194,79,.16);
     }
     .rating-actions{
       display:flex;
@@ -327,37 +380,55 @@
     }
     .rating-submit{
       border:none;
-      background:#0b2a4a;
+      background:linear-gradient(180deg,#ff8d5d,#f0642f);
       color:#fff;
-      padding:10px 16px;
-      border-radius:12px;
-      font-weight:700;
+      padding:11px 18px;
+      border-radius:14px;
+      font-weight:800;
       cursor:pointer;
+      box-shadow:0 10px 18px rgba(240,100,47,.20);
     }
     .rating-submit:disabled{
       opacity:.6;
       cursor:not-allowed;
+      box-shadow:none;
     }
     .rating-note{
       font-size:13px;
       color:#64748b;
-    }
-    .rating-view{
-      margin-top:16px;
-      padding:16px;
-      border:1px solid #dbeafe;
-      border-radius:18px;
-      background:linear-gradient(180deg,#f8fbff,#ffffff);
+      font-weight:700;
     }
     .rating-view .score{
-      font-size:20px;
+      font-size:28px;
+      font-weight:900;
+      color:#f6b400;
+      line-height:1;
+      letter-spacing:2px;
+      margin-top:10px;
+      margin-bottom:10px;
+    }
+    .rating-view .score-meta{
+      font-size:14px;
+      color:#64748b;
       font-weight:800;
-      color:#0f172a;
-      margin-bottom:6px;
+      margin-bottom:10px;
     }
     .rating-view .comment{
       color:#334155;
       white-space:pre-wrap;
+      font-size:15px;
+      line-height:1.6;
+      background:#fff;
+      border:1px solid #f3e7cc;
+      border-radius:16px;
+      padding:12px 14px;
+    }
+    @media (max-width: 520px){
+      .rating-section,
+      .rating-view{padding:16px;border-radius:20px}
+      .rating-title{font-size:17px}
+      .star-btn{font-size:34px}
+      .rating-stars-wrap{padding:12px 12px 10px}
     }
 
   </style>
@@ -447,6 +518,17 @@
       return '★'.repeat(s) + '☆'.repeat(5 - s);
     }
 
+    function ratingLabel(score){
+      const map = {
+        1: '1 ดาว • ควรปรับปรุง',
+        2: '2 ดาว • พอใช้',
+        3: '3 ดาว • ปานกลาง',
+        4: '4 ดาว • ดี',
+        5: '5 ดาว • ดีมาก'
+      };
+      return map[Number(score)] || 'ยังไม่ได้เลือกคะแนน';
+    }
+
     function setRatingStar(requestId, score){
       ratingDraft[requestId] = ratingDraft[requestId] || { rating: 0, comment: '' };
       ratingDraft[requestId].rating = score;
@@ -457,7 +539,14 @@
       [...wrap.querySelectorAll('.star-btn')].forEach(btn => {
         const val = Number(btn.dataset.value);
         btn.classList.toggle('active', val <= score);
+        btn.setAttribute('aria-pressed', val <= score ? 'true' : 'false');
       });
+
+      const selectedEl = document.getElementById(`rating-selected-${requestId}`);
+      if (selectedEl) {
+        selectedEl.textContent = ratingLabel(score);
+        selectedEl.classList.remove('is-empty');
+      }
     }
 
     async function submitRating(requestId){
@@ -494,8 +583,15 @@
         if (section) {
           section.outerHTML = `
             <div class="rating-view" id="rating-view-${requestId}">
-              <div class="rating-title">⭐ คุณประเมินคำร้องนี้แล้ว</div>
-              <div class="score">${starText(rating)} (${rating}/5)</div>
+              <div class="rating-head">
+                <div>
+                  <div class="rating-title">คะแนนของฉัน</div>
+                  <div class="rating-sub">บันทึกคะแนนเรียบร้อยแล้ว ขอบคุณสำหรับการประเมิน</div>
+                </div>
+                <div class="rating-badge">ให้คะแนนแล้ว</div>
+              </div>
+              <div class="score">${starText(rating)}</div>
+              <div class="score-meta">${ratingLabel(rating)} (${rating}/5)</div>
               <div class="comment">${escapeHtml(comment || 'ไม่มีความคิดเห็นเพิ่มเติม')}</div>
             </div>
           `;
@@ -517,8 +613,15 @@
       if (alreadyRated) {
         return `
           <div class="rating-view" id="rating-view-${row.id}">
-            <div class="rating-title">⭐ คุณประเมินคำร้องนี้แล้ว</div>
-            <div class="score">${starText(row.rating)} (${Number(row.rating)}/5)</div>
+            <div class="rating-head">
+              <div>
+                <div class="rating-title">คะแนนของฉัน</div>
+                <div class="rating-sub">คุณให้คะแนนคำร้องนี้ไว้แล้ว</div>
+              </div>
+              <div class="rating-badge">รีวิวของฉัน</div>
+            </div>
+            <div class="score">${starText(row.rating)}</div>
+            <div class="score-meta">${ratingLabel(row.rating)} (${Number(row.rating)}/5)</div>
             <div class="comment">${escapeHtml(row.rating_comment || 'ไม่มีความคิดเห็นเพิ่มเติม')}</div>
           </div>
         `;
@@ -528,21 +631,30 @@
 
       return `
         <div class="rating-section" id="rating-section-${row.id}">
-          <div class="rating-title">ให้คะแนนความพึงพอใจ</div>
-          <div class="rating-sub">หลังงานเสร็จแล้ว คุณสามารถให้คะแนนการดำเนินงานได้ 1 ครั้ง</div>
+          <div class="rating-head">
+            <div>
+              <div class="rating-title">ให้คะแนนความพึงพอใจ</div>
+              <div class="rating-sub">เมื่อคำร้องเสร็จสิ้นแล้ว คุณสามารถให้คะแนนได้ 1 ครั้ง</div>
+            </div>
+            <div class="rating-badge">งานเสร็จแล้ว</div>
+          </div>
 
-          <div class="star-row" id="rating-stars-${row.id}">
-            <button type="button" class="star-btn" data-value="1" onclick="setRatingStar(${row.id},1)">★</button>
-            <button type="button" class="star-btn" data-value="2" onclick="setRatingStar(${row.id},2)">★</button>
-            <button type="button" class="star-btn" data-value="3" onclick="setRatingStar(${row.id},3)">★</button>
-            <button type="button" class="star-btn" data-value="4" onclick="setRatingStar(${row.id},4)">★</button>
-            <button type="button" class="star-btn" data-value="5" onclick="setRatingStar(${row.id},5)">★</button>
+          <div class="rating-stars-wrap">
+            <div class="star-row" id="rating-stars-${row.id}">
+              <button type="button" class="star-btn" data-value="1" aria-label="1 ดาว" onclick="setRatingStar(${row.id},1)">★</button>
+              <button type="button" class="star-btn" data-value="2" aria-label="2 ดาว" onclick="setRatingStar(${row.id},2)">★</button>
+              <button type="button" class="star-btn" data-value="3" aria-label="3 ดาว" onclick="setRatingStar(${row.id},3)">★</button>
+              <button type="button" class="star-btn" data-value="4" aria-label="4 ดาว" onclick="setRatingStar(${row.id},4)">★</button>
+              <button type="button" class="star-btn" data-value="5" aria-label="5 ดาว" onclick="setRatingStar(${row.id},5)">★</button>
+            </div>
+            <div class="rating-selected is-empty" id="rating-selected-${row.id}">ยังไม่ได้เลือกคะแนน</div>
+            <div class="rating-scale"><span>น้อย</span><span>มาก</span></div>
           </div>
 
           <textarea
             id="rating-comment-${row.id}"
             class="rating-textarea"
-            placeholder="พิมพ์ความคิดเห็นเพิ่มเติมได้ เช่น ดำเนินงานรวดเร็ว เจ้าหน้าที่ติดตามงานดี"
+            placeholder="พิมพ์ความคิดเห็นเพิ่มเติมได้ เช่น เจ้าหน้าที่ติดตามงานดี ดำเนินการรวดเร็ว"
           ></textarea>
 
           <div class="rating-actions">
@@ -552,7 +664,7 @@
               id="rating-submit-${row.id}"
               onclick="submitRating(${row.id})"
             >ส่งคะแนน</button>
-            <div class="rating-note">ให้คะแนนได้ 1 ครั้งต่อคำร้อง</div>
+            <div class="rating-note">คะแนนจะถูกบันทึกเป็นรีวิวของคำร้องนี้</div>
           </div>
         </div>
       `;
