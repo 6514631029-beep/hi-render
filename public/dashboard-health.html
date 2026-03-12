@@ -190,8 +190,7 @@
       </div>
       <div class="actions">
         <a class="btn primary" href="/admin-health">🏛️ กลับหน้าแผนก</a>
-        <button class="btn secondary" type="button" onclick="loadDashboard()">🔄 รีเฟรช</button>
-      </div>
+              </div>
     </div>
 
     <div class="grid hero">
@@ -300,7 +299,10 @@
 
   <script>
     const DEPARTMENT = 'สาธารณสุข';
+    const AUTO_REFRESH_MS = 15000;
     let ratingBuckets = {1:[],2:[],3:[],4:[],5:[]};
+    let dashboardRefreshTimer = null;
+    let isDashboardLoading = false;
 
     function round1(num){ return (Math.round(num * 10) / 10).toFixed(1); }
     function pct(part, total){ return total ? (part / total) * 100 : 0; }
@@ -453,7 +455,25 @@
     function forceCloseModal(){ document.getElementById('starModal').classList.remove('open'); }
     function closeModal(e){ if (e.target.id === 'starModal') forceCloseModal(); }
 
+    function showLoadError(){
+      let box = document.getElementById('dashboardLoadError');
+      if (!box){
+        box = document.createElement('div');
+        box.id = 'dashboardLoadError';
+        box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;background:#7f1d1d;color:#fff;padding:12px 14px;border-radius:14px;z-index:999;font-weight:800;';
+        box.textContent = 'โหลด dashboard ไม่สำเร็จ กรุณาตรวจสอบ route ใน server และลองใหม่อีกครั้ง';
+        document.body.appendChild(box);
+      }
+    }
+
+    function clearLoadError(){
+      const box = document.getElementById('dashboardLoadError');
+      if (box) box.remove();
+    }
+
     async function loadDashboard(){
+      if (isDashboardLoading) return;
+      isDashboardLoading = true;
       try{
         const dep = encodeURIComponent(DEPARTMENT);
         const [pending, inprogress, completed] = await Promise.all([
@@ -464,13 +484,42 @@
 
         renderStatus({ pending, inprogress, completed });
         renderRatings(completed);
+        clearLoadError();
       }catch(err){
         console.error(err);
-        document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed;left:12px;right:12px;bottom:12px;background:#7f1d1d;color:#fff;padding:12px 14px;border-radius:14px;z-index:999;font-weight:800;">โหลด dashboard ไม่สำเร็จ กรุณาตรวจสอบ route ใน server และลองใหม่อีกครั้ง</div>`);
+        showLoadError();
+      }finally{
+        isDashboardLoading = false;
       }
     }
 
+    function startDashboardAutoRefresh(){
+      stopDashboardAutoRefresh();
+      dashboardRefreshTimer = setInterval(() => {
+        if (!document.hidden) loadDashboard();
+      }, AUTO_REFRESH_MS);
+    }
+
+    function stopDashboardAutoRefresh(){
+      if (dashboardRefreshTimer){
+        clearInterval(dashboardRefreshTimer);
+        dashboardRefreshTimer = null;
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden){
+        stopDashboardAutoRefresh();
+      } else {
+        loadDashboard();
+        startDashboardAutoRefresh();
+      }
+    });
+
+    window.addEventListener('beforeunload', stopDashboardAutoRefresh);
+
     loadDashboard();
+    startDashboardAutoRefresh();
   </script>
 </body>
 </html>
