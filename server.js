@@ -1807,18 +1807,19 @@ app.post('/submit', (req, res) => {
 app.post('/dept-accept/:id', async (req, res) => {
   try {
     const id = req.params.id;
+    const etaText = (req.body?.etaText || '').trim() || null;
 
     await db.promise().query(
-      "UPDATE requests SET dept_accept = 1, status = 'รอดำเนินการ' WHERE id = ?",
-      [id]
+      "UPDATE requests SET dept_accept = 1, status = 'รอดำเนินการ', eta_text = ? WHERE id = ?",
+      [etaText, id]
     );
 
-    // ✅ แจ้ง LINE เมื่อหน่วยงานรับเรื่อง
-    await notifyRequestStatusLine(
-      id,
-      'รอดำเนินการ',
-      'หน่วยงานรับเรื่องของคุณแล้ว และกำลังเข้าสู่ขั้นตอนดำเนินการ'
-    );
+    let extraText = 'หน่วยงานรับเรื่องของคุณแล้ว และกำลังเข้าสู่ขั้นตอนดำเนินการ';
+    if (etaText) {
+      extraText += `\nกำหนดการเบื้องต้น: ${etaText}`;
+    }
+
+    await notifyRequestStatusLine(id, 'รอดำเนินการ', extraText);
 
     return res.json({ ok: true });
   } catch (e) {

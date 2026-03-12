@@ -2359,11 +2359,52 @@
 
     async function acceptDept(id) {
       if (!confirm('ยืนยันรับเรื่องนี้ใช่ไหม?')) return;
-      const res = await fetch(`/dept-accept/${id}`, { method: 'POST' });
+
+      const optionsText =
+    `เลือกรูปแบบกำหนดเวลา:
+    1 = ภายใน 1-3 วัน
+    2 = ภายใน 1-5 วัน
+    3 = ภายใน 1 สัปดาห์
+    4 = ภายใน 1 เดือน
+    5 = กำหนดเอง`;
+
+      const choice = prompt(optionsText, '1');
+      if (choice === null) return;
+
+      let etaText = '';
+
+      if (choice === '1') {
+        etaText = 'ภายใน 1-3 วัน';
+      } else if (choice === '2') {
+        etaText = 'ภายใน 1-5 วัน';
+      } else if (choice === '3') {
+        etaText = 'ภายใน 1 สัปดาห์';
+      } else if (choice === '4') {
+        etaText = 'ภายใน 1 เดือน';
+      } else if (choice === '5') {
+        const custom = prompt('กรอกกำหนดการเบื้องต้นที่ต้องการแจ้งผู้ใช้', '');
+        if (custom === null) return;
+        etaText = custom.trim();
+      } else {
+        alert('❌ กรุณาเลือก 1, 2, 3, 4 หรือ 5');
+        return;
+      }
+
+      if (!etaText) {
+        alert('❌ กรุณาระบุกำหนดเวลา');
+        return;
+      }
+
+      const res = await fetch(`/dept-accept/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ etaText })
+      });
+
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         clearNewById(id);
-        alert('✅ รับเรื่องแล้ว (สถานะเป็น "รอดำเนินการ")');
+        alert(`✅ รับเรื่องแล้ว\nกำหนดการเบื้องต้น: ${etaText}`);
         await setView('work');
         await updateCounters();
       } else {
