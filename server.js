@@ -4523,10 +4523,77 @@ app.get('/export-health-excel-completed', async (req, res) => {
   );
 });
 
+app.post('/rate-request/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { rating, comment } = req.body;
 
+    const score = Number(rating);
+    const safeComment = (comment || '').toString().trim();
 
+    if (!Number.isInteger(score) || score < 1 || score > 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'กรุณาให้คะแนน 1 ถึง 5 ดาว'
+      });
+    }
 
+    const [rows] = await db.promise().query(
+      `SELECT id, status, can_rate, rating
+       FROM requests
+       WHERE id = ?`,
+      [id]
+    );
 
+    if (!rows.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบคำร้องนี้'
+      });
+    }
+
+    const reqItem = rows[0];
+
+    if (reqItem.status !== 'เสร็จสิ้น') {
+      return res.status(400).json({
+        success: false,
+        message: 'คำร้องนี้ยังไม่สามารถให้คะแนนได้'
+      });
+    }
+
+    if (Number(reqItem.can_rate) !== 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'คำร้องนี้ยังไม่เปิดให้ประเมิน'
+      });
+    }
+
+    if (reqItem.rating !== null && reqItem.rating !== undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'คำร้องนี้ถูกประเมินแล้ว'
+      });
+    }
+
+    await db.promise().query(
+      `UPDATE requests
+       SET rating = ?, rating_comment = ?, rating_created_at = NOW()
+       WHERE id = ?`,
+      [score, safeComment || null, id]
+    );
+
+    return res.json({
+      success: true,
+      message: 'บันทึกคะแนนเรียบร้อยแล้ว'
+    });
+  } catch (error) {
+    console.error('rate-request error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการบันทึกคะแนน'
+    });
+  }
+});
 
 
 
